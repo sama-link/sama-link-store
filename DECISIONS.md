@@ -429,3 +429,41 @@ Adopt the **Design Modification Protocol** as a mandatory governance layer integ
 - Violations of the forbidden layer are treated the same as architecture violations — task is rejected and a correction brief is issued
 - See `DEVELOPMENT_RULES.md` Rule 13 and `PROJECT_OPERATIONS.md` Section 10 for full implementation detail
 
+
+---
+
+## ADR-020: Brand Identity & Media Foundation as Phase 2 Prerequisite
+
+**Date:** 2026-04-03
+**Status:** Accepted
+
+### Context
+Phase 2 was declared active with the close of Pre-Phase 2. However, before any backend integration begins, two foundational concerns must be addressed: (1) the brand identity in the codebase does not reflect the actual logo — current tokens use a purple-navy brand color and a red accent that have no relationship to the Sama Link logo palette; (2) there is no formal protocol governing how media assets enter the repository, resulting in raw source PNGs already present at the repo root.
+
+Raw brand assets (`sama-link_brand-assets_FULL/`) were provided and analyzed. The logo is a raster-only asset (no SVG source) featuring a dual-droplet mark with steel blue and charcoal colors. The `_on-dark` full lockup variants have broken exports (white text on white canvas) and must be re-exported with transparent backgrounds before dark mode use. The color identity of the logo — steel blue `#4b8fc4` and deep navy `#1c3d6b` — directly conflicts with the current red accent and purple-navy tokens.
+
+### Decision
+Insert a brand identity and media foundation sequence (BRAND-2 through BRAND-5 + MEDIA-1) as a blocking pre-work requirement before Phase 2 backend tasks begin. The sequence is:
+
+1. **MEDIA-1**: Define and commit a Media Intake Protocol governing all media assets entering the project
+2. **BRAND-2**: Extract production-ready logo variants (WebP) following MEDIA-1; note `_on-dark` re-export requirement
+3. **BRAND-3**: Replace current color tokens with a semantic palette derived directly from the logo identity
+4. **BRAND-4**: Implement a class-based light/dark theme system using CSS variable overrides in Tailwind v4
+5. **BRAND-5**: Apply logo and brand tokens to all global surfaces (header, nav, footer, menus)
+
+Raw source files (`sama-link_brand-assets_FULL/`) are added to `.gitignore`. Only production-optimized outputs enter the repo under `public/brand/`.
+
+### Color token changes
+- `--color-brand`: `#1a1a2e` → `#1c3d6b` (deep navy from logo)
+- `--color-accent`: `#e94560` → `#4b8fc4` (steel blue from logo)
+- All other derived accent tokens updated to match
+- New: `--color-charcoal`, `--color-charcoal-muted` from logo mark
+
+### Consequences
+- Phase 2 backend work (BACK-1) does not begin until BRAND-5 is complete and accepted
+- The red accent color `#e94560` is removed from the project — any component using it must be updated in BRAND-3
+- A `docs/media-intake-protocol.md` governance document is created and enforced from this point forward — no media asset enters the repo without following it
+- SVG source files for the logo do not exist; WebP is the production format; if SVG is later provided by the designer, it supersedes the WebP logo under the same naming convention
+- The `_on-dark` full lockup PNG variants are flagged as broken exports — a designer re-export with transparent backgrounds is required before full dark mode logo implementation
+- BRAND-4 implements class-based dark mode using `html.dark` class toggling — not system-preference-only — to give users explicit control
+- All BRAND tasks operate under ADR-019 (BRAND-3: SAFE MODE; BRAND-4 and BRAND-5: EXPLORATION MODE)

@@ -540,14 +540,26 @@ Read the current message files before starting to know exactly which keys exist.
 
 ---
 
-## NEXT — Phase 2: Commerce Backend Integration
+## Phase 2 — Commerce Backend Integration
 
-- [ ] Initialize `apps/backend` with Medusa v2
-- [ ] Configure PostgreSQL and run migrations
-- [ ] Create seed script
-- [ ] Create `apps/storefront/lib/medusa-client.ts`
-- [ ] Replace mock data with real API data
-- [ ] Configure CORS
+### Phase 2 Pre-Work — Brand Identity & Media Foundation
+
+**All tasks below must complete before BACK-1. See ADR-020.**
+
+- [x] `MEDIA-1`: Define Media Intake Protocol — `docs/media-intake-protocol.md` authored (Claude, 2026-04-03)
+- [ ] `BRAND-2`: Extract production-ready logo variants (WebP) into `public/brand/logo/` + `manifest.json` stub
+- [ ] `BRAND-3`: Replace color tokens — new `--color-brand` (#1c3d6b) and `--color-accent` (#4b8fc4) from logo identity
+- [ ] `BRAND-4`: Implement light/dark theme — `html.dark` class-based CSS variable overrides, ThemeProvider, toggle button
+- [ ] `BRAND-5`: Logo component + apply logo and brand tokens to Header, nav, footer, global surfaces
+
+### Phase 2 Core — Commerce Backend
+
+- [ ] `BACK-1`: Initialize `apps/backend` with Medusa v2
+- [ ] `BACK-2`: Configure PostgreSQL and run migrations
+- [ ] `BACK-3`: Create seed script (1 category, 2–3 products)
+- [ ] `BACK-4`: Create `apps/storefront/lib/medusa-client.ts`
+- [ ] `BACK-5`: Replace mock data with real API data
+- [ ] `BACK-6`: Configure CORS between storefront and backend
 
 ---
 

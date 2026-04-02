@@ -102,6 +102,21 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 
 **Goal:** Stand up the Medusa backend and connect the storefront to real product data.
 
+### Phase 2 Pre-Work — Brand Identity & Media Foundation (blocking BACK-1)
+
+**ADR-020.** Brand tokens, logo, dark mode, and media protocol must be complete before backend tasks begin.
+
+**Deliverables:**
+- [ ] MEDIA-1: `docs/media-intake-protocol.md` — authored ✅ (2026-04-03)
+- [ ] BRAND-2: Production-ready logo WebP variants in `public/brand/logo/` + `manifest.json`
+- [ ] BRAND-3: Semantic color tokens from logo identity — new `--color-brand` and `--color-accent`
+- [ ] BRAND-4: Light/dark theme system — class-based `html.dark`, ThemeProvider, toggle
+- [ ] BRAND-5: Logo component + applied to Header, nav, footer, global surfaces
+
+**Exit criteria:** Logo renders in header. Dark/light toggle works. All color tokens match logo identity. Build passes.
+
+### Phase 2 Core — Commerce Backend
+
 **Scope:**
 - Initialize `apps/backend` as a Medusa v2 project
 - Configure PostgreSQL connection
@@ -117,7 +132,7 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 - [ ] Storefront fetches and displays real products
 - [ ] API client typed and isolated
 
-**Dependencies:** Phase 1 complete, PostgreSQL available
+**Dependencies:** Phase 1 complete, PostgreSQL available, Phase 2 Pre-Work complete
 
 **Exit criteria:** Products visible in storefront are sourced from Medusa/PostgreSQL. No mock data remains in storefront data layer.
 

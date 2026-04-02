@@ -56,3 +56,9 @@ medusa-config.js.bak
 tmp/
 temp/
 *.local
+
+# Brand source assets — raw/unprocessed exports from designer
+# Production-ready outputs go in public/brand/ following docs/media-intake-protocol.md
+sama-link_brand-assets_FULL/
+*_brand-assets_*/
+*_brand-assets_RAW/
