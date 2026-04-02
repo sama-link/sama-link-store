@@ -201,12 +201,119 @@ Repository:
 
 Notion:
 [ ] Task Tracker: completed tasks set to Done
-[ ] Task Tracker: new tasks added if created this session
-[ ] Feature Tracker: feature status updated if changed
-[ ] Decision Log: new ADRs added if created this session
-[ ] Session Log: new entry added (mandatory)
-[ ] Project Hub callout updated if phase changed
+[ ] Task Tracker: new tasks added if created this session; Is Pre-Phase Blocker set if applicable
+[ ] Feature Tracker: status updated if any feature advanced; Feature ↔ Task links set for new tasks
+[ ] Decision Log: new ADRs added if created this session; Phase field set
+[ ] Technical Debt: resolved items removed (not marked done — deleted); new items added if introduced
+[ ] Session Log: new entry added (mandatory); Phase Transition checked if phase status changed; Features Advanced populated
+[ ] Project Hub callout updated if phase changed or next task changed
 ```
+
+### Session Closure Block (mandatory format for Session Log entry)
+
+Every Session Log entry must include in "What Was Implemented":
+- State before: [active phase, blocking tasks]
+- State after: [what changed]
+- Phase transition: YES / NO
+- Features advanced: [list or "none"]
+- Surfaces updated: [which of the 7 required surfaces were touched]
+
+---
+
+## 9. System Validation Check (mandatory before session close)
+
+Run this check before every session ends. A session cannot be closed if steps 1–2 fail.
+
+```
+Enforcement Layer (Notion auto-detection):
+[ ] Task Tracker → ⚠️ Invalid Tasks view: count = 0
+    If > 0: each flagged task must have Feature and Phase set; Is Pre-Phase Blocker correct
+[ ] Feature Tracker → ⚠️ Invalid Features view: count = 0
+    If > 0: set Phase, link Tasks, or update Status to Done as appropriate
+[ ] Task Tracker → 🔴 Active Blockers view: matches ROADMAP.md blocking task list exactly
+    If mismatch: update Is Pre-Phase Blocker flags or ROADMAP.md to reconcile
+
+State Engine (Project Hub):
+[ ] Top callout updated with Standard State Sentence:
+    Active Phase: [name] | Blocking Tasks: [IDs or "none"] | Next Task: [ID] | Build: [✅/❌] | Last Updated: [date]
+[ ] Phase Tracker rows reflect current phase statuses
+
+Only after all checks pass: create Session Log entry with Closure Block.
+```
+
+### What "broken state" looks like
+
+A task is orphaned: `Health = "⚠️ ORPHAN — no feature linked"` → Invalid Tasks view shows it → session cannot close until fixed.
+
+A feature is stale: all tasks Done, Feature status still "In Progress" → `Health = "⚠️ STALE — tasks done, status not updated"` → Invalid Features view shows it → must update Feature status to Done.
+
+A phase blocker is complete but still flagged: `Is Pre-Phase Blocker = true`, `Status = Done` → Active Blockers view excludes it (correct) → no action needed.
+
+---
+
+## 10. Design Modification Protocol
+
+All UI/visual changes follow this protocol. It is integrated into the enforcement system — design task violations are treated identically to architecture violations. See `DEVELOPMENT_RULES.md` Rule 13 for the implementation-level rules Cursor follows.
+
+### Design Task Flow
+
+```
+1. PRE-DECLARATION (Cursor outputs before any code)
+   [ ] Mode declared: SAFE MODE or EXPLORATION MODE
+   [ ] Files to change: explicit list
+   [ ] Visual changes: what the user will see differently
+   [ ] Design-only confirmation: YES
+   [ ] What will NOT be touched: explicit list
+
+2. IMPLEMENTATION
+   [ ] Token-only styling (zero hardcoded values)
+   [ ] Forbidden layer not touched
+   [ ] Component consumption rule respected
+
+3. REVIEW GATE (Claude validates after implementation)
+   [ ] No forbidden files modified
+   [ ] No logic/routing/API code touched
+   [ ] All values trace to @theme tokens
+   [ ] i18n files untouched (unless new keys explicitly scoped)
+   [ ] tsc --noEmit passes
+   [ ] next build passes
+   [ ] RTL (/ar) and LTR (/en) both render correctly
+```
+
+If the pre-declaration is missing → task is INVALID before implementation starts.
+If the review gate fails → task is rejected and a correction brief is issued.
+
+### Design Modes
+
+| Mode | Allowed | Forbidden |
+|---|---|---|
+| **SAFE MODE** (default) | Token changes, spacing, color, typography, responsive tweaks | Layout restructuring, new/removed components |
+| **EXPLORATION MODE** (must be declared) | Layout improvements, section reordering | Logic, routing, i18n, SEO, new pages |
+
+### Critical UI Boundary — STRICT DESIGN MODE (permanent)
+
+No structural changes ever on:
+- Product detail page
+- Cart (drawer + page)
+- Checkout flow
+- Auth pages (login, register, reset)
+
+### Three-Layer Summary
+
+| Layer | Status |
+|---|---|
+| Safe: colors, typography, spacing, shadows (tokens only) | Always allowed |
+| Restricted: new/removed components, layout restructuring | Requires approval |
+| Forbidden: routing, API, auth, i18n, SEO, config, governance | Never in design tasks |
+
+### Integration with System Validation Check
+
+A design task is closed only after:
+1. Review gate passes (all 7 checks)
+2. System Validation Check confirms Invalid Tasks = 0 (standard session close)
+3. Session Log entry includes which design mode was used and what visual changes were made
+
+Design task violations (forbidden layer touched, hardcoded values found, build broken) are recorded as correction tasks in Task Tracker — same process as architecture violations.
 
 ---
 

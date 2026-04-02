@@ -403,3 +403,29 @@ Deploy the storefront to Vercel as a **preview deployment** during Phase 1. This
 - Production deployment (Phase 8) will require a separate Vercel project or promotion from preview
 - `RELEASE-1` through `RELEASE-6` task track manages this work
 
+---
+
+## ADR-019: Design Modification Protocol
+
+**Date:** 2026-04-02
+**Status:** Accepted
+
+### Context
+As UI work progresses across phases, design changes (typography, color, spacing, layout) will be made by Cursor under Claude's supervision. Without a defined protocol, design tasks risk touching business logic, routing, i18n, or SEO architecture — either accidentally or through scope creep. A structured boundary system is needed to enable fast UI iteration without breaking system integrity.
+
+### Options Considered
+- No formal protocol — rely on task briefs to define scope each time
+- Lightweight checklist in DEVELOPMENT_RULES.md only
+- Full Design Modification Protocol with layer boundaries, design modes, review gate, and integration with the enforcement system (selected)
+
+### Decision
+Adopt the **Design Modification Protocol** as a mandatory governance layer integrated into the existing enforcement system. It defines three design layers (Safe, Restricted, Forbidden), two design modes (Safe Mode, Exploration Mode), a mandatory pre-declaration step before every design task, and a review gate after every design task. All styling must use `@theme` tokens — no hardcoded values in components.
+
+### Consequences
+- Every design task must declare its mode (SAFE or EXPLORATION) before implementation begins
+- Cursor must output a pre-declaration block before writing any code: files to change, visual changes, what will not be touched
+- Pages in the Critical UI Boundary (product, cart, checkout, auth) are permanently STRICT DESIGN MODE — no structural changes
+- The review gate is mandatory: Claude validates token usage, forbidden file boundaries, and RTL/LTR integrity after every design task
+- Violations of the forbidden layer are treated the same as architecture violations — task is rejected and a correction brief is issued
+- See `DEVELOPMENT_RULES.md` Rule 13 and `PROJECT_OPERATIONS.md` Section 10 for full implementation detail
+

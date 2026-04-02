@@ -185,6 +185,116 @@ chore(deps): update Medusa to v2.1.0
 
 ---
 
+## 13. Design Modification Protocol (ADR-019)
+
+All UI/visual changes must follow this protocol without exception.
+
+### Three-Layer Boundary
+
+**SAFE DESIGN LAYER — always allowed without approval**
+- Colors (via `@theme` tokens only)
+- Typography (via `@theme` tokens only)
+- Spacing, padding, margin (via `@theme` tokens only)
+- Borders, border-radius, shadows (via `@theme` tokens only)
+- Visual hierarchy adjustments
+- Responsive layout tweaks within an existing layout structure
+
+**RESTRICTED LAYER — requires explicit approval before starting**
+- Creating new components
+- Removing existing components
+- Significantly restructuring a page's section composition
+- Changing the visual hierarchy in a way that alters content order
+
+**FORBIDDEN LAYER — never touched in a design task, ever**
+- Routing or navigation logic
+- Data fetching, API calls, server actions
+- Auth, cart, or checkout logic
+- i18n structure (`i18n/routing.ts`, `i18n/request.ts`, message files)
+- `generateMetadata`, SEO tags, canonical links, structured data
+- `next.config.ts`, `middleware.ts`, `turbo.json`
+- All governance docs (`DECISIONS.md`, `TASKS.md`, `ROADMAP.md`, `CLAUDE.md`, etc.)
+
+### Token Rule (mandatory — zero exceptions)
+
+ALL styling must use `@theme` tokens from `globals.css`.
+
+```
+❌ text-[#333]           — hardcoded color
+❌ px-[18px]             — hardcoded spacing
+❌ font-['Cairo']        — hardcoded font name
+❌ className="..."       — arbitrary Tailwind values
+
+✅ text-text-primary     — token reference
+✅ px-md                 — token reference
+✅ font-arabic           — font token
+```
+
+If a required token does not exist → **stop, propose the token, get approval before writing any code**.
+
+### Component Consumption Rule
+
+Components **consume** tokens. They do **not** define styles.
+
+- No color values inside component files
+- No spacing values inside component files
+- No font names inside component files
+- All visual values must be traceable to a `@theme` token
+
+### Pre-Declaration (mandatory before any design task)
+
+Before writing a single line, Cursor must output:
+
+```
+DESIGN TASK PRE-DECLARATION
+Mode: [SAFE MODE | EXPLORATION MODE]
+Files to change: [explicit list]
+Visual changes: [what the user will see differently]
+Design-only confirmation: [YES — no logic, routing, i18n, or SEO touched]
+Will NOT touch: [explicit list of what is out of scope]
+```
+
+If this block is missing → task is INVALID. Claude must reject it and request the pre-declaration.
+
+### Design Modes
+
+**SAFE MODE**
+- Token changes only
+- No layout restructuring
+- No new or removed components
+- Default mode for all design tasks
+
+**EXPLORATION MODE**
+- Layout improvements allowed (within existing page structure)
+- Section reordering allowed
+- Still no logic, routing, i18n, or SEO touching
+- Must be explicitly declared and approved
+
+### Critical UI Boundary — STRICT DESIGN MODE Only
+
+These pages operate under permanent STRICT DESIGN MODE (identical to SAFE MODE — no structural changes, ever):
+- Product detail page
+- Cart (drawer + page)
+- Checkout flow
+- Auth pages (login, register, reset)
+
+Rationale: these pages are tied to payment, auth, and order state. Layout changes can break flows invisibly.
+
+### Review Gate (Claude runs after every design task)
+
+Claude validates all of the following before marking a design task done:
+
+- [ ] No forbidden files were modified
+- [ ] No logic, routing, or API code was modified
+- [ ] All values trace to `@theme` tokens — zero hardcoded values
+- [ ] i18n files untouched (unless the task explicitly added new keys)
+- [ ] `tsc --noEmit` passes
+- [ ] `next build` passes
+- [ ] RTL (`/ar`) and LTR (`/en`) both render correctly
+
+If any check fails → task is rejected. A correction brief is issued. The task is not marked done.
+
+---
+
 ## 12. Performance Targets (Storefront)
 
 - Lighthouse score: 90+ on Performance, SEO, Accessibility (product listing + detail pages)
