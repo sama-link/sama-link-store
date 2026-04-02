@@ -16,7 +16,7 @@ For workflow see `docs/cursor-workflow.md`.
 - [x] App Router with route group `(storefront)` established
 - [x] `app/globals.css` — design tokens via Tailwind v4 `@theme`
 - [x] `lib/cn.ts` — class-merging utility (`clsx` + `tailwind-merge`)
-- [x] `lib/i18n.ts` — locale constants and helpers (placeholder, will be superseded by next-intl)
+- [x] `lib/i18n.ts` — locale constants and helpers (placeholder — deleted in I18N-7, superseded by next-intl)
 - [x] `components/layout/Container.tsx` — max-width wrapper with `as` prop
 - [x] `components/layout/Header.tsx` — responsive server component
 - [x] `components/layout/Footer.tsx` — responsive 4-column grid
@@ -37,12 +37,6 @@ For workflow see `docs/cursor-workflow.md`.
 - [x] `I18N-8`: Wire translations in Header, Footer, MobileMenu — `getTranslations` in Server Components, `useTranslations` in MobileMenu, all keys in both JSON files with real Arabic text
 - [x] `LAYOUT-1`: Add `generateStaticParams` to `app/[locale]/layout.tsx` — `routing.locales.map((locale) => ({ locale }))`, build reports 5 prerendered pages
 - [x] `LAYOUT-4`: Create `app/[locale]/not-found.tsx` — async Server Component, `getLocale()` + `getTranslations()`, locale-aware back link, no hardcoded strings
-
----
-
-### Active — i18n Locale Routing (next-intl)
-
-> **Note:** Live preview will return 404 during I18N-5 through I18N-8 while locale routes are being wired. This is accepted and expected. Do not treat preview breakage as a blocker unless the error is unrelated to locale routing.
 
 ---
 
@@ -511,13 +505,37 @@ Read the current message files before starting to know exactly which keys exist.
 
 ---
 
-## NEXT — Phase 1 Remaining (after i18n complete)
+## Phase 1 — Final Tasks ✅ Complete
 
 - [x] `COPY-1`: Add dedicated 404 translation keys — `errors.notFoundTitle`, `errors.notFoundDescription`, `errors.goHome` to both JSON files; `not-found.tsx` updated to use `errors.*` namespace
 - [x] `LAYOUT-2`: Implement working locale switcher — `LocaleSwitcher.tsx` created as `"use client"` component with `usePathname()`; Header remains async Server Component using `getTranslations()`
 - [x] `LAYOUT-3`: Home page placeholder — hero with `home.headline` / `home.subheadline` / `home.ctaLabel`, body note `home.comingSoon`; Server Component, all strings translated
+
+---
+
+## Pre-Phase 2 — Governance, Branding & SEO Foundation
+
+### Completed
+- [x] `ADR-014`: Direct-to-main git workflow exception documented
+- [x] `ADR-015`: Mobile-first UI is mandatory — documented
+- [x] `ADR-016`: SEO first-class architectural concern — documented
+- [x] `ADR-017`: Rendering strategy per route type — documented
+- [x] `ADR-018`: Adopt > Extend > Rebuild — documented
+- [x] Knowledge base alignment — DECISIONS.md, CLAUDE.md, ROADMAP.md, DEPLOYMENT.md, Notion fully synced (commit `7664e90`)
+
+### Active
+- [x] `GOV-2`: Backfill all existing Task Tracker rows with correct Feature links and Is Pre-Phase Blocker flags — enforcement system data completeness
+- [x] `BRAND-1`: Define Arabic font (Cairo or Tajawal), update `@theme` in `globals.css`, add Latin font pairing
+- [ ] `SEO-1`: Add `generateMetadata` to home page and `not-found.tsx`
+- [ ] `SEO-2`: Create `robots.txt` and `sitemap.xml` stub
+- [ ] `CHORE-1`: Remove `.gitkeep` files from empty directories — Phase 1 cleanup, now due
+
+### Deferred (optional, not blocking Phase 2)
 - [ ] `INFRA-1`: Initialize `packages/config` with shared `tsconfig.base.json`
 - [ ] `INFRA-2`: Initialize `packages/types` with domain type definitions
+
+### Required before Phase 2 starts
+- [ ] `GIT-1`: Create `develop` branch — required before Phase 2 starts, per ADR-014
 
 ---
 
@@ -541,7 +559,7 @@ See `ROADMAP.md` for scope. Tasks broken out when phase becomes active.
 ## Known Follow-ups
 
 - **Operational note (I18N-7):** After route restructuring, `tsc --noEmit` may fail due to stale `.next/types` references. Fix: delete `apps/storefront/.next/` then run `next build`. Standard Next.js behavior — not a code defect.
-- **Copy note (LAYOUT-4):** `not-found.tsx` currently reuses `common.noResults` + `home.subheadline` as 404 heading/body. Semantically generic. Tracked as `COPY-1` above.
+- **Copy note (LAYOUT-4):** ✅ Resolved by `COPY-1` — `not-found.tsx` now uses `errors.notFoundTitle`, `errors.notFoundDescription`, `errors.goHome`.
 - [ ] `FIX-1`: Fix middleware deprecation warning — Warning: `"The 'middleware' file convention is deprecated. Please use 'proxy' instead."` Persists after I18N-5 plugin wiring — confirmed not a next-intl issue. This is a Next.js 16 convention change. Fix: rename `apps/storefront/middleware.ts` → `apps/storefront/proxy.ts` (or follow Next.js 16 docs for the new convention). Build passes with warning. Low priority — address after I18N-8.
 
 ---

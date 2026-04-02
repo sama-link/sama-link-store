@@ -49,8 +49,9 @@
   --color-info:           #2563eb;
   --color-info-muted:     #dbeafe;
 
-  /* Typography scale */
-  --font-sans: var(--font-sans, ui-sans-serif, system-ui, sans-serif);
+  /* Typography — next/font variables injected on <html> (see layout) */
+  --font-sans: var(--font-inter); /* Inter — Latin / LTR */
+  --font-arabic: var(--font-cairo); /* Cairo — Arabic / RTL */
 
   /* Radius tokens */
   --radius-sm:   0.25rem;   /* 4px  */
@@ -71,13 +72,18 @@
 html {
   scroll-behavior: smooth;
   height: 100%;
+  font-family: var(--font-arabic), sans-serif; /* default: Arabic */
+}
+
+html[dir="ltr"] {
+  font-family: var(--font-sans), sans-serif; /* English */
 }
 
 body {
   height: 100%;
   background-color: var(--color-surface);
   color: var(--color-text-primary);
-  font-family: var(--font-sans);
+  font-family: inherit;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
