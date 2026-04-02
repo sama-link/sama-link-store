@@ -29,6 +29,7 @@ For workflow see `docs/cursor-workflow.md`.
 - [x] `messages/ar.json` + `messages/en.json` — translation stubs
 - [x] `I18N-1`: Install next-intl — `next-intl ^4.9.0` installed in `apps/storefront/package.json`
 - [x] `I18N-2`: Create i18n routing config — `apps/storefront/i18n/routing.ts`, `defineRouting`, locales `['ar','en']`, defaultLocale `'ar'`
+- [x] `I18N-3`: Create i18n request config — `apps/storefront/i18n/request.ts`, `getRequestConfig`, v4 `requestLocale`, dynamic message import
 
 ---
 
@@ -121,7 +122,7 @@ export type Locale = (typeof routing.locales)[number];
 
 ---
 
-#### I18N-3: Create i18n request config
+#### ~~I18N-3: Create i18n request config~~ ✅ Done
 
 **Phase:** Phase 1 — Storefront Skeleton
 **Depends on:** I18N-2
