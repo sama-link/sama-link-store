@@ -28,6 +28,7 @@ For workflow see `docs/cursor-workflow.md`.
 - [x] `components/ui/index.ts` — barrel export
 - [x] `messages/ar.json` + `messages/en.json` — translation stubs
 - [x] `I18N-1`: Install next-intl — `next-intl ^4.9.0` installed in `apps/storefront/package.json`
+- [x] `I18N-2`: Create i18n routing config — `apps/storefront/i18n/routing.ts`, `defineRouting`, locales `['ar','en']`, defaultLocale `'ar'`
 
 ---
 
@@ -73,7 +74,7 @@ ADR-008 mandates next-intl for locale routing and string translation. The packag
 
 ---
 
-#### I18N-2: Create i18n routing config
+#### ~~I18N-2: Create i18n routing config~~ ✅ Done
 
 **Phase:** Phase 1 — Storefront Skeleton
 **Depends on:** I18N-1
