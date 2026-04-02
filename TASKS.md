@@ -36,6 +36,8 @@ For workflow see `docs/cursor-workflow.md`.
 
 ### Active — i18n Locale Routing (next-intl)
 
+> **Note:** Live preview will return 404 during I18N-5 through I18N-8 while locale routes are being wired. This is accepted and expected. Do not treat preview breakage as a blocker unless the error is unrelated to locale routing.
+
 ---
 
 #### ~~I18N-1: Install next-intl~~ ✅ Done
