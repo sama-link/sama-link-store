@@ -35,6 +35,8 @@ For workflow see `docs/cursor-workflow.md`.
 - [x] `I18N-6`: Create `app/[locale]/layout.tsx` — locale root layout, `NextIntlClientProvider`, `lang`/`dir`, `notFound()` guard
 - [x] `I18N-7`: Migrate routes under `[locale]` — moved `(storefront)/` under `[locale]/`, deleted `app/layout.tsx`, `app/(storefront)/`, and `lib/i18n.ts`
 - [x] `I18N-8`: Wire translations in Header, Footer, MobileMenu — `getTranslations` in Server Components, `useTranslations` in MobileMenu, all keys in both JSON files with real Arabic text
+- [x] `LAYOUT-1`: Add `generateStaticParams` to `app/[locale]/layout.tsx` — `routing.locales.map((locale) => ({ locale }))`, build reports 5 prerendered pages
+- [x] `LAYOUT-4`: Create `app/[locale]/not-found.tsx` — async Server Component, `getLocale()` + `getTranslations()`, locale-aware back link, no hardcoded strings
 
 ---
 
@@ -511,10 +513,9 @@ Read the current message files before starting to know exactly which keys exist.
 
 ## NEXT — Phase 1 Remaining (after i18n complete)
 
-- [ ] `LAYOUT-1`: Add `generateStaticParams` to `app/[locale]/layout.tsx` for static locale generation
+- [ ] `COPY-1`: Add dedicated 404 translation keys — `errors.notFoundTitle`, `errors.notFoundDescription`, `errors.goHome` to both `ar.json` and `en.json`; update `not-found.tsx` to use them (currently reuses generic keys: `common.noResults`, `home.subheadline`)
 - [ ] `LAYOUT-2`: Implement working locale switcher in Header (links to `/ar` / `/en` equivalents)
 - [ ] `LAYOUT-3`: Home page — replace component showcase with real placeholder page structure
-- [ ] `LAYOUT-4`: 404 page at `app/[locale]/not-found.tsx`
 - [ ] `INFRA-1`: Initialize `packages/config` with shared `tsconfig.base.json`
 - [ ] `INFRA-2`: Initialize `packages/types` with domain type definitions
 
@@ -540,6 +541,7 @@ See `ROADMAP.md` for scope. Tasks broken out when phase becomes active.
 ## Known Follow-ups
 
 - **Operational note (I18N-7):** After route restructuring, `tsc --noEmit` may fail due to stale `.next/types` references. Fix: delete `apps/storefront/.next/` then run `next build`. Standard Next.js behavior — not a code defect.
+- **Copy note (LAYOUT-4):** `not-found.tsx` currently reuses `common.noResults` + `home.subheadline` as 404 heading/body. Semantically generic. Tracked as `COPY-1` above.
 - [ ] `FIX-1`: Fix middleware deprecation warning — Warning: `"The 'middleware' file convention is deprecated. Please use 'proxy' instead."` Persists after I18N-5 plugin wiring — confirmed not a next-intl issue. This is a Next.js 16 convention change. Fix: rename `apps/storefront/middleware.ts` → `apps/storefront/proxy.ts` (or follow Next.js 16 docs for the new convention). Build passes with warning. Low priority — address after I18N-8.
 
 ---
