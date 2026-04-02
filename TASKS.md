@@ -30,6 +30,7 @@ For workflow see `docs/cursor-workflow.md`.
 - [x] `I18N-1`: Install next-intl — `next-intl ^4.9.0` installed in `apps/storefront/package.json`
 - [x] `I18N-2`: Create i18n routing config — `apps/storefront/i18n/routing.ts`, `defineRouting`, locales `['ar','en']`, defaultLocale `'ar'`
 - [x] `I18N-3`: Create i18n request config — `apps/storefront/i18n/request.ts`, `getRequestConfig`, v4 `requestLocale`, dynamic message import
+- [x] `I18N-4`: Create middleware.ts — `apps/storefront/middleware.ts`, `createMiddleware(routing)`, locale prefix enforcement
 
 ---
 
@@ -177,7 +178,7 @@ export default getRequestConfig(async ({ requestLocale }) => {
 
 ---
 
-#### I18N-4: Create middleware.ts
+#### ~~I18N-4: Create middleware.ts~~ ✅ Done
 
 **Phase:** Phase 1 — Storefront Skeleton
 **Depends on:** I18N-3
@@ -527,6 +528,12 @@ Read the current message files before starting to know exactly which keys exist.
 ## LATER — Phases 3–8
 
 See `ROADMAP.md` for scope. Tasks broken out when phase becomes active.
+
+---
+
+## Known Follow-ups
+
+- [ ] `FIX-1`: Investigate middleware deprecation warning — Next.js printed a deprecation notice during `next build` after I18N-4. Build passed. Investigate after I18N-5 to confirm whether the warning is resolved by the next-intl plugin or requires a separate fix.
 
 ---
 
