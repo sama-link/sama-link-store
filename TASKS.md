@@ -27,6 +27,7 @@ For workflow see `docs/cursor-workflow.md`.
 - [x] `components/ui/Badge.tsx` — 7 variants, 2 sizes
 - [x] `components/ui/index.ts` — barrel export
 - [x] `messages/ar.json` + `messages/en.json` — translation stubs
+- [x] `I18N-1`: Install next-intl — `next-intl ^4.9.0` installed in `apps/storefront/package.json`
 
 ---
 
@@ -34,7 +35,7 @@ For workflow see `docs/cursor-workflow.md`.
 
 ---
 
-#### I18N-1: Install next-intl
+#### ~~I18N-1: Install next-intl~~ ✅ Done
 
 **Phase:** Phase 1 — Storefront Skeleton
 **Depends on:** none (Phase 1 foundation complete)
