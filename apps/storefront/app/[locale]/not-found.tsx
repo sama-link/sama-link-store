@@ -3,8 +3,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 
 export default async function NotFound() {
   const locale = await getLocale();
-  const tCommon = await getTranslations('common');
-  const tHome = await getTranslations('home');
+  const tErrors = await getTranslations('errors');
   const tNav = await getTranslations('nav');
 
   return (
@@ -17,10 +16,10 @@ export default async function NotFound() {
           id="not-found-title"
           className="text-2xl font-semibold text-text-primary sm:text-3xl"
         >
-          {tCommon('noResults')}
+          {tErrors('notFoundTitle')}
         </h1>
         <p className="text-sm leading-relaxed text-text-secondary sm:text-base">
-          {tHome('subheadline')}
+          {tErrors('notFoundDescription')}
         </p>
       </div>
       <Link
@@ -28,7 +27,7 @@ export default async function NotFound() {
         className="text-sm font-medium text-brand underline-offset-4 hover:underline"
         aria-label={tNav('logoHomeAria')}
       >
-        {tCommon('storeName')}
+        {tErrors('goHome')}
       </Link>
     </section>
   );

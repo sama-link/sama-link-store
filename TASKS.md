@@ -513,8 +513,8 @@ Read the current message files before starting to know exactly which keys exist.
 
 ## NEXT — Phase 1 Remaining (after i18n complete)
 
-- [ ] `COPY-1`: Add dedicated 404 translation keys — `errors.notFoundTitle`, `errors.notFoundDescription`, `errors.goHome` to both `ar.json` and `en.json`; update `not-found.tsx` to use them (currently reuses generic keys: `common.noResults`, `home.subheadline`)
-- [ ] `LAYOUT-2`: Implement working locale switcher in Header (links to `/ar` / `/en` equivalents)
+- [x] `COPY-1`: Add dedicated 404 translation keys — `errors.notFoundTitle`, `errors.notFoundDescription`, `errors.goHome` to both JSON files; `not-found.tsx` updated to use `errors.*` namespace
+- [ ] `LAYOUT-2`: Implement working locale switcher — extract `LocaleSwitcher.tsx` as a Client Component; Header must remain a Server Component (see brief below)
 - [ ] `LAYOUT-3`: Home page — replace component showcase with real placeholder page structure
 - [ ] `INFRA-1`: Initialize `packages/config` with shared `tsconfig.base.json`
 - [ ] `INFRA-2`: Initialize `packages/types` with domain type definitions

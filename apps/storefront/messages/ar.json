@@ -1,4 +1,9 @@
 {
+  "errors": {
+    "notFoundTitle": "الصفحة غير موجودة",
+    "notFoundDescription": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
+    "goHome": "العودة إلى الصفحة الرئيسية"
+  },
   "common": {
     "storeName": "متجر سما لينك",
     "loading": "جارٍ التحميل...",
@@ -18,7 +23,9 @@
     "openCart": "فتح السلة ({count} عناصر)",
     "openMenu": "فتح القائمة",
     "closeMenu": "إغلاق القائمة",
-    "mobileNavigation": "التنقل للجوال"
+    "mobileNavigation": "التنقل للجوال",
+    "switchToEnglish": "English",
+    "switchToArabic": "العربية"
   },
   "home": {
     "headline": "متجر سما لينك",

@@ -1,4 +1,9 @@
 {
+  "errors": {
+    "notFoundTitle": "Page not found",
+    "notFoundDescription": "The page you're looking for doesn't exist or has been moved.",
+    "goHome": "Back to home"
+  },
   "common": {
     "storeName": "Sama Link Store",
     "loading": "Loading...",
@@ -18,7 +23,9 @@
     "openCart": "Open cart ({count} items)",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
-    "mobileNavigation": "Mobile navigation"
+    "mobileNavigation": "Mobile navigation",
+    "switchToEnglish": "English",
+    "switchToArabic": "العربية"
   },
   "home": {
     "headline": "Sama Link Store",
