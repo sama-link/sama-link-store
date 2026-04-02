@@ -486,6 +486,19 @@ Read the current message files before starting to know exactly which keys exist.
 
 ---
 
+## RELEASE — Repository & Preview Deployment
+
+> Preview deployment track per ADR-013. Separate from Phase 8 production deployment.
+
+- [x] `RELEASE-1`: Initialize git repository — `git init -b main` in monorepo root
+- [x] `RELEASE-2`: Create first commit — 64 files, commit `2a760a1`
+- [x] `RELEASE-3`: Create GitHub repository — `sama-link/sama-link-store` (private)
+- [x] `RELEASE-4`: Push main branch — branch tracking `origin/main`, working tree clean
+- [x] `RELEASE-5`: Deploy storefront preview on Vercel — connect repo, configure root dir, deploy
+- [x] `RELEASE-6`: Verify live deployment and update deployment docs — https://sama-link-store-storefront.vercel.app/
+
+---
+
 ## NEXT — Phase 1 Remaining (after i18n complete)
 
 - [ ] `LAYOUT-1`: Add `generateStaticParams` to `app/[locale]/layout.tsx` for static locale generation
