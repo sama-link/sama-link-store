@@ -515,7 +515,7 @@ Read the current message files before starting to know exactly which keys exist.
 
 - [x] `COPY-1`: Add dedicated 404 translation keys — `errors.notFoundTitle`, `errors.notFoundDescription`, `errors.goHome` to both JSON files; `not-found.tsx` updated to use `errors.*` namespace
 - [x] `LAYOUT-2`: Implement working locale switcher — `LocaleSwitcher.tsx` created as `"use client"` component with `usePathname()`; Header remains async Server Component using `getTranslations()`
-- [ ] `LAYOUT-3`: Home page — replace component showcase with real placeholder page structure
+- [x] `LAYOUT-3`: Home page placeholder — hero with `home.headline` / `home.subheadline` / `home.ctaLabel`, body note `home.comingSoon`; Server Component, all strings translated
 - [ ] `INFRA-1`: Initialize `packages/config` with shared `tsconfig.base.json`
 - [ ] `INFRA-2`: Initialize `packages/types` with domain type definitions
 

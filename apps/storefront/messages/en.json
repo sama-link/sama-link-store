@@ -29,7 +29,9 @@
   },
   "home": {
     "headline": "Sama Link Store",
-    "subheadline": "Discover our curated products"
+    "subheadline": "Discover our curated products",
+    "ctaLabel": "Browse products",
+    "comingSoon": "The full product catalog, search, and checkout will arrive in upcoming phases. This storefront skeleton confirms routing, layout, and i18n."
   },
   "footer": {
     "copyright": "All rights reserved",
