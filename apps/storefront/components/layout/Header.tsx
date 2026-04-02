@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import Container from "./Container";
+import LocaleSwitcher from "./LocaleSwitcher";
 import MobileMenu from "./MobileMenu";
 
 /*
@@ -10,10 +11,10 @@ import MobileMenu from "./MobileMenu";
     ↕ MobileMenu panel (toggle)
 
   Desktop (≥ 640px)
-    [Logo]   [Products  Collections  About]   [AR/EN  🛒]
+    [Logo]   [Products  Collections  About]   [locale switch  🛒]
 
   Header is a Server Component.
-  MobileMenu is the only client boundary (it owns the toggle state).
+  LocaleSwitcher + MobileMenu are client boundaries.
 */
 
 const NAV_LINKS = [
@@ -59,15 +60,7 @@ export default async function Header() {
           {/* ── Actions ── */}
           <div className="flex items-center gap-1 sm:gap-3">
 
-            {/* Locale switcher — enabled in i18n pass */}
-            <button
-              type="button"
-              disabled
-              aria-label={t("switchLanguage")}
-              className="hidden items-center rounded-md px-2.5 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-subtle hover:text-text-primary transition-colors sm:flex"
-            >
-              {t("languageToggle")}
-            </button>
+            <LocaleSwitcher />
 
             {/* Cart icon — wired in Phase 4 */}
             <button
