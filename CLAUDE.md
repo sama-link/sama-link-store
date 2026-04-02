@@ -73,6 +73,9 @@ See `docs/notion/notion-sync-protocol.md` for the full sync checklist.
 - [x] `MobileMenu.tsx` — client component with toggle
 - [x] `lib/i18n.ts` — locale constants and helpers (placeholder)
 - [x] `messages/ar.json` + `messages/en.json` — translation key stubs
+- [x] Git initialized, first commit (`2a760a1`), repo pushed to `github.com/sama-link/sama-link-store`
+- [x] Preview deployment live at `https://sama-link-store-storefront.vercel.app/` (ADR-013)
+- [x] `DEPLOYMENT.md` created with project details, env var plan, deployment history
 
 ### Next up
 - [ ] i18n routing with next-intl (Tasks I18N-1 through I18N-8 in TASKS.md)

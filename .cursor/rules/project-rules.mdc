@@ -90,7 +90,7 @@ Before writing a single line:
 
 ## Prohibited Actions
 
-- Do NOT modify: `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md`, `DECISIONS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`, `ROADMAP.md`, `SESSION_GUIDE.md`
+- Do NOT modify: `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md`, `DECISIONS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`, `ROADMAP.md`, `SESSION_GUIDE.md`, `PROJECT_BRIEF.md`, `PROJECT_OPERATIONS.md`, `DEPLOYMENT.md`, `docs/cursor-workflow.md`, `docs/notion/*`
 - Do NOT commit `.env` files
 - Do NOT use `console.log` — use structured logging where logging is needed
 - Do NOT add `eslint-disable` without a comment explaining why

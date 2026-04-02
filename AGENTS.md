@@ -121,6 +121,15 @@ Every brief Claude produces must follow this template exactly:
 - `DEVELOPMENT_RULES.md`
 - `DECISIONS.md`
 - `TASKS.md`
+- `ROADMAP.md`
+- `AGENTS.md`
+- `CLAUDE.md`
+- `SESSION_GUIDE.md`
+- `PROJECT_BRIEF.md`
+- `PROJECT_OPERATIONS.md`
+- `DEPLOYMENT.md`
+- `docs/cursor-workflow.md`
+- `docs/notion/*`
 - `turbo.json`
 - `package.json` (root)
 - [any other file outside scope]

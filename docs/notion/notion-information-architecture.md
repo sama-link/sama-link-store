@@ -37,7 +37,8 @@ This is the single entry point to the entire Notion workspace. All pages and dat
     ├── ADR-009: Defer Meilisearch
     ├── ADR-010: S3-Compatible Storage
     ├── ADR-011: Dual-Agent Model
-    └── ADR-012: Tailwind v4 CSS-Only
+    ├── ADR-012: Tailwind v4 CSS-Only
+    └── ADR-013: Early Preview Deployment Before Phase 8
 ```
 
 ---

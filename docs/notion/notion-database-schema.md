@@ -115,5 +115,6 @@ Not Started → Ready → In Progress → In Review → Done
 | `PERF-` | Performance |
 | `SEC-` | Security |
 | `INFRA-` | Infrastructure and config |
+| `RELEASE-` | Repository, deployment, release operations |
 | `FIX-` | Bug fix |
 | `REFACTOR-` | Refactoring |
