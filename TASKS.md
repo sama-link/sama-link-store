@@ -528,7 +528,7 @@ Read the current message files before starting to know exactly which keys exist.
 - [x] `BRAND-1`: Define Arabic font (Cairo or Tajawal), update `@theme` in `globals.css`, add Latin font pairing
 - [x] `SEO-1a`: Add `generateMetadata` to home page — canonical, hreflang, openGraph, ISR revalidate:3600
 - [ ] `SEO-1b`: 404 page metadata — deferred pending confirmed Next.js support for generateMetadata in not-found.tsx
-- [ ] `SEO-2`: Create `robots.txt` and `sitemap.xml` stub
+- [x] `SEO-2`: Create `robots.txt` and `sitemap.xml` stub
 - [ ] `CHORE-1`: Remove `.gitkeep` files from empty directories — Phase 1 cleanup, now due
 
 ### Deferred (optional, not blocking Phase 2)
