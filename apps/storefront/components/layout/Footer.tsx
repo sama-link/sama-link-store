@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Container from "./Container";
 
 /*
@@ -9,28 +10,39 @@ import Container from "./Container";
   Bottom bar         — copyright left, legal links right
 */
 
-const FOOTER_LINKS = {
-  Shop: [
-    { label: "All Products", href: "#" },
-    { label: "Collections", href: "#" },
-    { label: "New Arrivals", href: "#" },
-    { label: "Sale", href: "#" },
-  ],
-  Support: [
-    { label: "Contact Us", href: "#" },
-    { label: "FAQ", href: "#" },
-    { label: "Shipping & Returns", href: "#" },
-    { label: "Track Order", href: "#" },
-  ],
-  Company: [
-    { label: "About", href: "#" },
-    { label: "Privacy Policy", href: "#" },
-    { label: "Terms & Conditions", href: "#" },
-  ],
-} as const;
+const FOOTER_SECTIONS = [
+  {
+    titleKey: "shop" as const,
+    links: [
+      { key: "allProducts" as const, href: "#" },
+      { key: "collections" as const, href: "#" },
+      { key: "newArrivals" as const, href: "#" },
+      { key: "sale" as const, href: "#" },
+    ],
+  },
+  {
+    titleKey: "support" as const,
+    links: [
+      { key: "contact" as const, href: "#" },
+      { key: "faq" as const, href: "#" },
+      { key: "shippingReturns" as const, href: "#" },
+      { key: "trackOrder" as const, href: "#" },
+    ],
+  },
+  {
+    titleKey: "company" as const,
+    links: [
+      { key: "about" as const, href: "#" },
+      { key: "privacy" as const, href: "#" },
+      { key: "terms" as const, href: "#" },
+    ],
+  },
+] as const;
 
-export default function Footer() {
+export default async function Footer() {
   const currentYear = new Date().getFullYear();
+  const t = await getTranslations("footer");
+  const tCommon = await getTranslations("common");
 
   return (
     <footer className="border-t border-border bg-surface-subtle">
@@ -45,36 +57,34 @@ export default function Footer() {
               href="/"
               className="text-base font-bold tracking-tight text-text-primary hover:text-brand transition-colors"
             >
-              Sama Link Store
+              {tCommon("storeName")}
             </a>
             <p className="max-w-xs text-sm leading-relaxed text-text-muted">
-              Quality products delivered to your door.
+              {t("tagline")}
               {/* Tagline updated during copywriting phase */}
             </p>
           </div>
 
           {/* Link columns */}
-          {(Object.entries(FOOTER_LINKS) as [string, readonly { label: string; href: string }[]][]).map(
-            ([group, links]) => (
-              <div key={group} className="flex flex-col gap-4">
-                <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted">
-                  {group}
-                </h3>
-                <ul className="flex flex-col gap-3">
-                  {links.map(({ label, href }) => (
-                    <li key={label}>
-                      <a
-                        href={href}
-                        className="text-sm text-text-secondary hover:text-text-primary transition-colors"
-                      >
-                        {label}
-                      </a>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )
-          )}
+          {FOOTER_SECTIONS.map((section) => (
+            <div key={section.titleKey} className="flex flex-col gap-4">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted">
+                {t(section.titleKey)}
+              </h3>
+              <ul className="flex flex-col gap-3">
+                {section.links.map((link) => (
+                  <li key={link.key}>
+                    <a
+                      href={link.href}
+                      className="text-sm text-text-secondary hover:text-text-primary transition-colors"
+                    >
+                      {t(link.key)}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
         </div>
       </Container>
 
@@ -82,10 +92,14 @@ export default function Footer() {
       <div className="border-t border-border">
         <Container className="flex h-14 flex-col items-center justify-center gap-2 sm:flex-row sm:justify-between">
           <p className="text-xs text-text-muted">
-            © {currentYear} Sama Link Store. All rights reserved.
+            {t("copyrightLine", {
+              year: currentYear,
+              storeName: tCommon("storeName"),
+              rights: t("copyright"),
+            })}
           </p>
           <p className="text-xs text-text-muted">
-            Built with care in the Arab world.
+            {t("builtWithCare")}
           </p>
         </Container>
       </div>

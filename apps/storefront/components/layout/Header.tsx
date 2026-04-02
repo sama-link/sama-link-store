@@ -1,3 +1,4 @@
+import { getTranslations } from "next-intl/server";
 import Container from "./Container";
 import MobileMenu from "./MobileMenu";
 
@@ -16,12 +17,15 @@ import MobileMenu from "./MobileMenu";
 */
 
 const NAV_LINKS = [
-  { label: "Products", href: "#" },
-  { label: "Collections", href: "#" },
-  { label: "About", href: "#" },
-] as const;
+  { key: "products" as const, href: "#" },
+  { key: "collections" as const, href: "#" },
+  { key: "about" as const, href: "#" },
+];
 
-export default function Header() {
+export default async function Header() {
+  const t = await getTranslations("nav");
+  const tCommon = await getTranslations("common");
+
   return (
     <header className="relative sticky top-0 z-50 border-b border-border bg-surface">
       <Container>
@@ -31,21 +35,21 @@ export default function Header() {
           <a
             href="/"
             className="shrink-0 text-lg font-bold tracking-tight text-text-primary hover:text-brand transition-colors"
-            aria-label="Sama Link Store — home"
+            aria-label={t("logoHomeAria")}
           >
-            Sama Link Store
+            {tCommon("storeName")}
           </a>
 
           {/* ── Desktop nav ── */}
-          <nav aria-label="Main navigation" className="hidden sm:block">
+          <nav aria-label={t("mainNavigation")} className="hidden sm:block">
             <ul className="flex items-center gap-6">
-              {NAV_LINKS.map(({ label, href }) => (
-                <li key={label}>
+              {NAV_LINKS.map(({ key, href }) => (
+                <li key={key}>
                   <a
                     href={href}
                     className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
                   >
-                    {label}
+                    {t(key)}
                   </a>
                 </li>
               ))}
@@ -59,17 +63,17 @@ export default function Header() {
             <button
               type="button"
               disabled
-              aria-label="Switch language"
+              aria-label={t("switchLanguage")}
               className="hidden items-center rounded-md px-2.5 py-1.5 text-xs font-medium text-text-muted hover:bg-surface-subtle hover:text-text-primary transition-colors sm:flex"
             >
-              AR / EN
+              {t("languageToggle")}
             </button>
 
             {/* Cart icon — wired in Phase 4 */}
             <button
               type="button"
               disabled
-              aria-label="Open cart (0 items)"
+              aria-label={t("openCart", { count: 0 })}
               className="relative flex h-9 w-9 items-center justify-center rounded-md text-text-secondary hover:bg-surface-subtle hover:text-text-primary transition-colors"
             >
               <svg

@@ -10,7 +10,15 @@
     "collections": "Collections",
     "about": "About",
     "cart": "Cart",
-    "account": "My Account"
+    "account": "My Account",
+    "mainNavigation": "Main navigation",
+    "logoHomeAria": "Sama Link Store — home",
+    "switchLanguage": "Switch language",
+    "languageToggle": "AR / EN",
+    "openCart": "Open cart ({count} items)",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "mobileNavigation": "Mobile navigation"
   },
   "home": {
     "headline": "Sama Link Store",
@@ -20,6 +28,20 @@
     "copyright": "All rights reserved",
     "privacy": "Privacy Policy",
     "terms": "Terms & Conditions",
-    "contact": "Contact Us"
+    "contact": "Contact Us",
+    "shop": "Shop",
+    "support": "Support",
+    "company": "Company",
+    "allProducts": "All Products",
+    "collections": "Collections",
+    "newArrivals": "New Arrivals",
+    "sale": "Sale",
+    "faq": "FAQ",
+    "shippingReturns": "Shipping & Returns",
+    "trackOrder": "Track Order",
+    "about": "About",
+    "tagline": "Quality products delivered to your door.",
+    "builtWithCare": "Built with care in the Arab world.",
+    "copyrightLine": "© {year} {storeName}. {rights}"
   }
 }

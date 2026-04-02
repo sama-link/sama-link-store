@@ -34,6 +34,7 @@ For workflow see `docs/cursor-workflow.md`.
 - [x] `I18N-5`: Update next.config.ts — `createNextIntlPlugin('./i18n/request.ts')`, build passes
 - [x] `I18N-6`: Create `app/[locale]/layout.tsx` — locale root layout, `NextIntlClientProvider`, `lang`/`dir`, `notFound()` guard
 - [x] `I18N-7`: Migrate routes under `[locale]` — moved `(storefront)/` under `[locale]/`, deleted `app/layout.tsx`, `app/(storefront)/`, and `lib/i18n.ts`
+- [x] `I18N-8`: Wire translations in Header, Footer, MobileMenu — `getTranslations` in Server Components, `useTranslations` in MobileMenu, all keys in both JSON files with real Arabic text
 
 ---
 
@@ -434,7 +435,7 @@ After I18N-6, there are two competing root layouts: `app/layout.tsx` (old) and `
 
 ---
 
-#### I18N-8: Wire `useTranslations` in Header and Footer
+#### ~~I18N-8: Wire `useTranslations` in Header and Footer~~ ✅ Done
 
 **Phase:** Phase 1 — Storefront Skeleton
 **Depends on:** I18N-7

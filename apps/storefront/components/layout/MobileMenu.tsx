@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/cn";
 
 const NAV_LINKS = [
-  { label: "Products", href: "#" },
-  { label: "Collections", href: "#" },
-  { label: "About", href: "#" },
-] as const;
+  { key: "products" as const, href: "#" },
+  { key: "collections" as const, href: "#" },
+  { key: "about" as const, href: "#" },
+];
 
 /**
  * Hamburger toggle + collapsible mobile nav panel.
@@ -21,6 +22,7 @@ const NAV_LINKS = [
  */
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
+  const t = useTranslations("nav");
 
   return (
     <>
@@ -30,7 +32,7 @@ export default function MobileMenu() {
         onClick={() => setOpen((prev) => !prev)}
         aria-expanded={open}
         aria-controls="mobile-nav"
-        aria-label={open ? "Close menu" : "Open menu"}
+        aria-label={open ? t("closeMenu") : t("openMenu")}
         className="flex h-9 w-9 items-center justify-center rounded-md text-text-secondary hover:bg-surface-subtle hover:text-text-primary transition-colors sm:hidden"
       >
         {open ? (
@@ -65,21 +67,21 @@ export default function MobileMenu() {
       {/* Mobile nav panel */}
       <nav
         id="mobile-nav"
-        aria-label="Mobile navigation"
+        aria-label={t("mobileNavigation")}
         className={cn(
           "absolute inset-x-0 top-full border-b border-border bg-surface sm:hidden",
           open ? "block" : "hidden"
         )}
       >
         <ul className="flex flex-col divide-y divide-border">
-          {NAV_LINKS.map(({ label, href }) => (
-            <li key={label}>
+          {NAV_LINKS.map(({ key, href }) => (
+            <li key={key}>
               <a
                 href={href}
                 onClick={() => setOpen(false)}
                 className="flex h-12 items-center px-4 text-sm font-medium text-text-secondary hover:bg-surface-subtle hover:text-text-primary transition-colors"
               >
-                {label}
+                {t(key)}
               </a>
             </li>
           ))}

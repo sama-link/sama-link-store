@@ -10,7 +10,15 @@
     "collections": "المجموعات",
     "about": "من نحن",
     "cart": "السلة",
-    "account": "حسابي"
+    "account": "حسابي",
+    "mainNavigation": "التنقل الرئيسي",
+    "logoHomeAria": "متجر سما لينك — الصفحة الرئيسية",
+    "switchLanguage": "تغيير اللغة",
+    "languageToggle": "عربي / EN",
+    "openCart": "فتح السلة ({count} عناصر)",
+    "openMenu": "فتح القائمة",
+    "closeMenu": "إغلاق القائمة",
+    "mobileNavigation": "التنقل للجوال"
   },
   "home": {
     "headline": "متجر سما لينك",
@@ -20,6 +28,20 @@
     "copyright": "جميع الحقوق محفوظة",
     "privacy": "سياسة الخصوصية",
     "terms": "الشروط والأحكام",
-    "contact": "تواصل معنا"
+    "contact": "تواصل معنا",
+    "shop": "تسوق",
+    "support": "الدعم",
+    "company": "الشركة",
+    "allProducts": "جميع المنتجات",
+    "collections": "المجموعات",
+    "newArrivals": "وصل حديثاً",
+    "sale": "تخفيضات",
+    "faq": "الأسئلة الشائعة",
+    "shippingReturns": "الشحن والإرجاع",
+    "trackOrder": "تتبع الطلب",
+    "about": "من نحن",
+    "tagline": "منتجات عالية الجودة تصل إلى باب منزلك.",
+    "builtWithCare": "صُنع بعناية في العالم العربي.",
+    "copyrightLine": "© {year} {storeName}. {rights}"
   }
 }
