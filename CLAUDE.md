@@ -60,38 +60,29 @@ See `docs/notion/notion-sync-protocol.md` for the full sync checklist.
 ## Project State (updated each session)
 
 **Monorepo:** `apps/storefront`, `apps/admin` (placeholder), `apps/backend` (placeholder)
-**Active phase:** Pre-Phase 2 — Governance & Branding
+**Active phase:** Phase 2 — Commerce Backend Integration
 **Stack:** Next.js 16 App Router · TypeScript strict · Tailwind v4 · Turborepo
 
 ### Phase 1 — COMPLETE ✅
 
-All storefront foundation work is done:
+All storefront foundation work is done (see git history up to `f5297b8`).
 
-- [x] Next.js 16 storefront scaffolded and running (`localhost:3000`)
-- [x] Folder structure: `app/[locale]/(storefront)/`, `components/layout/`, `components/ui/`, `lib/`, `hooks/`, `messages/`
-- [x] Design tokens in `globals.css` (`@theme` block — Tailwind v4)
-- [x] `lib/cn.ts` — class-merging utility
-- [x] UI components: `Button`, `Input`, `Card`/`CardHeader`/`CardBody`/`CardFooter`, `Badge`
-- [x] Layout: `Header` (async Server Component), `Footer`, `Container`
-- [x] `MobileMenu.tsx` — client component with toggle
-- [x] `LocaleSwitcher.tsx` — working locale switcher, isolated client boundary
-- [x] i18n: `next-intl` installed, `i18n/routing.ts`, `i18n/request.ts`, `middleware.ts`, `next.config.ts` wired
-- [x] `app/[locale]/layout.tsx` — locale root layout with RTL/LTR, `NextIntlClientProvider`, `generateStaticParams`
-- [x] `app/[locale]/(storefront)/layout.tsx` — storefront layout (Header + Footer)
-- [x] `app/[locale]/(storefront)/page.tsx` — Phase 1 placeholder home page (all strings translated)
-- [x] `app/[locale]/not-found.tsx` — 404 page with locale-aware back link
-- [x] `messages/ar.json` + `messages/en.json` — complete: `common`, `nav`, `home`, `footer`, `errors`
-- [x] Git initialized, pushed to `github.com/sama-link/sama-link-store` (latest: `f5297b8`)
-- [x] Preview deployment live at `https://sama-link-store-storefront.vercel.app/` (ADR-013)
-- [x] `DEPLOYMENT.md` created with project details, env var plan, deployment history
+### Pre-Phase 2 — COMPLETE ✅
 
-### Next up (Pre-Phase 2 sequence)
-- [ ] Documentation & governance cleanup (ADR-014–018 added, Notion synced)
-- [ ] Branding / design system definition (typography, color palette, logo)
-- [ ] SEO foundation light (metadata, `robots.txt`, sitemap stub) — ADR-016
-- [ ] INFRA-1: `packages/config` with shared `tsconfig.base.json` (optional but recommended)
-- [ ] INFRA-2: `packages/types` with domain type definitions (optional but recommended)
-- [ ] Phase 2: Medusa v2 backend + PostgreSQL + storefront integration
+All blocking tasks done: BRAND-1, SEO-1a, SEO-2, GIT-1 (latest: `baa3099`).
+
+- [x] ADR-014–018 documented and synced
+- [x] Typography: Cairo (Arabic) + Inter (Latin) via `next/font`, mapped in `@theme` (BRAND-1, `cba68bd`)
+- [x] Home page `generateMetadata`: canonical, hreflang, openGraph, ISR revalidate:3600 (SEO-1a, `c9a4b0f`)
+- [x] `robots.txt` + `sitemap.xml` stub with locale-prefixed URLs (SEO-2, `baa3099`)
+- [x] `develop` branch created at origin, Vercel preview configured (GIT-1)
+- [ ] INFRA-1 / INFRA-2 — deferred, non-blocking
+- [ ] BRAND-2 (color palette/logo) — deferred, non-blocking
+- [ ] SEO-1b (404 metadata) — deferred, non-blocking
+
+### Phase 2 — ACTIVE 🔄
+
+Next: Initialize `apps/backend` with Medusa v2, connect PostgreSQL, seed data, wire storefront.
 
 ---
 

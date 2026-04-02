@@ -536,7 +536,7 @@ Read the current message files before starting to know exactly which keys exist.
 - [ ] `INFRA-2`: Initialize `packages/types` with domain type definitions
 
 ### Required before Phase 2 starts
-- [ ] `GIT-1`: Create `develop` branch — required before Phase 2 starts, per ADR-014
+- [x] `GIT-1`: Create `develop` branch — required before Phase 2 starts, per ADR-014
 
 ---
 

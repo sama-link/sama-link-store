@@ -71,7 +71,7 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 
 ---
 
-## Pre-Phase 2 — Governance, Branding & SEO Foundation 🔄 ACTIVE
+## Pre-Phase 2 — Governance, Branding & SEO Foundation ✅ COMPLETE
 
 **Goal:** Before connecting a backend, establish the visual identity, strengthen governance, and lay a minimal SEO foundation. These steps are cheap now and expensive to retrofit later.
 
@@ -87,10 +87,10 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 - [x] ADR-016: SEO first-class
 - [x] ADR-017: Rendering strategy
 - [x] ADR-018: Adopt > Extend > Rebuild
-- [ ] Branding: finalized typography (Arabic + Latin fonts), color tokens updated in `globals.css`
-- [ ] SEO: `generateMetadata` on all existing pages, `robots.txt`, `sitemap.xml` stub
-- [ ] INFRA-1: `packages/config` with `tsconfig.base.json`
-- [ ] INFRA-2: `packages/types` with domain type stubs
+- [x] Branding: typography system complete (Cairo + Inter via BRAND-1); color palette and logo deferred to BRAND-2+ (non-blocking)
+- [x] SEO: `generateMetadata` on home page (SEO-1a), `robots.txt` and `sitemap.xml` stub (SEO-2); 404 metadata deferred to SEO-1b (non-blocking — Next.js auto-injects noindex)
+- [ ] INFRA-1: `packages/config` with `tsconfig.base.json` — deferred, non-blocking
+- [ ] INFRA-2: `packages/types` with domain type stubs — deferred, non-blocking
 
 **Dependencies:** Phase 1 complete ✅
 
@@ -98,7 +98,7 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 
 ---
 
-## Phase 2 — Commerce Backend Integration
+## Phase 2 — Commerce Backend Integration 🔄 ACTIVE
 
 **Goal:** Stand up the Medusa backend and connect the storefront to real product data.
 
