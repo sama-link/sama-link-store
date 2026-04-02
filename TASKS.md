@@ -32,6 +32,7 @@ For workflow see `docs/cursor-workflow.md`.
 - [x] `I18N-3`: Create i18n request config — `apps/storefront/i18n/request.ts`, `getRequestConfig`, v4 `requestLocale`, dynamic message import
 - [x] `I18N-4`: Create middleware.ts — `apps/storefront/middleware.ts`, `createMiddleware(routing)`, locale prefix enforcement
 - [x] `I18N-5`: Update next.config.ts — `createNextIntlPlugin('./i18n/request.ts')`, build passes
+- [x] `I18N-6`: Create `app/[locale]/layout.tsx` — locale root layout, `NextIntlClientProvider`, `lang`/`dir`, `notFound()` guard
 
 ---
 
@@ -281,7 +282,7 @@ export default withNextIntl(nextConfig);
 
 ---
 
-#### I18N-6: Create `app/[locale]/layout.tsx` — locale root layout
+#### ~~I18N-6: Create `app/[locale]/layout.tsx` — locale root layout~~ ✅ Done
 
 **Phase:** Phase 1 — Storefront Skeleton
 **Depends on:** I18N-5
