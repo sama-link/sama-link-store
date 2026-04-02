@@ -1,0 +1,16 @@
+# Normalize line endings: LF in repository, checkout according to OS
+* text=auto eol=lf
+
+# Explicitly set binary files to avoid corruption
+*.ico binary
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.avif binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+*.eot binary

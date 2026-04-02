@@ -1,0 +1,25 @@
+{
+  "common": {
+    "storeName": "Sama Link Store",
+    "loading": "Loading...",
+    "error": "Something went wrong",
+    "noResults": "No results found"
+  },
+  "nav": {
+    "products": "Products",
+    "collections": "Collections",
+    "about": "About",
+    "cart": "Cart",
+    "account": "My Account"
+  },
+  "home": {
+    "headline": "Sama Link Store",
+    "subheadline": "Discover our curated products"
+  },
+  "footer": {
+    "copyright": "All rights reserved",
+    "privacy": "Privacy Policy",
+    "terms": "Terms & Conditions",
+    "contact": "Contact Us"
+  }
+}

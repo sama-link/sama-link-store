@@ -1,0 +1,187 @@
+---
+description: Storefront-specific rules — applies to all files under apps/storefront/
+globs: apps/storefront/**
+alwaysApply: false
+---
+
+# Storefront Rules — apps/storefront
+
+These rules apply to every file you create or modify inside `apps/storefront/`.
+
+---
+
+## Stack Reference
+
+| Concern | Technology |
+|---|---|
+| Framework | Next.js 16, App Router |
+| Language | TypeScript 5, strict mode |
+| Styling | Tailwind CSS v4 |
+| i18n | next-intl |
+| Class merging | `cn()` from `lib/cn.ts` |
+| HTTP client | Medusa JS SDK via `lib/medusa-client.ts` |
+
+---
+
+## App Router Rules
+
+- Root locale layout lives at `app/[locale]/layout.tsx`
+- All public pages live under `app/[locale]/(storefront)/`
+- Auth pages live under `app/[locale]/(auth)/` (Phase 5)
+- Account pages live under `app/[locale]/(account)/` (Phase 5)
+- API routes live under `app/api/` (no locale prefix)
+- Loading states: `loading.tsx` file in the route segment
+- Error states: `error.tsx` file (must be `"use client"`)
+- 404: `not-found.tsx` at `app/[locale]/not-found.tsx`
+
+### Server vs Client components
+
+```
+Default: Server Component (no directive needed)
+
+Use "use client" ONLY when the component needs:
+  - useState / useReducer
+  - useEffect / useLayoutEffect
+  - Browser APIs (window, document, navigator)
+  - Event listeners
+  - Third-party client-only libraries
+```
+
+Never put `"use client"` on a layout or page unless absolutely required.
+Extract interactive parts into small leaf components instead.
+
+---
+
+## i18n Rules
+
+- Every visible string must use `useTranslations()` (client) or `getTranslations()` (server)
+- Never hardcode user-visible text in components
+- Translation namespace matches the feature: `nav`, `home`, `product`, `cart`, `footer`, `common`
+- Always add keys to BOTH `messages/ar.json` AND `messages/en.json` simultaneously
+- Arabic (`ar`) is primary — write Arabic text first, then English
+
+```tsx
+// Server Component
+import { getTranslations } from 'next-intl/server';
+const t = await getTranslations('nav');
+
+// Client Component
+import { useTranslations } from 'next-intl';
+const t = useTranslations('nav');
+```
+
+---
+
+## RTL/LTR Rules
+
+The `<html>` element has `lang` and `dir` set from the locale.
+You must honour RTL in every component:
+
+```tsx
+// ✅ Correct — logical properties flip automatically
+className="ms-4 ps-3 rounded-s-md text-start"
+
+// ❌ Wrong — breaks RTL
+className="ml-4 pl-3 rounded-l-md text-left"
+```
+
+Logical property mapping:
+| Physical | Logical |
+|---|---|
+| `ml-*` | `ms-*` |
+| `mr-*` | `me-*` |
+| `pl-*` | `ps-*` |
+| `pr-*` | `pe-*` |
+| `left-*` | `start-*` |
+| `right-*` | `end-*` |
+| `text-left` | `text-start` |
+| `text-right` | `text-end` |
+| `rounded-l-*` | `rounded-s-*` |
+| `rounded-r-*` | `rounded-e-*` |
+
+---
+
+## Layout System
+
+- Use `Container` from `components/layout/Container.tsx` for all max-width wrapping
+- Do not hard-code `max-w-7xl` or padding directly in pages — use Container
+- Container already handles responsive padding (`px-4 sm:px-6 lg:px-8`)
+
+---
+
+## Design Tokens
+
+All colors use the `@theme` tokens defined in `app/globals.css`.
+Use token names, not raw hex values:
+
+```tsx
+// ✅ Correct
+className="bg-brand text-text-inverse border-border"
+
+// ❌ Wrong — bypasses the token system
+className="bg-[#1a1a2e] text-white border-gray-200"
+```
+
+Available token groups: `brand`, `accent`, `surface-*`, `text-*`, `border-*`, `success`, `warning`, `error`, `info`
+
+---
+
+## Component Rules
+
+- Components go in `components/[feature]/ComponentName.tsx`
+- Never exceed ~150 lines — split into sub-components if needed
+- Props interface must be exported and named: `[ComponentName]Props`
+- Use `React.HTMLAttributes<HTMLElement>` spread for passthrough props
+- Always `cn()` for className — never string concatenation
+
+---
+
+## SEO Rules
+
+Every public page must have `generateMetadata`:
+
+```tsx
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  return {
+    title: 'Page title',          // will be templated: "Page title | Sama Link Store"
+    description: 'Description',   // 120-160 chars
+  };
+}
+```
+
+- Use `title: { template: '%s | Sama Link Store' }` in the locale layout
+- Set `metadataBase` in the root layout
+- Every product page needs Open Graph image
+- Every product page needs JSON-LD structured data (Phase 3)
+
+---
+
+## Performance Rules
+
+- Use `next/image` for all product images — never `<img>`
+- Always specify `width`/`height` or use `fill` with a sized container
+- `priority` prop on above-the-fold images only
+- ISR: `export const revalidate = 3600` on product/collection pages (Phase 3)
+- Avoid importing heavy libraries in Server Components if they're client-only
+
+---
+
+## Medusa API Client Rules (Phase 2+)
+
+- All API calls go through `lib/medusa-client.ts`
+- No raw `fetch()` calls outside `lib/`
+- All response types must be defined in `packages/types`
+- Errors must be caught and handled — never let API errors crash the page silently
+
+---
+
+## Files That Must NEVER Be Modified by Cursor Without Explicit Approval
+
+- `app/globals.css` — design token changes require Claude approval
+- `app/[locale]/layout.tsx` — root layout changes require Claude approval
+- `lib/cn.ts` — utility, do not change
+- `lib/i18n.ts` — replaced by next-intl config, do not modify
+- `tsconfig.json` — do not modify compiler options
+- `next.config.ts` — only modify when a task explicitly requires it
+- `tailwind.config.*` — Tailwind v4 uses CSS config only, no JS config needed
+- `package.json` — only modify when a task explicitly requires adding a dependency

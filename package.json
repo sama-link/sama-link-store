@@ -1,0 +1,33 @@
+{
+  "name": "sama-link-store",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Sama Link Store — multilingual, AI-friendly e-commerce platform",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "start": "turbo run start",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "dev:storefront": "npm run dev --workspace=apps/storefront",
+    "dev:backend": "npm run dev --workspace=apps/backend",
+    "dev:admin": "npm run dev --workspace=apps/admin",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md}\" --ignore-path .gitignore"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0",
+    "prettier": "^3.2.0",
+    "eslint": "^8.57.0"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "npm": ">=10.0.0"
+  },
+  "packageManager": "npm@10.5.0"
+}

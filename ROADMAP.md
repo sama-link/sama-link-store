@@ -1,0 +1,257 @@
+# Roadmap — Sama Link Store
+
+This document defines the phased implementation plan. Each phase has a clear goal, scope, deliverables, dependencies, and exit criteria.
+
+Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
+
+---
+
+## Phase 0 — Project Foundation ✅ (current)
+
+**Goal:** Establish a clean, documented, production-ready project base before writing any app code.
+
+**Scope:**
+- Monorepo structure
+- All core documentation files
+- Environment variable reference
+- Git configuration
+- Base package configuration
+
+**Deliverables:**
+- [x] Folder structure: `apps/`, `packages/`, `docs/`
+- [x] `README.md`
+- [x] `PROJECT_BRIEF.md`
+- [x] `ARCHITECTURE.md`
+- [x] `DEVELOPMENT_RULES.md`
+- [x] `ROADMAP.md`
+- [x] `TASKS.md`
+- [x] `SESSION_GUIDE.md`
+- [x] `DECISIONS.md`
+- [x] `.env.example`
+- [x] `.gitignore`
+- [x] Root `package.json` (monorepo)
+- [x] `turbo.json`
+- [x] Extended docs in `docs/`
+
+**Dependencies:** None
+
+**Exit criteria:** Repository is structured, documented, and ready for a new developer (or AI session) to start Phase 1 without ambiguity.
+
+---
+
+## Phase 1 — Storefront Skeleton
+
+**Goal:** Scaffold the Next.js storefront app with core layout, routing, localization foundation, and design system baseline.
+
+**Scope:**
+- Initialize `apps/storefront` as a Next.js 14+ App Router project
+- Configure TypeScript, Tailwind, ESLint, Prettier
+- Core layout: header, footer, navigation
+- Route groups: `(shop)`, `(auth)`, `(account)`
+- RTL/LTR layout switching (Arabic/English)
+- i18n routing structure (`/ar/...`, `/en/...` or `next-intl`)
+- Placeholder home page, product listing page, product detail page
+- `packages/ui` initialized with base primitives (Button, Card, Input, Badge)
+- `packages/types` initialized with Product, Cart, Order base types
+- `packages/config` with shared tsconfig + ESLint config
+
+**Deliverables:**
+- [ ] `apps/storefront` initialized and running
+- [ ] Core layout components
+- [ ] Route structure defined
+- [ ] i18n provider configured
+- [ ] RTL layout working
+- [ ] `packages/ui` with 5+ primitive components
+- [ ] `packages/types` with domain types
+- [ ] `packages/config` shared configs
+- [ ] Storefront loads at `localhost:3000`
+
+**Dependencies:** Phase 0 complete
+
+**Exit criteria:** `npm run dev:storefront` runs without errors. Navigating to home, a mock product list, and a mock product detail page works in both Arabic and English.
+
+---
+
+## Phase 2 — Commerce Backend Integration
+
+**Goal:** Stand up the Medusa backend and connect the storefront to real product data.
+
+**Scope:**
+- Initialize `apps/backend` as a Medusa v2 project
+- Configure PostgreSQL connection
+- Seed initial data (1 category, 2–3 products with variants)
+- Create `lib/medusa-client.ts` in storefront (typed Medusa Store API client)
+- Replace mock data in storefront with live Medusa API data
+- Configure CORS between storefront and backend
+
+**Deliverables:**
+- [ ] `apps/backend` initialized and running on `localhost:9000`
+- [ ] PostgreSQL connected and migrations run
+- [ ] Seed script with initial test data
+- [ ] Storefront fetches and displays real products
+- [ ] API client typed and isolated
+
+**Dependencies:** Phase 1 complete, PostgreSQL available
+
+**Exit criteria:** Products visible in storefront are sourced from Medusa/PostgreSQL. No mock data remains in storefront data layer.
+
+---
+
+## Phase 3 — Product Catalog
+
+**Goal:** Full product browsing experience: collections, product detail, variants, images, basic filtering.
+
+**Scope:**
+- Product listing page with pagination
+- Collection/category pages
+- Product detail page: images, variants, pricing, description
+- Basic filter sidebar (category, price range)
+- Product search (basic — Medusa built-in, Meilisearch deferred to Phase 7)
+- Image handling with `next/image` and S3/R2 storage
+- ISR for product and collection pages
+
+**Deliverables:**
+- [ ] Product listing with pagination and filters
+- [ ] Collection/category pages
+- [ ] Product detail page with variant selector
+- [ ] Image CDN/S3 integration for product media
+- [ ] ISR caching configured
+- [ ] Breadcrumbs and SEO metadata on catalog pages
+
+**Dependencies:** Phase 2 complete
+
+**Exit criteria:** Customer can browse all products, navigate categories, view product details, and select variants. Pages are statically generated with ISR.
+
+---
+
+## Phase 4 — Cart and Checkout
+
+**Goal:** End-to-end cart and checkout flow with Stripe payment.
+
+**Scope:**
+- Cart: add, remove, update quantity, persist via Medusa cart API
+- Cart drawer/page
+- Checkout: shipping address, shipping method selection, payment
+- Stripe integration (server-side payment intent, client-side Elements)
+- Order success page
+- Guest checkout supported
+- Basic email confirmation (via Medusa notifications)
+
+**Deliverables:**
+- [ ] Cart context and hooks
+- [ ] Cart UI (drawer + dedicated page)
+- [ ] Multi-step checkout flow
+- [ ] Stripe payment integration (server-side only for secret key)
+- [ ] Order confirmation page
+- [ ] Post-order email trigger
+
+**Dependencies:** Phase 3 complete, Stripe account configured
+
+**Exit criteria:** A customer can add a product to cart, complete checkout with a test Stripe card, and receive an order confirmation.
+
+---
+
+## Phase 5 — Orders and Customer Accounts
+
+**Goal:** Customer account system and order management experience.
+
+**Scope:**
+- Customer registration and login (Medusa auth)
+- Account dashboard: profile, addresses, order history
+- Order detail page
+- Protected account routes
+- Password reset flow
+- Guest order lookup (by email + order ID)
+
+**Deliverables:**
+- [ ] Auth flow (register, login, logout, password reset)
+- [ ] Account dashboard pages
+- [ ] Order history and order detail
+- [ ] Saved addresses management
+- [ ] Protected route middleware
+
+**Dependencies:** Phase 4 complete
+
+**Exit criteria:** Customers can register, log in, place orders, and view their order history. Auth state persists across sessions.
+
+---
+
+## Phase 6 — Admin / Dashboard
+
+**Goal:** Merchant-facing admin interface for day-to-day store operations.
+
+**Scope:**
+- Decision: Medusa Admin UI vs custom Next.js admin (see DECISIONS.md)
+- Product management: create, edit, delete products and variants
+- Order management: view orders, update status, fulfillment
+- Customer management: view customers
+- Basic analytics: revenue, orders, top products
+- Role-based access (admin vs staff roles)
+
+**Deliverables:**
+- [ ] Admin app running and authenticated
+- [ ] Product CRUD
+- [ ] Order management UI
+- [ ] Customer view
+- [ ] Basic dashboard metrics
+
+**Dependencies:** Phase 5 complete
+
+**Exit criteria:** Merchant can log into admin, manage products, and process orders without touching the database directly.
+
+---
+
+## Phase 7 — SEO, Localization, Analytics, Marketing
+
+**Goal:** Maximize discoverability, complete multilingual support, and connect marketing tools.
+
+**Scope:**
+- Full SEO: dynamic metadata, Open Graph, JSON-LD structured data, sitemap.xml, robots.txt
+- i18n completion: all strings translated AR/EN, locale-specific URLs
+- Meilisearch integration for fast product search
+- Google Analytics / GTM integration
+- Email marketing hooks (abandoned cart, promotional)
+- Discount codes and basic promotions (Medusa promotions module)
+
+**Deliverables:**
+- [ ] Full metadata strategy implemented
+- [ ] JSON-LD on product, category, breadcrumb pages
+- [ ] `sitemap.xml` generated dynamically
+- [ ] All UI strings translated in AR and EN
+- [ ] Meilisearch connected to product search
+- [ ] GA4 / GTM event tracking
+- [ ] Promotion/discount code support
+
+**Dependencies:** Phase 6 complete
+
+**Exit criteria:** Storefront scores 90+ Lighthouse SEO. All pages have correct metadata. Both locales fully functional. Search works via Meilisearch.
+
+---
+
+## Phase 8 — Hardening and Launch Readiness
+
+**Goal:** Production security, performance, reliability, and observability.
+
+**Scope:**
+- Security headers (CSP, HSTS, X-Frame-Options, etc.)
+- Dependency audit and cleanup
+- Error monitoring (Sentry or similar)
+- Rate limiting on API endpoints
+- Load testing / performance profiling
+- Backup strategy for PostgreSQL
+- Environment configuration review
+- Staging environment verification
+- Launch checklist sign-off
+
+**Deliverables:**
+- [ ] All security headers configured
+- [ ] `npm audit` — no critical/high vulnerabilities
+- [ ] Error monitoring active
+- [ ] Rate limiting on auth and cart endpoints
+- [ ] Performance verified on staging
+- [ ] Backup automation confirmed
+- [ ] Launch checklist completed
+
+**Dependencies:** Phase 7 complete
+
+**Exit criteria:** Platform passes security review, performance benchmarks, and launch checklist. Ready for production traffic.

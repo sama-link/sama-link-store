@@ -1,0 +1,151 @@
+---
+description: Task execution model — how Cursor receives, executes, and hands off tasks
+alwaysApply: true
+---
+
+# Task Execution Model
+
+Every task you receive has been defined by Claude (the project architect).
+Follow this model precisely for every task.
+
+---
+
+## Task Lifecycle
+
+```
+RECEIVE → READ → PLAN → IMPLEMENT → VERIFY → REPORT
+```
+
+### 1. RECEIVE
+- Read the full task brief before doing anything
+- Identify: goal, scope, forbidden files, acceptance criteria, out-of-scope
+- If anything is ambiguous → ASK before starting, do not guess
+
+### 2. READ
+- Open and read every file listed in the brief's context or scope
+- Do not rely on memory of file contents — re-read if unsure
+- Note what currently exists so you don't duplicate or conflict with it
+
+### 3. PLAN
+- List the changes you intend to make (mentally or in a comment at the top of your response)
+- Confirm each change is within the stated scope
+- If your plan requires touching a file not in the scope list → STOP and report
+
+### 4. IMPLEMENT
+- Work in the order specified by "Implementation Steps" in the brief
+- One logical unit at a time — don't jump ahead
+- If an intermediate step fails, fix it before continuing
+- Do not deviate from the brief's implementation steps without reason
+
+### 5. VERIFY
+Run these before reporting done:
+```bash
+cd apps/storefront && npx tsc --noEmit
+cd apps/storefront && npx next build
+```
+Both must pass with zero errors. If they don't — fix, don't skip.
+
+### 6. REPORT
+End your response with a section titled **"Task Report"** containing:
+- List of files created
+- List of files modified (with one-line description of change)
+- List of files deleted
+- Confirmation each acceptance criterion is met (with ✅ or ❌)
+- Any decisions you made that weren't in the brief (flag for Claude to review)
+- Any concerns or issues for Claude to address
+
+---
+
+## Scope Discipline
+
+The brief defines EXACTLY what you may touch.
+
+If you notice a bug or improvement opportunity outside your scope:
+- Do NOT fix it
+- Add a comment: `// TODO: [description] — flagged for Claude review`
+- Report it in your Task Report
+
+If you cannot complete the task without touching a forbidden file:
+- STOP
+- Report to Claude with explanation
+- Wait for updated brief
+
+---
+
+## Dependency Handling
+
+If the task requires a new npm package:
+- The brief will explicitly list it
+- Run: `npm install [package] --workspace=apps/storefront` (or relevant workspace)
+- Do not install additional packages that weren't listed
+
+If a listed package doesn't exist or has a different API than expected:
+- STOP and report to Claude
+- Do not substitute a different package without approval
+
+---
+
+## Handling Ambiguity
+
+**Scenario: Brief says "update the layout" but doesn't specify exact props**
+→ Use the existing code's patterns. If still unclear, ask.
+
+**Scenario: Two approaches seem equally valid**
+→ Use the one that matches existing code patterns. If genuinely equal, note both in your Report.
+
+**Scenario: The brief references a file that doesn't exist**
+→ STOP and report. Do not create it unless creation is explicitly stated in the brief's scope.
+
+**Scenario: Implementing the brief would break an existing feature**
+→ STOP and report the conflict. Do not implement a workaround without approval.
+
+---
+
+## What "Done" Means
+
+A task is done when ALL of these are true:
+1. Every item in "Acceptance Criteria" is met
+2. `tsc --noEmit` passes
+3. `next build` passes (or `npm run build` for the relevant app)
+4. No files outside the scope list were modified
+5. No new dependencies were added that weren't in the brief
+6. Task Report has been written
+
+A task is NOT done if:
+- Build passes but a criterion is unmet
+- Criteria are met but there are TypeScript errors
+- You made "extra improvements" outside scope (revert them)
+
+---
+
+## Common Patterns in This Project
+
+### Adding a new page
+```
+app/[locale]/(storefront)/[page-name]/page.tsx
+```
+- Always a Server Component unless interactivity is required
+- Use `generateMetadata` for SEO
+- Fetch data at the page level, pass as props to components
+
+### Adding a new component
+```
+components/[feature]/ComponentName.tsx
+```
+- Server Component default
+- Add `"use client"` only for: state, effects, event handlers, browser APIs
+- Use `cn()` from `lib/cn.ts` for class logic
+- Use logical Tailwind properties (`ms-`, `me-`, etc.)
+
+### Adding a translation key
+1. Add the key to `messages/ar.json` with Arabic text
+2. Add the same key to `messages/en.json` with English text
+3. Use in component: `const t = useTranslations('namespace'); t('key')`
+
+### New utility function
+```
+lib/[descriptive-name].ts
+```
+- Pure function — no React, no side effects unless clearly needed
+- Export named functions, not default
+- Type all parameters and return values
