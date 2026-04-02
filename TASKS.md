@@ -31,6 +31,7 @@ For workflow see `docs/cursor-workflow.md`.
 - [x] `I18N-2`: Create i18n routing config — `apps/storefront/i18n/routing.ts`, `defineRouting`, locales `['ar','en']`, defaultLocale `'ar'`
 - [x] `I18N-3`: Create i18n request config — `apps/storefront/i18n/request.ts`, `getRequestConfig`, v4 `requestLocale`, dynamic message import
 - [x] `I18N-4`: Create middleware.ts — `apps/storefront/middleware.ts`, `createMiddleware(routing)`, locale prefix enforcement
+- [x] `I18N-5`: Update next.config.ts — `createNextIntlPlugin('./i18n/request.ts')`, build passes
 
 ---
 
@@ -229,7 +230,7 @@ export const config = {
 
 ---
 
-#### I18N-5: Update next.config.ts with next-intl plugin
+#### ~~I18N-5: Update next.config.ts with next-intl plugin~~ ✅ Done
 
 **Phase:** Phase 1 — Storefront Skeleton
 **Depends on:** I18N-4
@@ -535,7 +536,7 @@ See `ROADMAP.md` for scope. Tasks broken out when phase becomes active.
 
 ## Known Follow-ups
 
-- [ ] `FIX-1`: Investigate middleware deprecation warning — Next.js printed a deprecation notice during `next build` after I18N-4. Build passed. Investigate after I18N-5 to confirm whether the warning is resolved by the next-intl plugin or requires a separate fix.
+- [ ] `FIX-1`: Fix middleware deprecation warning — Warning: `"The 'middleware' file convention is deprecated. Please use 'proxy' instead."` Persists after I18N-5 plugin wiring — confirmed not a next-intl issue. This is a Next.js 16 convention change. Fix: rename `apps/storefront/middleware.ts` → `apps/storefront/proxy.ts` (or follow Next.js 16 docs for the new convention). Build passes with warning. Low priority — address after I18N-8.
 
 ---
 
