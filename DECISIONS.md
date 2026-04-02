@@ -263,6 +263,124 @@ All design tokens (colors, radius, shadows, spacing overrides) are defined in `a
 
 ---
 
+## ADR-014: Direct-to-Main Git Workflow (Phase 1 Exception)
+
+**Date:** 2026-04-02
+**Status:** Accepted (time-limited)
+
+### Context
+DEVELOPMENT_RULES.md §9 specifies a `develop` branch, feature branches, and PRs. In practice, all Phase 1 work has been committed directly to `main` with no branching, which is a deliberate deviation.
+
+### Decision
+Allow direct commits to `main` for Phase 1 solo development. This exception is explicitly time-limited. From Phase 2 onward — when the backend is introduced and multiple concerns diverge — the full branch workflow (`develop`, feature branches, PRs) must be enforced.
+
+### Consequences
+- Phase 1 commits are direct to `main`, each scoped to a single reviewed task
+- `main` is the only branch; Vercel auto-deploys on every push
+- Phase 2 kick-off requires creating a `develop` branch and updating CI/deployment config
+- This ADR must be revisited before any second contributor (human or agent) joins the codebase
+
+---
+
+## ADR-015: Mobile-First UI is Mandatory
+
+**Date:** 2026-04-02
+**Status:** Accepted
+
+### Context
+The primary market is Arabic-speaking, predominantly mobile. All UI design and implementation must reflect this. Desktop experience is important but secondary.
+
+### Decision
+All UI components and layouts must be designed and implemented mobile-first (320–480px baseline). Desktop layouts are progressive enhancements via Tailwind breakpoints (`sm:`, `md:`, `lg:`). No component ships without a verified mobile layout. RTL must be confirmed on mobile as the primary case.
+
+### Consequences
+- Tailwind classes are written mobile-first; desktop overrides are `sm:` or larger
+- Component reviews must check mobile layout before desktop
+- No `hidden` class that hides critical UI on mobile without a mobile alternative
+- Lighthouse mobile score is the primary performance target (not desktop)
+
+---
+
+## ADR-016: SEO and AI Discovery are First-Class Architectural Concerns
+
+**Date:** 2026-04-02
+**Status:** Accepted
+
+### Context
+Sama Link Store is an SEO-dependent e-commerce platform. Organic discovery via search engines and AI assistants (LLM-powered search) is a primary acquisition channel. SEO is not a Phase 7 afterthought — it shapes architecture from Phase 1 onward.
+
+### Decision
+SEO and discoverability requirements are baked into the architecture:
+- Every page must export `generateMetadata` with accurate `title`, `description`, and `openGraph` values
+- Structured data (JSON-LD) is required on product, collection, and breadcrumb pages from the moment those pages exist
+- A `sitemap.xml` and `robots.txt` are created before Phase 2 ships
+- `next/image` is mandatory for all images (correct `alt`, dimensions, formats)
+- URLs must be clean, locale-prefixed, and canonical — no duplicate content between `/ar/` and `/en/`
+
+### Consequences
+- Page briefs must include metadata as a required deliverable, not optional
+- Product and category page templates designed with structured data from the start
+- SEO audit is a Phase 2 exit criterion, not deferred to Phase 7
+- A lightweight SEO foundation task (metadata, sitemap, robots.txt) is inserted before Phase 2
+
+---
+
+## ADR-017: Rendering Strategy and Caching Must Be Intentional
+
+**Date:** 2026-04-02
+**Status:** Accepted
+
+### Context
+Next.js App Router defaults can produce unexpected dynamic rendering or stale cached responses. As the storefront grows, undefined rendering behaviour becomes a performance and correctness risk.
+
+### Decision
+Every route type must have an explicit rendering strategy defined when it is created:
+
+| Route type | Strategy |
+|---|---|
+| Home page | Static (ISR, revalidate: 3600) |
+| Product listing | ISR (revalidate: 300) |
+| Product detail | ISR (revalidate: 60) |
+| Cart / Checkout | Dynamic (no cache) |
+| Account pages | Dynamic, authenticated |
+| 404 / Error | Static |
+
+- No route ships without a declared caching/rendering strategy
+- `fetch()` calls must include explicit `cache` or `next.revalidate` options
+- `export const dynamic = 'force-dynamic'` is only used with justification
+
+### Consequences
+- Route briefs must include rendering strategy as a required field
+- `generateStaticParams` is used for all locale and slug routes
+- Performance reviews check rendering mode as part of acceptance criteria
+
+---
+
+## ADR-018: Adopt > Extend > Rebuild
+
+**Date:** 2026-04-02
+**Status:** Accepted
+
+### Context
+The project uses Medusa v2 as a full commerce backend. Medusa provides modules, workflows, and an Admin UI out of the box. The risk is re-implementing what Medusa already provides.
+
+### Decision
+When a commerce capability is needed, evaluate in this order:
+
+1. **Adopt** — use the Medusa module, plugin, or Admin UI as-is
+2. **Extend** — customise via Medusa's extension points (custom modules, workflows, API routes)
+3. **Rebuild** — only if Medusa's approach is fundamentally incompatible with a documented requirement
+
+Rebuilding requires an explicit ADR with justification. "We want more control" or "it would be faster" are not sufficient justifications.
+
+### Consequences
+- Default to Medusa Admin UI for Phase 6 (admin dashboard)
+- Default to Medusa cart, order, and customer modules — do not replicate in custom code
+- Any deviation from Medusa defaults must be documented as an ADR before implementation begins
+- Medusa version is pinned in `package.json`; upgrades are reviewed before applying
+
+---
+
 ## ADR-013: Early Preview Deployment Before Phase 8
 
 **Date:** 2026-04-02

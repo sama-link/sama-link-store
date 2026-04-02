@@ -21,12 +21,13 @@ This file tracks deployment environments, URLs, and configuration for the Sama L
 | Deployed | 2026-04-02 |
 | Status | ✅ Live and verified |
 
-**Verification result (2026-04-02):**
-- Page title: "Sama Link Store" ✅
-- Navigation renders ✅
-- UI components render (Button, Badge, Input, Card) ✅
+**Verification result (2026-04-02, post-i18n — commit `f5297b8`):**
+- `/ar` serves home page with `<html lang="ar" dir="rtl">` ✅
+- `/en` serves home page with `<html lang="en" dir="ltr">` ✅
+- Locale switcher navigates between `/ar` and `/en` equivalents ✅
+- Header and Footer strings render in correct locale ✅
+- 404 page (`/ar/nonexistent`) shows Arabic copy ✅
 - No JavaScript errors detected ✅
-- Footer renders ✅
 
 **Notes:**
 - This is a **preview deployment**, not a production launch. See ADR-013.
@@ -77,3 +78,9 @@ Not configured. To be set up in Phase 8 alongside production deployment.
 | Date | Commit | Description |
 |---|---|---|
 | 2026-04-02 | `2a760a1` | Initial deployment — Phase 1 storefront skeleton |
+| 2026-04-02 | `ce48a91`–`37f6585` | I18N-1–7 — next-intl installed, routing, middleware, plugin, locale layouts, route migration |
+| 2026-04-02 | `397ed8c` | I18N-8 — translations wired in Header, Footer, MobileMenu |
+| 2026-04-02 | `40c80f9` | LAYOUT-1 + LAYOUT-4 — `generateStaticParams`, 404 page |
+| 2026-04-02 | `8104d45` | COPY-1 — dedicated 404 and locale switcher translation keys |
+| 2026-04-02 | `a674bcf` | LAYOUT-2 — `LocaleSwitcher.tsx` isolated client component |
+| 2026-04-02 | `f5297b8` | LAYOUT-3 — Phase 1 placeholder home page |

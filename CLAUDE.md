@@ -60,25 +60,38 @@ See `docs/notion/notion-sync-protocol.md` for the full sync checklist.
 ## Project State (updated each session)
 
 **Monorepo:** `apps/storefront`, `apps/admin` (placeholder), `apps/backend` (placeholder)
-**Active phase:** Phase 1 — Storefront Skeleton
+**Active phase:** Pre-Phase 2 — Governance & Branding
 **Stack:** Next.js 16 App Router · TypeScript strict · Tailwind v4 · Turborepo
 
-### Completed in Phase 1 so far
-- [x] Next.js storefront scaffolded and running (`localhost:3000`)
-- [x] Folder structure: `app/(storefront)/`, `components/layout/`, `components/ui/`, `lib/`, `hooks/`, `messages/`
+### Phase 1 — COMPLETE ✅
+
+All storefront foundation work is done:
+
+- [x] Next.js 16 storefront scaffolded and running (`localhost:3000`)
+- [x] Folder structure: `app/[locale]/(storefront)/`, `components/layout/`, `components/ui/`, `lib/`, `hooks/`, `messages/`
 - [x] Design tokens in `globals.css` (`@theme` block — Tailwind v4)
 - [x] `lib/cn.ts` — class-merging utility
 - [x] UI components: `Button`, `Input`, `Card`/`CardHeader`/`CardBody`/`CardFooter`, `Badge`
-- [x] Layout: `Header` (responsive + mobile menu), `Footer` (responsive grid), `Container`
+- [x] Layout: `Header` (async Server Component), `Footer`, `Container`
 - [x] `MobileMenu.tsx` — client component with toggle
-- [x] `lib/i18n.ts` — locale constants and helpers (placeholder)
-- [x] `messages/ar.json` + `messages/en.json` — translation key stubs
-- [x] Git initialized, first commit (`2a760a1`), repo pushed to `github.com/sama-link/sama-link-store`
+- [x] `LocaleSwitcher.tsx` — working locale switcher, isolated client boundary
+- [x] i18n: `next-intl` installed, `i18n/routing.ts`, `i18n/request.ts`, `middleware.ts`, `next.config.ts` wired
+- [x] `app/[locale]/layout.tsx` — locale root layout with RTL/LTR, `NextIntlClientProvider`, `generateStaticParams`
+- [x] `app/[locale]/(storefront)/layout.tsx` — storefront layout (Header + Footer)
+- [x] `app/[locale]/(storefront)/page.tsx` — Phase 1 placeholder home page (all strings translated)
+- [x] `app/[locale]/not-found.tsx` — 404 page with locale-aware back link
+- [x] `messages/ar.json` + `messages/en.json` — complete: `common`, `nav`, `home`, `footer`, `errors`
+- [x] Git initialized, pushed to `github.com/sama-link/sama-link-store` (latest: `f5297b8`)
 - [x] Preview deployment live at `https://sama-link-store-storefront.vercel.app/` (ADR-013)
 - [x] `DEPLOYMENT.md` created with project details, env var plan, deployment history
 
-### Next up
-- [ ] i18n routing with next-intl (Tasks I18N-1 through I18N-8 in TASKS.md)
+### Next up (Pre-Phase 2 sequence)
+- [ ] Documentation & governance cleanup (ADR-014–018 added, Notion synced)
+- [ ] Branding / design system definition (typography, color palette, logo)
+- [ ] SEO foundation light (metadata, `robots.txt`, sitemap stub) — ADR-016
+- [ ] INFRA-1: `packages/config` with shared `tsconfig.base.json` (optional but recommended)
+- [ ] INFRA-2: `packages/types` with domain type definitions (optional but recommended)
+- [ ] Phase 2: Medusa v2 backend + PostgreSQL + storefront integration
 
 ---
 
@@ -109,6 +122,11 @@ Current locked decisions:
 - **Backend:** Medusa v2 (ADR-003)
 - **DB:** PostgreSQL (ADR-004)
 - **TS:** Strict mode everywhere (ADR-005)
+- **Git workflow:** Direct to `main` in Phase 1 only; branch workflow from Phase 2 (ADR-014)
+- **UI:** Mobile-first mandatory (ADR-015)
+- **SEO:** First-class architectural concern, not deferred (ADR-016)
+- **Rendering:** Intentional per-route strategy required (ADR-017)
+- **Commerce:** Adopt Medusa defaults before extending or rebuilding (ADR-018)
 
 ---
 

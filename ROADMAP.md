@@ -6,7 +6,7 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 
 ---
 
-## Phase 0 — Project Foundation ✅ (current)
+## Phase 0 — Project Foundation ✅ COMPLETE
 
 **Goal:** Establish a clean, documented, production-ready project base before writing any app code.
 
@@ -39,36 +39,62 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 
 ---
 
-## Phase 1 — Storefront Skeleton
+## Phase 1 — Storefront Skeleton ✅ COMPLETE
 
 **Goal:** Scaffold the Next.js storefront app with core layout, routing, localization foundation, and design system baseline.
 
+**Deliverables:**
+- [x] `apps/storefront` initialized and running (Next.js 16 App Router)
+- [x] Tailwind v4 design tokens (`@theme` in `app/globals.css`)
+- [x] UI component system: `Button`, `Input`, `Card`, `Badge` in `components/ui/`
+- [x] Core layout: `Header` (Server Component), `Footer`, `Container`, `MobileMenu` (client)
+- [x] `LocaleSwitcher.tsx` — working locale switcher, isolated client boundary
+- [x] Route structure: `app/[locale]/(storefront)/` — all public routes under locale segment
+- [x] i18n: `next-intl` wired end-to-end — routing, middleware, request config, plugin
+- [x] `app/[locale]/layout.tsx` — RTL/LTR, `NextIntlClientProvider`, `generateStaticParams`
+- [x] `app/[locale]/not-found.tsx` — 404 with translated copy and locale-aware back link
+- [x] `app/[locale]/(storefront)/page.tsx` — Phase 1 placeholder home page
+- [x] `messages/ar.json` + `messages/en.json` — complete: `common`, `nav`, `home`, `footer`, `errors`
+- [x] Storefront loads at `localhost:3000`; `/ar` (RTL) and `/en` (LTR) both serve correctly
+- [ ] `packages/ui` — deferred; components live in `components/ui/` for now (INFRA-2)
+- [ ] `packages/types` — deferred; domain types not yet needed (INFRA-2)
+- [ ] `packages/config` — deferred; storefront uses its own tsconfig (INFRA-1)
+
+**Exit criteria — all met:**
+- [x] `/ar` serves home page with `<html lang="ar" dir="rtl">`
+- [x] `/en` serves home page with `<html lang="en" dir="ltr">`
+- [x] Header and Footer use translation keys — no hardcoded strings
+- [x] `next build` passes with 5 prerendered pages
+- [x] `tsc --noEmit` passes
+
+**Latest commit:** `f5297b8`
+
+---
+
+## Pre-Phase 2 — Governance, Branding & SEO Foundation 🔄 ACTIVE
+
+**Goal:** Before connecting a backend, establish the visual identity, strengthen governance, and lay a minimal SEO foundation. These steps are cheap now and expensive to retrofit later.
+
 **Scope:**
-- Initialize `apps/storefront` as a Next.js 14+ App Router project
-- Configure TypeScript, Tailwind, ESLint, Prettier
-- Core layout: header, footer, navigation
-- Route groups: `(shop)`, `(auth)`, `(account)`
-- RTL/LTR layout switching (Arabic/English)
-- i18n routing structure (`/ar/...`, `/en/...` or `next-intl`)
-- Placeholder home page, product listing page, product detail page
-- `packages/ui` initialized with base primitives (Button, Card, Input, Badge)
-- `packages/types` initialized with Product, Cart, Order base types
-- `packages/config` with shared tsconfig + ESLint config
+- Documentation and governance alignment (ADR-014 through ADR-018)
+- Branding definition: typography system, refined color palette, logo/wordmark
+- SEO foundation (light): `generateMetadata` pattern, `robots.txt`, sitemap stub, `canonical` links
+- INFRA-1 / INFRA-2: shared config and types packages (recommended but not blocking)
 
 **Deliverables:**
-- [ ] `apps/storefront` initialized and running
-- [ ] Core layout components
-- [ ] Route structure defined
-- [ ] i18n provider configured
-- [ ] RTL layout working
-- [ ] `packages/ui` with 5+ primitive components
-- [ ] `packages/types` with domain types
-- [ ] `packages/config` shared configs
-- [ ] Storefront loads at `localhost:3000`
+- [x] ADR-014: Git workflow exception documented
+- [x] ADR-015: Mobile-first mandatory
+- [x] ADR-016: SEO first-class
+- [x] ADR-017: Rendering strategy
+- [x] ADR-018: Adopt > Extend > Rebuild
+- [ ] Branding: finalized typography (Arabic + Latin fonts), color tokens updated in `globals.css`
+- [ ] SEO: `generateMetadata` on all existing pages, `robots.txt`, `sitemap.xml` stub
+- [ ] INFRA-1: `packages/config` with `tsconfig.base.json`
+- [ ] INFRA-2: `packages/types` with domain type stubs
 
-**Dependencies:** Phase 0 complete
+**Dependencies:** Phase 1 complete ✅
 
-**Exit criteria:** `npm run dev:storefront` runs without errors. Navigating to home, a mock product list, and a mock product detail page works in both Arabic and English.
+**Exit criteria:** Brand is defined. All pages export metadata. `robots.txt` and sitemap exist. Build passes.
 
 ---
 
