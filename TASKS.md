@@ -554,8 +554,9 @@ Read the current message files before starting to know exactly which keys exist.
 
 ### Phase 2 Core — Commerce Backend
 
-- [ ] `BACK-1`: Initialize `apps/backend` with Medusa v2
+- [x] `BACK-1`: Initialize `apps/backend` with Medusa v2
   - _Security: All secrets (MEDUSA_ADMIN_EMAIL, MEDUSA_ADMIN_PASSWORD, JWT_SECRET, COOKIE_SECRET) must come from env — no hardcoding_
+  - _Cleanup debt: `dev` script uses hardcoded path `../../node_modules/@medusajs/cli/cli.js` as a workaround for npm workspace ts-node hoisting. Track as `CHORE-2` — resolve before production._
 - [ ] `BACK-2`: Configure PostgreSQL and run migrations
   - _Security: DATABASE_URL must be env-only — never committed, never logged_
 - [ ] `BACK-3`: Create seed script (1 category, 2–3 products)
