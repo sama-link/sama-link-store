@@ -226,7 +226,9 @@ Runs when any of the following occurs:
 
 - Prefer batches of 2–4 tightly related tasks on the same branch
 - Do NOT exceed 4 unless tasks are trivial and low-risk
-- Any task touching backend, env, security, or database → **close the batch immediately after it**
+- Batch closure is **risk-based, not task-ID-based** — a `BACK-*` ID alone does not trigger closure
+- Close the batch immediately when a task involves: **DB schema changes, env variables, security config, or runtime-critical behavior**
+- Tasks that are scaffolding, documentation, seeding test data, or UI wiring do not trigger immediate closure unless they also meet the above criteria
 - Never mix branches inside one batch
 
 ---
