@@ -89,7 +89,7 @@ Dark mode: class-based `html.dark`, Tailwind v4 `@custom-variant dark`, ThemePro
 Logo: WebP `next/image` dual-variant (light/dark), `horizontal-no-tagline` in Header + Footer. No SVG source available.
 Raw assets in `sama-link_brand-assets_FULL/` are gitignored.
 
-**BACK-1 is next. Branch workflow is now enforced — see Phase 2 Branching Workflow below.**
+**Phase 2 is active. Pre-Work is complete. BACK-1 is next. Branch workflow is enforced.**
 
 ---
 
