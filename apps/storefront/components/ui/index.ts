@@ -14,3 +14,6 @@ export { ThemeProvider, useTheme } from "./ThemeProvider";
 export type { Theme, ThemeContextValue } from "./ThemeProvider";
 
 export { default as ThemeToggle } from "./ThemeToggle";
+
+export { default as Logo } from "./Logo";
+export type { LogoProps, LogoVariant } from "./Logo";

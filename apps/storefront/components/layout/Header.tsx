@@ -1,4 +1,6 @@
 import { getTranslations } from "next-intl/server";
+import Logo from "@/components/ui/Logo";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import Container from "./Container";
 import LocaleSwitcher from "./LocaleSwitcher";
 import MobileMenu from "./MobileMenu";
@@ -11,10 +13,10 @@ import MobileMenu from "./MobileMenu";
     ↕ MobileMenu panel (toggle)
 
   Desktop (≥ 640px)
-    [Logo]   [Products  Collections  About]   [locale switch  🛒]
+    [Logo]   [Products  Collections  About]   [locale  theme  🛒]
 
   Header is a Server Component.
-  LocaleSwitcher + MobileMenu are client boundaries.
+  ThemeToggle + LocaleSwitcher + MobileMenu are client boundaries.
 */
 
 const NAV_LINKS = [
@@ -35,10 +37,15 @@ export default async function Header() {
           {/* ── Logo ── */}
           <a
             href="/"
-            className="shrink-0 text-lg font-bold tracking-tight text-text-primary hover:text-brand transition-colors"
+            className="inline-flex shrink-0 items-center transition-opacity hover:opacity-90"
             aria-label={t("logoHomeAria")}
           >
-            {tCommon("storeName")}
+            <Logo
+              variant="horizontal-no-tagline"
+              alt={tCommon("storeName")}
+              className="h-8 w-auto"
+              priority
+            />
           </a>
 
           {/* ── Desktop nav ── */}
@@ -61,6 +68,8 @@ export default async function Header() {
           <div className="flex items-center gap-1 sm:gap-3">
 
             <LocaleSwitcher />
+
+            <ThemeToggle />
 
             {/* Cart icon — wired in Phase 4 */}
             <button

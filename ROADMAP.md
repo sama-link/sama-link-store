@@ -107,11 +107,11 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 **ADR-020.** Brand tokens, logo, dark mode, and media protocol must be complete before backend tasks begin.
 
 **Deliverables:**
-- [ ] MEDIA-1: `docs/media-intake-protocol.md` — authored ✅ (2026-04-03)
-- [ ] BRAND-2: Production-ready logo WebP variants in `public/brand/logo/` + `manifest.json`
-- [ ] BRAND-3: Semantic color tokens from logo identity — new `--color-brand` and `--color-accent`
-- [ ] BRAND-4: Light/dark theme system — class-based `html.dark`, ThemeProvider, toggle
-- [ ] BRAND-5: Logo component + applied to Header, nav, footer, global surfaces
+- [x] MEDIA-1: `docs/media-intake-protocol.md` — authored (2026-04-03)
+- [x] BRAND-2: Production-ready logo WebP variants in `public/brand/logo/` + `manifest.json`
+- [x] BRAND-3: Semantic color tokens from logo identity — new `--color-brand` and `--color-accent`
+- [x] BRAND-4: Light/dark theme system — class-based `html.dark`, ThemeProvider, toggle
+- [x] BRAND-5: Logo component + applied to Header, nav, footer, global surfaces
 
 **Exit criteria:** Logo renders in header. Dark/light toggle works. All color tokens match logo identity. Build passes.
 

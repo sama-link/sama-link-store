@@ -1,4 +1,5 @@
 import { getTranslations } from "next-intl/server";
+import Logo from "@/components/ui/Logo";
 import Container from "./Container";
 
 /*
@@ -55,9 +56,13 @@ export default async function Footer() {
           <div className="flex flex-col gap-4">
             <a
               href="/"
-              className="text-base font-bold tracking-tight text-text-primary hover:text-brand transition-colors"
+              className="inline-flex max-w-full items-center transition-opacity hover:opacity-90"
             >
-              {tCommon("storeName")}
+              <Logo
+                variant="horizontal-no-tagline"
+                alt={tCommon("storeName")}
+                className="h-7 w-auto"
+              />
             </a>
             <p className="max-w-xs text-sm leading-relaxed text-text-muted">
               {t("tagline")}

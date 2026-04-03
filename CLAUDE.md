@@ -82,11 +82,14 @@ All blocking tasks done: BRAND-1, SEO-1a, SEO-2, GIT-1 (latest: `baa3099`).
 
 ### Phase 2 — ACTIVE 🔄
 
-**Pre-work blocking BACK-1 (ADR-020):** MEDIA-1 ✅ → BRAND-2 → BRAND-3 → BRAND-4 → BRAND-5 → then backend.
+**Phase 2 Pre-Work — COMPLETE ✅** All ADR-020 tasks done: MEDIA-1 ✅ BRAND-2 ✅ BRAND-3 ✅ BRAND-4 ✅ BRAND-5 ✅
 
-Color token changes: `--color-brand` → `#1c3d6b`, `--color-accent` → `#4b8fc4` (logo-derived, replaces red).
-Dark mode: class-based `html.dark`, Tailwind v4 `@variant dark`. Logo: WebP via `next/image`, no SVG source available.
-Raw assets in `sama-link_brand-assets_FULL/` are gitignored. On-dark full lockup variants need designer re-export (transparent bg).
+Color tokens: `--color-brand` `#1c3d6b`, `--color-accent` `#4b8fc4`, `--color-charcoal` `#3d3d3d` (all logo-derived).
+Dark mode: class-based `html.dark`, Tailwind v4 `@custom-variant dark`, ThemeProvider + ThemeToggle mounted in Header.
+Logo: WebP `next/image` dual-variant (light/dark), `horizontal-no-tagline` in Header + Footer. No SVG source available.
+Raw assets in `sama-link_brand-assets_FULL/` are gitignored.
+
+**BACK-1 is now unblocked.**
 
 ---
 

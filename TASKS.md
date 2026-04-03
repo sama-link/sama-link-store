@@ -550,7 +550,7 @@ Read the current message files before starting to know exactly which keys exist.
 - [x] `BRAND-2`: Extract production-ready logo variants (WebP) into `public/brand/logo/` + `manifest.json` stub
 - [x] `BRAND-3`: Replace color tokens — new `--color-brand` (#1c3d6b) and `--color-accent` (#4b8fc4) from logo identity
 - [x] `BRAND-4`: Implement light/dark theme — `html.dark` class-based CSS variable overrides, ThemeProvider, toggle button
-- [ ] `BRAND-5`: Logo component + apply logo and brand tokens to Header, nav, footer, global surfaces
+- [x] `BRAND-5`: Logo component + apply logo and brand tokens to Header, nav, footer, global surfaces
 
 ### Phase 2 Core — Commerce Backend
 
