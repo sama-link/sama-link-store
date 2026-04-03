@@ -122,14 +122,19 @@ A feature branch is **required** when the change:
 
 **Flow for feature branches:**
 ```
-develop → feature/back-N-<slug> → PR → merge to develop
+develop → feature/back-N-<slug> → (PR) → merge to develop
 ```
+
+Pull requests are optional in solo workflow, but recommended for risky or structural changes.
 
 **Rules:**
 - Feature branches are cut from `develop` — never from `main`
-- Cursor works exclusively on the feature branch
+- Cursor never commits directly to `main`
+- Cursor may commit directly to `develop` only for low-risk changes under the hybrid policy
+- Cursor works on feature branches for all backend, runtime, and structural changes
 - Claude reviews on the feature branch before any merge
-- `main` and `develop` are both protected — no force-push, no direct commit
+- `main` is protected — no direct commits, no force-push
+- `develop` allows direct commits under the hybrid policy — no force-push
 
 **Current state:**
 - `develop` branch exists at `origin/develop` (created/verified 2026-04-03)
