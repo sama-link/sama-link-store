@@ -195,6 +195,42 @@ When reviewing Cursor's output:
 
 ---
 
+## Batched Execution Protocol (Phase 2+)
+
+Execution is split into two loops to reduce overhead while preserving control.
+
+### Loop 1 — Execution (default, fast)
+
+- Claude provides one task brief → Cursor executes → Claude reviews → next brief
+- No mandatory git push, Notion update, or session log between tasks
+- Local commits are optional and at Claude's discretion
+- Focus: correctness and forward progress only
+
+### Loop 2 — Publish & Documentation (triggered, intentional)
+
+Runs when any of the following occurs:
+- A logical batch of 2–4 related tasks is complete
+- A phase milestone or state transition occurs
+- A backend, env, security, or database change is finished
+- Human testing or external verification is needed
+- Documentation drift becomes noticeable
+
+**Actions in Loop 2:**
+- Final review and any pending fixes
+- Git: structured commit + push to correct branch
+- Sync: `TASKS.md`, `CLAUDE.md`, `README.md` if affected
+- Notion: task statuses, session log, feature tracker
+- Transition lock if state changed
+
+### Batching Rules
+
+- Prefer batches of 2–4 tightly related tasks on the same branch
+- Do NOT exceed 4 unless tasks are trivial and low-risk
+- Any task touching backend, env, security, or database → **close the batch immediately after it**
+- Never mix branches inside one batch
+
+---
+
 ## Mandatory Session End Protocol
 
 Before ending any session:
