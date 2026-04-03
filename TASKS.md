@@ -585,6 +585,7 @@ These tasks do not block BACK-1 but must be completed early in Phase 2. Priority
   - _Prerequisite for safe BACK-1 through BACK-6 execution_
 
 - [ ] `DOC-1`: README Update
+  - _Depends on: BACK-1_
   - Reflect current architecture (storefront + upcoming backend)
   - Add local setup instructions (Node, PostgreSQL, env vars)
   - Document branching workflow (`develop` → feature branch → PR)
