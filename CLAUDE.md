@@ -75,7 +75,7 @@ All blocking tasks done: BRAND-1, SEO-1a, SEO-2, GIT-1 (latest: `baa3099`).
 - [x] Typography: Cairo (Arabic) + Inter (Latin) via `next/font`, mapped in `@theme` (BRAND-1, `cba68bd`)
 - [x] Home page `generateMetadata`: canonical, hreflang, openGraph, ISR revalidate:3600 (SEO-1a, `c9a4b0f`)
 - [x] `robots.txt` + `sitemap.xml` stub with locale-prefixed URLs (SEO-2, `baa3099`)
-- [x] `develop` branch created at origin, Vercel preview configured (GIT-1)
+- [x] `develop` branch created at origin (GIT-1; recreated during audit 2026-04-03)
 - [ ] INFRA-1 / INFRA-2 — deferred, non-blocking
 - [ ] BRAND-2 (color palette/logo) — deferred, non-blocking
 - [ ] SEO-1b (404 metadata) — deferred, non-blocking
@@ -89,7 +89,32 @@ Dark mode: class-based `html.dark`, Tailwind v4 `@custom-variant dark`, ThemePro
 Logo: WebP `next/image` dual-variant (light/dark), `horizontal-no-tagline` in Header + Footer. No SVG source available.
 Raw assets in `sama-link_brand-assets_FULL/` are gitignored.
 
-**BACK-1 is now unblocked.**
+**BACK-1 is next. Branch workflow is now enforced — see Phase 2 Branching Workflow below.**
+
+---
+
+## Phase 2 Branching Workflow (ADR-014 — enforced from this point forward)
+
+**NO direct commits to `main` from Phase 2 onward.**
+
+Every BACK-* task follows this exact flow:
+
+```
+develop → feature/back-N-<slug> → PR → merge to develop
+```
+
+Main is updated only via a tested, reviewed merge from develop.
+
+**Rules:**
+- Feature branches are cut from `develop` — never from `main`
+- Branch name format: `feature/back-N-<short-slug>` (e.g. `feature/back-1-medusa-init`)
+- Cursor works exclusively on the feature branch; commits never go to `develop` or `main` directly
+- Claude reviews on the feature branch before any merge
+- `main` and `develop` are both protected — no force-push, no direct commit
+
+**Current state:**
+- `develop` branch exists at `origin/develop` (created/verified 2026-04-03)
+- Next branch to create: `feature/back-1-medusa-init` (cut from `develop` when BACK-1 begins)
 
 ---
 
