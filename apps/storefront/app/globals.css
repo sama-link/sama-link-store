@@ -7,22 +7,26 @@
 
    Color naming:
      brand      — primary brand colour (dark navy)
-     accent     — call-to-action / highlight (red)
+     accent     — call-to-action / highlight (steel blue)
      surface-*  — background layers
      text-*     — foreground text tiers
      border-*   — border tiers
      state-*    — semantic feedback colours
    ───────────────────────────────────────────────────────────── */
 @theme {
-  /* Brand palette */
-  --color-brand:          #1a1a2e;
-  --color-brand-hover:    #16213e;
-  --color-brand-muted:    #2d2d4e;
+  /* Brand palette — derived from Sama Link logo identity (ADR-020) */
+  --color-brand:          #1c3d6b;
+  --color-brand-hover:    #152e54;
+  --color-brand-muted:    #2d5a9e;
 
-  /* Accent */
-  --color-accent:         #e94560;
-  --color-accent-hover:   #d63a54;
-  --color-accent-muted:   #fce8ec;
+  /* Accent — steel blue from "SAMA" text and droplet highlight */
+  --color-accent:         #4b8fc4;
+  --color-accent-hover:   #3a7db3;
+  --color-accent-muted:   #e6f1f8;
+
+  /* Logo mark charcoal — outer droplet symbol */
+  --color-charcoal:       #3d3d3d;
+  --color-charcoal-muted: #5a5a5a;
 
   /* Surfaces */
   --color-surface:        #ffffff;
