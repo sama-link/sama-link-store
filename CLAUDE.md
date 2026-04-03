@@ -93,28 +93,47 @@ Raw assets in `sama-link_brand-assets_FULL/` are gitignored.
 
 ---
 
-## Phase 2 Branching Workflow (ADR-014 — enforced from this point forward)
+## Phase 2 Branching Workflow (ADR-014 — hybrid solo-dev policy)
 
-**NO direct commits to `main` from Phase 2 onward.**
+**NO direct commits to `main`. Ever.**
 
-Every BACK-* task follows this exact flow:
+Main is updated only via a tested, reviewed merge from `develop`.
 
+### Default: work on `develop`
+
+`develop` is the default working branch for low-risk, contained changes:
+- Documentation updates
+- Small UI tweaks and minor refactors
+- Governance and config file changes
+- Changes touching ≤ 3 files with no runtime impact
+
+### Feature branches: required for risky changes
+
+A feature branch is **required** when the change:
+- Is any `BACK-*` task
+- Touches backend, Medusa, database, API, or auth
+- Involves environment variables or secrets
+- Has runtime behavior impact
+- Spans more than ~3 files or is structural
+
+**Decision rule:** _If the change touches runtime, backend, env, security, or more than ~3 files → use a feature branch. Otherwise → commit directly to `develop`._
+
+**Branch format:** `feature/back-N-<short-slug>` (e.g. `feature/back-1-medusa-init`)
+
+**Flow for feature branches:**
 ```
 develop → feature/back-N-<slug> → PR → merge to develop
 ```
 
-Main is updated only via a tested, reviewed merge from develop.
-
 **Rules:**
 - Feature branches are cut from `develop` — never from `main`
-- Branch name format: `feature/back-N-<short-slug>` (e.g. `feature/back-1-medusa-init`)
-- Cursor works exclusively on the feature branch; commits never go to `develop` or `main` directly
+- Cursor works exclusively on the feature branch
 - Claude reviews on the feature branch before any merge
 - `main` and `develop` are both protected — no force-push, no direct commit
 
 **Current state:**
 - `develop` branch exists at `origin/develop` (created/verified 2026-04-03)
-- Next branch to create: `feature/back-1-medusa-init` (cut from `develop` when BACK-1 begins)
+- BACK-1 branch: `feature/back-1-medusa-init` (cut from `develop`)
 
 ---
 

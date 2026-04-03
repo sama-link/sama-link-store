@@ -573,6 +573,8 @@ Read the current message files before starting to know exactly which keys exist.
 
 These tasks do not block BACK-1 but must be completed early in Phase 2. Priority: High.
 
+> **Branching:** Phase 2 follows the hybrid solo-dev policy (see CLAUDE.md). BACK-* tasks use feature branches. Docs, config, and minor changes commit directly to `develop`.
+
 - [ ] `OPS-1`: CI Pipeline Setup
   - Typecheck (`tsc --noEmit`), build (Next.js), lint (if configured)
   - Must run on every PR against `develop`
