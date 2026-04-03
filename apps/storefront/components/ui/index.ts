@@ -9,3 +9,8 @@ export type { CardProps } from "./Card";
 
 export { default as Badge } from "./Badge";
 export type { BadgeProps } from "./Badge";
+
+export { ThemeProvider, useTheme } from "./ThemeProvider";
+export type { Theme, ThemeContextValue } from "./ThemeProvider";
+
+export { default as ThemeToggle } from "./ThemeToggle";

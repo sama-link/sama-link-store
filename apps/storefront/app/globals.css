@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Class-based dark mode (ADR-020): html.dark — Tailwind dark: utilities */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ─────────────────────────────────────────────────────────────
    DESIGN TOKENS
    Defined in @theme so Tailwind v4 generates utility classes
@@ -68,6 +71,34 @@
   --shadow-sm:  0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md:  0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.05);
   --shadow-lg:  0 10px 15px -3px rgb(0 0 0 / 0.08), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   DARK THEME — token overrides when html.dark (ADR-020)
+   Surfaces/text/borders: slate-style contrast for readability.
+   Brand: slightly lifted navy + accent so CTAs stay visible on dark surfaces.
+   ───────────────────────────────────────────────────────────── */
+html.dark {
+  --color-surface:        #0f172a;
+  --color-surface-subtle: #1e293b;
+  --color-surface-raised: #1e293b;
+
+  --color-text-primary:   #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted:     #94a3b8;
+  --color-text-inverse:   #0f172a;
+
+  --color-border:         #334155;
+  --color-border-strong:  #475569;
+
+  /* Brand/accent: keep identity hue, bump lightness for dark UI */
+  --color-brand:          #3d6ba8;
+  --color-brand-hover:    #5b87c0;
+  --color-brand-muted:    #2d4d7a;
+
+  --color-accent:         #6eb0e0;
+  --color-accent-hover:   #8cc4eb;
+  --color-accent-muted:   #1e3a4f;
 }
 
 /* ─────────────────────────────────────────────────────────────

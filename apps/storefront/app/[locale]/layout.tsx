@@ -4,6 +4,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing, type Locale } from '@/i18n/routing';
+import { ThemeProvider } from '@/components/ui/ThemeProvider';
 import '../globals.css';
 
 const inter = Inter({
@@ -53,11 +54,14 @@ export default async function LocaleLayout({
       lang={locale}
       dir={locale === 'ar' ? 'rtl' : 'ltr'}
       className={`${inter.variable} ${cairo.variable} h-full`}
+      suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col antialiased">
-        <NextIntlClientProvider locale={locale} messages={messages}>
-          {children}
-        </NextIntlClientProvider>
+        <ThemeProvider>
+          <NextIntlClientProvider locale={locale} messages={messages}>
+            {children}
+          </NextIntlClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
