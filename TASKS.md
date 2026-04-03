@@ -555,11 +555,51 @@ Read the current message files before starting to know exactly which keys exist.
 ### Phase 2 Core — Commerce Backend
 
 - [ ] `BACK-1`: Initialize `apps/backend` with Medusa v2
+  - _Security: All secrets (MEDUSA_ADMIN_EMAIL, MEDUSA_ADMIN_PASSWORD, JWT_SECRET, COOKIE_SECRET) must come from env — no hardcoding_
 - [ ] `BACK-2`: Configure PostgreSQL and run migrations
+  - _Security: DATABASE_URL must be env-only — never committed, never logged_
 - [ ] `BACK-3`: Create seed script (1 category, 2–3 products)
+  - _Integration risk: Seed data must match Medusa's real data model exactly — no invented fields; idempotent script preferred (re-runnable without duplicates)_
 - [ ] `BACK-4`: Create `apps/storefront/lib/medusa-client.ts`
 - [ ] `BACK-5`: Replace mock data with real API data
+  - _Integration risk: Verify field names match Medusa Store API response shapes before replacing mock data; idempotency of reads is assumed but verify pagination defaults_
+  - _SEO awareness: Ensure product/collection data structure supports future JSON-LD (Product, Offer schemas) — do not flatten fields that will be needed for structured data_
 - [ ] `BACK-6`: Configure CORS between storefront and backend
+  - _Security: CORS must be strict and environment-based — wildcard `*` is forbidden in staging/production; allowed origins must come from env_
+
+---
+
+## Phase 2 — Operational & Cross-Cutting Tasks
+
+These tasks do not block BACK-1 but must be completed early in Phase 2. Priority: High.
+
+- [ ] `OPS-1`: CI Pipeline Setup
+  - Typecheck (`tsc --noEmit`), build (Next.js), lint (if configured)
+  - Must run on every PR against `develop`
+  - _Prerequisite for reliable Phase 2 backend merges_
+
+- [ ] `OPS-2`: Environment Strategy
+  - Define dev / staging / production environments
+  - Document all required env variables for backend + storefront
+  - Ensure `.env.example` is complete and accurate
+  - _Prerequisite for safe BACK-1 through BACK-6 execution_
+
+- [ ] `DOC-1`: README Update
+  - Reflect current architecture (storefront + upcoming backend)
+  - Add local setup instructions (Node, PostgreSQL, env vars)
+  - Document branching workflow (`develop` → feature branch → PR)
+
+- [ ] `SEC-1`: Backend Security Baseline (Phase 2)
+  - Secrets management review (env var audit, `.env.example` completeness)
+  - CORS policy definition (environment-specific allowed origins)
+  - Basic rate limiting plan (auth endpoints, cart endpoints)
+  - Webhook signature verification design (Stripe-ready, verify on every call)
+  - _This is a planning + documentation task — implementation follows in relevant BACK tasks_
+
+- [ ] `SEO-3`: Structured Data — JSON-LD (Phase 3 candidate)
+  - Product schema (`@type: Product`, Offer, price, availability)
+  - Breadcrumb schema on collection + product pages
+  - _Not started in Phase 2 — data foundation must be confirmed in BACK-5 first_
 
 ---
 
