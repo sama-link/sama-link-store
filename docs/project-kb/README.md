@@ -81,10 +81,13 @@ What is happening now: execution state, task tracking, session management, Notio
 | `TASKS.md` | Task backlog with full briefs and status (source of truth) |
 | `CLAUDE.md` | Claude's operative session rules — read automatically by Claude Code |
 | `SESSION_GUIDE.md` | Session start/end checklist (thin pointer) |
-| `PROJECT_OPERATIONS.md` | Operating model reference — planning, execution, review, tracking |
+| `PROJECT_OPERATIONS.md` | Thin pointer → [`operations/project-operations.md`](operations/project-operations.md) |
+| [`operations/project-operations.md`](operations/project-operations.md) | Operating model — planning, execution, review, tracking, session protocols, agent matrix |
 | [`operations/workspace-architecture.md`](operations/workspace-architecture.md) | Notion workspace 4-layer structure, database IDs, ownership rules |
 | [`operations/notion-sync.md`](operations/notion-sync.md) | Sync protocol — what goes where, triggers, checklist |
 | [`operations/task-workflow.md`](operations/task-workflow.md) | Full task lifecycle — Plan → Implement → Review loop |
+| [`operations/notion-schemas.md`](operations/notion-schemas.md) | Notion database property schemas and Task ID conventions |
+| [`operations/notion-templates.md`](operations/notion-templates.md) | Entry templates for Task Tracker, Feature Tracker, and Session Log |
 
 ---
 

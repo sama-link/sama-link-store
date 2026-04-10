@@ -2,11 +2,11 @@
 
 **Governed by:** ADR-022
 **Date:** 2026-04-05
-**Status:** Active — execute this plan to complete the V2 migration
+**Status:** Complete — historical reference. V2 migration was executed. Canonical actor contracts now live in `docs/project-kb/governance/actors/`.
 
 This document defines how each of the 5 actors is migrated from V1 (role description) to V2
 (Layered Identity Specification). Claude's identity is already migrated (source of truth in Notion
-Actor Identity Registry, compiled form in `docs/agents/claude-system-prompt.md`).
+Actor Identity Registry, compiled form in `docs/project-kb/governance/actors/claude-contract.md`).
 
 ---
 
@@ -180,7 +180,7 @@ Claude flags the required update; Human executes it.
 ## Completion Criteria
 
 - [ ] All 5 actors have V2 identity pages in Notion Actor Identity Registry
-- [ ] Claude's compiled system prompt is in `docs/agents/claude-system-prompt.md`
+- [x] Claude's compiled behavioral contract is in `docs/project-kb/governance/actors/claude-contract.md`
 - [ ] AGENTS.md task brief format is V2
 - [ ] ADR-022 is in DECISIONS.md
 - [ ] Human has been flagged to update ChatGPT and Gemini system prompts

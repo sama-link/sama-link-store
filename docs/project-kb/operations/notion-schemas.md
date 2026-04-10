@@ -1,4 +1,4 @@
-# Notion Database Schema — Sama Link Store
+# Notion Database Schemas — Sama Link Store
 
 Canonical schema for all Notion databases. Use this as the reference when adding new entries or modifying schema.
 

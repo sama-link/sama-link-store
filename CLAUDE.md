@@ -41,7 +41,7 @@ For deeper context when needed:
 - `docs/project-kb/definition/project-definition.md` — business goals and MVP scope
 - `AGENTS.md` — agent roles and handoff protocol (operative)
 - `docs/project-kb/operations/task-workflow.md` — task lifecycle
-- `PROJECT_OPERATIONS.md` — operating model reference
+- `docs/project-kb/operations/project-operations.md` — operating model reference (planning, execution, review, tracking, agent matrix)
 
 ---
 
