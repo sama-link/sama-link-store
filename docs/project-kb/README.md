@@ -50,6 +50,7 @@ What is formally approved, what is mandatory, and how official change occurs.
 | [`governance/actors/claude-contract.md`](governance/actors/claude-contract.md) | Claude CLI compiled behavioral contract (V2.1) |
 | [`governance/actors/chatgpt-contract.md`](governance/actors/chatgpt-contract.md) | ChatGPT (Rafiq) system prompt — Strategic Companion |
 | [`governance/actors/gemini-contract.md`](governance/actors/gemini-contract.md) | Gemini (Jimi) system prompt — Commercial Consultant |
+| [`governance/actors/codex-contract.md`](governance/actors/codex-contract.md) | Codex — Advanced Executor behavioral contract (V2) |
 | [`governance/actors/identity-template.md`](governance/actors/identity-template.md) | Actor Identity V2 template (ADR-022) |
 
 **Conflict resolution:** When repo governance documents conflict with Notion, the repo wins. `CLAUDE.md` > `DECISIONS.md` > `DEVELOPMENT_RULES.md` > Notion Governance Layer.
