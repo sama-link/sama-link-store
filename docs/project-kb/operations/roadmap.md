@@ -20,13 +20,13 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 **Deliverables:**
 - [x] Folder structure: `apps/`, `packages/`, `docs/`
 - [x] `README.md`
-- [x] `PROJECT_BRIEF.md`
-- [x] `ARCHITECTURE.md`
-- [x] `DEVELOPMENT_RULES.md`
-- [x] `ROADMAP.md`
-- [x] `TASKS.md`
-- [x] `SESSION_GUIDE.md`
-- [x] `DECISIONS.md`
+- [x] `docs/project-kb/definition/project-definition.md`
+- [x] `docs/project-kb/definition/architecture.md`
+- [x] `docs/project-kb/governance/development-rules.md`
+- [x] `docs/project-kb/operations/roadmap.md`
+- [x] `docs/project-kb/operations/tasks.md`
+- [x] `CLAUDE.md`
+- [x] `docs/project-kb/governance/decisions.md`
 - [x] `.env.example`
 - [x] `.gitignore`
 - [x] Root `package.json` (monorepo)
@@ -107,7 +107,7 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 **ADR-020.** Brand tokens, logo, dark mode, and media protocol must be complete before backend tasks begin.
 
 **Deliverables:**
-- [x] MEDIA-1: `docs/media-intake-protocol.md` — authored (2026-04-03)
+- [x] MEDIA-1: `docs/project-kb/implementation/media-intake-protocol.md` — authored (2026-04-03)
 - [x] BRAND-2: Production-ready logo WebP variants in `public/brand/logo/` + `manifest.json`
 - [x] BRAND-3: Semantic color tokens from logo identity — new `--color-brand` and `--color-accent`
 - [x] BRAND-4: Light/dark theme system — class-based `html.dark`, ThemeProvider, toggle
@@ -222,7 +222,7 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 **Goal:** Merchant-facing admin interface for day-to-day store operations.
 
 **Scope:**
-- Decision: Medusa Admin UI vs custom Next.js admin (see DECISIONS.md)
+- Decision: Medusa Admin UI vs custom Next.js admin (see docs/project-kb/governance/decisions.md)
 - Product management: create, edit, delete products and variants
 - Order management: view orders, update status, fulfillment
 - Customer management: view customers

@@ -11,7 +11,7 @@ These rules apply to all development sessions, all contributors, and all future 
 - **Read before you write.** Always inspect existing code before modifying it.
 - **Minimal surface area.** Don't add what isn't needed yet.
 - **One concern per module.** Files should have a single, clear purpose.
-- **Document your decisions.** Every non-obvious choice belongs in DECISIONS.md.
+- **Document your decisions.** Every non-obvious choice belongs in docs/project-kb/governance/decisions.md.
 
 ---
 
@@ -115,9 +115,9 @@ packages/ui/
 
 - Every new module/package must have a brief header comment explaining its purpose.
 - Every non-obvious function must have a JSDoc comment.
-- Every architectural decision goes in `DECISIONS.md`.
-- When a phase milestone is reached, update `ROADMAP.md` and `TASKS.md`.
-- The `SESSION_GUIDE.md` should be reviewed at the start of every development session.
+- Every architectural decision goes in `docs/project-kb/governance/decisions.md`.
+- When a phase milestone is reached, update `docs/project-kb/operations/roadmap.md` and `docs/project-kb/operations/tasks.md`.
+- The `CLAUDE.md` should be reviewed at the start of every development session.
 
 ---
 
@@ -212,7 +212,7 @@ All UI/visual changes must follow this protocol without exception.
 - i18n structure (`i18n/routing.ts`, `i18n/request.ts`, message files)
 - `generateMetadata`, SEO tags, canonical links, structured data
 - `next.config.ts`, `middleware.ts`, `turbo.json`
-- All governance docs (`DECISIONS.md`, `TASKS.md`, `ROADMAP.md`, `CLAUDE.md`, etc.)
+- All governance docs (`docs/project-kb/governance/decisions.md`, `docs/project-kb/operations/tasks.md`, `docs/project-kb/operations/roadmap.md`, `CLAUDE.md`, etc.)
 
 ### Token Rule (mandatory — zero exceptions)
 

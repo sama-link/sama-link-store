@@ -70,7 +70,7 @@ The Notion workspace mirrors the project's 4-layer knowledge model:
 
 **Governance Protocols schema:** Protocol Name, Type, Scope, Applies To, Trigger, Owner, Status, Priority, Short Summary, Related Decision(s) (→ Decision Log).
 
-**Repo sources:** `docs/project-kb/governance/`, `DECISIONS.md`, `DEVELOPMENT_RULES.md`, `AGENTS.md`
+**Repo sources:** `docs/project-kb/governance/`, `docs/project-kb/governance/decisions.md`, `docs/project-kb/governance/development-rules.md`, `docs/project-kb/governance/agents.md`
 
 ---
 
@@ -110,7 +110,7 @@ The Notion workspace mirrors the project's 4-layer knowledge model:
 | Technical Debt & Risks | Static page | Known debt, deferred decisions, risks with severity | https://www.notion.so/33613205fce681f384a3f01b77c1ea79 |
 | Release Readiness | Static page | Launch checklist for Phase 8 | https://www.notion.so/33613205fce6818bbce9e14d60e16054 |
 
-**Repo sources:** `ROADMAP.md`, `TASKS.md`, `CLAUDE.md`
+**Repo sources:** `docs/project-kb/operations/roadmap.md`, `docs/project-kb/operations/tasks.md`, `CLAUDE.md`
 
 ---
 
@@ -148,7 +148,7 @@ Session Log, Task Tracker, and Feature Tracker maintain relationships via text r
 | Project Hub callout | Claude | Each session close |
 | Definition Layer pages | Claude | When project goals or scope change |
 | Governance Constitution | Claude | When governance model changes (Human alignment required) |
-| Decision Log entries | Claude | When `DECISIONS.md` is updated |
+| Decision Log entries | Claude | When `docs/project-kb/governance/decisions.md` is updated |
 | Rules & Standards Registry entries | Claude | When new governance constraints are adopted |
 | Governance Protocols entries | Claude | When execution protocol changes |
 | Exceptions entries | Claude | When a deviation is approved |

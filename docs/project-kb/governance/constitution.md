@@ -15,7 +15,7 @@ The Governance Constitution defines the authority model, core principles, offici
 
 For step-by-step operational procedures, see the Governance Protocols (Notion Governance Layer database) and Sync Checkpoints (Workflows & Movement Protocols database).
 
-For technical boundary rules and architectural constraints, see `DEVELOPMENT_RULES.md` and `docs/project-kb/implementation/`.
+For technical boundary rules and architectural constraints, see `docs/project-kb/governance/development-rules.md` and `docs/project-kb/implementation/`.
 
 ---
 
@@ -36,7 +36,7 @@ For technical boundary rules and architectural constraints, see `DEVELOPMENT_RUL
 
 **Cursor / Codex** execute only:
 - No architectural authority
-- Never touch governance files (`DECISIONS.md`, `CLAUDE.md`, `AGENTS.md`, `DEVELOPMENT_RULES.md`, `TASKS.md`)
+- Never touch governance files (`docs/project-kb/governance/decisions.md`, `CLAUDE.md`, `docs/project-kb/governance/agents.md`, `docs/project-kb/governance/development-rules.md`, `docs/project-kb/operations/tasks.md`)
 - Never commit directly to `main`
 
 **Consultants** advise only:
@@ -53,7 +53,7 @@ For technical boundary rules and architectural constraints, see `DEVELOPMENT_RUL
 - **Intentional over automatic.** Every phase transition, architectural decision, and actor handoff is explicit and documented.
 - **Governance must earn its cost.** Every rule and document must reduce friction or prevent real drift. Rules that do neither should be retired.
 - **Formal before implementation.** No library, pattern, or architecture change is implemented without a prior ADR.
-- **Adopt before extend.** Use framework defaults before customizing. Document all extensions in `DECISIONS.md`.
+- **Adopt before extend.** Use framework defaults before customizing. Document all extensions in `docs/project-kb/governance/decisions.md`.
 - **Multi-representation discipline.** The same approved change may have different representations depending on target surface. Claude is the central synchronization operator.
 
 ---
@@ -90,8 +90,8 @@ The Notion workspace contains additional supporting structures — Actor Identit
 When two documents conflict, this order of precedence applies:
 
 1. **`CLAUDE.md`** — Claude's active operating rules (highest operational authority in-session)
-2. **`DECISIONS.md`** — Formal ADR record (governs all technical and architectural choices)
-3. **`DEVELOPMENT_RULES.md`** — Engineering constraints
+2. **`docs/project-kb/governance/decisions.md`** — Formal ADR record (governs all technical and architectural choices)
+3. **`docs/project-kb/governance/development-rules.md`** — Engineering constraints
 4. **Notion Governance Layer** — Mirror of the above; repository always wins if they diverge
 5. **Other Notion pages** — Lower authority; never override repo markdown files
 
@@ -115,10 +115,10 @@ If Notion content conflicts with the corresponding repo file, the repo file wins
 
 | Change Type | Required Steps |
 |---|---|
-| New ADR / architecture decision | ADR in `DECISIONS.md` • Human alignment • Notion Decision Log entry |
+| New ADR / architecture decision | ADR in `docs/project-kb/governance/decisions.md` • Human alignment • Notion Decision Log entry |
 | Governance rule addition | Explicit justification + source principle + Rules Registry entry + `CLAUDE.md` update if operative |
-| Phase transition | `ROADMAP.md` update + `CLAUDE.md` update + Hub callout update + Session Log entry |
-| Actor role change | ADR update + `AGENTS.md` update + Actor Identity Card update |
+| Phase transition | `docs/project-kb/operations/roadmap.md` update + `CLAUDE.md` update + Hub callout update + Session Log entry |
+| Actor role change | ADR update + `docs/project-kb/governance/agents.md` update + Actor Identity Card update |
 | Constitution update | Human alignment required + explicit record of what changed and why |
 | Deprecation of rule or decision | Mark Superseded/Deprecated in registry + cite replacement or confirm no replacement + verify no orphaned dependencies |
 | 4-layer model change | Constitution update required + Human alignment + all affected layer documents updated |
@@ -131,7 +131,7 @@ If Notion content conflicts with the corresponding repo file, the repo file wins
 
 1. Claude proposes ADR with context, options considered, decision, consequences
 2. Human reviews and aligns
-3. ADR added to `DECISIONS.md` with Status = Accepted
+3. ADR added to `docs/project-kb/governance/decisions.md` with Status = Accepted
 4. Notion Decision Log entry created (Status = Accepted, all fields populated)
 5. Implementation task may now be briefed to Cursor/Codex
 
@@ -143,7 +143,7 @@ If Notion content conflicts with the corresponding repo file, the repo file wins
 
 ### Deprecating a decision
 
-1. ADR status set to Superseded or Deprecated in `DECISIONS.md` and Notion Decision Log
+1. ADR status set to Superseded or Deprecated in `docs/project-kb/governance/decisions.md` and Notion Decision Log
 2. Replacement ADR cited where applicable
 3. Rules derived from the deprecated ADR reviewed for orphan status and updated accordingly
 
@@ -154,8 +154,8 @@ If Notion content conflicts with the corresponding repo file, the repo file wins
 | Component | Role | Location |
 |---|---|---|
 | Governance Constitution | Authority model, principles, conflict resolution, layer map | `docs/project-kb/governance/constitution.md` (this file) |
-| Decision Log | Formal record of all ADRs — approved, rejected, deferred, superseded | `DECISIONS.md` (repo) + Notion Decision Log database |
-| Development Rules | Mandatory engineering rules, boundary constraints | `DEVELOPMENT_RULES.md` (repo) |
+| Decision Log | Formal record of all ADRs — approved, rejected, deferred, superseded | `docs/project-kb/governance/decisions.md` (repo) + Notion Decision Log database |
+| Development Rules | Mandatory engineering rules, boundary constraints | `docs/project-kb/governance/development-rules.md` (repo) |
 | Governance Protocols | How ADRs are created, changed, deprecated; how exceptions are filed | Notion Governance Protocols database |
 | Exceptions / Deviations Register | Documented approved deviations with rationale and review triggers | Notion Exceptions database |
 | Rules & Standards Registry | Mandatory rules, boundary constraints, approval requirements | Notion Rules & Standards Registry database |

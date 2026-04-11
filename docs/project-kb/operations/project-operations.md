@@ -26,17 +26,17 @@ This is the operating manual for all sessions — human, Claude, and Cursor.
 
 ### How phases are managed
 
-- `ROADMAP.md` defines 9 phases (0–8), each with scope, deliverables, and exit criteria
+- `docs/project-kb/operations/roadmap.md` defines 9 phases (0–8), each with scope, deliverables, and exit criteria
 - One phase is active at a time
 - The active phase is determined by the first phase whose exit criteria are NOT yet met
 - No work on future phases until the current phase is complete (unless explicitly bridging)
 
 ### How tasks are created
 
-1. Claude reads `ROADMAP.md` (active phase) + `TASKS.md` (current state)
+1. Claude reads `docs/project-kb/operations/roadmap.md` (active phase) + `docs/project-kb/operations/tasks.md` (current state)
 2. Claude identifies the next unstarted task in sequence
-3. Claude produces a task brief following the format in `AGENTS.md`
-4. Brief is added to `TASKS.md` under the correct phase
+3. Claude produces a task brief following the format in `docs/project-kb/governance/agents.md`
+4. Brief is added to `docs/project-kb/operations/tasks.md` under the correct phase
 5. Brief is added to the Notion Task Tracker simultaneously
 
 ### Task brief requirements (non-negotiable)
@@ -61,7 +61,7 @@ Every brief must have:
 - Implements exactly what the brief states — no more, no less
 - Runs `tsc --noEmit` and `next build` before declaring done
 - Reports: files changed, criteria met/unmet, any blockers
-- Never modifies governance files (CLAUDE.md, AGENTS.md, ARCHITECTURE.md, DEVELOPMENT_RULES.md, DECISIONS.md, TASKS.md, ROADMAP.md, PROJECT_OPERATIONS.md, SESSION_GUIDE.md, docs/notion/*)
+- Never modifies governance files (CLAUDE.md, docs/project-kb/governance/agents.md, docs/project-kb/definition/architecture.md, docs/project-kb/governance/development-rules.md, docs/project-kb/governance/decisions.md, docs/project-kb/operations/tasks.md, docs/project-kb/operations/roadmap.md, docs/project-kb/operations/project-operations.md, CLAUDE.md, docs/project-kb/*)
 - Never makes architectural decisions — stops and escalates to Claude
 
 ### What blocks a task
@@ -84,7 +84,7 @@ Claude reviews every task before marking it done. Review order:
 2. **Build:** `next build` must succeed (or known expected failure noted in brief)
 3. **Scope:** Check diff — were any files changed outside the allowed list?
 4. **Acceptance Criteria:** Go through each criterion one by one
-5. **Architecture:** No violations of boundaries from `ARCHITECTURE.md`
+5. **Architecture:** No violations of boundaries from `docs/project-kb/definition/architecture.md`
 6. **Code quality:** No hardcoded strings, no raw colors, logical CSS properties used
 
 If any check fails:
@@ -100,10 +100,10 @@ If any check fails:
 
 | File | Tracks |
 |---|---|
-| `TASKS.md` | All tasks with `[ ]` / `[~]` / `[x]` status |
-| `DECISIONS.md` | All ADRs with date, status, rationale |
-| `ROADMAP.md` | Phase deliverables with completion status |
-| `SESSION_GUIDE.md` | Session start/end protocol |
+| `docs/project-kb/operations/tasks.md` | All tasks with `[ ]` / `[~]` / `[x]` status |
+| `docs/project-kb/governance/decisions.md` | All ADRs with date, status, rationale |
+| `docs/project-kb/operations/roadmap.md` | Phase deliverables with completion status |
+| `CLAUDE.md` | Session start/end protocol |
 
 ### Notion tracking (governance and monitoring surface)
 
@@ -111,12 +111,12 @@ The Notion workspace uses a **4-layer knowledge model** (Definition / Governance
 
 | Layer | Surface | Mirrors / Purpose |
 |---|---|---|
-| Governance | Decision Log (database) | `DECISIONS.md` — one row per ADR |
-| Governance | Rules & Standards Registry (database) | `DEVELOPMENT_RULES.md` — constraints and rules |
+| Governance | Decision Log (database) | `docs/project-kb/governance/decisions.md` — one row per ADR |
+| Governance | Rules & Standards Registry (database) | `docs/project-kb/governance/development-rules.md` — constraints and rules |
 | Governance | Governance Protocols (database) | Execution protocols, sync checkpoints |
 | Governance | Exceptions / Deviations Register (database) | Approved deviations from rules |
-| Operations | Task Tracker (database) | `TASKS.md` — one row per task |
-| Operations | Feature Tracker (database) | `ROADMAP.md` features — one row per feature |
+| Operations | Task Tracker (database) | `docs/project-kb/operations/tasks.md` — one row per task |
+| Operations | Feature Tracker (database) | `docs/project-kb/operations/roadmap.md` features — one row per feature |
 | Operations | Session Log (database) | Session history — one row per session |
 | Operations | Workflows & Movement Protocols (database) | Handoff protocols, execution workflows |
 
@@ -127,10 +127,10 @@ See `docs/project-kb/operations/workspace-architecture.md` for the full workspac
 ### Sync rule
 
 Repo and Notion must stay in sync. After every session:
-- All completed tasks marked in both `TASKS.md` and Notion Task Tracker
-- All new ADRs added to both `DECISIONS.md` and Notion Decision Log
+- All completed tasks marked in both `docs/project-kb/operations/tasks.md` and Notion Task Tracker
+- All new ADRs added to both `docs/project-kb/governance/decisions.md` and Notion Decision Log
 - Session Log entry added in Notion
-- See `docs/notion/notion-sync-protocol.md` for the full checklist
+- See `docs/project-kb/operations/notion-sync.md` for the full checklist
 
 ---
 
@@ -139,7 +139,7 @@ Repo and Notion must stay in sync. After every session:
 ### When adding new tasks
 
 - Tasks are added to the **current active phase only**
-- Future phase tasks are listed as bullets in TASKS.md under their phase heading but have no full briefs yet
+- Future phase tasks are listed as bullets in docs/project-kb/operations/tasks.md under their phase heading but have no full briefs yet
 - Full briefs are written only when the phase becomes active
 
 ### When a new dependency is needed
@@ -154,7 +154,7 @@ Repo and Notion must stay in sync. After every session:
 
 1. Raise with Claude
 2. Claude writes a new ADR
-3. Claude updates `ARCHITECTURE.md`
+3. Claude updates `docs/project-kb/definition/architecture.md`
 4. Claude produces updated task briefs
 5. Implementation begins only after ADR is recorded
 
@@ -162,10 +162,10 @@ Repo and Notion must stay in sync. After every session:
 
 ### When a feature is descoped
 
-1. Update `ROADMAP.md` (mark deliverable as deferred or removed)
-2. Update affected tasks in `TASKS.md` (mark `Deferred`)
+1. Update `docs/project-kb/operations/roadmap.md` (mark deliverable as deferred or removed)
+2. Update affected tasks in `docs/project-kb/operations/tasks.md` (mark `Deferred`)
 3. Update Notion Feature Tracker and Task Tracker
-4. Record in `DECISIONS.md` if the descoping is an architectural choice
+4. Record in `docs/project-kb/governance/decisions.md` if the descoping is an architectural choice
 
 ---
 
@@ -180,7 +180,7 @@ These rules exist specifically to prevent the most common failure modes.
 | "Cursor knows best for this one" | No. Cursor implements. Claude decides architecture. |
 | "The tests can wait" | No tests in Phase 1–7 (explicitly deferred). But build and tsc must always pass. |
 | "I'll add the ADR retroactively" | No. ADR before implementation begins. If you already implemented, write the ADR now. |
-| "Just one hardcoded string" | No. All visible strings go through the i18n system per DEVELOPMENT_RULES.md rule 11. |
+| "Just one hardcoded string" | No. All visible strings go through the i18n system per docs/project-kb/governance/development-rules.md rule 11. |
 | "Let's skip the Notion update this session" | No. Notion sync is mandatory. Mark `Notion Updated: false` if you skip — do not pretend. |
 | "This phase isn't done but let's start Phase N+1" | No. Exit criteria must be met. If blocked, record the blocker. Do not skip phases. |
 
@@ -191,10 +191,10 @@ These rules exist specifically to prevent the most common failure modes.
 Every session begins with:
 
 1. Read `CLAUDE.md` (Claude Code reads this automatically)
-2. Read `ROADMAP.md` — identify active phase
-3. Read `TASKS.md` — identify next task in queue
-4. Read `DECISIONS.md` — recall all decisions before choosing any pattern
-5. Read `DEVELOPMENT_RULES.md` — enforce these rules in all guidance
+2. Read `docs/project-kb/operations/roadmap.md` — identify active phase
+3. Read `docs/project-kb/operations/tasks.md` — identify next task in queue
+4. Read `docs/project-kb/governance/decisions.md` — recall all decisions before choosing any pattern
+5. Read `docs/project-kb/governance/development-rules.md` — enforce these rules in all guidance
 6. Check Notion Project Hub for any status flags not in repo
 
 ---
@@ -205,9 +205,9 @@ Every session ends with:
 
 ```
 Repository:
-[ ] All completed tasks marked [x] in TASKS.md
-[ ] Any new ADRs added to DECISIONS.md
-[ ] ROADMAP.md updated if phase milestone reached
+[ ] All completed tasks marked [x] in docs/project-kb/operations/tasks.md
+[ ] Any new ADRs added to docs/project-kb/governance/decisions.md
+[ ] docs/project-kb/operations/roadmap.md updated if phase milestone reached
 [ ] .env.example updated if new env vars introduced
 [ ] No secrets committed
 [ ] Build passes (tsc --noEmit + next build)
@@ -243,8 +243,8 @@ Enforcement Layer (Notion auto-detection):
     If > 0: each flagged task must have Feature and Phase set; Is Pre-Phase Blocker correct
 [ ] Feature Tracker → ⚠️ Invalid Features view: count = 0
     If > 0: set Phase, link Tasks, or update Status to Done as appropriate
-[ ] Task Tracker → 🔴 Active Blockers view: matches ROADMAP.md blocking task list exactly
-    If mismatch: update Is Pre-Phase Blocker flags or ROADMAP.md to reconcile
+[ ] Task Tracker → 🔴 Active Blockers view: matches docs/project-kb/operations/roadmap.md blocking task list exactly
+    If mismatch: update Is Pre-Phase Blocker flags or docs/project-kb/operations/roadmap.md to reconcile
 
 State Engine (Project Hub):
 [ ] Top callout updated with Standard State Sentence:
@@ -266,7 +266,7 @@ A phase blocker is complete but still flagged: `Is Pre-Phase Blocker = true`, `S
 
 ## 10. Design Modification Protocol
 
-All UI/visual changes follow this protocol. It is integrated into the enforcement system — design task violations are treated identically to architecture violations. See `DEVELOPMENT_RULES.md` Rule 13 for the implementation-level rules Cursor follows.
+All UI/visual changes follow this protocol. It is integrated into the enforcement system — design task violations are treated identically to architecture violations. See `docs/project-kb/governance/development-rules.md` Rule 13 for the implementation-level rules Cursor follows.
 
 ### Design Task Flow
 
@@ -342,9 +342,9 @@ Design task violations (forbidden layer touched, hardcoded values found, build b
 | Implement narrow-scope code | ❌ | ❌ | ❌ | ❌ (unless unblocking) | ✅ | ❌ |
 | Implement broad/complex code | ❌ | ❌ | ❌ | ❌ (unless unblocking) | ❌ | ✅ |
 | Review output | ❌ | ❌ | Can assist | ✅ | ❌ | ❌ |
-| Update TASKS.md | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Update DECISIONS.md | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
-| Update ROADMAP.md | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Update docs/project-kb/operations/tasks.md | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Update docs/project-kb/governance/decisions.md | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Update docs/project-kb/operations/roadmap.md | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
 | Update Notion | ❌ | ❌ | ❌ (unless directed) | ✅ | ❌ | ❌ |
 | Approve architecture | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
 | Merge develop → main | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |

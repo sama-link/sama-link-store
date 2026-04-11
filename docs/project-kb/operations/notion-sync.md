@@ -40,24 +40,24 @@ Do not re-read the full Governance or Definition Layer every session. Reading th
 
 | Event | Repository update | Notion update |
 |---|---|---|
-| Task completed | Mark `[x]` in `TASKS.md` | Set Task status → `Done` |
-| Task started | Mark `[~]` in `TASKS.md` | Set Task status → `In Progress` |
-| New task created | Add to `TASKS.md` | Add row to Task Tracker |
-| New ADR recorded | Add to `DECISIONS.md` | Add row to Decision Log; set Related Rules and Related Workflows where applicable |
-| Phase milestone reached | Update `ROADMAP.md` deliverables | Update Roadmap page + Hub callout |
+| Task completed | Mark `[x]` in `docs/project-kb/operations/tasks.md` | Set Task status → `Done` |
+| Task started | Mark `[~]` in `docs/project-kb/operations/tasks.md` | Set Task status → `In Progress` |
+| New task created | Add to `docs/project-kb/operations/tasks.md` | Add row to Task Tracker |
+| New ADR recorded | Add to `docs/project-kb/governance/decisions.md` | Add row to Decision Log; set Related Rules and Related Workflows where applicable |
+| Phase milestone reached | Update `docs/project-kb/operations/roadmap.md` deliverables | Update Roadmap page + Hub callout |
 | Feature status changes | N/A (not tracked in repo) | Update Feature Tracker row |
 | Session ends | Session End Checklist | Add row to Session Log |
-| Governance rule changed | Update `CLAUDE.md` / `DEVELOPMENT_RULES.md` | Update relevant Governance Layer entries |
+| Governance rule changed | Update `CLAUDE.md` / `docs/project-kb/governance/development-rules.md` | Update relevant Governance Layer entries |
 | Execution protocol changed | Update `CLAUDE.md` | Update relevant Governance Protocols database entry |
-| New constraint adopted | Update `CLAUDE.md` / `DECISIONS.md` | Add row to Rules & Standards Registry database |
-| Actor role / protocol changed | Update `AGENTS.md` / `CLAUDE.md` | Update Actor Identity Card |
+| New constraint adopted | Update `CLAUDE.md` / `docs/project-kb/governance/decisions.md` | Add row to Rules & Standards Registry database |
+| Actor role / protocol changed | Update `docs/project-kb/governance/agents.md` / `CLAUDE.md` | Update Actor Identity Card |
 | New exception/deviation approved | N/A (operational) | Add row to Exceptions / Deviations Register database |
 
 ### After every executor session (Cursor/Codex)
 
 Claude reviews executor output. Claude then:
-1. Updates `TASKS.md` (mark done or flag blocked)
-2. Updates `DECISIONS.md` if executor made a non-obvious implementation choice
+1. Updates `docs/project-kb/operations/tasks.md` (mark done or flag blocked)
+2. Updates `docs/project-kb/governance/decisions.md` if executor made a non-obvious implementation choice
 3. Updates Task Tracker in Notion (status, notes)
 4. Updates Feature Tracker if feature progresses
 5. Adds Session Log entry
@@ -73,7 +73,7 @@ These never need to be in Notion — they are code, config, or execution context
 - `tsconfig.json`
 - Source code
 - `.cursor/rules/` files
-- `CLAUDE.md`, `AGENTS.md`, `DEVELOPMENT_RULES.md` — governance docs for repo-oriented agents, not human-facing management surfaces
+- `CLAUDE.md`, `docs/project-kb/governance/agents.md`, `docs/project-kb/governance/development-rules.md` — governance docs for repo-oriented agents, not human-facing management surfaces
 
 ---
 
@@ -83,9 +83,9 @@ These never need to be in Notion — they are code, config, or execution context
 - Feature-level UX notes
 - Risk assessments and debt detail
 - Release readiness checklist (Phase 8)
-- Actor Identity Card detail (not needed in repo — `AGENTS.md` covers roles for repo-oriented agents)
+- Actor Identity Card detail (not needed in repo — `docs/project-kb/governance/agents.md` covers roles for repo-oriented agents)
 - Governance Protocol entry detail (full procedure bodies — `CLAUDE.md` holds the operative summary)
-- Rules & Standards Registry entry detail (full rationale — `CLAUDE.md` and `DEVELOPMENT_RULES.md` hold the operative rules)
+- Rules & Standards Registry entry detail (full rationale — `CLAUDE.md` and `docs/project-kb/governance/development-rules.md` hold the operative rules)
 - Exceptions / Deviations Register entries (operational governance events)
 
 ---
@@ -93,10 +93,10 @@ These never need to be in Notion — they are code, config, or execution context
 ## Sync Checklist (End of Session)
 
 ```
-[ ] All completed tasks marked [x] in TASKS.md
+[ ] All completed tasks marked [x] in docs/project-kb/operations/tasks.md
 [ ] Corresponding tasks set to "Done" in Notion Task Tracker
-[ ] New tasks added to both TASKS.md and Notion Task Tracker
-[ ] Any new ADRs added to both DECISIONS.md and Notion Decision Log
+[ ] New tasks added to both docs/project-kb/operations/tasks.md and Notion Task Tracker
+[ ] Any new ADRs added to both docs/project-kb/governance/decisions.md and Notion Decision Log
 [ ] New ADR's Related Rules and Related Workflows fields set in Decision Log where applicable
 [ ] Feature Tracker updated if any feature changed status
 [ ] Session Log entry created in Notion (mandatory — no exceptions)
@@ -111,15 +111,15 @@ These never need to be in Notion — they are code, config, or execution context
 
 | Layer | Form | Sync trigger | Repo source | Sync frequency |
 |---|---|---|---|---|
-| Definition | Static pages | Project scope or business goal changes | `PROJECT_BRIEF.md`, `ARCHITECTURE.md` | Rare |
+| Definition | Static pages | Project scope or business goal changes | `docs/project-kb/definition/project-definition.md`, `docs/project-kb/definition/architecture.md` | Rare |
 | Governance — Constitution | Static page | Governance model changes | `docs/project-kb/governance/constitution.md` | Rare |
-| Governance — Decision Log | Database entries | New ADR added | `DECISIONS.md` | Every ADR |
-| Governance — Rules Registry | Database entries | New governance constraints adopted | `DEVELOPMENT_RULES.md`, `DECISIONS.md` | When new constraints formalized |
+| Governance — Decision Log | Database entries | New ADR added | `docs/project-kb/governance/decisions.md` | Every ADR |
+| Governance — Rules Registry | Database entries | New governance constraints adopted | `docs/project-kb/governance/development-rules.md`, `docs/project-kb/governance/decisions.md` | When new constraints formalized |
 | Governance — Protocols | Database entries | Execution protocol changes | `CLAUDE.md` | When protocol updates |
 | Governance — Exceptions | Database entries | Deviation approved | (no repo equivalent) | When deviation occurs |
-| Actor Identity Cards | Static pages | Actor role or boundary changes | `AGENTS.md`, `CLAUDE.md` | Rare |
-| Operations — Hub | Static page | Every session close | `ROADMAP.md`, `TASKS.md` | Every session |
-| Operations — Task Tracker | Database | Per task | `TASKS.md` | Every session |
+| Actor Identity Cards | Static pages | Actor role or boundary changes | `docs/project-kb/governance/agents.md`, `CLAUDE.md` | Rare |
+| Operations — Hub | Static page | Every session close | `docs/project-kb/operations/roadmap.md`, `docs/project-kb/operations/tasks.md` | Every session |
+| Operations — Task Tracker | Database | Per task | `docs/project-kb/operations/tasks.md` | Every session |
 | Operations — Feature Tracker | Database | Per feature | N/A | When feature status changes |
 | Operations — Session Log | Database | Per session | N/A | Every session |
 | Operations — Workflows | Database | Protocol changes | `CLAUDE.md` | When protocols update |
@@ -139,11 +139,11 @@ When an approved change is made:
 
 | Anti-pattern | Why it breaks sync |
 |---|---|
-| Updating only Notion, not `TASKS.md` | Repo becomes stale; executors read `TASKS.md` |
-| Updating only `TASKS.md`, not Notion | Notion becomes stale; monitoring surface is wrong |
-| Adding ADRs to Notion without `DECISIONS.md` | Repo is source of truth; Decision Log is a mirror |
+| Updating only Notion, not `docs/project-kb/operations/tasks.md` | Repo becomes stale; executors read `docs/project-kb/operations/tasks.md` |
+| Updating only `docs/project-kb/operations/tasks.md`, not Notion | Notion becomes stale; monitoring surface is wrong |
+| Adding ADRs to Notion without `docs/project-kb/governance/decisions.md` | Repo is source of truth; Decision Log is a mirror |
 | Cursor updating Notion | Cursor never touches Notion — Claude owns it |
-| Creating tasks in Notion without a `TASKS.md` brief | Task briefs must exist in repo for executors to read |
+| Creating tasks in Notion without a `docs/project-kb/operations/tasks.md` brief | Task briefs must exist in repo for executors to read |
 | Marking a Notion task Done before Claude reviews | Review first, then mark Done in both places |
 | Referencing the old 7-layer model | The 7-layer model is deprecated; use the 4-layer model |
 | Updating legacy Notion static pages for Layers 4/5 | Those pages are migration sources, no longer authoritative — update the database entries |

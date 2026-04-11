@@ -4,7 +4,7 @@
 **Source of truth for:** The stable operating model — role layers, handoff structure, and flow sequence. This document is intentionally abstract: it describes the model regardless of which specific tools or agents occupy each role.
 **Updated when:** The fundamental operating model changes (requires Human alignment + ADR update).
 
-> For tool-specific actor definitions, behavioral contracts, and brief format: see `AGENTS.md` (operative) and `docs/project-kb/governance/actors/` (compiled contracts).
+> For tool-specific actor definitions, behavioral contracts, and brief format: see `docs/project-kb/governance/agents.md` (operative) and `docs/project-kb/governance/actors/` (compiled contracts).
 
 ---
 
@@ -98,4 +98,4 @@ No consultant writes to the repository, Notion, or any execution surface directl
 
 ## Boundary of This Document
 
-This page defines the operating model at the definition layer only. Specific tool assignments, detailed governance protocols, agent-level operating instructions, brief templates, and session management procedures belong in governance layer documents (`AGENTS.md`, `docs/project-kb/governance/`).
+This page defines the operating model at the definition layer only. Specific tool assignments, detailed governance protocols, agent-level operating instructions, brief templates, and session management procedures belong in governance layer documents (`docs/project-kb/governance/agents.md`, `docs/project-kb/governance/`).

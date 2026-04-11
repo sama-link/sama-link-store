@@ -23,7 +23,7 @@ Files Allowed:
 [List of files Cursor is permitted to create or modify]
 
 Files Forbidden:
-[ARCHITECTURE.md, DEVELOPMENT_RULES.md, DECISIONS.md, TASKS.md, AGENTS.md, CLAUDE.md, plus any other files outside scope]
+[docs/project-kb/definition/architecture.md, docs/project-kb/governance/development-rules.md, docs/project-kb/governance/decisions.md, docs/project-kb/operations/tasks.md, docs/project-kb/governance/agents.md, CLAUDE.md, plus any other files outside scope]
 
 Acceptance Criteria:
 [Pipe-separated or newline-separated criteria]
@@ -45,8 +45,8 @@ Any → Deferred (when descoped)
 ```
 
 **Rules:**
-- Every task added to Notion **must also exist in TASKS.md** with the full brief format
-- Task Tracker in Notion is a monitoring mirror — TASKS.md in the repo is the source of truth
+- Every task added to Notion **must also exist in docs/project-kb/operations/tasks.md** with the full brief format
+- Task Tracker in Notion is a monitoring mirror — docs/project-kb/operations/tasks.md in the repo is the source of truth
 - Claude creates tasks; Cursor executes them
 - Do not mark `Done` in Notion until Claude has reviewed against acceptance criteria
 - Do not add tasks for future phases until that phase becomes active
@@ -105,7 +105,7 @@ Expandability Notes:
 
 **Rules:**
 - Feature Tracker is a monitoring view of the product roadmap
-- It does not replace ROADMAP.md — that is the source of truth
+- It does not replace docs/project-kb/operations/roadmap.md — that is the source of truth
 - Features are not the same as tasks — one feature has many tasks
 - Claude updates feature status as tasks complete
 - Cursor never interacts with the Feature Tracker

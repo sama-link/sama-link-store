@@ -13,7 +13,7 @@ This project uses a **four-layer multi-agent model** (ADR-021). This document de
 - **Human** = router and bridge: approves decisions, copies briefs to Cursor, feeds output back to Claude, merges to main
 - **Advisors (ChatGPT, Gemini)** = external advisory only; input enters the system only after Human approves and routes it
 
-For the full agent model see `AGENTS.md`.
+For the full agent model see `docs/project-kb/governance/agents.md`.
 
 ---
 
@@ -22,8 +22,8 @@ For the full agent model see `AGENTS.md`.
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │  1. PLAN (Claude)                                           │
-│  Read ROADMAP.md + TASKS.md → identify next task           │
-│  Write task brief following AGENTS.md format               │
+│  Read docs/project-kb/operations/roadmap.md + docs/project-kb/operations/tasks.md → identify next task           │
+│  Write task brief following docs/project-kb/governance/agents.md format               │
 │  Print brief to human                                       │
 └────────────────────────┬────────────────────────────────────┘
                          │ human copies brief
@@ -42,8 +42,8 @@ For the full agent model see `AGENTS.md`.
 │  Verify each acceptance criterion                          │
 │  Check no forbidden files were modified                    │
 │  Check no architecture violations                          │
-│  Mark task [x] in TASKS.md                                 │
-│  Record new decisions in DECISIONS.md if needed            │
+│  Mark task [x] in docs/project-kb/operations/tasks.md                                 │
+│  Record new decisions in docs/project-kb/governance/decisions.md if needed            │
 │  Produce next task brief                                    │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -52,11 +52,11 @@ For the full agent model see `AGENTS.md`.
 
 ## How Cursor Receives Tasks
 
-Cursor receives tasks as self-contained briefs in the format defined in `AGENTS.md`.
+Cursor receives tasks as self-contained briefs in the format defined in `docs/project-kb/governance/agents.md`.
 
 Briefs are either:
 1. Printed by Claude in the chat and pasted by the human into Cursor Composer
-2. Written directly into `TASKS.md` under the active phase with the full brief format
+2. Written directly into `docs/project-kb/operations/tasks.md` under the active phase with the full brief format
 
 The brief is always the single source of truth for what Cursor should do.
 **Cursor must not accept informal instructions that contradict the brief.**
@@ -83,10 +83,10 @@ Go through each criterion in the brief one by one.
 - `✅` — met
 - `❌` — not met → send back with specific instructions
 
-### Step 5 — Update TASKS.md
+### Step 5 — Update docs/project-kb/operations/tasks.md
 Mark the task `[x]`.
 
-### Step 6 — Update DECISIONS.md
+### Step 6 — Update docs/project-kb/governance/decisions.md
 If Cursor made a non-obvious implementation choice, record it as a brief ADR.
 
 ### Step 7 — Update Notion (mandatory)
@@ -95,7 +95,7 @@ If Cursor made a non-obvious implementation choice, record it as a brief ADR.
 - Add new ADR to Notion Decision Log if Step 6 produced one
 - Add Session Log entry at end of session
 
-See `docs/notion/notion-sync-protocol.md` for the full checklist.
+See `docs/project-kb/operations/notion-sync.md` for the full checklist.
 
 ### Step 8 — Produce next brief
 Identify the next task in sequence and produce its brief.
@@ -107,8 +107,8 @@ Identify the next task in sequence and produce its brief.
 Architectural drift = code that diverges from the intended design without being caught.
 
 ### Prevention (Claude's responsibility)
-- Keep `ARCHITECTURE.md` updated as the authoritative diagram
-- Keep `DEVELOPMENT_RULES.md` enforced via Cursor rules files
+- Keep `docs/project-kb/definition/architecture.md` updated as the authoritative diagram
+- Keep `docs/project-kb/governance/development-rules.md` enforced via Cursor rules files
 - Keep `.cursor/rules/` files current — they are Cursor's operating instructions
 - Review the full diff, not just the summary
 
@@ -147,8 +147,8 @@ Refactors are changes that improve structure without changing behavior.
 - Tests must cover behavior before the refactor begins (Phase 8+ only — skip for now)
 
 ### Large refactors (20+ files, structural changes)
-- Require an ADR in `DECISIONS.md` first
-- Require Claude to update `ARCHITECTURE.md`
+- Require an ADR in `docs/project-kb/governance/decisions.md` first
+- Require Claude to update `docs/project-kb/definition/architecture.md`
 - Executed as a series of small tasks, not one large task
 - Never mixed with feature work
 
@@ -164,21 +164,21 @@ Refactors are changes that improve structure without changing behavior.
 
 | File | Owned by | Updated when |
 |---|---|---|
-| `TASKS.md` | Claude | After each task review |
-| `DECISIONS.md` | Claude | When any non-obvious decision is made |
-| `ROADMAP.md` | Claude | When a phase milestone is reached |
-| `ARCHITECTURE.md` | Claude | When system structure changes |
-| `DEVELOPMENT_RULES.md` | Claude | When a new rule is established |
+| `docs/project-kb/operations/tasks.md` | Claude | After each task review |
+| `docs/project-kb/governance/decisions.md` | Claude | When any non-obvious decision is made |
+| `docs/project-kb/operations/roadmap.md` | Claude | When a phase milestone is reached |
+| `docs/project-kb/definition/architecture.md` | Claude | When system structure changes |
+| `docs/project-kb/governance/development-rules.md` | Claude | When a new rule is established |
 | `.cursor/rules/` | Claude | When a recurring pattern needs enforcement |
-| `SESSION_GUIDE.md` | Claude | When the project state changes significantly |
+| `CLAUDE.md` | Claude | When the project state changes significantly |
 | `CLAUDE.md` | Claude | When Claude's role or project state changes |
 | `README.md` | Claude | When the stack or setup process changes |
-| `AGENTS.md` | Claude | When the agent model changes |
+| `docs/project-kb/governance/agents.md` | Claude | When the agent model changes |
 | Code comments | Cursor | During implementation (task scope) |
 | `.env.example` | Cursor (Claude reviews) | When a new env var is introduced |
 
 ### Rule
-**Cursor does NOT update governance documents.** This includes: CLAUDE.md, AGENTS.md, ARCHITECTURE.md, DEVELOPMENT_RULES.md, DECISIONS.md, TASKS.md, ROADMAP.md, PROJECT_OPERATIONS.md, SESSION_GUIDE.md, and all files under `docs/notion/`. If Cursor's task introduces something that should be documented, it flags it in the Task Report. Claude handles the documentation update.
+**Cursor does NOT update governance documents.** This includes: CLAUDE.md, docs/project-kb/governance/agents.md, docs/project-kb/definition/architecture.md, docs/project-kb/governance/development-rules.md, docs/project-kb/governance/decisions.md, docs/project-kb/operations/tasks.md, docs/project-kb/operations/roadmap.md, docs/project-kb/operations/project-operations.md, and all files under `docs/project-kb/`. If Cursor's task introduces something that should be documented, it flags it in the Task Report. Claude handles the documentation update.
 
 ---
 

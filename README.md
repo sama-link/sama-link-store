@@ -1,22 +1,26 @@
 # Sama Link Store
 
-A production-grade, multilingual, SEO-friendly, AI-friendly e-commerce platform built on a modern composable commerce stack.
+A production-grade, multilingual, SEO-friendly e-commerce platform built on a composable commerce stack.
+
+**Stack:** Next.js 16 App Router · TypeScript strict · Tailwind v4 · Medusa v2 · PostgreSQL · Turborepo
 
 ---
 
-## Stack
+## Quick Setup
 
-| Layer | Technology |
-|---|---|
-| Storefront | Next.js 14+ (App Router, TypeScript) |
-| Admin / Dashboard | Next.js (custom) or Medusa Admin (Phase 6) |
-| Commerce Backend | Medusa v2 |
-| Database | PostgreSQL |
-| Search | Meilisearch (Phase 7) |
-| Payments | Stripe (Phase 4) |
-| Storage | S3-compatible (Phase 3) |
-| Monorepo tooling | Turborepo + npm workspaces |
-| Deployment | Vercel (storefront), Node/VPS or Railway (backend) |
+```bash
+# Install dependencies
+npm install
+
+# Copy env files and fill in values
+cp .env.example apps/backend/.env
+cp .env.example apps/storefront/.env.local
+
+# Run everything in dev mode
+npm run dev
+```
+
+**Prerequisites:** Node.js >= 20 · npm >= 10 · PostgreSQL
 
 ---
 
@@ -25,94 +29,67 @@ A production-grade, multilingual, SEO-friendly, AI-friendly e-commerce platform 
 ```
 sama-link-store/
 ├── apps/
-│   ├── storefront/        # Next.js customer-facing store
-│   ├── admin/             # Admin/dashboard app (Phase 6)
-│   └── backend/           # Medusa commerce backend
+│   ├── storefront/   # Next.js customer-facing store
+│   ├── admin/        # Admin/dashboard app (Phase 6)
+│   └── backend/      # Medusa v2 commerce backend
 ├── packages/
-│   ├── ui/                # Shared React UI primitives
-│   ├── types/             # Shared TypeScript types & domain models
-│   └── config/            # Shared ESLint, TS, Tailwind configs
-├── docs/                  # Extended documentation
-├── .env.example           # Environment variable reference
-├── turbo.json             # Turborepo pipeline config
-└── package.json           # Monorepo root
+│   ├── ui/           # Shared React UI primitives
+│   ├── types/        # Shared TypeScript types
+│   └── config/       # Shared ESLint, TS, Tailwind configs
+└── docs/project-kb/  # All project knowledge
 ```
 
 ---
 
-## Getting Started
+## Project Knowledge Base
 
-### Prerequisites
+All governance, decisions, tasks, and architecture documentation lives under [`docs/project-kb/`](docs/project-kb/README.md).
 
-- Node.js >= 20
-- npm >= 10
-- PostgreSQL running locally or via Docker
-- (Optional) Redis for sessions/queues
+**Start here:** [`docs/project-kb/README.md`](docs/project-kb/README.md)
 
-### Setup
-
-```bash
-# 1. Clone / enter the project
-cd sama-link-store
-
-# 2. Copy env files and fill in values
-cp .env.example apps/backend/.env
-cp .env.example apps/storefront/.env.local
-
-# 3. Install dependencies (once apps are scaffolded)
-npm install
-
-# 4. Run everything in dev mode
-npm run dev
-```
-
-> **Note:** Individual apps have not been scaffolded yet — see ROADMAP.md Phase 0–1.
-
----
-
-## Development Phases
-
-| Phase | Focus |
+### Definition
+| Document | Description |
 |---|---|
-| 0 | Project foundation, structure, docs |
-| 1 | Storefront skeleton (Next.js, layout, routing) |
-| 2 | Medusa backend integration |
-| 3 | Product catalog |
-| 4 | Cart and checkout |
-| 5 | Orders and customer accounts |
-| 6 | Admin/dashboard |
-| 7 | SEO, localization, analytics |
-| 8 | Hardening and launch readiness |
+| [`docs/project-kb/definition/project-definition.md`](docs/project-kb/definition/project-definition.md) | Business goals, platform scope, MVP boundary |
+| [`docs/project-kb/definition/architecture.md`](docs/project-kb/definition/architecture.md) | System architecture, boundaries, data flow |
+| [`docs/project-kb/definition/multi-agent-model.md`](docs/project-kb/definition/multi-agent-model.md) | Agent operating model |
 
-See [ROADMAP.md](./ROADMAP.md) for detailed phase breakdown.
+### Governance
+| Document | Description |
+|---|---|
+| [`docs/project-kb/governance/decisions.md`](docs/project-kb/governance/decisions.md) | Architectural Decision Records (ADR log) |
+| [`docs/project-kb/governance/development-rules.md`](docs/project-kb/governance/development-rules.md) | Coding standards and constraints |
+| [`docs/project-kb/governance/agents.md`](docs/project-kb/governance/agents.md) | Agent roles, task brief format, handoff protocol |
+| [`docs/project-kb/governance/constitution.md`](docs/project-kb/governance/constitution.md) | Authority model, core principles, conflict resolution |
 
----
-
-## Key Documentation
-
-- [PROJECT_BRIEF.md](./PROJECT_BRIEF.md) — Business goals, product vision, MVP scope
-- [ARCHITECTURE.md](./ARCHITECTURE.md) — System design and integration boundaries
-- [DEVELOPMENT_RULES.md](./DEVELOPMENT_RULES.md) — Coding standards and project rules
-- [ROADMAP.md](./ROADMAP.md) — Phased implementation plan
-- [TASKS.md](./TASKS.md) — Actionable task backlog
-- [DECISIONS.md](./DECISIONS.md) — Architectural decision log
-- [SESSION_GUIDE.md](./SESSION_GUIDE.md) — Guide for future Claude/AI sessions
-- [docs/](./docs/) — Extended technical documentation
+### Operations
+| Document | Description |
+|---|---|
+| [`docs/project-kb/operations/roadmap.md`](docs/project-kb/operations/roadmap.md) | Phased implementation plan |
+| [`docs/project-kb/operations/tasks.md`](docs/project-kb/operations/tasks.md) | Active task backlog |
+| [`docs/project-kb/operations/deployment.md`](docs/project-kb/operations/deployment.md) | Environment URLs, Vercel config, deployment history |
+| [`docs/project-kb/operations/project-operations.md`](docs/project-kb/operations/project-operations.md) | Operating model — planning, execution, review, tracking |
+| [`docs/project-kb/operations/notion-sync.md`](docs/project-kb/operations/notion-sync.md) | Notion sync protocol |
 
 ---
 
-## Branching Strategy
+## Branching
 
 | Branch | Purpose |
-|--------|---------|
-| `main` | Production-only. Never commit directly. |
-| `develop` | Default working branch. Safe for docs, minor UI, config changes. |
-| `feature/back-N-<slug>` | Required for all backend, security, env, or multi-file structural changes. |
+|---|---|
+| `main` | Production only. Never commit directly. |
+| `develop` | Default working branch for low-risk changes. |
+| `feature/back-N-<slug>` | Required for backend, security, env, or structural changes. |
 
-**Decision rule:** If the change touches runtime, backend, env, security, or more than ~3 files → use a feature branch. Otherwise → commit directly to `develop`.
+**Rule:** If the change touches runtime, backend, env, security, or > 3 files → feature branch. Otherwise → `develop`.
 
 ---
 
-## Contributing / Development
+## Agent Sessions
 
-See [DEVELOPMENT_RULES.md](./DEVELOPMENT_RULES.md) for all coding and workflow standards.
+Two files remain at root for tooling reasons:
+
+- [`CLAUDE.md`](CLAUDE.md) — Auto-read by Claude Code. Compact operative shell with pre-flight and guardrails.
+- [`.env.example`](.env.example) — Environment variable reference.
+
+Notion Project Hub: https://www.notion.so/33613205fce68182a043cc6ad0088c3e

@@ -3,8 +3,8 @@
 Actionable implementation backlog, grouped by phase and task ID.
 Legend: `[ ]` = to do, `[~]` = in progress, `[x]` = done
 
-For full task brief format see `AGENTS.md`.
-For workflow see `docs/cursor-workflow.md`.
+For full task brief format see `docs/project-kb/governance/agents.md`.
+For workflow see `docs/project-kb/operations/task-workflow.md`.
 
 ---
 
@@ -57,7 +57,7 @@ ADR-008 mandates next-intl for locale routing and string translation. The packag
 
 **Files FORBIDDEN to Change:**
 - Any file not listed above
-- `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md`, `DECISIONS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`
+- `docs/project-kb/definition/architecture.md`, `docs/project-kb/governance/development-rules.md`, `docs/project-kb/governance/decisions.md`, `docs/project-kb/operations/tasks.md`, `docs/project-kb/governance/agents.md`, `CLAUDE.md`
 
 **Implementation Steps:**
 1. Run: `npm install next-intl --workspace=apps/storefront`
@@ -96,7 +96,7 @@ next-intl requires a central routing config object. This is the single source of
 **Files FORBIDDEN to Change:**
 - `apps/storefront/lib/i18n.ts` — this is the old placeholder; leave it, it will be removed later
 - Any existing component or layout files
-- `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md`, `DECISIONS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`
+- `docs/project-kb/definition/architecture.md`, `docs/project-kb/governance/development-rules.md`, `docs/project-kb/governance/decisions.md`, `docs/project-kb/operations/tasks.md`, `docs/project-kb/governance/agents.md`, `CLAUDE.md`
 
 **Implementation Steps:**
 1. Create directory `apps/storefront/i18n/` if it doesn't exist
@@ -144,7 +144,7 @@ next-intl requires `getRequestConfig` to tell the server which messages to load 
 - `apps/storefront/messages/ar.json`
 - `apps/storefront/messages/en.json`
 - Any component or layout file
-- `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md`, `DECISIONS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`
+- `docs/project-kb/definition/architecture.md`, `docs/project-kb/governance/development-rules.md`, `docs/project-kb/governance/decisions.md`, `docs/project-kb/operations/tasks.md`, `docs/project-kb/governance/agents.md`, `CLAUDE.md`
 
 **Implementation Steps:**
 1. Create `apps/storefront/i18n/request.ts`:
@@ -198,7 +198,7 @@ next-intl middleware handles locale detection and URL normalization. Without it,
 **Files FORBIDDEN to Change:**
 - Any file inside `app/`
 - Any component
-- `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md`, `DECISIONS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`
+- `docs/project-kb/definition/architecture.md`, `docs/project-kb/governance/development-rules.md`, `docs/project-kb/governance/decisions.md`, `docs/project-kb/operations/tasks.md`, `docs/project-kb/governance/agents.md`, `CLAUDE.md`
 
 **Implementation Steps:**
 1. Create `apps/storefront/middleware.ts`:
@@ -246,7 +246,7 @@ next-intl requires its plugin to wrap the Next.js config. This is a one-line cha
 
 **Files FORBIDDEN to Change:**
 - Any file in `app/`, `components/`, `lib/`, `i18n/`, `messages/`
-- `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md`, `DECISIONS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`
+- `docs/project-kb/definition/architecture.md`, `docs/project-kb/governance/development-rules.md`, `docs/project-kb/governance/decisions.md`, `docs/project-kb/operations/tasks.md`, `docs/project-kb/governance/agents.md`, `CLAUDE.md`
 
 **Implementation Steps:**
 1. Read the current `apps/storefront/next.config.ts`
@@ -303,7 +303,7 @@ Global CSS import (`./globals.css`) must also move here (with updated path `../g
 - `apps/storefront/app/layout.tsx` — do NOT touch yet (deleted in I18N-7)
 - `apps/storefront/app/(storefront)/layout.tsx` — do NOT touch yet
 - `apps/storefront/app/globals.css`
-- `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md`, `DECISIONS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`
+- `docs/project-kb/definition/architecture.md`, `docs/project-kb/governance/development-rules.md`, `docs/project-kb/governance/decisions.md`, `docs/project-kb/operations/tasks.md`, `docs/project-kb/governance/agents.md`, `CLAUDE.md`
 
 **Implementation Steps:**
 1. Create `apps/storefront/app/[locale]/layout.tsx`:
@@ -402,7 +402,7 @@ After I18N-6, there are two competing root layouts: `app/layout.tsx` (old) and `
 - `apps/storefront/app/[locale]/layout.tsx` — already created in I18N-6, do not modify
 - `apps/storefront/app/globals.css`
 - `apps/storefront/components/` — no component changes
-- `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md`, `DECISIONS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`
+- `docs/project-kb/definition/architecture.md`, `docs/project-kb/governance/development-rules.md`, `docs/project-kb/governance/decisions.md`, `docs/project-kb/operations/tasks.md`, `docs/project-kb/governance/agents.md`, `CLAUDE.md`
 
 **Implementation Steps:**
 1. Create directory `apps/storefront/app/[locale]/(storefront)/`
@@ -441,7 +441,7 @@ After I18N-6, there are two competing root layouts: `app/layout.tsx` (old) and `
 Replace all hardcoded user-visible strings in Header and Footer with `useTranslations()` calls, using the translation keys already defined in `messages/ar.json` and `messages/en.json`.
 
 **Context:**
-All visible strings must go through the i18n system per DEVELOPMENT_RULES.md section 11. Header currently has hardcoded "Products", "Collections", "About", "AR / EN". Footer has hardcoded group names, link labels, and copyright text. Both components are Server Components, so they must use `getTranslations()` (async, server-side), not `useTranslations()` (client-side hook). MobileMenu is a Client Component and uses `useTranslations()`.
+All visible strings must go through the i18n system per docs/project-kb/governance/development-rules.md section 11. Header currently has hardcoded "Products", "Collections", "About", "AR / EN". Footer has hardcoded group names, link labels, and copyright text. Both components are Server Components, so they must use `getTranslations()` (async, server-side), not `useTranslations()` (client-side hook). MobileMenu is a Client Component and uses `useTranslations()`.
 
 Read the current message files before starting to know exactly which keys exist.
 
@@ -457,7 +457,7 @@ Read the current message files before starting to know exactly which keys exist.
 - `apps/storefront/app/[locale]/(storefront)/page.tsx`
 - `apps/storefront/components/ui/` — no UI component changes
 - `apps/storefront/lib/`
-- `ARCHITECTURE.md`, `DEVELOPMENT_RULES.md`, `DECISIONS.md`, `TASKS.md`, `AGENTS.md`, `CLAUDE.md`
+- `docs/project-kb/definition/architecture.md`, `docs/project-kb/governance/development-rules.md`, `docs/project-kb/governance/decisions.md`, `docs/project-kb/operations/tasks.md`, `docs/project-kb/governance/agents.md`, `CLAUDE.md`
 
 **Implementation Steps:**
 
@@ -521,7 +521,7 @@ Read the current message files before starting to know exactly which keys exist.
 - [x] `ADR-016`: SEO first-class architectural concern — documented
 - [x] `ADR-017`: Rendering strategy per route type — documented
 - [x] `ADR-018`: Adopt > Extend > Rebuild — documented
-- [x] Knowledge base alignment — DECISIONS.md, CLAUDE.md, ROADMAP.md, DEPLOYMENT.md, Notion fully synced (commit `7664e90`)
+- [x] Knowledge base alignment — docs/project-kb/governance/decisions.md, CLAUDE.md, docs/project-kb/operations/roadmap.md, docs/project-kb/operations/deployment.md, Notion fully synced (commit `7664e90`)
 
 ### Active
 - [x] `GOV-2`: Backfill all existing Task Tracker rows with correct Feature links and Is Pre-Phase Blocker flags — enforcement system data completeness
@@ -546,7 +546,7 @@ Read the current message files before starting to know exactly which keys exist.
 
 **All tasks below must complete before BACK-1. See ADR-020.**
 
-- [x] `MEDIA-1`: Define Media Intake Protocol — `docs/media-intake-protocol.md` authored (Claude, 2026-04-03)
+- [x] `MEDIA-1`: Define Media Intake Protocol — `docs/project-kb/implementation/media-intake-protocol.md` authored (Claude, 2026-04-03)
 - [x] `BRAND-2`: Extract production-ready logo variants (WebP) into `public/brand/logo/` + `manifest.json` stub
 - [x] `BRAND-3`: Replace color tokens — new `--color-brand` (#1c3d6b) and `--color-accent` (#4b8fc4) from logo identity
 - [x] `BRAND-4`: Implement light/dark theme — `html.dark` class-based CSS variable overrides, ThemeProvider, toggle button
@@ -609,7 +609,7 @@ These tasks do not block BACK-1 but must be completed early in Phase 2. Priority
 
 ## LATER — Phases 3–8
 
-See `ROADMAP.md` for scope. Tasks broken out when phase becomes active.
+See `docs/project-kb/operations/roadmap.md` for scope. Tasks broken out when phase becomes active.
 
 ---
 

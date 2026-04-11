@@ -20,6 +20,7 @@ Sama Link Store is the digital commerce platform of Sama Link, a specialized net
 
 - Arabic-first interface
 - Mobile-first layout
+- User experience first
 - Low-effort buying journey
 - Clarity over visual noise
 - Trust through simplicity
@@ -126,5 +127,11 @@ The platform succeeds when these outcomes hold true across the system — not ju
 
 - [`architecture.md`](architecture.md) — System architecture and application boundaries
 - [`multi-agent-model.md`](multi-agent-model.md) — How the project is built and operated
-- `DECISIONS.md` — All architectural decisions with rationale
-- Notion Project Definition: https://www.notion.so/33613205fce681ea8ec2fbfc605c096f
+- `docs/project-kb/governance/decisions.md` — All architectural decisions with rationale
+
+**Notion Definition Layer** (detailed expansions — Notion-primary, no repo counterparts):
+- Business Requirements: https://www.notion.so/33a13205fce681f690bff944323fd57f
+- Core User Journeys: https://www.notion.so/33a13205fce681a3b17adba103fac2c3
+- Technical Requirements: https://www.notion.so/33a13205fce68188ae2efd3ec235b836
+- Validation Strategy: https://www.notion.so/33a13205fce68145a020ecb1ad837d03
+- Notion Project Definition root: https://www.notion.so/33613205fce681ea8ec2fbfc605c096f

@@ -33,7 +33,7 @@ This file tracks deployment environments, URLs, and configuration for the Sama L
 - This is a **preview deployment**, not a production launch. See ADR-013.
 - No environment variables are required for Phase 1 (no backend, no API keys).
 - Auto-deploys on every push to `main`.
-- Production deployment is Phase 8, after hardening and testing (see ROADMAP.md).
+- Production deployment is Phase 8, after hardening and testing (see docs/project-kb/operations/roadmap.md).
 
 ---
 

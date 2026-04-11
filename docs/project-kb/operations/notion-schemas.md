@@ -74,7 +74,7 @@ Not Started → Ready → In Progress → In Review → Done
 | Decisions Made | text | New ADRs or architectural decisions |
 | Files Changed | text | Summary of files created/modified/deleted |
 | Next Recommended Task | text | Task ID and one-line description |
-| Repo Docs Updated | checkbox | Were TASKS.md, DECISIONS.md etc. updated? |
+| Repo Docs Updated | checkbox | Were docs/project-kb/operations/tasks.md, docs/project-kb/governance/decisions.md etc. updated? |
 | Notion Updated | checkbox | Was Notion updated at end of session? |
 | Created At | created_time | Auto |
 

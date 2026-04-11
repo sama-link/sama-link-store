@@ -236,9 +236,9 @@ The project requires consistent architectural governance across many development
 Claude (Claude Code CLI) owns architecture, task decomposition, documentation, and review. Cursor owns implementation only. Every task flows through a brief format that defines scope, forbidden files, and acceptance criteria.
 
 ### Consequences
-- All task briefs must follow the format in `AGENTS.md`
-- Cursor must not modify governance files (`DECISIONS.md`, `ARCHITECTURE.md`, etc.)
-- Claude must review every completed task before marking it done in `TASKS.md`
+- All task briefs must follow the format in `docs/project-kb/governance/agents.md`
+- Cursor must not modify governance files (`docs/project-kb/governance/decisions.md`, `docs/project-kb/definition/architecture.md`, etc.)
+- Claude must review every completed task before marking it done in `docs/project-kb/operations/tasks.md`
 - Architecture changes require an ADR before implementation begins
 - `.cursor/rules/` files encode the operating constraints into Cursor's context
 
@@ -269,7 +269,7 @@ All design tokens (colors, radius, shadows, spacing overrides) are defined in `a
 **Status:** Accepted (time-limited)
 
 ### Context
-DEVELOPMENT_RULES.md §9 specifies a `develop` branch, feature branches, and PRs. In practice, all Phase 1 work has been committed directly to `main` with no branching, which is a deliberate deviation.
+docs/project-kb/governance/development-rules.md §9 specifies a `develop` branch, feature branches, and PRs. In practice, all Phase 1 work has been committed directly to `main` with no branching, which is a deliberate deviation.
 
 ### Decision
 Allow direct commits to `main` for Phase 1 solo development. This exception is explicitly time-limited. From Phase 2 onward — when the backend is introduced and multiple concerns diverge — the full branch workflow (`develop`, feature branches, PRs) must be enforced.
@@ -387,7 +387,7 @@ Rebuilding requires an explicit ADR with justification. "We want more control" o
 **Status:** Accepted
 
 ### Context
-The original roadmap (ROADMAP.md) places deployment at Phase 8 (post-hardening, post-testing). The project is currently in Phase 1 (Storefront Skeleton). The decision was made to create an early preview deployment on Vercel to enable visual review, stakeholder feedback, and URL-based testing during active development.
+The original roadmap (docs/project-kb/operations/roadmap.md) places deployment at Phase 8 (post-hardening, post-testing). The project is currently in Phase 1 (Storefront Skeleton). The decision was made to create an early preview deployment on Vercel to enable visual review, stakeholder feedback, and URL-based testing during active development.
 
 ### Options Considered
 - Wait for Phase 8 to deploy (original plan)
@@ -397,7 +397,7 @@ The original roadmap (ROADMAP.md) places deployment at Phase 8 (post-hardening, 
 Deploy the storefront to Vercel as a **preview deployment** during Phase 1. This is not a production launch. The Phase 8 production deployment milestone remains unchanged. The preview URL is for development review only — not shared publicly as a product.
 
 ### Consequences
-- A `DEPLOYMENT.md` file tracks deployment details, environment URLs, and verification status
+- A `docs/project-kb/operations/deployment.md` file tracks deployment details, environment URLs, and verification status
 - The preview deployment is connected to the `main` branch on GitHub
 - Subsequent pushes to `main` trigger automatic Vercel preview builds
 - Production deployment (Phase 8) will require a separate Vercel project or promotion from preview
@@ -415,7 +415,7 @@ As UI work progresses across phases, design changes (typography, color, spacing,
 
 ### Options Considered
 - No formal protocol — rely on task briefs to define scope each time
-- Lightweight checklist in DEVELOPMENT_RULES.md only
+- Lightweight checklist in docs/project-kb/governance/development-rules.md only
 - Full Design Modification Protocol with layer boundaries, design modes, review gate, and integration with the enforcement system (selected)
 
 ### Decision
@@ -427,7 +427,7 @@ Adopt the **Design Modification Protocol** as a mandatory governance layer integ
 - Pages in the Critical UI Boundary (product, cart, checkout, auth) are permanently STRICT DESIGN MODE — no structural changes
 - The review gate is mandatory: Claude validates token usage, forbidden file boundaries, and RTL/LTR integrity after every design task
 - Violations of the forbidden layer are treated the same as architecture violations — task is rejected and a correction brief is issued
-- See `DEVELOPMENT_RULES.md` Rule 13 and `PROJECT_OPERATIONS.md` Section 10 for full implementation detail
+- See `docs/project-kb/governance/development-rules.md` Rule 13 and `docs/project-kb/operations/project-operations.md` Section 10 for full implementation detail
 
 
 ---
@@ -462,7 +462,7 @@ Raw source files (`sama-link_brand-assets_FULL/`) are added to `.gitignore`. Onl
 ### Consequences
 - Phase 2 backend work (BACK-1) does not begin until BRAND-5 is complete and accepted
 - The red accent color `#e94560` is removed from the project — any component using it must be updated in BRAND-3
-- A `docs/media-intake-protocol.md` governance document is created and enforced from this point forward — no media asset enters the repo without following it
+- A `docs/project-kb/implementation/media-intake-protocol.md` governance document is created and enforced from this point forward — no media asset enters the repo without following it
 - SVG source files for the logo do not exist; WebP is the production format; if SVG is later provided by the designer, it supersedes the WebP logo under the same naming convention
 - The `_on-dark` full lockup PNG variants are flagged as broken exports — a designer re-export with transparent backgrounds is required before full dark mode logo implementation
 - BRAND-4 implements class-based dark mode using `html.dark` class toggling — not system-preference-only — to give users explicit control
@@ -511,7 +511,7 @@ Adopt a four-layer multi-agent architecture with a strict One-Way Data Flow:
 **Layer 3 — Orchestration (Claude CLI):**
 - Reads approved strategies from Notion
 - Translates strategies into task briefs with scope, acceptance criteria, and forbidden files
-- Maintains all governance documents (`DECISIONS.md`, `TASKS.md`, `ROADMAP.md`, `CLAUDE.md`)
+- Maintains all governance documents (`docs/project-kb/governance/decisions.md`, `docs/project-kb/operations/tasks.md`, `docs/project-kb/operations/roadmap.md`, `CLAUDE.md`)
 - Reviews Cursor's output before any task is marked complete
 - Owns Notion sync (Task Tracker, Session Log, Decision Log, Feature Tracker)
 - Does NOT implement product features
@@ -523,7 +523,7 @@ Adopt a four-layer multi-agent architecture with a strict One-Way Data Flow:
 - Never commits directly to `main`
 
 ### Consequences
-- Consultants must be given a system prompt that enforces their read-only, no-code boundaries (prompt stored in `docs/agents/chatgpt-system-prompt.md` and `docs/agents/gemini-system-prompt.md`)
+- Consultants must be given a system prompt that enforces their read-only, no-code boundaries (contracts stored in `docs/project-kb/governance/actors/chatgpt-contract.md` and `docs/project-kb/governance/actors/gemini-contract.md`)
 - Claude never pulls strategy directly from consultants — only from Human-approved Notion entries
 - ADR-011 (Dual-Agent Model) is superseded by this ADR for overall team structure; its task brief format and Cursor constraints remain in force
 - Any new AI agent introduced to the team requires an ADR update before it is granted any access
@@ -543,7 +543,7 @@ The existing system defines all agents using operational roles (purpose, respons
 ### Options Considered
 
 - Keep operational-only role definitions (current state)
-- Add philosophical guidance as freeform prose in AGENTS.md
+- Add philosophical guidance as freeform prose in docs/project-kb/governance/agents.md
 - Upgrade all actors to a Layered Identity Specification — Structural + Operational + Philosophical + I/O Contract + Validation Hooks (selected)
 
 ### Decision
@@ -557,11 +557,11 @@ Upgrade all actor definitions from "role descriptions" to **5-layer Behavioral C
 5. **Validation & Alignment Hooks** — pre-execution checks, self-alignment, drift signals
 
 **Artifacts produced:**
-- `docs/agents/claude-system-prompt.md` — compiled XML behavioral contract for Claude CLI
-- `docs/governance/actor-identity-v2-template.md` — reusable V2 template for all actors
-- `docs/governance/actor-identity-migration-plan.md` — per-actor migration specification
-- `AGENTS.md` — task brief format upgraded to V2 (strict, ambiguity-proof)
-- Notion Actor Identity Registry — V2 pages for all 5 actors (Layer 5 extension)
+- `docs/project-kb/governance/actors/claude-contract.md` — compiled behavioral contract for Claude CLI (V2.1)
+- `docs/project-kb/governance/actors/identity-template.md` — reusable V2 template for all actors
+- `docs/project-kb/governance/history/actor-identity-migration-plan.md` — per-actor migration specification
+- `docs/project-kb/governance/agents.md` — task brief format upgraded to V2 (strict, ambiguity-proof)
+- Notion Actor Identity Registry — V2 identity pages created for all actors at time of this ADR (note: 'Layer 5 extension' referenced the now-deprecated 7-layer workspace model; 4-layer model is authoritative; actor set was subsequently extended by ADR-023, which added Codex as the 6th actor)
 
 **Interpretation Modes (locked per actor):**
 - Cursor: **Literal** — execute exactly what is written, no inference
@@ -575,10 +575,96 @@ Before every output, Claude checks: inputs clear? constraints identified? action
 ### Consequences
 
 - ADR-021 is **extended** (not superseded) by this ADR — team structure unchanged, identities deepened
-- ADR-011 task brief format is superseded by the V2 brief format in AGENTS.md
+- ADR-011 task brief format is superseded by the V2 brief format in docs/project-kb/governance/agents.md
 - Human must update ChatGPT and Gemini system prompts to add Philosophical Identity and Drift Signals sections (flagged in migration plan)
-- Consultant system prompts in `docs/agents/` must be kept in sync with Notion Actor Identity Registry
+- Consultant behavioral contracts in `docs/project-kb/governance/actors/` must be kept in sync with Notion Actor Identity Registry
 - All future actors introduced to the system require a V2 identity before being granted any access (extends ADR-021's "any new agent requires ADR update" rule)
+
+---
+
+## ADR-025: Backend Specialist Executor — Layer 4 Domain-Specialized Actor
+
+**Date:** 2026-04-11
+**Status:** Accepted
+
+### Context
+
+Phase 2 backend work (BACK-2 through BACK-6) requires deep Medusa v2 knowledge: PostgreSQL migration management, service/subscriber patterns, Stripe webhook wiring, CORS configuration, and seed scripting. Codex (ADR-023) is the current advanced executor and can handle these tasks, but without a backend-specific identity every task brief must carry the full Medusa domain context — the correct extension level, security rules for secrets, migration safety expectations, and API boundary rules — to compensate for a generalist contract.
+
+This increases brief length, increases the chance that critical backend constraints are omitted under time pressure, and produces less consistent output across the BACK-* task series.
+
+### Options Considered
+
+- Continue using general Codex for all backend work — briefs must carry full domain context every time
+- Add backend context as a briefing annex rather than an actor identity — still ad hoc, no persistent contract
+- Define Backend Specialist as a distinct Layer 4 actor with a domain-specific identity contract (selected)
+
+### Decision
+
+Add **Backend Specialist** as a Layer 4 Execution actor under the same authority model as Codex (ADR-023). The Backend Specialist identity is invoked by Claude writing `Target Executor: Backend Specialist` in a task brief. The Human loads `docs/project-kb/governance/actors/backend-specialist-contract.md` alongside the brief when submitting to the execution environment.
+
+**Key design constraints:**
+- Authority level: identical to Codex — no architectural authority, no governance write authority, no Notion authority
+- Interpretation mode: Analytical-Literal — same as Codex
+- Scope of specialization: Medusa v2 backend, PostgreSQL, integration layer only
+- Medusa extension hierarchy (ADR-018 Adopt > Extend > Rebuild) is a hard constraint this actor enforces before proposing any backend pattern
+- The Backend Specialist does NOT extend beyond the execution layer — it is not a backend architect
+
+### Consequences
+
+- Claude may now specify `Target Executor: Backend Specialist` in task briefs for BACK-2 through BACK-6 and future backend-domain tasks
+- Task briefs targeting Backend Specialist may omit detailed Medusa domain context already covered by the contract, keeping briefs focused on scope and acceptance criteria
+- Backend Specialist is subject to all shared team principles (`governance/team-principles.md`) and the authority model (`governance/authority-model.md`) without exception
+- `governance/actors/backend-specialist-contract.md` is the canonical contract; Notion Actor Identity Card mirrors it
+- `docs/project-kb/governance/skill-framework.md` Execution Skills table is unchanged — Backend Specialist declares skills from that table without adding new skill definitions
+- ADR-023 is extended (not superseded) — Backend Specialist is a third Layer 4 actor alongside Cursor and Codex
+
+---
+
+## ADR-024: Team Operating Foundation — Shared Principles, Authority Model, and Skill Framework
+
+**Date:** 2026-04-11
+**Status:** Accepted
+
+### Context
+
+The multi-agent team is defined by 6 actors with detailed V2 behavioral contracts (ADR-022/ADR-023). As the project advances through Phase 2 and beyond, new specialized agents will need to be added. The current state has three structural problems:
+
+1. **Shared principles are scattered.** Anti-drift behavior, escalation rules, boundary respect, and truth-source discipline exist in the constitution, agents.md, individual actor contracts, and the task brief format — but not in a single agent-consumable document. Every new agent contract must re-derive or re-define these principles, creating drift risk.
+
+2. **The authority model is not consolidated.** What requires an ADR, what is human-only, and what each authority level permits are spread across constitution.md and agents.md. There is no single reference that answers "what does this action require?" without reading multiple documents.
+
+3. **Skills have no vocabulary.** There is no formal model distinguishing shared skills (inherited by all agents) from specialized skills (domain-specific). New agent contracts cannot declare capabilities consistently, creating duplication and ambiguity about what knowledge grounds each agent's behavior.
+
+### Options Considered
+
+- Continue building agent contracts without a shared base (current approach) — accepted for 6 actors, unsustainable for 12+
+- Consolidate into a single "super-constitution" document — too monolithic; loses the separation of governance concerns
+- Create three focused documents that extend the constitution (selected)
+
+### Decision
+
+Formalize three governance documents as the shared team foundation:
+
+1. **`docs/project-kb/governance/team-principles.md`** — Shared behavioral principles for all agents (anti-drift, role discipline, escalation, boundary respect, truth-source discipline, review expectations, ambiguity handling). This is the behavioral floor every agent inherits.
+
+2. **`docs/project-kb/governance/authority-model.md`** — Consolidated authority reference consolidating decision gate matrix, authority levels, human-only decisions, ADR requirements, and the escalation chain into one document. Individual agent contracts reference this instead of replicating the model.
+
+3. **`docs/project-kb/governance/skill-framework.md`** — Shared and specialized skill vocabulary. Shared skills are inherited by all agents without re-definition. Specialized skills are declared per agent using this vocabulary, mapped to specific KB documents.
+
+Additionally:
+- **`docs/project-kb/governance/actors/identity-template.md`** is upgraded to include a Skills Profile section and a "How to Use" guidance block — making it the complete entry point for defining any future agent.
+- **`docs/project-kb/governance/team-blueprint.md`** is created as a planning artifact proposing the first specialized team expansion wave.
+
+### Consequences
+
+- All future agent contracts reference `team-principles.md` as the shared behavioral base — they do not re-define shared principles
+- Authority decisions are looked up in `authority-model.md` — not reconstructed per actor
+- New agents declare their specialized skills using `skill-framework.md` vocabulary — no ad-hoc capability claims
+- The identity template is the single entry point for defining new agents — complete with foundation references
+- ADR-022 is **extended** (not superseded) — V2 layered structure preserved; foundation documents added beneath it
+- ADR-021's "any new agent requires an ADR" rule is unchanged; the foundation makes that ADR easier to write
+- `docs/project-kb/README.md` updated to index the three new governance documents
 
 ---
 
@@ -630,7 +716,199 @@ Brief header adds `Target Executor:` field. Interpretation Mode section updated 
 
 - ADR-022 is **extended** (not superseded) — V2 layered structure preserved, actor personas and execution topology refined
 - ADR-021 team architecture extended from 5 actors to 6 actors
-- AGENTS.md system flow diagram updated to show dual executor paths
+- docs/project-kb/governance/agents.md system flow diagram updated to show dual executor paths
 - Quick Reference table updated to include Codex column and ChatGPT/Gemini distinction
 - Notion Actor Identity Cards: ChatGPT and Gemini updated to V2.1; Codex page created
 - Human must update ChatGPT and Gemini Custom Instructions with V2.1 additions (personality, anti-drift role, relaxed output format) — flagged in each actor's Notion page
+
+---
+
+## ADR-026: Security Reviewer — Layer Review Sublayer Specialized Auditor
+
+**Date:** 2026-04-11
+**Status:** Accepted
+
+### Context
+
+Phase 2 backend work produces code that touches security-critical surfaces: secret handling in environment variables, CORS policy configuration, API endpoint authentication, webhook signature verification, and input validation. Claude currently performs all review. As the backend codebase grows and BACK-2 through BACK-6 introduce real configuration and integration code, security review becomes too domain-specific for a generalist review pass alone.
+
+SEC-1 (security baseline task) will produce the canonical security baseline document. A dedicated Security Reviewer role, invoked as a specialized review pass after security-relevant executor output, enforces that baseline systematically rather than through ad hoc checklist review.
+
+Without this role, security gaps can survive review because they require a focused, criterion-by-criterion audit that competes with other review concerns (correctness, type safety, scope compliance) in a single pass.
+
+### Options Considered
+
+- Continue using Claude's general review for all security checks — all review in one pass, no specialization
+- Add security checks as an annex to every task brief — still ad hoc, adds brief complexity
+- Define Security Reviewer as a dedicated review-layer identity invoked by Claude on security-relevant output (selected)
+
+### Decision
+
+Add **Security Reviewer** as a Review sublayer actor. The Security Reviewer is invoked by Claude after executor output on tasks that touch: secrets configuration, CORS settings, API endpoint authentication, webhook handlers, or input validation. Claude writes "Security Review Required" in the task brief or issues a post-execution security review request; the Human loads this contract alongside the relevant output.
+
+**Key design constraints:**
+- Authority level: Review only — no write, no execution, no governance, no architecture
+- Scope: Backend code and configuration (`apps/backend/`) and any storefront API integration layer
+- Activation trigger: SEC-1 completion + any output that touches security-critical surfaces
+- Report format: Pass/Fail per criterion; severity classification (Critical / Major / Minor); required action per finding
+- Critical findings block merge; Major findings must be resolved before the next batch closes; Minor findings are tracked
+
+### Consequences
+
+- Claude may now invoke a Security Review pass on BACK-* output before marking any security-relevant task done
+- The Security Reviewer is the second Review sublayer actor (Claude CLI remains primary — Security Reviewer provides the specialized security lens)
+- `governance/actors/security-reviewer-contract.md` is the canonical contract; Notion Actor Identity Card mirrors it
+- `governance/authority-model.md` Write Access table updated to include Security Reviewer
+- SEC-1 must complete before the Security Reviewer is used in production review — pre-SEC-1 use is optional for high-confidence security checks (e.g., secrets discipline on BACK-6)
+- No new skills are added to `skill-framework.md` — Security Reviewer declares existing skills from that table
+- ADR-021 is extended (not superseded) — Security Reviewer is a Review sublayer actor alongside Claude CLI
+
+---
+
+## ADR-027: Literal Executor — Layer 4 Default Execution Actor Contract
+
+**Date:** 2026-04-11
+**Status:** Accepted
+
+### Context
+
+The Literal Executor has been the default execution actor since ADR-021 (multi-agent architecture) and ADR-023 (executor roles formalized). It is invoked by default on every task brief where Claude does not specify a different executor. Despite being the most frequently invoked actor in the system, it has never had a standalone identity contract file — its behavioral definition exists only inline in `governance/agents.md`.
+
+Without a standalone contract, the Literal Executor cannot self-load a complete identity context the way the Advanced Executor (Codex), Backend Specialist, and Security Reviewer can. This creates a documentation gap and a behavioral-consistency risk as the team grows.
+
+### Decision
+
+Formalize the Literal Executor's identity in a standalone V2 contract using the identity template (ADR-022 / ADR-024). The contract extracts and formalizes the behavioral definition from `governance/agents.md` without changing any of the established rules.
+
+**Key contract decisions:**
+- Layer: 4 — Execution
+- Status: Active (role is already in production use)
+- Interpretation mode: Literal — zero inference, zero assumption, zero scope extension
+- Ambiguity threshold: Zero — every gap between brief and observable reality is an escalation trigger
+- Default executor rule: When `Target Executor` is not specified in a brief, Literal Executor is the default
+- Specialized skills are brief-domain-dependent: storefront skills activate on storefront briefs; backend skills activate on backend briefs
+
+### Consequences
+
+- `governance/actors/literal-executor-contract.md` is the canonical contract; Human may load it for any brief where the Literal Executor is the target
+- No behavioral change — the contract formalizes existing rules, does not introduce new ones
+- The default executor rule (no `Target Executor` field = Literal Executor) is explicitly recorded in the contract
+- ADR-021 is extended (not superseded) — Literal Executor is Layer 4 default execution actor
+
+---
+
+## ADR-028: TypeScript Quality Reviewer — Review Sublayer Type-Safety Auditor
+
+**Date:** 2026-04-11
+**Status:** Accepted
+
+### Context
+
+As the codebase grows past Phase 2, TypeScript type-safety drift becomes harder to catch in a generalist review pass. `tsc --noEmit` passing is necessary but not sufficient — structural type issues, `any` creep, missing type exports, and architecturally weak typing can compile without errors but create maintenance debt and runtime ambiguity at scale. Phase 3 introduces complex product data types, Medusa response shape typing, and catalog models that require a dedicated type-safety lens.
+
+### Decision
+
+Define a **TypeScript Quality Reviewer** as a Review sublayer actor. The TS Quality Reviewer is invoked by Claude after executor output on tasks that produce or modify complex TypeScript types — new interfaces, Medusa response shapes, shared package types, or generic type structures. Claude writes `TypeScript Review Required: Yes` in the brief or issues a post-delivery TS review request.
+
+**Key design constraints:**
+- Authority level: Review only — no write, no execution, no governance, no architecture
+- Status: Inactive — activation trigger is Phase 3 start
+- Audit criterion: `any` usage, missing type coverage, generic constraint discipline, shared type export structure, `tsc` passing is the floor not the bar
+- Report format: criterion-by-criterion; severity classification (Major / Minor); required action per finding
+- Major findings block next batch close; Minor findings are tracked follow-ups
+
+### Consequences
+
+- Claude may invoke a TS Review pass on executor output for type-heavy tasks beginning Phase 3
+- `governance/actors/ts-quality-reviewer-contract.md` is the canonical contract
+- No new skills added to `skill-framework.md` — TS Quality Reviewer declares existing skills from that table
+- ADR-021 is extended (not superseded) — TS Quality Reviewer is a Review sublayer actor
+
+---
+
+## ADR-029: Knowledge Base Keeper — Documentation Sublayer Maintenance Agent
+
+**Date:** 2026-04-11
+**Status:** Accepted
+
+### Context
+
+The KB has grown reactively — documents were created when urgently needed, not always maintained as implementations evolved. The `Document` authority level already exists in `governance/authority-model.md` (`Claude CLI (current); future: dedicated documentation agent`) but no dedicated agent has been defined to hold it. As Phase 3 introduces catalog patterns, search, and media handling, implementation patterns will stabilize faster than documentation can track without a dedicated alignment function.
+
+Without a dedicated KB maintenance capability, documentation drift accumulates silently until it causes planning failures — executors implement against stale patterns, briefs are written from incorrect KB state, and reviews catch drift that should have been caught earlier.
+
+### Decision
+
+Define a **Knowledge Base Keeper** as a Documentation Sublayer actor, activating the `Document` authority level already defined in the authority model. The KB Keeper receives alignment requests from Claude, reads KB documents and implementation files, identifies gaps and drift, and produces structured KB Update Proposals — it does not self-apply changes.
+
+**Key design constraints:**
+- Authority level: Document (already defined) — scoped to `implementation/` KB alignment; no governance document writes
+- Status: Inactive — activation trigger is Phase 3 lead-up
+- Output: KB Update Proposals (one per gap) + KB Gap Report; all changes applied by Claude after review
+- Scope: `docs/project-kb/implementation/` alignment only; governance documents and ADRs are out of scope
+
+### Consequences
+
+- Claude may invoke KB Keeper for alignment checks after batch completions or before phase transitions beginning Phase 3 lead-up
+- `governance/actors/kb-keeper-contract.md` is the canonical contract
+- `governance/authority-model.md` updated: Document authority row now references KB Keeper as defined inactive holder
+- No new skills added to `skill-framework.md` — KB Keeper declares existing shared and orchestration skills
+- ADR-021 is extended (not superseded) — KB Keeper is a Documentation Sublayer actor
+
+---
+
+## ADR-030: QA / Regression Validator — Execution/Review Sublayer Quality Gate
+
+**Date:** 2026-04-11
+**Status:** Accepted
+
+### Context
+
+No systematic quality or regression check exists in the current team. Phase 3 (catalog) and Phase 4 (cart/checkout) introduce stateful user flows — cart operations, checkout, authentication, order confirmation — where code review alone cannot verify that flows work end-to-end after each task. A broken checkout is a production incident; finding it only during Claude's code review is too late.
+
+### Decision
+
+Define a **QA / Regression Validator** as an Execution/Review Sublayer actor. The QA Validator authors test plans for stateful user flows and executes regression checks after executor delivery. Claude writes `QA Validation Required: Yes` in the brief for tasks that touch stateful flows. The QA Validator produces a QA Report that Claude uses to approve or reject delivery.
+
+**Key design constraints:**
+- Authority level: Review (advisory) — produces reports; no final approve/reject; no source file writes
+- Status: Inactive — activation trigger is Phase 3 catalog stable / before Phase 4
+- Flows in scope: cart, checkout, authentication, product catalog, locale switching
+- Severity: Critical (blocks merge), Major (blocks batch close), Minor (tracked follow-up)
+- Test plan covers happy path + edge cases + error states; "probably fine" is not a test result
+
+### Consequences
+
+- Claude may invoke QA Validator for flow validation on Phase 4 tasks and regression checks at phase gates
+- `governance/actors/qa-validator-contract.md` is the canonical contract
+- No new skills added to `skill-framework.md` — QA Validator declares existing skills from that table
+- ADR-021 is extended (not superseded) — QA / Regression Validator is an Execution/Review Sublayer actor
+
+---
+
+## ADR-031: SEO Governance Reviewer — Review Sublayer SEO Compliance Auditor
+
+**Date:** 2026-04-11
+**Status:** Accepted
+
+### Context
+
+ADR-016 mandates SEO and AI discoverability as first-class architectural concerns. As product pages ship in Phase 3, SEO correctness — metadata exports, JSON-LD structured data, canonical URLs, hreflang alternate tags, sitemap entries — must be systematically enforced rather than manually checked per task in Claude's general review pass. A single missed canonical URL on a product page creates duplicate content risk across the entire catalog.
+
+### Decision
+
+Define a **SEO Governance Reviewer** as a Review sublayer actor. The SEO Reviewer is invoked by Claude after executor output on storefront tasks that produce or modify pages, metadata, structured data, URL structure, or sitemap. Claude writes `SEO Review Required: Yes` in the brief or issues a post-delivery SEO review request.
+
+**Key design constraints:**
+- Authority level: Review only — no write, no execution, no governance, no architecture
+- Status: Inactive — activation trigger is Phase 3 product pages
+- Audit criteria: `generateMetadata` presence, canonical URL correctness, JSON-LD schema, hreflang for both locales (ar/en), sitemap, `noindex` absence on indexable pages
+- Baseline: must read `implementation/seo-guidelines.md` before every audit — never from memory
+- Severity: Critical (blocks merge), Major (blocks batch close), Minor (tracked follow-up)
+
+### Consequences
+
+- Claude may invoke SEO Review pass on storefront executor output beginning Phase 3 product pages
+- `governance/actors/seo-reviewer-contract.md` is the canonical contract
+- No new skills added to `skill-framework.md` — SEO Governance Reviewer declares existing skills from that table
+- ADR-021 is extended (not superseded) — SEO Governance Reviewer is a Review sublayer actor

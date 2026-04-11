@@ -14,11 +14,11 @@ Actor Identity Registry, compiled form in `docs/project-kb/governance/actors/cla
 
 | Actor | Layer | V1 State | V2 Action | Who Executes |
 |---|---|---|---|---|
-| Claude CLI | 3 — Orchestration | Defined in AGENTS.md + CLAUDE.md | ✅ DONE — Notion + claude-system-prompt.md | Claude |
-| Human Owner / Router | 2 — Routing | Partially defined in AGENTS.md | Create V2 identity in Notion | Claude |
+| Claude CLI | 3 — Orchestration | Defined in docs/project-kb/governance/agents.md + CLAUDE.md | ✅ DONE — Notion + claude-system-prompt.md | Claude |
+| Human Owner / Router | 2 — Routing | Partially defined in docs/project-kb/governance/agents.md | Create V2 identity in Notion | Claude |
 | ChatGPT — Strategic Consultant | 1 — Advisory | Operational system prompt only | Add Layers 3–5 to Notion identity; update system prompt | Claude (Notion) + Human (paste prompt) |
 | Gemini — Practical Consultant | 1 — Advisory | Operational system prompt only | Add Layers 3–5 to Notion identity; update system prompt | Claude (Notion) + Human (paste prompt) |
-| Cursor / Codex — Executor | 4 — Execution | Brief format + prohibitions in AGENTS.md | Create minimal strict V2 identity in Notion; AGENTS.md brief upgraded to V2 | Claude |
+| Cursor / Codex — Executor | 4 — Execution | Brief format + prohibitions in docs/project-kb/governance/agents.md | Create minimal strict V2 identity in Notion; docs/project-kb/governance/agents.md brief upgraded to V2 | Claude |
 
 ---
 
@@ -128,7 +128,7 @@ Claude flags the required update; Human executes it.
 ### 4. Cursor / Codex — Executor (Layer 4)
 
 **What changes in V2:**
-- Task brief format upgraded to V2 (strict, ambiguity-proof) — see AGENTS.md
+- Task brief format upgraded to V2 (strict, ambiguity-proof) — see docs/project-kb/governance/agents.md
 - V2 Philosophical Identity added: minimal, literal, scope-locked
 - V2 I/O Contract: interpretation mode = Literal only
 - V2 Validation Hooks: pre-execution checklist before writing any code
@@ -173,7 +173,7 @@ Claude flags the required update; Human executes it.
 5. Claude creates Gemini page
 6. Claude creates Cursor / Codex page
 7. Claude flags: Human must update ChatGPT and Gemini system prompts with V2 additions
-8. Claude updates AGENTS.md task brief to V2 format
+8. Claude updates docs/project-kb/governance/agents.md task brief to V2 format
 
 ---
 
@@ -181,8 +181,8 @@ Claude flags the required update; Human executes it.
 
 - [ ] All 5 actors have V2 identity pages in Notion Actor Identity Registry
 - [x] Claude's compiled behavioral contract is in `docs/project-kb/governance/actors/claude-contract.md`
-- [ ] AGENTS.md task brief format is V2
-- [ ] ADR-022 is in DECISIONS.md
+- [ ] docs/project-kb/governance/agents.md task brief format is V2
+- [ ] ADR-022 is in docs/project-kb/governance/decisions.md
 - [ ] Human has been flagged to update ChatGPT and Gemini system prompts
 - [ ] Decision Log in Notion has ADR-022 entry
 - [ ] Session Log has entry for this upgrade session

@@ -2,7 +2,8 @@
 
 **Layer:** Definition
 **Source of truth for:** System boundaries, application structure, data flow, integration specs.
-**Updated when:** Architecture decisions change (record in `DECISIONS.md` first; requires ADR).
+**Updated when:** Architecture decisions change (record in `docs/project-kb/governance/decisions.md` first; requires ADR).
+**Notion counterpart:** https://www.notion.so/33613205fce6810692e3f625276bb2c6 (Architecture Overview — abstract/conceptual; this file is the technical detail counterpart)
 
 ---
 
@@ -81,7 +82,7 @@ apps/storefront/
 
 - Phase 6+ — placeholder until then
 - Options: Medusa's built-in Admin UI (fastest), or custom Next.js admin (more control)
-- **Decision deferred to Phase 6** — documented in `DECISIONS.md` ADR-006
+- **Decision deferred to Phase 6** — documented in `docs/project-kb/governance/decisions.md` ADR-006
 - Must support role-based access control
 - Should be separately deployed (not bundled with storefront)
 
@@ -204,7 +205,7 @@ These boundaries must not be violated. Violations are treated identically to arc
 
 ## Key Architectural Decisions
 
-All rationale is in `DECISIONS.md`. Locked decisions:
+All rationale is in `docs/project-kb/governance/decisions.md`. Locked decisions:
 
 - **Monorepo:** Turborepo with npm workspaces (ADR-001)
 - **Storefront:** Next.js 16 App Router (ADR-002)
