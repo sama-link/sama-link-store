@@ -10,12 +10,15 @@ This is the operating manual for all sessions — human, Claude, and Cursor.
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │  SOURCE OF TRUTH: Repository markdown files                     │
-│  MONITORING SURFACE: Notion workspace                           │
-│  IMPLEMENTATION ENGINE: Cursor (from Claude's task briefs)      │
-│  GOVERNOR: Claude (reads repo, plans, reviews, updates)         │
-│  BRIDGE: Human (copies briefs, feeds output back, approves)     │
+│  GOVERNANCE/MONITORING SURFACE: Notion workspace (4-layer)      │
+│  ORCHESTRATOR: Claude (reads repo+Notion, plans, reviews, syncs)│
+│  EXECUTORS: Cursor (narrow scope) + Codex (broad scope)         │
+│  ROUTER: Human (approves decisions, routes input, merges main)  │
+│  ADVISORS: ChatGPT (Rafiq) + Gemini (Jimi) — read-only         │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+**Agent data flow (one-way):** Advisors → Human (approves) → Claude → Cursor. Consultants never write to any system. Human is the sole bridge between the advisory layer and the execution system.
 
 ---
 
@@ -58,7 +61,7 @@ Every brief must have:
 - Implements exactly what the brief states — no more, no less
 - Runs `tsc --noEmit` and `next build` before declaring done
 - Reports: files changed, criteria met/unmet, any blockers
-- Never modifies governance files (CLAUDE.md, AGENTS.md, ARCHITECTURE.md, DEVELOPMENT_RULES.md, DECISIONS.md, TASKS.md, ROADMAP.md)
+- Never modifies governance files (CLAUDE.md, AGENTS.md, ARCHITECTURE.md, DEVELOPMENT_RULES.md, DECISIONS.md, TASKS.md, ROADMAP.md, PROJECT_OPERATIONS.md, SESSION_GUIDE.md, docs/notion/*)
 - Never makes architectural decisions — stops and escalates to Claude
 
 ### What blocks a task
@@ -102,14 +105,24 @@ If any check fails:
 | `ROADMAP.md` | Phase deliverables with completion status |
 | `SESSION_GUIDE.md` | Session start/end protocol |
 
-### Notion tracking (monitoring surface)
+### Notion tracking (governance and monitoring surface)
 
-| Database | Mirrors |
-|---|---|
-| Task Tracker | `TASKS.md` — one row per task |
-| Decision Log | `DECISIONS.md` — one row per ADR |
-| Feature Tracker | `ROADMAP.md` features — one row per feature |
-| Session Log | Session history — one row per session |
+The Notion workspace uses a **4-layer knowledge model** (Definition / Governance / Implementation / Operations).
+
+| Layer | Surface | Mirrors / Purpose |
+|---|---|---|
+| Governance | Decision Log (database) | `DECISIONS.md` — one row per ADR |
+| Governance | Rules & Standards Registry (database) | `DEVELOPMENT_RULES.md` — constraints and rules |
+| Governance | Governance Protocols (database) | Execution protocols, sync checkpoints |
+| Governance | Exceptions / Deviations Register (database) | Approved deviations from rules |
+| Operations | Task Tracker (database) | `TASKS.md` — one row per task |
+| Operations | Feature Tracker (database) | `ROADMAP.md` features — one row per feature |
+| Operations | Session Log (database) | Session history — one row per session |
+| Operations | Workflows & Movement Protocols (database) | Handoff protocols, execution workflows |
+
+The Decision Log has native relation fields to Related Workflows (→ Governance Protocols) and Related Rules (→ Rules & Standards Registry). Set these when adding new ADRs.
+
+See `docs/project-kb/operations/workspace-architecture.md` for the full workspace structure.
 
 ### Sync rule
 
@@ -319,17 +332,21 @@ Design task violations (forbidden layer touched, hardcoded values found, build b
 
 ## Quick Reference: Who Does What
 
-| Task | Claude | Cursor | Human |
-|---|---|---|---|
-| Read project state | ✅ | ✅ | ✅ |
-| Write task briefs | ✅ | ❌ | ❌ |
-| Implement code | ❌ (unless unblocking) | ✅ | ❌ |
-| Review output | ✅ | ❌ | Can assist |
-| Update TASKS.md | ✅ | ❌ | ❌ |
-| Update DECISIONS.md | ✅ | ❌ | ❌ |
-| Update ROADMAP.md | ✅ | ❌ | ❌ |
-| Update Notion | ✅ | ❌ | Can assist |
-| Approve architecture | ✅ | ❌ | ✅ |
-| Run builds/tests | ❌ | ✅ | ✅ |
-| Paste briefs to Cursor | ❌ | ❌ | ✅ |
-| Feed Cursor output to Claude | ❌ | ❌ | ✅ |
+| Task | ChatGPT (Rafiq) | Gemini (Jimi) | Human | Claude | Cursor | Codex |
+|---|---|---|---|---|---|---|
+| Strategic advisory | ✅ advisory | ✅ advisory | ✅ | ✅ | ❌ | ❌ |
+| Anti-drift / commercial warnings | ❌ | ✅ proactive | ❌ | ✅ | ❌ | ❌ |
+| Approve consultant advice | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Write task briefs | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Select target executor per task | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Implement narrow-scope code | ❌ | ❌ | ❌ | ❌ (unless unblocking) | ✅ | ❌ |
+| Implement broad/complex code | ❌ | ❌ | ❌ | ❌ (unless unblocking) | ❌ | ✅ |
+| Review output | ❌ | ❌ | Can assist | ✅ | ❌ | ❌ |
+| Update TASKS.md | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Update DECISIONS.md | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Update ROADMAP.md | ❌ | ❌ | ❌ | ✅ | ❌ | ❌ |
+| Update Notion | ❌ | ❌ | ❌ (unless directed) | ✅ | ❌ | ❌ |
+| Approve architecture | ❌ | ❌ | ✅ | ✅ | ❌ | ❌ |
+| Merge develop → main | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |
+| Run builds/tests | ❌ | ❌ | ✅ | ❌ | ✅ | ✅ |
+| Deliver briefs to executor | ❌ | ❌ | ✅ | ❌ | ❌ | ❌ |

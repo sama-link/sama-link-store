@@ -101,6 +101,18 @@ See [ROADMAP.md](./ROADMAP.md) for detailed phase breakdown.
 
 ---
 
+## Branching Strategy
+
+| Branch | Purpose |
+|--------|---------|
+| `main` | Production-only. Never commit directly. |
+| `develop` | Default working branch. Safe for docs, minor UI, config changes. |
+| `feature/back-N-<slug>` | Required for all backend, security, env, or multi-file structural changes. |
+
+**Decision rule:** If the change touches runtime, backend, env, security, or more than ~3 files → use a feature branch. Otherwise → commit directly to `develop`.
+
+---
+
 ## Contributing / Development
 
 See [DEVELOPMENT_RULES.md](./DEVELOPMENT_RULES.md) for all coding and workflow standards.
