@@ -98,9 +98,11 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 
 ---
 
-## Phase 2 — Commerce Backend Integration 🔄 ACTIVE
+## Phase 2 — Commerce Backend Integration 🔄 EXIT CRITERIA MET · BACK-6 OUTSTANDING
 
 **Goal:** Stand up the Medusa backend and connect the storefront to real product data.
+
+**Status note (2026-04-12):** All core deliverables complete. Exit criteria met — products visible in storefront are sourced from Medusa/PostgreSQL, no mock data remains. BACK-6 (CORS configuration) is the only remaining Phase 2 task and does not block Phase 3 work. Phase 3 has started in parallel.
 
 ### Phase 2 Pre-Work — Brand Identity & Media Foundation (blocking BACK-1)
 

@@ -40,13 +40,18 @@ For deeper context:
 
 ## Project State
 
-**Active phase:** Phase 2 — Commerce Backend Integration
+**Active phases:** Phase 2 (exit criteria met, BACK-6 outstanding) · Phase 3 (active — CAT-1 complete, CAT-2 next)
 **Active branch:** `feature/back-1-medusa-init`
-BACK-1 complete. BACK-2 complete. BACK-3 complete (seed: 1 category + 3 products, 2026-04-12). BACK-4 is next.
 
-**Environment path:** Docker Compose runtime (ADR-033). **Environment is fully operational.** ENV-4 through ENV-7 all closed. SSL startup blocker resolved (commit `c32d45c`): `PGSSLMODE: disable` + `?sslmode=disable` in DATABASE_URL + `databaseDriverOptions: { ssl: false }` in `medusa-config.ts`. Migrations run clean. `GET /health` → 200. Seed confirmed. ENV-2, ENV-3, CHORE-2, ENV-DEBT-1 all formally closed.
+Phase 2 core complete as of 2026-04-12: BACK-1 ✅ BACK-2 ✅ BACK-3 ✅ BACK-4 ✅ BACK-5 ✅. BACK-6 (CORS config) still open — does not block Phase 3.
+Phase 3 started: CAT-1 ✅ (product detail page + card links, 2026-04-12). CAT-2 (product listing page) is next.
+Admin UI and session both operational (Dockerfile.dev static build + NODE_ENV=development in compose).
+All 3 seeded products visible in storefront and linked to Default Sales Channel.
 
-**No active blockers.** Local dev: `docker compose -f docker-compose.dev.yml up -d` → backend at `localhost:9000`, storefront at `localhost:3000`.
+**Environment path:** Docker Compose runtime (ADR-033). **Fully operational.** Backend at `localhost:9000` · Storefront at `localhost:3000` · Admin at `localhost:9000/app`.
+Rebuild required after any docker-compose.dev.yml or Dockerfile.dev change: `docker compose -f docker-compose.dev.yml up -d --build backend`.
+
+**No active blockers.** Local dev: `docker compose -f docker-compose.dev.yml up -d` → all services up.
 
 See [`docs/project-kb/operations/roadmap.md`](docs/project-kb/operations/roadmap.md) for full phase detail and deliverable status.
 
