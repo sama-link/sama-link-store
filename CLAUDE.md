@@ -42,13 +42,11 @@ For deeper context:
 
 **Active phase:** Phase 2 — Commerce Backend Integration
 **Active branch:** `feature/back-1-medusa-init`
-BACK-1 complete. BACK-2 complete (PostgreSQL connected, migrations run, security remediation applied — `.env.test` untracked, Neon credentials rotated, commit `b564c77`). BACK-3 pending.
+BACK-1 complete. BACK-2 complete. BACK-3 complete (seed: 1 category + 3 products, 2026-04-12). BACK-4 is next.
 
-**Environment path:** Docker Compose runtime (ADR-033). ENV-4 file deliverables complete (`docker-compose.dev.yml`, `Dockerfile.dev`, updated scripts). ENV-5 established raw connectivity — DATABASE_URL override in place, KnexTimeoutError resolved. ENV-6 attempted migration-first startup — `Dockerfile.dev` CMD updated to `npx medusa db:migrate && npx medusa develop`, Docker rebuild passes. **ENV-7 SSL fix applied — pending operator validation.**
+**Environment path:** Docker Compose runtime (ADR-033). **Environment is fully operational.** ENV-4 through ENV-7 all closed. SSL startup blocker resolved (commit `c32d45c`): `PGSSLMODE: disable` + `?sslmode=disable` in DATABASE_URL + `databaseDriverOptions: { ssl: false }` in `medusa-config.ts`. Migrations run clean. `GET /health` → 200. Seed confirmed. ENV-2, ENV-3, CHORE-2, ENV-DEBT-1 all formally closed.
 
-**SSL blocker fix (branch `fix/env-backend-ssl-startup`):** Three-layer fix applied: (1) `PGSSLMODE: disable` added to docker-compose backend environment; (2) `?sslmode=disable` appended to DATABASE_URL in docker-compose; (3) `databaseDriverOptions: { connection: { ssl: false } }` added to `medusa-config.ts` for `NODE_ENV=development`. Human operator must run `docker compose -f docker-compose.dev.yml up --build` and check `/health` to confirm resolution. Branch must be merged to `feature/back-1-medusa-init` after validation.
-
-**Accepted technical debt:** DATABASE_URL override in `docker-compose.dev.yml` is a temporary workaround (ENV-DEBT-1). CHORE-2, ENV-2, ENV-3 superseded in practice by Docker path but not formally closed.
+**No active blockers.** Local dev: `docker compose -f docker-compose.dev.yml up -d` → backend at `localhost:9000`, storefront at `localhost:3000`.
 
 See [`docs/project-kb/operations/roadmap.md`](docs/project-kb/operations/roadmap.md) for full phase detail and deliverable status.
 

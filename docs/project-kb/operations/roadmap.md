@@ -126,9 +126,9 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 - Configure CORS between storefront and backend
 
 **Deliverables:**
-- [ ] `apps/backend` initialized and running on `localhost:9000`
-- [ ] PostgreSQL connected and migrations run
-- [ ] Seed script with initial test data
+- [x] `apps/backend` initialized and running on `localhost:9000`
+- [x] PostgreSQL connected and migrations run (Docker Compose runtime; SSL resolved ENV-7)
+- [x] Seed script with initial test data (BACK-3 — 1 category, 3 products seeded 2026-04-12)
 - [ ] Storefront fetches and displays real products
 - [ ] API client typed and isolated
 

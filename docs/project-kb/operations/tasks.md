@@ -557,10 +557,11 @@ Read the current message files before starting to know exactly which keys exist.
 - [x] `BACK-1`: Initialize `apps/backend` with Medusa v2
   - _Security: All secrets (MEDUSA_ADMIN_EMAIL, MEDUSA_ADMIN_PASSWORD, JWT_SECRET, COOKIE_SECRET) must come from env — no hardcoding_
   - _Cleanup debt: `dev` script uses hardcoded path `../../node_modules/@medusajs/cli/cli.js` as a workaround for npm workspace ts-node hoisting. Track as `CHORE-2` — resolve before production._
-- [ ] `BACK-2`: Configure PostgreSQL and run migrations
+- [x] `BACK-2`: Configure PostgreSQL and run migrations
   - _Security: DATABASE_URL must be env-only — never committed, never logged_
-- [ ] `BACK-3`: Create seed script (1 category, 2–3 products)
-  - _Integration risk: Seed data must match Medusa's real data model exactly — no invented fields; idempotent script preferred (re-runnable without duplicates)_
+  - _Reviewed and closed 2026-04-11. Functional goal confirmed: PostgreSQL connected, migrations ran, `GET /health` → 200 (ENV-1). Security remediation: `.env.test` untracked and added to `.gitignore` (commit `b564c77`). Neon credentials rotated by human. `git grep "neon.tech"` → no tracked matches. All `DATABASE_URL` references are localhost placeholders or env reads. All acceptance criteria met._
+- [x] `BACK-3`: Create seed script (1 category, 2–3 products)
+  - _Reviewed and closed 2026-04-12. Seed script `apps/backend/src/scripts/seed.ts` authored and confirmed working. Docker exec run: category `networking` created (`pcat_01KNZP0P8...`), 3 products created (Gigabit Switch 8-Port, Dual-Band Wi-Fi Router AC1200, Cat6 Ethernet Cable 3m). Idempotent — re-running skips existing records. All acceptance criteria met._
 - [ ] `BACK-4`: Create `apps/storefront/lib/medusa-client.ts`
 - [ ] `BACK-5`: Replace mock data with real API data
   - _Integration risk: Verify field names match Medusa Store API response shapes before replacing mock data; idempotency of reads is assumed but verify pagination defaults_
@@ -575,6 +576,632 @@ Read the current message files before starting to know exactly which keys exist.
 These tasks do not block BACK-1 but must be completed early in Phase 2. Priority: High.
 
 > **Branching:** Phase 2 follows the hybrid solo-dev policy (see CLAUDE.md). BACK-* tasks use feature branches. Docs, config, and minor changes commit directly to `develop`.
+
+- [x] `ENV-1`: Verify and bring up local development environment — PostgreSQL verified at `localhost:5432`, `sama_link_db` created, Medusa backend dev server running at `localhost:9000` (`GET /health` → 200), storefront verified at `localhost:3000`. `apps/storefront/.env.local` created with `NEXT_PUBLIC_*` defaults. Non-blocking ts-node path startup warning tracked as `CHORE-2`. (2026-04-11)
+
+- [x] `ENV-2`: Create local environment script baseline — per ADR-026. Scripts created: `env-check.sh`, `start-dev.sh`, `stop-dev.sh`, `health-check.sh`. **Superseded in practice by Docker Compose path (ENV-4 / ADR-033).** Native scripted backend bring-up was never fully resolved, but the Docker Compose runtime replaced it as the canonical local dev path. Scripts remain for reference. Formally closed 2026-04-12.
+
+- [x] `ENV-3`: Fix backend startup stability under scripted bring-up — **Superseded in practice by Docker Compose path (ENV-4 / ADR-033).** Diagnostic improvements were applied but root causes (credential mismatch + ts-node resolution) were never resolved via the native path. Docker Compose runtime replaced this path entirely. Formally closed 2026-04-12.
+
+- [x] `ENV-4`: Docker Compose local runtime baseline — implements ADR-033. All deliverables complete: `docker-compose.dev.yml`, `apps/backend/Dockerfile.dev`, `scripts/start-dev.sh`, `scripts/stop-dev.sh`, `.env.example` updated. SSL connectivity issue diagnosed and resolved by ENV-5 + ENV-7. Formally closed 2026-04-12.
+
+---
+
+#### TASK ENV-4: Docker Compose Local Runtime Baseline
+
+**Version:** Brief V2
+**Phase:** Phase 2 — Commerce Backend Integration
+**Target Executor:** Backend Specialist
+**Branch:** `feature/back-1-medusa-init`
+**Depends on:** ENV-2 (scripts exist), ENV-3 (diagnostic work complete), ADR-033 (decision recorded)
+**Estimated scope:** 2 files to create, 3 files to modify
+
+---
+
+#### REQUIRED READING
+Read in order before writing any code. Do not begin implementation until all four layers below are read. Layer [5] marks the sequencing gate — proceed to Goal and Implementation Steps only then.
+
+**[1] Project Context**
+- `docs/project-kb/definition/architecture.md` — system boundary table (backend = `apps/backend/`, storefront = `apps/storefront/`); Backend Secrets boundary rule: secrets are server-side only, never in `NEXT_PUBLIC_*` vars — governs all `.env` handling in this task
+
+**[2] Task State**
+- `docs/project-kb/operations/tasks.md` — ENV-2 [~] and ENV-3 [~]: the four scripts they produced are the files you will modify; CHORE-2 [~]: the tsconfig-paths TypeError this task resolves by moving the backend runtime into a container
+- `docs/project-kb/operations/roadmap.md` — Phase 2 active; backend `/health` returning 200 is a Phase 2 exit dependency
+
+**[3] Role Contract**
+- `docs/project-kb/governance/actors/backend-specialist-contract.md`
+
+**[4] Governing Rules & ADRs**
+- `docs/project-kb/governance/development-rules.md` — all sections; pay particular attention to secrets discipline
+- ADR-026: Local Environment Ownership Model — defines agent authority scope over `scripts/`; establishes secrets boundaries; `.dev.pids` must remain in `.gitignore`; executors may not modify real `.env` values
+- ADR-033: Docker Compose Runtime Model — the decision this task implements; read the Decision and Consequences sections before writing any file; in particular: DATABASE_URL hostname inside the container is the Docker service name `postgres`, not `localhost`
+
+**[5] This Brief**
+Proceed to Goal and Implementation Steps only after [1]–[4] are read.
+
+---
+
+#### INTERPRETATION MODE
+Analytical-Literal. Scope is fixed by this brief. Implementation approach within the bounded scope may be reasoned through; document non-obvious choices in the Output Report. Every gap between this brief and observable reality is an escalation trigger — do not infer or extend scope.
+
+---
+
+#### Goal
+Replace the backend's native Node.js startup with a Docker Compose runtime for Medusa backend + PostgreSQL, and update the `scripts/` baseline to manage backend lifecycle via Docker. After this task, `bash scripts/start-dev.sh` must exit 0 with all three services healthy.
+
+#### Context
+The native backend has been blocked by a tsconfig-paths TypeError (CHORE-2) in `@medusajs/cli` that has resisted three sequential fixes. The root cause is TypeScript toolchain resolution in the npm workspace monorepo context — this failure mode does not occur in a container because the container has a flat, isolated `node_modules`. Docker Compose eliminates the resolution context that causes the crash without touching any Medusa source code. ADR-033 records this decision. The storefront is healthy natively and must not be containerized.
+
+---
+
+#### Scope — Files Allowed to Change
+
+| File | Action |
+|---|---|
+| `docker-compose.dev.yml` | CREATE at monorepo root |
+| `apps/backend/Dockerfile.dev` | CREATE — development Dockerfile for the backend container image |
+| `scripts/start-dev.sh` | MODIFY — replace native postgres check and backend nohup block with docker compose up |
+| `scripts/stop-dev.sh` | MODIFY — add docker compose down for backend and postgres teardown |
+| `.env.example` | MODIFY — add Docker Compose DATABASE_URL hostname note to the Database section |
+
+#### Files FORBIDDEN to Change
+
+Any file not in the Allowed list above is implicitly forbidden. The following are explicitly called out:
+- `scripts/env-check.sh` — already validates the vars Docker Compose will use; no changes needed
+- `scripts/health-check.sh` — endpoints are unchanged; no changes needed
+- `apps/backend/medusa-config.ts`, `apps/backend/package.json`, any `apps/backend/src/` file — no Medusa source changes
+- `apps/backend/.env` — human-provisioned; executor must NOT read or write this file
+- `apps/storefront/` — no storefront changes of any kind
+- `docs/project-kb/*`
+- `CLAUDE.md`, `turbo.json`, root `package.json`
+
+#### FORBIDDEN BEHAVIORS (regardless of files)
+- Adding any npm dependency not listed in this brief
+- Containerizing or modifying the storefront in any way
+- Writing a production Dockerfile or multi-stage build
+- Writing any credential or real secret value into any tracked file
+- Closing, reclassifying, or editing ENV-2, ENV-3, or CHORE-2 in any document — that is Claude's action after review
+- Silently resolving any ambiguity — escalate instead
+
+---
+
+#### Implementation Steps
+
+Read all Allowed Files before writing any code. Then:
+
+**Step 1 — Create `docker-compose.dev.yml`**
+
+Create at monorepo root with this exact structure:
+
+```yaml
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sama_link_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: apps/backend
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    env_file:
+      - apps/backend/.env
+    ports:
+      - "9000:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+```
+
+**Step 2 — Create `apps/backend/Dockerfile.dev`**
+
+A container has a flat, isolated `node_modules` — the tsconfig-paths crash does not occur here:
+
+```dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 9000
+
+CMD ["npx", "medusa", "develop"]
+```
+
+**Step 3 — Modify `scripts/start-dev.sh`**
+
+Read the current file first. Make the following targeted changes only:
+
+- Remove the `if ! (echo >/dev/tcp/localhost/5432)` block — Docker Compose manages postgres; native connectivity check is no longer needed
+- Remove the backend `nohup bash -lc "cd … && exec npm run dev"` block and the `echo "backend:${backend_pid}" >> "${PID_FILE}"` line that follows — Docker manages the backend process and PID
+- In their place, insert: `docker compose -f docker-compose.dev.yml up -d --build`
+- Leave the storefront `nohup` launch block unchanged
+- Leave the backend health check loop (`curl` to `localhost:9000/health`) unchanged — Docker exposes port 9000 on the host
+- Leave `.dev.pids` tracking unchanged — it will now record only the storefront PID
+
+**Step 4 — Modify `scripts/stop-dev.sh`**
+
+Read the current file first. Make the following targeted change only:
+
+- Before the PID-file loop, insert: `docker compose -f docker-compose.dev.yml down`
+- Leave the PID-file loop unchanged — it will find only the storefront entry and handle a missing backend entry gracefully (it already skips entries where the process is not running)
+
+**Step 5 — Modify `.env.example`**
+
+Read the current file first. In the `# --- Database (PostgreSQL) ---` section, replace the existing DATABASE_URL line and its comment with:
+
+```
+# --- Database (PostgreSQL) ---
+# Docker Compose local dev (hostname = docker service name, not localhost):
+#   DATABASE_URL=postgres://postgres:postgres@postgres:5432/sama_link_db
+# Native PostgreSQL local dev:
+DATABASE_URL=postgres://user:password@localhost:5432/sama_link_db
+```
+
+**Step 6 — Verify**
+
+Run in order. Stop and report if any step fails before proceeding to the next.
+
+1. Check `apps/backend/.env` — if `DATABASE_URL` still uses `localhost` as hostname, report this as a required human action and do not modify the file. Proceed with verification steps anyway; report the hostname mismatch in the Output Report.
+2. `docker compose -f docker-compose.dev.yml up -d --build` — both services must start without error
+3. `curl -s -o /dev/null -w "%{http_code}" http://localhost:9000/health` — must return `200`
+4. `bash scripts/health-check.sh` — must exit 0
+5. `bash scripts/stop-dev.sh` — must terminate cleanly
+6. `bash scripts/start-dev.sh` — run end-to-end from a clean state; must exit 0
+
+---
+
+#### Acceptance Criteria
+
+Each criterion must be verified by the executor before reporting done.
+
+- [ ] `docker-compose.dev.yml` exists at monorepo root; contains `postgres` and `backend` services and `postgres_data` named volume
+- [ ] `apps/backend/Dockerfile.dev` exists; `docker compose -f docker-compose.dev.yml build` completes without error
+- [ ] `docker compose -f docker-compose.dev.yml up -d` starts both services
+- [ ] `curl http://localhost:9000/health` returns HTTP 200 after compose up
+- [ ] `bash scripts/health-check.sh` exits 0 (all three services reported UP)
+- [ ] `bash scripts/stop-dev.sh` runs without error; containers are stopped after it completes
+- [ ] `bash scripts/start-dev.sh` exits 0 after the full end-to-end sequence
+- [ ] Storefront at `localhost:3000` is unaffected — still starts and serves natively
+- [ ] No credential or secret value appears in `docker-compose.dev.yml`
+- [ ] `.env.example` Docker hostname note is present in the Database section
+- [ ] No file outside the Allowed list was modified
+
+#### AMBIGUITY ESCALATION PROTOCOL
+
+Stop and report to Claude before proceeding if any of the following arise:
+- `apps/backend/.env` does not exist — executor cannot verify DATABASE_URL hostname
+- The `docker compose up` command fails with an error not explained by DATABASE_URL hostname — report the full error output
+- `apps/backend/package.json` does not have a `medusa` bin resolvable by `npx medusa develop` inside the container
+- Any implementation step has two or more valid interpretations
+- A file not on the Allowed list appears necessary to complete a step
+
+Report format: `BLOCKED: [what is ambiguous or missing]. Awaiting clarification.`
+
+#### Out of Scope
+- Do not fix CHORE-2 in the native execution path — Docker Compose replaces that path
+- Do not containerize the storefront
+- Do not write a production Dockerfile or multi-stage build
+- Do not modify `medusa-config.ts`, migrations, seed scripts, or any other backend source file
+- Do not close or reclassify ENV-2, ENV-3, or CHORE-2 in any document
+
+#### Notes / Constraints
+- ADR-033: DATABASE_URL inside the backend container must use hostname `postgres` (the Docker service name), not `localhost`. The human must update `apps/backend/.env` before the backend container can connect to postgres. If it has not been updated, report this in the Output Report — do not block verification of the other deliverables.
+- ADR-026: `.dev.pids` must remain in `.gitignore`. Do not commit it.
+- The `postgres_data` named volume persists database state across `docker compose down/up` cycles. A `docker compose down --volumes` is required to reset it.
+
+---
+
+#### Output Report (required when task is complete)
+
+**Files modified:** [list]
+**Files created:** [list or "none"]
+**Dependencies added:** [list or "none"]
+**Acceptance criteria:** [pass/fail per criterion above]
+**Build status:** tsc: N/A | next build: N/A
+**DATABASE_URL hostname status:** [correct (postgres) / still localhost — human action required / could not verify]
+**Scope violations:** [none / describe if any]
+**Blockers encountered:** [none / describe]
+
+---
+
+- [x] `ENV-5`: Diagnose and fix Docker backend-to-postgres connectivity — DATABASE_URL override applied, KnexTimeoutError resolved. Migration schema initialisation tracked as ENV-6. Formally closed 2026-04-12.
+
+---
+
+#### TASK ENV-5: Diagnose and Fix Docker Backend-to-Postgres Connectivity
+
+**Version:** Brief V2
+**Phase:** Phase 2 — Commerce Backend Integration
+**Target Executor:** Backend Specialist
+**Branch:** `feature/back-1-medusa-init`
+**Depends on:** ENV-4 [~] (all file deliverables complete; containers start; hostname is `postgres`)
+**Estimated scope:** 0–1 files to modify (`docker-compose.dev.yml` if fix is required)
+
+---
+
+#### REQUIRED READING
+Read in order before running any command. Layer [5] marks the sequencing gate.
+
+**[1] Project Context**
+- `docs/project-kb/definition/architecture.md` — Backend Secrets boundary rule: `apps/backend/.env` is human-provisioned; executor must not modify it
+
+**[2] Task State**
+- `docs/project-kb/operations/tasks.md` — ENV-4 [~]: file deliverables complete, containers start, hostname is `postgres`, KnexTimeoutError persists; CHORE-2 [~] and ENV-3 [~] remain open and are not in scope here
+- `docs/project-kb/operations/roadmap.md` — Phase 2 active; backend `/health` → 200 is a Phase 2 exit dependency
+
+**[3] Role Contract**
+- `docs/project-kb/governance/actors/backend-specialist-contract.md`
+
+**[4] Governing Rules & ADRs**
+- `docs/project-kb/governance/development-rules.md` — secrets discipline: executor must not modify `apps/backend/.env` or embed real credentials in any tracked file
+- ADR-026: Local Environment Ownership Model — executors may modify `scripts/` and `docker-compose.dev.yml`; may not modify real `.env` values
+- ADR-033: Docker Compose Runtime Model — `docker-compose.dev.yml` is the canonical local runtime definition; modifications to it are within executor scope
+
+**[5] This Brief**
+Proceed to Goal and Implementation Steps only after [1]–[4] are read.
+
+---
+
+#### INTERPRETATION MODE
+Analytical-Literal. Scope is fixed by this brief. The diagnostic sequence must be followed in order before any fix is applied. Document all diagnostic findings in the Output Report regardless of whether a fix was applied.
+
+---
+
+#### Goal
+Identify the exact reason Knex cannot connect to the postgres container despite the DATABASE_URL hostname being `postgres`, apply the bounded fix, and confirm `bash scripts/health-check.sh` exits 0.
+
+#### Context
+ENV-4 deliverables are complete. `docker compose up` passes, both containers start, `stop-dev.sh` passes, storefront is healthy. The backend logs `KnexTimeoutError: SELECT 1` and `Pg connection failed to connect to the database. Retrying...` continuously. `curl /health` returns `(52) Empty reply from server` — Medusa is alive but cannot serve HTTP because no DB connection can be established. The DATABASE_URL hostname has been confirmed as `postgres` (not `localhost`). The most likely causes, in order of probability: (1) SSL/TLS parameters in DATABASE_URL from the prior Neon cloud setup — local Docker postgres does not have SSL enabled; (2) credential mismatch between DATABASE_URL password and the `POSTGRES_PASSWORD` the postgres container was initialised with; (3) database name mismatch. The diagnostic sequence below isolates the root cause before any fix is applied.
+
+---
+
+#### Scope — Files Allowed to Change
+
+| File | Action |
+|---|---|
+| `docker-compose.dev.yml` | MODIFY if and only if the diagnostic confirms an SSL parameter issue — add a `DATABASE_URL` environment override for the backend service |
+
+#### Files FORBIDDEN to Change
+- `apps/backend/.env` — human-provisioned; executor must NOT read the value of any secret or modify this file
+- `apps/backend/Dockerfile.dev` — no container image changes
+- `scripts/*` — no script changes
+- `apps/backend/src/*`, `apps/backend/medusa-config.ts`, `apps/backend/package.json`
+- `docs/project-kb/*`, `CLAUDE.md`, `turbo.json`, root `package.json`
+
+#### FORBIDDEN BEHAVIORS (regardless of files)
+- Reading, printing, or logging the actual password from `apps/backend/.env` — mask it in all diagnostic output
+- Embedding any real credential in `docker-compose.dev.yml`
+- Modifying `docker-compose.dev.yml` before completing the diagnostic sequence
+- Silently resolving any failure — report every diagnostic result verbatim
+
+---
+
+#### Implementation Steps
+
+**Step 1 — Confirm containers are up and postgres is healthy**
+
+```bash
+docker compose -f docker-compose.dev.yml ps
+```
+
+Confirm: postgres service shows status `healthy`. Backend service shows status `running` or `restarting`. If postgres is NOT healthy, stop and report — the postgres container itself has a problem unrelated to DATABASE_URL.
+
+**Step 2 — Reveal DATABASE_URL structure (password masked)**
+
+```bash
+docker compose -f docker-compose.dev.yml exec backend sh -c \
+  "echo \$DATABASE_URL | sed 's|:[^:/@]*@|:***@|'"
+```
+
+This prints the DATABASE_URL the backend container is actually using, with the password replaced by `***`. Record the full output — protocol, username, hostname, port, database name, and any query parameters (e.g., `?sslmode=require`, `?ssl=true`, `?connection_limit=`). These parameters are the diagnostic target.
+
+**Step 3 — Test TCP connectivity to postgres from inside the backend container**
+
+```bash
+docker compose -f docker-compose.dev.yml exec backend sh -c \
+  "node -e \"require('net').connect({host:'postgres',port:5432}).on('connect',function(){console.log('TCP OK');process.exit(0)}).on('error',function(e){console.log('TCP FAIL:',e.message);process.exit(1)})\""
+```
+
+If `TCP FAIL`: Docker inter-container networking is broken. Stop and report — this is a Docker configuration issue outside the scope of this brief.
+
+If `TCP OK`: proceed to Step 4.
+
+**Step 4 — Test a direct postgres connection with known-good local credentials**
+
+```bash
+docker compose -f docker-compose.dev.yml exec backend sh -c \
+  "node -e \"const {Pool}=require('pg');new Pool({host:'postgres',port:5432,user:'postgres',password:'postgres',database:'sama_link_db',ssl:false}).query('SELECT 1').then(()=>{console.log('CONNECT OK');process.exit(0)}).catch(e=>{console.log('CONNECT FAIL:',e.message);process.exit(1)})\""
+```
+
+This bypasses DATABASE_URL entirely and tests with the hardcoded Docker compose credentials (`postgres`/`postgres`) and `ssl:false`.
+
+- If `CONNECT OK`: the problem is in DATABASE_URL — either wrong credentials (different password than `postgres`) or SSL parameters. Cross-reference with Step 2 output to determine which.
+- If `CONNECT FAIL` with an auth error: credentials in DATABASE_URL do not match `postgres`/`postgres` — this is a human-only fix (update `apps/backend/.env`). Stop and report.
+- If `CONNECT FAIL` with a non-auth error: report the full error message.
+
+**Step 5 — Apply fix (only if Step 4 was `CONNECT OK` and Step 2 shows SSL parameters)**
+
+If Step 4 passes and Step 2 output shows SSL parameters (e.g., `?sslmode=require`, `?ssl=true`, or similar) in DATABASE_URL, the fix is to override DATABASE_URL for the Docker context in `docker-compose.dev.yml`.
+
+Read `docker-compose.dev.yml` first. In the `backend` service block, add an `environment` section after `env_file` that overrides DATABASE_URL with a clean local connection string:
+
+```yaml
+  backend:
+    build:
+      context: apps/backend
+      dockerfile: Dockerfile.dev
+    restart: unless-stopped
+    env_file:
+      - apps/backend/.env
+    environment:
+      DATABASE_URL: "postgres://postgres:postgres@postgres:5432/sama_link_db"
+    ports:
+      - "9000:9000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+```
+
+The `environment` block takes precedence over `env_file` for the same key. The credentials used (`postgres`/`postgres`) match `POSTGRES_USER` and `POSTGRES_PASSWORD` already declared in the compose file — no new secret is introduced.
+
+**Step 6 — Verify after fix**
+
+```bash
+docker compose -f docker-compose.dev.yml down --volumes
+docker compose -f docker-compose.dev.yml up -d --build
+```
+
+Wait up to 120 seconds for `curl -s -o /dev/null -w "%{http_code}" http://localhost:9000/health` to return `200`.
+
+Then:
+```bash
+bash scripts/health-check.sh
+```
+
+Must exit 0.
+
+---
+
+#### Acceptance Criteria
+
+- [ ] Step 1: postgres container is healthy
+- [ ] Step 2: DATABASE_URL structure recorded in Output Report (password masked)
+- [ ] Step 3: TCP connectivity to postgres confirmed OK from inside backend container
+- [ ] Step 4: direct connection test result recorded (OK / FAIL with reason)
+- [ ] If fix applied — `docker-compose.dev.yml` `environment.DATABASE_URL` override is present
+- [ ] `curl http://localhost:9000/health` returns HTTP 200
+- [ ] `bash scripts/health-check.sh` exits 0 (all three services UP)
+- [ ] No file outside the Allowed list was modified
+- [ ] No credential value appears in the Output Report (password always masked)
+
+#### AMBIGUITY ESCALATION PROTOCOL
+
+Stop and report to Claude before proceeding if any of the following arise:
+- Step 1: postgres container is NOT healthy — report `docker compose ps` and `docker compose logs postgres --tail=30`
+- Step 3: TCP FAIL — report the full error; this is a Docker networking issue outside this brief's scope
+- Step 4: CONNECT FAIL with an auth error — the credential in DATABASE_URL does not match the Docker postgres; this is a human-only fix; report the exact error
+- Step 4: CONNECT OK but Step 2 shows no SSL parameters and DATABASE_URL credentials appear to match — root cause is unknown; report all diagnostic output for Claude to assess
+- Step 5: `docker-compose.dev.yml` already has an `environment` block — report existing content before modifying
+
+Report format: `BLOCKED: [diagnostic step that failed, full output with passwords masked]. Awaiting clarification.`
+
+#### Out of Scope
+- Do not modify `apps/backend/.env`
+- Do not fix CHORE-2 or ENV-2 or ENV-3
+- Do not containerize the storefront
+- Do not make any change to `Dockerfile.dev` or backend source files
+- Do not close or reclassify ENV-4, CHORE-2, or ENV-3 — that is Claude's action after review
+
+#### Notes / Constraints
+- The `environment` override in Step 5 uses `postgres`/`postgres` credentials — these match `POSTGRES_USER` and `POSTGRES_PASSWORD` already visible in `docker-compose.dev.yml`. This is not a new secret.
+- The `--volumes` flag in Step 6 resets the postgres data volume. This destroys local dev data. Correct for this verification context.
+- ADR-033 Consequences: once ENV-5 passes, Claude will reclassify ENV-2, ENV-3, and CHORE-2 as Superseded. This is not the executor's action.
+
+---
+
+#### Output Report (required when task is complete)
+
+**Files modified:** [list or "none"]
+**Files created:** none
+**Step 2 — DATABASE_URL structure (password masked):** [paste output]
+**Step 3 — TCP connectivity:** [OK / FAIL: error message]
+**Step 4 — Direct connection test:** [OK / FAIL: error message]
+**Root cause identified:** [SSL parameters / credential mismatch / unknown — describe]
+**Fix applied:** [yes — environment override added to docker-compose.dev.yml / no — escalated]
+**curl /health after fix:** [HTTP 200 / other]
+**scripts/health-check.sh exit code:** [0 / non-zero]
+**Acceptance criteria:** [pass/fail per criterion above]
+**Scope violations:** [none / describe]
+**Blockers encountered:** [none / describe with full output, passwords masked]
+
+---
+
+- [x] `ENV-6`: Run Medusa DB migrations inside Docker runtime — `Dockerfile.dev` CMD updated to `npx medusa db:migrate && npx medusa develop`. SSL blocker (`The server does not support SSL connections`) resolved by ENV-7. All Medusa module migrations confirmed complete. Formally closed 2026-04-12.
+- [x] `ENV-7`: Resolve SSL startup failure — three-layer fix applied on branch `fix/env-backend-ssl-startup` (merged to `feature/back-1-medusa-init`, commit `c32d45c`): (1) `PGSSLMODE: disable` added to docker-compose backend environment; (2) `?sslmode=disable` appended to DATABASE_URL in docker-compose; (3) `databaseDriverOptions: { connection: { ssl: false } }` added to `medusa-config.ts` for local env. Migrations run clean, `GET /health` → 200, seed completed. Formally closed 2026-04-12.
+
+---
+
+#### TASK ENV-6: Run Medusa DB Migrations in Docker Runtime
+
+**Version:** Brief V2
+**Phase:** Phase 2 — Commerce Backend Integration
+**Target Executor:** Backend Specialist
+**Branch:** `feature/back-1-medusa-init`
+**Depends on:** ENV-5 [~] (Docker connectivity resolved; DATABASE_URL override in place)
+**Estimated scope:** 1 file to modify
+
+---
+
+#### REQUIRED READING
+Read in order before writing any code. Layer [5] marks the sequencing gate.
+
+**[1] Project Context**
+- `docs/project-kb/definition/architecture.md` — backend boundary is `apps/backend/`; no storefront changes
+
+**[2] Task State**
+- `docs/project-kb/operations/tasks.md` — ENV-5 [~]: connectivity fixed, migration blocker remains; this task resolves it
+
+**[3] Role Contract**
+- `docs/project-kb/governance/actors/backend-specialist-contract.md`
+
+**[4] Governing Rules & ADRs**
+- ADR-018: Adopt > Extend > Rebuild — use Medusa's built-in `db:migrate` command; do not write custom migration logic
+- ADR-033: Docker Compose Runtime Model — `Dockerfile.dev` is within executor scope
+
+**[5] This Brief**
+Proceed to Goal and Implementation Steps only after [1]–[4] are read.
+
+---
+
+#### INTERPRETATION MODE
+Analytical-Literal. One file changes. Every gap is an escalation trigger.
+
+---
+
+#### Goal
+Ensure Medusa DB migrations run automatically before the backend server starts inside the Docker container, so the schema is always initialised on a fresh volume.
+
+#### Context
+After `docker compose down --volumes`, the postgres data volume is empty. Medusa requires its schema to exist before the server can start — tables like `tax_provider` and `payment_provider` are created by migrations. The current `Dockerfile.dev` CMD starts the server directly without running migrations first. The fix is to run `medusa db:migrate` before `medusa develop` in the container startup command.
+
+---
+
+#### Scope — Files Allowed to Change
+
+| File | Action |
+|---|---|
+| `apps/backend/Dockerfile.dev` | MODIFY — update CMD to run migrations before server start |
+
+#### Files FORBIDDEN to Change
+- `docker-compose.dev.yml` — no changes; override already in place
+- `apps/backend/src/*`, `apps/backend/medusa-config.ts`, `apps/backend/package.json`
+- `scripts/*`, `docs/project-kb/*`, `CLAUDE.md`, `turbo.json`, root `package.json`
+
+#### FORBIDDEN BEHAVIORS (regardless of files)
+- Writing custom migration scripts or SQL
+- Modifying any Medusa source file
+- Silently resolving any failure — report verbatim
+
+---
+
+#### Implementation Steps
+
+**Step 1 — Update `apps/backend/Dockerfile.dev`**
+
+Read the current file. Replace the `CMD` line with a shell form that runs migrations then starts the server:
+
+```dockerfile
+CMD ["sh", "-c", "npx medusa db:migrate && npx medusa develop"]
+```
+
+The full file after the change:
+
+```dockerfile
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+RUN npm install
+
+COPY . .
+
+EXPOSE 9000
+
+CMD ["sh", "-c", "npx medusa db:migrate && npx medusa develop"]
+```
+
+**Step 2 — Rebuild and bring up the stack**
+
+```bash
+docker compose -f docker-compose.dev.yml down --volumes
+docker compose -f docker-compose.dev.yml up -d --build
+```
+
+**Step 3 — Wait for backend health**
+
+Poll `curl -s -o /dev/null -w "%{http_code}" http://localhost:9000/health` every 15 seconds for up to 180 seconds. Migrations run at startup and may take longer than a normal boot. Must return `200`.
+
+If it does not return `200` within 180 seconds, run:
+```bash
+docker compose -f docker-compose.dev.yml logs backend --tail=50
+```
+Include the output in the Output Report and report as BLOCKED.
+
+**Step 4 — Run health check**
+
+```bash
+bash scripts/health-check.sh
+```
+
+Must exit 0.
+
+---
+
+#### Acceptance Criteria
+
+- [ ] `apps/backend/Dockerfile.dev` CMD runs `db:migrate && medusa develop`
+- [ ] `docker compose -f docker-compose.dev.yml up -d --build` completes without error
+- [ ] `curl http://localhost:9000/health` returns HTTP 200
+- [ ] `bash scripts/health-check.sh` exits 0 (all three services UP)
+- [ ] No file outside the Allowed list was modified
+
+#### AMBIGUITY ESCALATION PROTOCOL
+
+Stop and report to Claude before proceeding if:
+- `db:migrate` exits non-zero — report the full migration error output
+- Backend logs show a new error class after migrations complete (not the `relation does not exist` error)
+- `npx medusa db:migrate` is not a recognised command in the container — report the error
+
+Report format: `BLOCKED: [step, full output]. Awaiting clarification.`
+
+#### Out of Scope
+- Do not modify `docker-compose.dev.yml`
+- Do not write SQL or custom migration files
+- Do not touch native runtime files or CHORE-2
+- Do not close or reclassify ENV-4, ENV-5, CHORE-2, ENV-2, or ENV-3 — that is Claude's action after review
+
+#### Notes / Constraints
+- The `--volumes` flag in Step 2 is intentional for a clean verification. After ENV-6 passes, normal workflow uses `down` without `--volumes` to preserve data between sessions.
+- Migration runtime inside the container may be 30–90 seconds depending on the number of Medusa core migrations. The 180-second polling window accounts for this.
+
+---
+
+#### Output Report (required when task is complete)
+
+**Files modified:** [list]
+**Files created:** none
+**db:migrate output (last 10 lines):** [paste]
+**curl /health:** [HTTP 200 / other]
+**scripts/health-check.sh exit code:** [0 / non-zero]
+**Acceptance criteria:** [pass/fail per criterion above]
+**Scope violations:** [none / describe]
+**Blockers encountered:** [none / describe with full output]
+
+---
 
 - [ ] `OPS-1`: CI Pipeline Setup
   - Typecheck (`tsc --noEmit`), build (Next.js), lint (if configured)
@@ -618,6 +1245,17 @@ See `docs/project-kb/operations/roadmap.md` for scope. Tasks broken out when pha
 - **Operational note (I18N-7):** After route restructuring, `tsc --noEmit` may fail due to stale `.next/types` references. Fix: delete `apps/storefront/.next/` then run `next build`. Standard Next.js behavior — not a code defect.
 - **Copy note (LAYOUT-4):** ✅ Resolved by `COPY-1` — `not-found.tsx` now uses `errors.notFoundTitle`, `errors.notFoundDescription`, `errors.goHome`.
 - [ ] `FIX-1`: Fix middleware deprecation warning — Warning: `"The 'middleware' file convention is deprecated. Please use 'proxy' instead."` Persists after I18N-5 plugin wiring — confirmed not a next-intl issue. This is a Next.js 16 convention change. Fix: rename `apps/storefront/middleware.ts` → `apps/storefront/proxy.ts` (or follow Next.js 16 docs for the new convention). Build passes with warning. Low priority — address after I18N-8.
+
+- [x] `ENV-DEBT-1`: Environment baseline debt — formally closed 2026-04-12. ENV-2, ENV-3, CHORE-2 reclassified as superseded above. `docker-compose.dev.yml` DATABASE_URL override with `?sslmode=disable` is now the canonical local config (not a workaround). Docker Compose path confirmed operational end-to-end.
+
+- [x] `CHORE-2`: Resolve backend startup invocation defect — **superseded and formally closed 2026-04-12.** Docker Compose runtime (ADR-033) replaced the native TypeScript toolchain path entirely. The `tsconfig-paths` crash in the native path is no longer relevant. Original failure: `tsconfig-paths` crashes at startup with `TypeError: The "path" argument must be of type string. Received undefined` at `tsconfig-paths/src/config-loader.ts:52` → `tsconfig-paths/src/register.ts:53` → `@medusajs/cli/cli.js:5`. Three sequential fixes applied (dev script, ts-node hoisting, @medusajs/medusa hoisting) — each resolved a distinct error layer but exposed the next.
+  - **Fix 1 (done):** `apps/backend/package.json` dev script changed from hardcoded `node … @medusajs/cli/cli.js develop` to `medusa develop`.
+  - **Fix 2 (done):** `ts-node@^10.9.2` added to root `package.json` devDependencies + `npm install` at root. Resolved `Cannot find module 'apps/backend/medusa-config'`.
+  - **Fix 3 (done):** `@medusajs/medusa@2.13.1` added to root `package.json` devDependencies + `npm install`. Resolved `Cannot find module '@medusajs/medusa/file-local'` — confirmed via `require.resolve` from framework context.
+  - **Current blocker (unresolved):** `tsconfig-paths` crashes at startup with `TypeError: The "path" argument must be of type string. Received undefined` at `tsconfig-paths/src/config-loader.ts:52` → `tsconfig-paths/src/register.ts:53` → `@medusajs/cli/cli.js:5`. The warning `ts-node cannot be loaded and used` also appears before the crash. The `tsconfig-paths` package IS present in root `node_modules` (PRESENT confirmed). The crash is in the `register({})` call — `tsconfig-paths` receives empty options and cannot resolve the tsconfig path. Backend does not start. This is the active blocking defect.
+  - **Backend health status:** NOT healthy. `/health` endpoint never reached.
+  - _Human prerequisite still open: `apps/backend/.env` DATABASE_URL password mismatch with local PostgreSQL `postgres` user — human-only fix, not yet confirmed resolved._
+  - _Target Executor: Codex (Advanced Executor)_
 
 ---
 
