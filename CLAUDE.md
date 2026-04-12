@@ -42,7 +42,13 @@ For deeper context:
 
 **Active phase:** Phase 2 — Commerce Backend Integration
 **Active branch:** `feature/back-1-medusa-init`
-BACK-1 complete. BACK-2 awaiting review.
+BACK-1 complete. BACK-2 complete (PostgreSQL connected, migrations run, security remediation applied — `.env.test` untracked, Neon credentials rotated, commit `b564c77`). BACK-3 pending.
+
+**Environment path:** Docker Compose runtime (ADR-033). ENV-4 file deliverables complete (`docker-compose.dev.yml`, `Dockerfile.dev`, updated scripts). ENV-5 established raw connectivity — DATABASE_URL override in place, KnexTimeoutError resolved. ENV-6 attempted migration-first startup — `Dockerfile.dev` CMD updated to `npx medusa db:migrate && npx medusa develop`, Docker rebuild passes. **ENV-7 SSL fix applied — pending operator validation.**
+
+**SSL blocker fix (branch `fix/env-backend-ssl-startup`):** Three-layer fix applied: (1) `PGSSLMODE: disable` added to docker-compose backend environment; (2) `?sslmode=disable` appended to DATABASE_URL in docker-compose; (3) `databaseDriverOptions: { connection: { ssl: false } }` added to `medusa-config.ts` for `NODE_ENV=development`. Human operator must run `docker compose -f docker-compose.dev.yml up --build` and check `/health` to confirm resolution. Branch must be merged to `feature/back-1-medusa-init` after validation.
+
+**Accepted technical debt:** DATABASE_URL override in `docker-compose.dev.yml` is a temporary workaround (ENV-DEBT-1). CHORE-2, ENV-2, ENV-3 superseded in practice by Docker path but not formally closed.
 
 See [`docs/project-kb/operations/roadmap.md`](docs/project-kb/operations/roadmap.md) for full phase detail and deliverable status.
 
@@ -92,7 +98,7 @@ Before choosing any library, pattern, or approach:
 2. If not decided, evaluate options and record a new ADR
 3. Never adopt a different pattern than what's recorded without updating the ADR
 
-**Locked decisions:** i18n: next-intl (ADR-008) · Payments: Stripe (ADR-007) · Backend: Medusa v2 (ADR-003) · DB: PostgreSQL (ADR-004) · TS: strict (ADR-005) · Git workflow: branch from Phase 2 (ADR-014) · UI: mobile-first (ADR-015) · SEO: first-class (ADR-016) · Rendering: intentional per-route (ADR-017) · Commerce: Medusa defaults first (ADR-018)
+**Locked decisions:** i18n: next-intl (ADR-008) · Payments: Stripe (ADR-007) · Backend: Medusa v2 (ADR-003) · DB: PostgreSQL (ADR-004) · TS: strict (ADR-005) · Git workflow: branch from Phase 2 (ADR-014) · UI: mobile-first (ADR-015) · SEO: first-class (ADR-016) · Rendering: intentional per-route (ADR-017) · Commerce: Medusa defaults first (ADR-018) · Local env ownership: scripted baseline, agent-operable (ADR-026) · Brief reading sequence: 5-surface preamble mandatory (ADR-032)
 
 ---
 
@@ -110,6 +116,7 @@ When producing briefs for executors (always specify `Target Executor: Literal Ex
 - Each task = one clearly bounded unit of work
 - Every brief must include: goal, scope, allowed files, forbidden files, acceptance criteria, out-of-scope
 - Tasks must be ordered by dependency
+- `ENV-*` tasks (environment scripts, health checks, `.env.example` updates) are within executor scope per ADR-026. Executors may not modify real `.env` values or access remote infrastructure.
 
 When reviewing executor output:
 - Check acceptance criteria against actual files modified
