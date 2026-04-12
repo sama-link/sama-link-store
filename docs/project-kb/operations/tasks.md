@@ -562,10 +562,10 @@ Read the current message files before starting to know exactly which keys exist.
   - _Reviewed and closed 2026-04-11. Functional goal confirmed: PostgreSQL connected, migrations ran, `GET /health` → 200 (ENV-1). Security remediation: `.env.test` untracked and added to `.gitignore` (commit `b564c77`). Neon credentials rotated by human. `git grep "neon.tech"` → no tracked matches. All `DATABASE_URL` references are localhost placeholders or env reads. All acceptance criteria met._
 - [x] `BACK-3`: Create seed script (1 category, 2–3 products)
   - _Reviewed and closed 2026-04-12. Seed script `apps/backend/src/scripts/seed.ts` authored and confirmed working. Docker exec run: category `networking` created (`pcat_01KNZP0P8...`), 3 products created (Gigabit Switch 8-Port, Dual-Band Wi-Fi Router AC1200, Cat6 Ethernet Cable 3m). Idempotent — re-running skips existing records. All acceptance criteria met._
-- [ ] `BACK-4`: Create `apps/storefront/lib/medusa-client.ts`
-- [ ] `BACK-5`: Replace mock data with real API data
-  - _Integration risk: Verify field names match Medusa Store API response shapes before replacing mock data; idempotency of reads is assumed but verify pagination defaults_
-  - _SEO awareness: Ensure product/collection data structure supports future JSON-LD (Product, Offer schemas) — do not flatten fields that will be needed for structured data_
+- [x] `BACK-4`: Create `apps/storefront/lib/medusa-client.ts`
+  - _Reviewed and closed 2026-04-12. `apps/storefront/lib/medusa-client.ts` created: singleton `sdk` (Medusa v2 JS SDK `^2.13.1`), `listProducts`, `getProductByHandle`. Param type derived via `NonNullable<Parameters<...>[0]>` — no `@medusajs/types` dependency needed. `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY` added to `.env.example`. `tsc --noEmit` exit 0. No scope violations (3 files: lib/medusa-client.ts, package.json, .env.example + expected lockfile). Publishable API key must be provisioned by human in Medusa Admin before BACK-5 can make live Store API calls._
+- [x] `BACK-5`: Replace mock data with real API data
+  - _Reviewed and closed 2026-04-12. Home page updated: `listProducts({ limit: 6 })` called in Server Component with try/catch resilience; `ProductCard` created in `components/products/` (Server Component, pure display — title + description + placeholder block, all `@theme` tokens verified). `products` i18n namespace added to both `en.json` and `ar.json`. `comingSoon` key orphaned in JSON (unused — cleanup tracked as future chore). `tsc --noEmit` exit 0. No scope violations. Requires publishable API key in `.env.local` for live product display._
 - [ ] `BACK-6`: Configure CORS between storefront and backend
   - _Security: CORS must be strict and environment-based — wildcard `*` is forbidden in staging/production; allowed origins must come from env_
 
@@ -1234,7 +1234,18 @@ Report format: `BLOCKED: [step, full output]. Awaiting clarification.`
 
 ---
 
-## LATER — Phases 3–8
+## Phase 3 — Product Catalog
+
+### Completed
+
+- [x] `CAT-1`: Product detail page + product card link wiring
+  - _Reviewed and closed 2026-04-12. Created `apps/storefront/app/[locale]/(storefront)/products/[handle]/page.tsx`: async Server Component, `cache(getProductByHandle)`, `notFound()` on missing product, variant list with guarded `Intl.NumberFormat` price (no extra API calls), `generateMetadata`, `revalidate = 3600`, all `@theme` tokens. Updated `ProductCard` to `async`, `getLocale()` from next-intl/server, conditional `<Link>` wrapper with `group-hover:shadow-md`. `lib/medusa-client.ts` and home `page.tsx` untouched. `tsc --noEmit` exit 0. Known debt: "Variants" heading on detail page is hardcoded English — i18n key deferred to Phase 7._
+
+### Active
+
+- [ ] `CAT-2`: Product listing page (`/[locale]/products`) — pagination, basic filter, nav link wiring
+
+## LATER — Phases 4–8
 
 See `docs/project-kb/operations/roadmap.md` for scope. Tasks broken out when phase becomes active.
 

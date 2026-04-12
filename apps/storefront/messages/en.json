@@ -35,6 +35,10 @@
     "metaTitle": "Sama Link Store — Quality Products Online",
     "metaDescription": "Discover quality products at Sama Link Store. Curated collections delivered to your door."
   },
+  "products": {
+    "featuredTitle": "Featured Products",
+    "noProducts": "No products available yet."
+  },
   "footer": {
     "copyright": "All rights reserved",
     "privacy": "Privacy Policy",

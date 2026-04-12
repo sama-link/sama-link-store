@@ -28,6 +28,7 @@ services:
     environment:
       DATABASE_URL: "postgres://postgres:postgres@postgres:5432/sama_link_db?sslmode=disable"
       PGSSLMODE: "disable"
+      NODE_ENV: "development"
     ports:
       - "9000:9000"
     depends_on:

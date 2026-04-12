@@ -129,8 +129,8 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 - [x] `apps/backend` initialized and running on `localhost:9000`
 - [x] PostgreSQL connected and migrations run (Docker Compose runtime; SSL resolved ENV-7)
 - [x] Seed script with initial test data (BACK-3 — 1 category, 3 products seeded 2026-04-12)
-- [ ] Storefront fetches and displays real products
-- [ ] API client typed and isolated
+- [x] API client typed and isolated (`apps/storefront/lib/medusa-client.ts` — BACK-4, 2026-04-12)
+- [x] Storefront fetches and displays real products (home page — BACK-5, 2026-04-12)
 
 **Dependencies:** Phase 1 complete, PostgreSQL available, Phase 2 Pre-Work complete
 
@@ -138,7 +138,7 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 
 ---
 
-## Phase 3 — Product Catalog
+## Phase 3 — Product Catalog 🔄 ACTIVE
 
 **Goal:** Full product browsing experience: collections, product detail, variants, images, basic filtering.
 
@@ -152,11 +152,10 @@ Progress status: `[ ]` = not started, `[~]` = in progress, `[x]` = complete
 - ISR for product and collection pages
 
 **Deliverables:**
-- [ ] Product listing with pagination and filters
+- [x] Product detail page with variant display and ISR (CAT-1 — 2026-04-12)
+- [ ] Product listing page with pagination and filters (CAT-2)
 - [ ] Collection/category pages
-- [ ] Product detail page with variant selector
 - [ ] Image CDN/S3 integration for product media
-- [ ] ISR caching configured
 - [ ] Breadcrumbs and SEO metadata on catalog pages
 
 **Dependencies:** Phase 2 complete
