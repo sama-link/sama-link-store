@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import Button from "@/components/ui/Button";
 import ProductCard from "@/components/products/ProductCard";
 import { listProducts } from "@/lib/medusa-client";
 
@@ -64,12 +63,15 @@ export default async function HomePage() {
         <p className="max-w-xl text-lg text-text-secondary">
           {t("subheadline")}
         </p>
-        <Button type="button" variant="primary" size="lg">
+        <a
+          href="#featured"
+          className="inline-flex h-12 items-center justify-center rounded-md bg-brand px-6 text-base font-medium text-text-inverse transition-colors duration-150 hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+        >
           {t("ctaLabel")}
-        </Button>
+        </a>
       </section>
 
-      <section aria-label={tp("featuredTitle")} className="space-y-6">
+      <section id="featured" aria-label={tp("featuredTitle")} className="space-y-6">
         <h2 className="text-start text-2xl font-bold tracking-tight text-text-primary">
           {tp("featuredTitle")}
         </h2>
