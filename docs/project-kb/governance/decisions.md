@@ -668,6 +668,73 @@ Additionally:
 
 ---
 
+## ADR-026: Local Environment Ownership Model — Agent-Operable Runtime Baseline
+
+**Date:** 2026-04-11
+**Status:** Accepted
+
+### Context
+
+As Phase 2 progresses (BACK-3 through BACK-6), the local development environment grows in complexity: PostgreSQL, Medusa backend, and Next.js storefront must all be running and correctly wired for any meaningful development or verification session. ENV-1 (2026-04-11) established that the local environment is operational, but the bring-up process is not scripted, not documented, and not agent-executable. Each session risks starting from an unknown environment state, and the human bears full responsibility for manually starting services, verifying connectivity, and checking `.env` completeness.
+
+The multi-agent operating model (ADR-021) defines agent authority over the codebase but does not address environment management tasks — leaving ambiguity about whether agents may maintain startup scripts, run health checks, or update `.env.example`. Without an explicit model, every session requires human involvement in routine environment preparation, which contradicts the goal of minimal human involvement in day-to-day execution operations.
+
+### Options Considered
+
+1. **Status quo** — human manages the environment manually each session; agents request human bring-up as a prerequisite step
+2. **Full infrastructure automation** — Docker Compose or equivalent for all services; fully agent-managed lifecycle
+3. **Scripted local baseline** — bash scripts codify the bring-up/shutdown/verification workflow; agents execute scripts within their existing authority; PostgreSQL remains a system service the human provisions once; secrets remain human-provisioned and non-tracked (selected)
+
+### Decision
+
+Adopt **Scripted Local Baseline** as the official local environment ownership model. Three components:
+
+**1. Agent authority — explicitly extended to environment management tasks**
+
+Codex and Backend Specialist are authorized to:
+- Write and maintain scripts under `scripts/` at the monorepo root
+- Update `.env.example` (documentation of required variables — never real values)
+- Execute bring-up, shutdown, and health-check scripts as part of task execution
+- Verify environment readiness before and after implementation tasks using `scripts/health-check.sh`
+
+Agent authority does NOT include:
+- Creating or modifying any `.env` file with real values
+- Pushing environment configuration to any remote system
+- Modifying cloud or production infrastructure of any kind
+- Committing any credential, secret, or real environment value
+
+**2. Human-only environment operations (permanently)**
+- Initial provisioning: creating `.env` files from `.env.example` and populating real credentials
+- Credential rotation (any secret, any environment, any tier)
+- Granting access to external services (Stripe, Neon, S3, etc.)
+- Approving new environment variables before they appear in `.env.example`
+- Merging to `main` or `develop`
+
+**3. Implementation vehicle**
+
+A `scripts/` directory at the monorepo root (already exists; contains `brand-export.mjs`) hosts the canonical local environment scripts:
+
+| Script | Purpose |
+|---|---|
+| `scripts/env-check.sh` | Validates required env vars are present in correct `.env` files; never prints values; exits non-zero if missing |
+| `scripts/start-dev.sh` | Verifies env + PostgreSQL connectivity, then starts backend and storefront; saves PIDs to `.dev.pids` |
+| `scripts/stop-dev.sh` | Reads `.dev.pids`, terminates services gracefully, cleans up PID file |
+| `scripts/health-check.sh` | Hits all three service endpoints; reports per-service status; exits 0 only if all healthy |
+
+A companion runbook at `docs/project-kb/operations/local-environment.md` (authored by Claude after ENV-2 review) documents the bring-up sequence, required env files, what "environment ready" means, and human-only operations.
+
+### Consequences
+
+- **ENV-2** is the first implementation task under this ADR — Codex creates the `scripts/` baseline; Claude writes the runbook after review
+- Future `ENV-*` tasks (environment maintenance, script updates, health-check additions) are within agent execution scope per this ADR — no new ADR required for routine maintenance
+- Secrets discipline is unchanged — this ADR extends agent scope without relaxing any security constraint from ADR-005 or development-rules.md
+- PostgreSQL remains a system-provisioned service; agents verify it is reachable but do not start or stop it
+- `.dev.pids` (the PID tracking file for start-dev.sh) is added to `.gitignore` — never tracked
+- `docs/project-kb/operations/local-environment.md` is a governed document owned by Claude; executors may update scripts but not the runbook document without Claude review
+- OPS-2 (Environment Strategy — dev/staging/production) remains a separate active task; this ADR covers the local environment component and OPS-2 will reference it
+
+---
+
 ## ADR-023: Actor Identity V2.1 — Team Refinement (ChatGPT Companion, Gemini Commercial Guard, Codex Executor)
 
 **Date:** 2026-04-05
@@ -912,3 +979,87 @@ Define a **SEO Governance Reviewer** as a Review sublayer actor. The SEO Reviewe
 - `governance/actors/seo-reviewer-contract.md` is the canonical contract
 - No new skills added to `skill-framework.md` — SEO Governance Reviewer declares existing skills from that table
 - ADR-021 is extended (not superseded) — SEO Governance Reviewer is a Review sublayer actor
+
+---
+
+## ADR-032: Executor Brief Reading Sequence — Mandatory 5-Surface Preamble
+
+**Date:** 2026-04-11
+**Status:** Accepted
+
+### Context
+
+Task briefs produced by Claude (Brief V2) include a `Context` section and a `Notes / Constraints` section that may reference relevant ADRs, but surface selection is heuristic. No governed sequence requires every brief to include — as distinct typed categories — project identity surfaces, task-state surfaces, the executor's role contract, and the governing rules specific to the task. This has produced inconsistent delegation: role contracts are sometimes absent, governing rules are buried in narrative context, generic files are included instead of stronger role-specific contracts, and project identity is routinely omitted. There is also no mechanism to distinguish "why this task exists" from "what you are required to have read before starting."
+
+### Decision
+
+Introduce a mandatory **REQUIRED READING** section in all Brief V2 task briefs. This section is placed between the brief header fields and the `INTERPRETATION MODE` block. It has five typed layers that Claude must populate in order before authoring the `Goal`, `Context`, or `Scope` sections:
+
+**[1] Project Context** — surfaces that establish the project's purpose, architecture boundaries, and business goals relevant to this task. Scoped to what the task actually requires — not a full KB dump. Drawn from: `definition/project-definition.md`, `definition/architecture.md`, or relevant subsections.
+
+**[2] Task State** — surfaces that locate this task in the execution queue: what precedes it, what follows it, and which phase it belongs to. Typically: the relevant task entry in `operations/tasks.md` and the active phase block in `operations/roadmap.md`.
+
+**[3] Role Contract** — the canonical contract file for the executor role named in `Target Executor`. Always specific to the role; always required. Generic files (e.g., `agents.md`) do not substitute for role contracts. Draws from: `governance/actors/[role]-contract.md`.
+
+**[4] Governing Rules & ADRs** — development rules and only the ADRs that directly govern decisions in this task. Claude lists each governing ADR explicitly by number and title. The executor is not expected to derive governing rules independently — Claude provides them.
+
+**[5] This Brief** — explicit marker that the executor proceeds to `Goal` and `Implementation Steps` only after layers [1]–[4] are read. Not a file reference; a sequencing gate.
+
+**Brief authoring rule for Claude (binding):** Before writing `Goal`, `Context`, or `Scope` for any task brief, Claude must first populate all five REQUIRED READING layers. If a layer has no relevant surface for a specific task, Claude writes `— not applicable for this task` under that layer header. The layer header must still appear. A brief with a missing or incomplete REQUIRED READING section must not be delivered.
+
+### Consequences
+
+- All Brief V2 task briefs authored after this ADR include a REQUIRED READING section with five typed layers
+- Executors receive a governed reading mandate instead of a heuristic narrative `Context` paragraph
+- Role contracts are operationalized in every brief — they are no longer optional context
+- Claude's `self_alignment` block in `claude-contract.md` gains a REQUIRED READING completeness check (blocking)
+- The `agents.md` Brief Format V2 template is updated to include the REQUIRED READING block at the correct position
+- Historical briefs (Phase 1, Pre-Phase 2, completed Phase 2 tasks) are not retroactively updated — protocol applies to all briefs authored after this ADR
+- ADR-022 / ADR-023 are extended (not superseded) — REQUIRED READING is an addition to Brief V2 format, not a new brief version
+
+---
+
+## ADR-033: Local Environment Runtime Model — Docker Compose for Backend + PostgreSQL
+
+**Date:** 2026-04-12
+**Status:** Accepted
+
+### Context
+
+ADR-026 established the Scripted Local Baseline as the official environment ownership model. ENV-2 and ENV-3 implemented the `scripts/` baseline (env-check.sh, start-dev.sh, stop-dev.sh, health-check.sh). Despite those scripts being structurally correct, the backend has never become healthy under this model.
+
+CHORE-2 documents three sequential fix attempts on the native Node.js invocation path: (1) dev script changed from hardcoded path to `medusa develop`; (2) `ts-node` hoisted to root devDependencies; (3) `@medusajs/medusa` hoisted to root devDependencies. Each fix resolved one error layer and exposed the next. The current blocking defect is `tsconfig-paths` crashing with `TypeError: The "path" argument must be of type string. Received undefined` at startup — `@medusajs/cli` calls `register({})` with empty options, and `tsconfig-paths` cannot resolve the config path. This is a monorepo-context npm workspace resolution issue in the TypeScript toolchain, not a Medusa defect. Continuing to patch the native invocation path risks indefinite escalation with no clear convergence point.
+
+A parallel blocker (human-only: `DATABASE_URL` credential mismatch with local PostgreSQL) remained unconfirmed as resolved at session close.
+
+### Options Considered
+
+1. **Continue patching CHORE-2** — the tsconfig-paths TypeError is the fourth sequential failure; the fix path is non-converging; further attempts consume session time with uncertain resolution
+2. **Full Docker Compose (all services including storefront)** — over-engineered; Next.js dev server is healthy and working natively; containerizing the storefront introduces HMR latency and no benefit
+3. **Docker Compose for backend + PostgreSQL only; storefront native** — isolates the broken surface (TypeScript CLI resolution in a monorepo) inside a container where it does not apply; preserves the working native storefront workflow; aligns with ADR-026's scripted baseline model (scripts wrap Docker lifecycle instead of native process lifecycle)
+
+### Decision
+
+Adopt **Docker Compose for backend + PostgreSQL as the local runtime**. The storefront remains native (Next.js dev server). The `scripts/` baseline is updated to use `docker compose` for backend lifecycle management instead of `nohup npm run dev`.
+
+**Runtime topology:**
+- `docker-compose.dev.yml` at monorepo root defines two services: `postgres` (official image) and `backend` (built from `apps/backend/`)
+- Backend port 9000 and PostgreSQL port 5432 remain on localhost — all existing scripts, health checks, and client configuration are compatible without endpoint changes
+- `apps/backend/.env` is still sourced as the env_file — secrets remain human-provisioned and non-tracked (no change to the security model from ADR-026)
+- Storefront runs natively via `npm run dev` in `apps/storefront/` — no containerization, no change to storefront workflow
+
+**Scripts update scope:**
+- `scripts/start-dev.sh`: replace native PostgreSQL check + `nohup npm run dev` for backend with `docker compose -f docker-compose.dev.yml up -d`; retain storefront native start and all health check logic
+- `scripts/stop-dev.sh`: replace backend PID kill with `docker compose -f docker-compose.dev.yml down`; storefront PID kill is unchanged
+- `scripts/env-check.sh`: no change required (still validates `DATABASE_URL` and other backend vars from `apps/backend/.env`)
+- `scripts/health-check.sh`: no change required (endpoints unchanged; container vs. native is transparent to HTTP health check)
+
+### Consequences
+
+- ADR-026 is **amended** (not superseded) — the scripted baseline model and agent authority scope are unchanged; the runtime vehicle for backend + PostgreSQL changes from native Node.js to Docker Compose
+- CHORE-2 is NOT closed by this ADR — it is superseded in practice by ENV-4 (Docker runtime); CHORE-2 should be reclassified to `Superseded` after ENV-4 is reviewed and verified successfully
+- ENV-2 and ENV-3 are NOT closed by this ADR — they are superseded in practice by ENV-4; their partial state is preserved until ENV-4 is reviewed and verified
+- `docker-compose.dev.yml` is tracked in the repository (no secrets embedded — all secrets via `env_file`)
+- The human-only DATABASE_URL credential mismatch (ENV-3 noted blocker) is resolved automatically by Docker Compose: the `postgres` service is the authoritative database; `DATABASE_URL` in `apps/backend/.env` must point to the Docker-exposed port with the credentials defined in `docker-compose.dev.yml`
+- Named Docker volume (`postgres_data`) persists database state across `docker compose down/up` cycles; a `--volumes` flag is required to reset it
+- Future production Dockerfile work (Phase 8) is out of scope for this ADR — `docker-compose.dev.yml` is local-only

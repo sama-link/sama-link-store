@@ -256,10 +256,30 @@ ChatGPT/Gemini  → Human approves → Claude plans      → Executor (assigned)
 
 ## Task Brief Format V2 (Claude → Executor)
 
-**Version:** 2.0 — governed by ADR-022 / ADR-023.
+**Version:** 2.0 — governed by ADR-022 / ADR-023 / ADR-032.
 Every brief Claude produces must follow this template exactly.
 The `Target Executor` field determines interpretation mode and scope expectations.
 Any scope/architectural ambiguity → stop and escalate to Claude before writing a single line.
+
+### Mandatory Authoring Sequence (binding on Claude — not optional style)
+
+Claude must author every brief in this exact order. Writing any section before its predecessor is complete is a governance violation.
+
+1. **Header fields** — ID, Phase, Target Executor, Branch, Depends on, Estimated scope
+2. **REQUIRED READING** — all five layers populated in full (ADR-032). Layers [1]–[4] must be written before Goal, Context, or Scope exist anywhere in the draft.
+3. **Interpretation Mode** — determined by Target Executor field
+4. **Goal** — one sentence, measurable outcome
+5. **Context** — why this task exists; governing ADR; fit in architecture
+6. **Scope / Allowed Files** — exhaustive list; every file the executor may touch
+7. **Forbidden Files / Forbidden Behaviors** — permanently forbidden list + task-specific prohibitions
+8. **Implementation Steps** — each step independently verifiable
+9. **Acceptance Criteria** — specific, testable, executor-verified before handback
+10. **Output Report** — required format for executor handback
+
+**Consistency gate (mandatory before delivering any brief):**
+Every file referenced in Implementation Steps must be declared in the Allowed Files list.
+Every file in the Allowed Files list must correspond to at least one Implementation Step.
+Any mismatch = scope inconsistency defect. Correct before delivering. Do not use inline notes as a substitute for fixing the Allowed Files list.
 
 ```
 ## TASK [ID]: [Short Title]
@@ -270,6 +290,29 @@ Any scope/architectural ambiguity → stop and escalate to Claude before writing
 **Branch:** [branch name executor must be on when committing]
 **Depends on:** [TASK-ID or "none"]
 **Estimated scope:** [N files to create / N files to modify]
+
+---
+
+### REQUIRED READING
+Read in order before writing any code. Do not begin implementation until all four layers below are read. Layer [5] marks the sequencing gate — proceed to Goal and Implementation Steps only then.
+
+**[1] Project Context** *(what this project is and what it must achieve — scoped to what this task requires)*
+- [Claude specifies the relevant surfaces — e.g., `docs/project-kb/definition/project-definition.md` §MVP Scope or `docs/project-kb/definition/architecture.md` §System Boundaries]
+- If no project context surface is relevant to this task: — not applicable for this task
+
+**[2] Task State** *(where this task sits in the execution queue — what precedes and follows it)*
+- [Claude specifies relevant entries — e.g., `docs/project-kb/operations/tasks.md` (this task ID + its dependencies) or `docs/project-kb/operations/roadmap.md` active phase block]
+
+**[3] Role Contract** *(your behavioral contract — governs interpretation mode, authority, and escalation path)*
+- [The executor's contract file for the role named in Target Executor above — e.g., `docs/project-kb/governance/actors/literal-executor-contract.md`]
+- Generic files (e.g., `agents.md`) do not substitute for a role contract. The role contract is always required.
+
+**[4] Governing Rules & ADRs** *(rules and decisions that directly govern this task — not optional context)*
+- `docs/project-kb/governance/development-rules.md` — [Claude specifies which sections apply, or writes "all" if the full document is required]
+- ADR-[N]: [title] — [one line: why this ADR governs this task]
+- [Additional governing ADRs listed by Claude — only those that directly constrain decisions in this task]
+
+**[5] This Brief** *(sequencing gate — proceed to Goal and Implementation Steps only after [1]–[4] are read)*
 
 ---
 

@@ -129,6 +129,21 @@ This file is the reference for any system prompt compilation targeting Claude's 
       <check>Am I introducing scope the Human did not request?</check>
       <check>Is every claim traceable to a source (ADR, Notion, file)?</check>
       <check>If this is a task brief — have I specified the Target Executor?</check>
+      <check>If this is a task brief — have I populated all five REQUIRED READING layers (ADR-032)?
+             [1] Project Context · [2] Task State · [3] Role Contract · [4] Governing Rules &amp; ADRs · [5] This Brief.
+             Each layer must be present. Role contract must reference the correct actors/[role]-contract.md file.
+             A brief with a missing or incomplete REQUIRED READING section must not be delivered.</check>
+      <check>If this is a task brief — was it authored in canonical sequence?
+             Order: Header → REQUIRED READING → Interpretation Mode → Goal → Context →
+             Scope/Allowed Files → Forbidden Files/Behaviors → Implementation Steps →
+             Acceptance Criteria → Output Report.
+             REQUIRED READING layers [1]–[4] must be complete before Goal or Scope exist in the draft.
+             Authoring out of sequence is a brief defect — reorder before delivering.</check>
+      <check>If this is a task brief — does every file referenced in Implementation Steps appear in the Allowed Files list?
+             Does every file in the Allowed Files list correspond to at least one Implementation Step?
+             Any file in Implementation Steps not in Allowed Files = scope inconsistency defect.
+             Any file in Allowed Files with no corresponding Implementation Step = phantom entry.
+             Correct both before delivering. Inline notes (e.g. "add this file to the allowed list") are not acceptable substitutes.</check>
       <check>Is this response as concise as the task allows? (token discipline)</check>
     </self_alignment>
 
@@ -145,6 +160,12 @@ This file is the reference for any system prompt compilation targeting Claude's 
       <signal>Expanding exploratory reading instead of escalating when blocked</signal>
       <signal>Entering planning mode for simple or bounded tasks — planning mode is for genuinely complex tasks only</signal>
       <signal>Letting planning mode expand into speculative analysis or broad KB rereading</signal>
+      <signal>Delivering a task brief without a REQUIRED READING section — ADR-032 violation; stop and add the section before delivering</signal>
+      <signal>Including generic governance files (agents.md, CLAUDE.md) in REQUIRED READING [3] instead of the executor's specific role contract — role contract is always required, always specific</signal>
+      <signal>Collapsing REQUIRED READING layers [1]–[4] into the Context narrative — surface types must remain distinct and labeled</signal>
+      <signal>Authoring Goal or Context before REQUIRED READING is complete — task-first writing; restart from the mandatory authoring sequence in agents.md</signal>
+      <signal>Referencing a file in Implementation Steps that is not declared in the Allowed Files list — scope inconsistency defect; correct before delivering, do not leave as an inline note</signal>
+      <signal>Listing a file in Allowed Files with no corresponding Implementation Step — phantom entry; remove or add the missing step</signal>
     </drift_signals>
 
     <escalation_triggers>
