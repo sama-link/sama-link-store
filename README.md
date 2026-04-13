@@ -2,25 +2,30 @@
 
 A production-grade, multilingual, SEO-friendly e-commerce platform built on a composable commerce stack.
 
-**Stack:** Next.js 16 App Router · TypeScript strict · Tailwind v4 · Medusa v2 · PostgreSQL · Turborepo
+**Stack:** Next.js 15 App Router · TypeScript strict · Tailwind v4 · Medusa v2 · PostgreSQL · Turborepo
 
 ---
 
 ## Quick Setup
 
 ```bash
-# Install dependencies
-npm install
-
-# Copy env files and fill in values
+# Copy env file and fill in values
 cp .env.example apps/backend/.env
-cp .env.example apps/storefront/.env.local
 
-# Run everything in dev mode
-npm run dev
+# Start all services via Docker Compose
+docker compose -f docker-compose.dev.yml up -d
 ```
 
-**Prerequisites:** Node.js >= 20 · npm >= 10 · PostgreSQL
+| Service | URL |
+|---|---|
+| Storefront | http://localhost:3000 |
+| Backend / Admin | http://localhost:9000 |
+| Admin UI | http://localhost:9000/app |
+
+**Prerequisites:** Docker Desktop
+
+> Rebuild after any `docker-compose.dev.yml` or `Dockerfile.dev` change:
+> `docker compose -f docker-compose.dev.yml up -d --build backend`
 
 ---
 
@@ -30,46 +35,38 @@ npm run dev
 sama-link-store/
 ├── apps/
 │   ├── storefront/   # Next.js customer-facing store
-│   ├── admin/        # Admin/dashboard app (Phase 6)
 │   └── backend/      # Medusa v2 commerce backend
 ├── packages/
 │   ├── ui/           # Shared React UI primitives
 │   ├── types/        # Shared TypeScript types
 │   └── config/       # Shared ESLint, TS, Tailwind configs
-└── docs/project-kb/  # All project knowledge
+├── .agents/          # Agent contracts (Claude tooling)
+├── CLAUDE.md         # Claude Code session entry point
+└── TASKS.md          # Active task queue
 ```
 
 ---
 
 ## Project Knowledge Base
 
-All governance, decisions, tasks, and architecture documentation lives under [`docs/project-kb/`](docs/project-kb/README.md).
+All governance, decisions, architecture, and operations documentation lives in **Notion**.  
+The repository holds no duplicate knowledge — Notion is the single source of truth.
 
-**Start here:** [`docs/project-kb/README.md`](docs/project-kb/README.md)
-
-### Definition
-| Document | Description |
+| Surface | Link |
 |---|---|
-| [`docs/project-kb/definition/project-definition.md`](docs/project-kb/definition/project-definition.md) | Business goals, platform scope, MVP boundary |
-| [`docs/project-kb/definition/architecture.md`](docs/project-kb/definition/architecture.md) | System architecture, boundaries, data flow |
-| [`docs/project-kb/definition/multi-agent-model.md`](docs/project-kb/definition/multi-agent-model.md) | Agent operating model |
+| Project Hub | https://www.notion.so/33613205fce68182a043cc6ad0088c3e |
+| Decision Log (ADRs) | https://www.notion.so/76a704d872c34874bfac1e8454f6134b |
+| Implementation Canon | https://www.notion.so/34113205fce681468f8dc7185f1a55d4 |
 
-### Governance
-| Document | Description |
-|---|---|
-| [`docs/project-kb/governance/decisions.md`](docs/project-kb/governance/decisions.md) | Architectural Decision Records (ADR log) |
-| [`docs/project-kb/governance/development-rules.md`](docs/project-kb/governance/development-rules.md) | Coding standards and constraints |
-| [`docs/project-kb/governance/agents.md`](docs/project-kb/governance/agents.md) | Agent roles, task brief format, handoff protocol |
-| [`docs/project-kb/governance/constitution.md`](docs/project-kb/governance/constitution.md) | Authority model, core principles, conflict resolution |
+### In-repo agent layer
 
-### Operations
-| Document | Description |
+The `.agents/` directory contains the operative layer for Claude Code sessions — not documentation.
+
+| File | Purpose |
 |---|---|
-| [`docs/project-kb/operations/roadmap.md`](docs/project-kb/operations/roadmap.md) | Phased implementation plan |
-| [`docs/project-kb/operations/tasks.md`](docs/project-kb/operations/tasks.md) | Active task backlog |
-| [`docs/project-kb/operations/deployment.md`](docs/project-kb/operations/deployment.md) | Environment URLs, Vercel config, deployment history |
-| [`docs/project-kb/operations/project-operations.md`](docs/project-kb/operations/project-operations.md) | Operating model — planning, execution, review, tracking |
-| [`docs/project-kb/operations/notion-sync.md`](docs/project-kb/operations/notion-sync.md) | Notion sync protocol |
+| `.agents/00-core.mdc` | Architecture boundaries, branching rules, security constraints |
+| `.agents/10-skills.mdc` | Task brief format, review checklist, session sync protocol |
+| `.agents/20-contracts.mdc` | Per-role executor contracts |
 
 ---
 
@@ -81,15 +78,12 @@ All governance, decisions, tasks, and architecture documentation lives under [`d
 | `develop` | Default working branch for low-risk changes. |
 | `feature/back-N-<slug>` | Required for backend, security, env, or structural changes. |
 
-**Rule:** If the change touches runtime, backend, env, security, or > 3 files → feature branch. Otherwise → `develop`.
+**Rule:** runtime / backend / env / security / DB / > 3 files → feature branch. Otherwise → `develop`.
 
 ---
 
 ## Agent Sessions
 
-Two files remain at root for tooling reasons:
-
-- [`CLAUDE.md`](CLAUDE.md) — Auto-read by Claude Code. Compact operative shell with pre-flight and guardrails.
+- [`CLAUDE.md`](CLAUDE.md) — Auto-read by Claude Code. Pre-flight checklist, guardrails, and Notion surface index.
+- [`TASKS.md`](TASKS.md) — Active task queue for the current sprint.
 - [`.env.example`](.env.example) — Environment variable reference.
-
-Notion Project Hub: https://www.notion.so/33613205fce68182a043cc6ad0088c3e
