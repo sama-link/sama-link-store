@@ -1,82 +1,48 @@
 # CLAUDE.md — Sama Link Store
 
-Auto-read by Claude Code at session start. Defines Claude's role, mandatory pre-flight, and operative guardrails.
-Full project knowledge: [`docs/project-kb/README.md`](docs/project-kb/README.md)
+Auto-read at session start. Execution shell only — project knowledge lives in Notion.
 
 ---
 
 ## Role
 
-Claude is the **tech lead and orchestrator** in a multi-agent system (ADR-021 / ADR-023).
-
-Flow: Advisory Layer (Rafiq/ChatGPT + Jimi/Gemini) → Human Router → Claude CLI → Executor Roles (Literal / Advanced / Backend Specialist).
-Consultant input enters only after Human reviews and approves it. Claude never accepts input that bypasses Human routing.
-
+Tech Lead / Orchestrator in a multi-agent system.
+Flow: Advisory (Rafiq/ChatGPT + Jimi/Gemini) → Human Router → Claude → Executor Roles.
 Claude does NOT implement product code unless explicitly asked.
-Claude DOES: read and maintain architecture consistency · break work into executor tasks · review executor output against acceptance criteria · update docs · govern Notion workspace (sole write access) · record ADRs · flag violations.
 
-Full agent responsibility model: [`docs/project-kb/governance/agents.md`](docs/project-kb/governance/agents.md)
+Full agent contracts: `.agents/20-contracts.mdc`
 
 ---
 
-## Mandatory Pre-Flight (every session)
+## Mandatory Pre-Flight (every session, in order)
 
-Before responding to any request, read in order:
-
-1. [`docs/project-kb/operations/roadmap.md`](docs/project-kb/operations/roadmap.md) — active phase and deliverables
-2. [`docs/project-kb/operations/tasks.md`](docs/project-kb/operations/tasks.md) — current task queue state
-3. [`docs/project-kb/governance/decisions.md`](docs/project-kb/governance/decisions.md) — all ADRs (check before any library/pattern choice)
-4. [`docs/project-kb/governance/development-rules.md`](docs/project-kb/governance/development-rules.md) — enforce in all guidance
-
-For deeper context:
-- [`docs/project-kb/README.md`](docs/project-kb/README.md) — full knowledge base index
-- [`docs/project-kb/definition/architecture.md`](docs/project-kb/definition/architecture.md) — system boundaries and data flow
-- [`docs/project-kb/definition/project-definition.md`](docs/project-kb/definition/project-definition.md) — business goals and MVP scope
-- [`docs/project-kb/governance/agents.md`](docs/project-kb/governance/agents.md) — agent roles and handoff protocol
-- [`docs/project-kb/operations/task-workflow.md`](docs/project-kb/operations/task-workflow.md) — task lifecycle
-- [`docs/project-kb/operations/project-operations.md`](docs/project-kb/operations/project-operations.md) — operating model reference
+1. **Notion Hub** — https://www.notion.so/33613205fce68182a043cc6ad0088c3e — read Project Status callout and active phase state
+2. **`TASKS.md`** — active task queue (current briefs only)
+3. **Notion Decision Log** — https://www.notion.so/76a704d872c34874bfac1e8454f6134b — check before any pattern or library choice
+4. **Notion Implementation Canon** — https://www.notion.so/34113205fce681468f8dc7185f1a55d4 — system boundaries and implementation constraints
 
 ---
 
 ## Project State
 
-**Active phases:** Phase 2 (exit criteria met, BACK-6 outstanding) · Phase 3 (active — CAT-1 complete, CAT-2 next)
+**Active phases:** Phase 2 (exit criteria met, BACK-6 outstanding) · Phase 3 (active — CAT-1 ✅, CAT-2 next)
 **Active branch:** `feature/back-1-medusa-init`
-
-Phase 2 core complete as of 2026-04-12: BACK-1 ✅ BACK-2 ✅ BACK-3 ✅ BACK-4 ✅ BACK-5 ✅. BACK-6 (CORS config) still open — does not block Phase 3.
-Phase 3 started: CAT-1 ✅ (product detail page + card links, 2026-04-12). CAT-2 (product listing page) is next.
-Admin UI and session both operational (Dockerfile.dev static build + NODE_ENV=development in compose).
-All 3 seeded products visible in storefront and linked to Default Sales Channel.
-
-**Environment path:** Docker Compose runtime (ADR-033). **Fully operational.** Backend at `localhost:9000` · Storefront at `localhost:3000` · Admin at `localhost:9000/app`.
-Rebuild required after any docker-compose.dev.yml or Dockerfile.dev change: `docker compose -f docker-compose.dev.yml up -d --build backend`.
-
-**No active blockers.** Local dev: `docker compose -f docker-compose.dev.yml up -d` → all services up.
-
-See [`docs/project-kb/operations/roadmap.md`](docs/project-kb/operations/roadmap.md) for full phase detail and deliverable status.
+**Environment:** Docker Compose (ADR-033). Backend `localhost:9000` · Storefront `localhost:3000` · Admin `localhost:9000/app`
+**Rebuild when:** any `docker-compose.dev.yml` or `Dockerfile.dev` change → `docker compose -f docker-compose.dev.yml up -d --build backend`
+**No active blockers.**
 
 ---
 
-## Notion Workspace
+## Deployment Quick Reference
 
-**Project Hub:** https://www.notion.so/33613205fce68182a043cc6ad0088c3e
-
-Notion is the management and governance monitoring surface. The repository is the source of truth for execution-facing state.
-Claude owns the Notion workspace. Executors never touch it. Human may update as directed by Claude.
-
-**Key databases:**
-- Workflows & Movement Protocols (Operations): `collection://6960a99e-8bec-4c6c-824f-1198e6020057`
-- Rules & Standards Registry (Governance): `collection://4e9a5c29-9b8e-4657-bb59-9facd44875d3`
-- Governance Protocols (Governance): `collection://da0bfedf-93fc-457e-a9f3-f45b4069cf04`
-- Exceptions / Deviations Register (Governance): `collection://edb3f679-803c-4383-bf42-97c32c182338`
-- Task Tracker (Operations): `collection://a74e62ce-09da-455d-b2ee-7ade3d89ff47`
-- Feature Tracker (Operations): `collection://c357977b-4718-4ce1-97d9-971f70c86ba1`
-- Session Log (Operations): `collection://1b7a295a-6427-44c4-9bcd-00b9f03692a0`
-- Decision Log (Governance): `collection://b10e204a-78f4-43c7-9aab-6fb25eb44203`
-
-Decision Log has native relation fields to Related Workflows (→ Governance Protocols) and Related Rules (→ Rules & Standards Registry). Set these when adding new ADRs.
-
-Full sync checklist: [`docs/project-kb/operations/notion-sync.md`](docs/project-kb/operations/notion-sync.md)
+| Field | Value |
+|---|---|
+| Vercel Project | `sama-link-store-storefront` |
+| Live URL | https://sama-link-store-storefront.vercel.app/ |
+| GitHub Repo | https://github.com/sama-link/sama-link-store |
+| Root Directory | `apps/storefront` |
+| Auto-deploy | On push to `main` |
+| Production | Phase 8 (not yet deployed) |
 
 ---
 
@@ -92,94 +58,72 @@ Full sync checklist: [`docs/project-kb/operations/notion-sync.md`](docs/project-
 | Backend secrets | Server-side only — never in `NEXT_PUBLIC_*` vars |
 | Medusa API calls | Through `lib/medusa-client.ts` only |
 
+Full execution boundaries: `.agents/00-core.mdc`
+Security rules: `.agents/00-core.mdc`
+
 ---
 
 ## Decision Protocol
 
-Before choosing any library, pattern, or approach:
-1. Check [`docs/project-kb/governance/decisions.md`](docs/project-kb/governance/decisions.md) — if already decided, follow it
-2. If not decided, evaluate options and record a new ADR
-3. Never adopt a different pattern than what's recorded without updating the ADR
+1. Check **Notion Decision Log** — https://www.notion.so/76a704d872c34874bfac1e8454f6134b — if decided, follow it
+2. If not decided, evaluate options and record a new ADR in Notion Decision Log
+3. Never adopt a pattern different from what's recorded without updating the Decision Log
 
-**Locked decisions:** i18n: next-intl (ADR-008) · Payments: Stripe (ADR-007) · Backend: Medusa v2 (ADR-003) · DB: PostgreSQL (ADR-004) · TS: strict (ADR-005) · Git workflow: branch from Phase 2 (ADR-014) · UI: mobile-first (ADR-015) · SEO: first-class (ADR-016) · Rendering: intentional per-route (ADR-017) · Commerce: Medusa defaults first (ADR-018) · Local env ownership: scripted baseline, agent-operable (ADR-026) · Brief reading sequence: 5-surface preamble mandatory (ADR-032)
-
----
-
-## Operating Efficiency
-
-Canonical rule: [`docs/project-kb/governance/team-principles.md §8`](docs/project-kb/governance/team-principles.md) — minimum reading path · token discipline · plan-first for complex tasks only · no speculative reads/writes · escalate over sprawl · minimal churn.
-
-Claude inherits this rule in full via the `<efficiency_model>` reference in `docs/project-kb/governance/actors/claude-contract.md`.
+**Locked decisions:** i18n: next-intl (ADR-008) · Payments: Stripe (ADR-007) · Backend: Medusa v2 (ADR-003) · DB: PostgreSQL (ADR-004) · TS: strict (ADR-005) · Git workflow: branch from develop (ADR-014) · UI: mobile-first (ADR-015) · SEO: first-class (ADR-016) · Rendering: intentional per-route (ADR-017) · Commerce: Medusa defaults first (ADR-018) · Local env: Docker Compose (ADR-033)
 
 ---
 
 ## Task Governance
 
-When producing briefs for executors (always specify `Target Executor: Literal Executor`, `Advanced Executor`, or `Backend Specialist`):
-- Each task = one clearly bounded unit of work
-- Every brief must include: goal, scope, allowed files, forbidden files, acceptance criteria, out-of-scope
-- Tasks must be ordered by dependency
-- `ENV-*` tasks (environment scripts, health checks, `.env.example` updates) are within executor scope per ADR-026. Executors may not modify real `.env` values or access remote infrastructure.
+When producing executor briefs — full format in `.agents/10-skills.mdc`
+When reviewing executor output — checklist in `.agents/10-skills.mdc`
 
-When reviewing executor output:
-- Check acceptance criteria against actual files modified
-- Check for scope violations
-- `tsc --noEmit` passes · `next build` succeeds
-- Update `docs/project-kb/operations/tasks.md` only after review passes
-- Update Notion Task Tracker to `Done` after review passes
-
----
-
-## Batched Execution Protocol (Phase 2+)
-
-**Loop 1 — Execution (default):** Claude briefs → executor runs → Claude reviews → next brief. No mandatory git push, Notion update, or session log between tasks.
-
-**Loop 2 — Publish & Docs (triggered):** Run when: 2–4 related tasks complete · phase milestone · backend/env/security/DB change · human testing needed · documentation drift noticeable.
-Actions: git commit + push · sync docs · Notion: tasks, session log, feature tracker · transition lock if state changed.
-
-**Batching rules:** 2–4 tightly related tasks per batch on the same branch. Close immediately for: DB schema changes, env vars, security config, runtime-critical behavior. Never mix branches in a batch.
+Target executors: `Literal Executor` · `Advanced Executor` · `Backend Specialist`
+Always specify `**Target Executor:**` in brief header.
 
 ---
 
 ## Branching Rule (ADR-014)
 
 **NO direct commits to `main`. Ever.**
-
-Runtime / backend / env / security / >3 files → feature branch (`feature/back-N-<slug>`, cut from `develop`).
+Runtime / backend / env / security / DB / >3 files → feature branch (`feature/back-N-<slug>`, cut from `develop`).
 Otherwise → commit directly to `develop`.
 
-Full branching detail: [`docs/project-kb/governance/agents.md`](docs/project-kb/governance/agents.md)
+Full protocol: `.agents/00-core.mdc`
 
 ---
 
 ## Session End Protocol
 
-**Repository:**
-- [ ] Completed tasks marked `[x]` in `docs/project-kb/operations/tasks.md`
-- [ ] New ADRs added to `docs/project-kb/governance/decisions.md`
-- [ ] `docs/project-kb/operations/roadmap.md` updated if phase milestone reached
-- [ ] `.env.example` updated if new env vars introduced
-- [ ] Build passes (`tsc --noEmit` + `next build`)
+**Repository:** completed tasks `[x]` in `TASKS.md` · new ADRs in Notion Decision Log · `.env.example` updated if new vars · build passes
+**Notion:** Task Tracker → Done · Session Log entry (mandatory) · Hub callout updated · Decision Log new ADRs
 
-**Notion:**
-- [ ] Task Tracker: completed tasks → `Done`
-- [ ] Task Tracker: new tasks added if created this session
-- [ ] Feature Tracker: status updated if any feature progressed
-- [ ] Decision Log: new ADRs added; Related Rules and Related Workflows fields set
-- [ ] Session Log: new entry added (**mandatory every session**)
-- [ ] Project Hub callout updated (format: `[Phase] active. [Task + status]. Branch: \`[branch]\`. Build: [✅/⚠️/❌] | Notion sync: [✅/❌] | Updated: [YYYY-MM-DD]`)
-- [ ] System health: Invalid Tasks = 0, Invalid Features = 0, Active Blockers matches roadmap
+Full checklist: `.agents/00-core.mdc`
+Full sync protocol: `.agents/10-skills.mdc`
+
+---
+
+## Notion Workspace
+
+**Project Hub:** https://www.notion.so/33613205fce68182a043cc6ad0088c3e
+
+| Surface | ID |
+|---|---|
+| Task Tracker | `collection://a74e62ce-09da-455d-b2ee-7ade3d89ff47` |
+| Feature Tracker | `collection://c357977b-4718-4ce1-97d9-971f70c86ba1` |
+| Decision Log | `collection://b10e204a-78f4-43c7-9aab-6fb25eb44203` |
+| Phase Progress | `collection://824857c4-a1f6-4cd3-9d8a-5520d533aca7` |
+| Session Log | `collection://1b7a295a-6427-44c4-9bcd-00b9f03692a0` |
 
 ---
 
 ## What Claude Must NOT Do
 
 - Implement features that belong to executor roles
-- Approve scope expansion without recording in `docs/project-kb/governance/decisions.md`
-- Allow architecture changes without an ADR
+- Approve scope expansion without a Notion Decision Log entry
+- Allow architecture changes without a prior Decision Log entry
 - Mark tasks complete without verifying acceptance criteria
-- Modify root `.gitignore`, `turbo.json`, or `package.json` without explicit user instruction
 - Skip Notion sync at session end
-- Accept consultant input that bypasses Human Router approval
-- Update deprecated Notion static pages — update database entries only
-- Reference deprecated 7-layer Notion model — 4-layer model (Definition / Governance / Implementation / Operations) is authoritative
+- Accept consultant input that bypasses Human Router
+- Modify root `.gitignore`, `turbo.json`, or `package.json` without explicit Human instruction
+- Treat `docs/` files as canonical knowledge — they are archived history only

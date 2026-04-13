@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 import { getProductByHandle } from "@/lib/medusa-client";
@@ -64,10 +65,18 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         ) : null}
       </header>
 
-      <div
-        className="aspect-video w-full max-w-3xl rounded-lg bg-surface-subtle"
-        aria-hidden
-      />
+      <div className="relative aspect-video w-full max-w-3xl overflow-hidden rounded-lg bg-surface-subtle">
+        {product.thumbnail ? (
+          <Image
+            src={product.thumbnail}
+            alt={product.title ?? ""}
+            fill
+            sizes="(min-width: 1024px) 768px, 100vw"
+            className="object-cover"
+            priority
+          />
+        ) : null}
+      </div>
 
       {variants.length > 0 ? (
         <section aria-labelledby="product-variants-heading" className="space-y-4">

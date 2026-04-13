@@ -16,6 +16,8 @@ if (!baseUrl) {
 const publishableKey =
   process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY || undefined;
 
+const regionId = process.env.NEXT_PUBLIC_MEDUSA_REGION_ID || undefined;
+
 export const sdk = new Medusa({
   baseUrl,
   publishableKey,
@@ -26,11 +28,25 @@ type ListProductsParams = NonNullable<
 >;
 
 export async function listProducts(params?: ListProductsParams) {
-  return sdk.store.product.list(params ?? {});
+  const base: ListProductsParams = regionId
+    ? {
+        region_id: regionId,
+        fields:
+          "id,handle,title,description,thumbnail,variants.calculated_price.*",
+      }
+    : {};
+  return sdk.store.product.list({ ...base, ...params });
 }
 
 export async function getProductByHandle(handle: string) {
-  const { products } = await sdk.store.product.list({ handle });
+  const base: ListProductsParams = regionId
+    ? {
+        region_id: regionId,
+        fields:
+          "id,handle,title,description,thumbnail,variants.*,variants.calculated_price.*",
+      }
+    : {};
+  const { products } = await sdk.store.product.list({ ...base, handle });
   const first = products[0];
   return first ?? null;
 }

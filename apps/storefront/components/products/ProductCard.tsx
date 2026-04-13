@@ -3,6 +3,7 @@
  * Presentation only — data is supplied by the parent page (no API calls here).
  */
 
+import Image from "next/image";
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
 import type { listProducts } from "@/lib/medusa-client";
@@ -17,6 +18,21 @@ export default async function ProductCard({ product }: ProductCardProps) {
   const locale = await getLocale();
   const description = product.description ?? "";
 
+  const firstVariant = product.variants?.[0];
+  const calcPrice = firstVariant?.calculated_price;
+  const rawAmount = calcPrice?.calculated_amount;
+  const majorAmount =
+    rawAmount != null && calcPrice?.currency_code
+      ? Number(rawAmount)
+      : null;
+  const priceLabel =
+    majorAmount != null && calcPrice?.currency_code
+      ? new Intl.NumberFormat(undefined, {
+          style: "currency",
+          currency: calcPrice.currency_code.toUpperCase(),
+        }).format(majorAmount)
+      : null;
+
   const articleClassName = [
     "flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm",
     product.handle ? "transition-shadow duration-150 group-hover:shadow-md" : "",
@@ -26,15 +42,25 @@ export default async function ProductCard({ product }: ProductCardProps) {
 
   const article = (
     <article className={articleClassName}>
-      <div
-        className="aspect-video w-full shrink-0 bg-surface-subtle"
-        aria-hidden
-      />
+      <div className="relative aspect-video w-full shrink-0 overflow-hidden bg-surface-subtle">
+        {product.thumbnail ? (
+          <Image
+            src={product.thumbnail}
+            alt={product.title ?? ""}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover"
+          />
+        ) : null}
+      </div>
       <div className="flex flex-col gap-2 p-4">
         <h3 className="text-lg font-semibold text-text-primary">{product.title}</h3>
         <p className="line-clamp-2 text-sm leading-relaxed text-text-secondary">
           {description}
         </p>
+        {priceLabel ? (
+          <p className="text-sm font-semibold text-text-primary">{priceLabel}</p>
+        ) : null}
       </div>
     </article>
   );

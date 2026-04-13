@@ -5,8 +5,11 @@ import type {
   IRegionModuleService,
   IPricingModuleService,
   ProductCategoryDTO,
+  RegionDTO,
 } from "@medusajs/framework/types"
-import { Modules } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import type { Link } from "@medusajs/modules-sdk"
+import type { RemoteQueryFunction } from "@medusajs/types"
 
 type SeedProduct = Pick<CreateProductDTO, "title" | "handle" | "description"> & {
   variants: NonNullable<CreateProductDTO["variants"]>
@@ -14,6 +17,15 @@ type SeedProduct = Pick<CreateProductDTO, "title" | "handle" | "description"> & 
 
 const CATEGORY_HANDLE = "networking"
 const CATEGORY_NAME = "Networking (تاكبش)"
+
+const SEED_CURRENCY = "egp"
+const SEED_PRICE_AMOUNT_MINOR = 15000
+
+const DEMO_PRODUCT_HANDLES_TO_SUPPRESS = [
+  "medusa-coffee-mug",
+  "medusa-sweatpants",
+  "test",
+] as const
 
 const PRODUCTS: SeedProduct[] = [
   {
@@ -54,6 +66,23 @@ const PRODUCTS: SeedProduct[] = [
   },
 ]
 
+type VariantPriceGraphRow = {
+  id: string
+  sku?: string | null
+  price_set?: {
+    id: string
+    prices?: Array<{
+      currency_code?: string | null
+      amount?: number | string | null
+    }>
+  } | null
+}
+
+function placeholderImageUrl(handle: string): string {
+  const text = encodeURIComponent(handle)
+  return `https://placehold.co/800x600.webp?text=${text}`
+}
+
 async function ensureCategory(
   productModuleService: IProductModuleService
 ): Promise<ProductCategoryDTO> {
@@ -82,6 +111,38 @@ async function ensureCategory(
   )
 
   return createdCategory
+}
+
+async function suppressDemoProducts(
+  productModuleService: IProductModuleService
+): Promise<void> {
+  for (const handle of DEMO_PRODUCT_HANDLES_TO_SUPPRESS) {
+    const [product] = await productModuleService.listProducts(
+      { handle },
+      { take: 1 }
+    )
+
+    if (!product) {
+      console.log(
+        `[seed] suppress: handle=${handle} not found — skip and continue`
+      )
+      continue
+    }
+
+    if (product.status === "draft") {
+      console.log(
+        `[seed] suppress: handle=${handle} already draft — skip and continue`
+      )
+      continue
+    }
+
+    if (product.status === "published") {
+      await productModuleService.updateProducts(product.id, {
+        status: "draft",
+      })
+      console.log(`[seed] suppress: handle=${handle} set to draft`)
+    }
+  }
 }
 
 async function ensureProduct(
@@ -117,6 +178,167 @@ async function ensureProduct(
   )
 }
 
+/** Ensures an Egypt (EGP) region exists for Store `region_id` pricing context. Does not modify other regions. */
+async function ensureDefaultRegion(
+  regionModuleService: IRegionModuleService
+): Promise<RegionDTO> {
+  const [egyptRegion] = await regionModuleService.listRegions(
+    { currency_code: "egp" },
+    { take: 1 }
+  )
+
+  if (egyptRegion) {
+    console.log(
+      `[seed] Part A: Egypt region already exists -> ${egyptRegion.id} (${egyptRegion.name})`
+    )
+    return egyptRegion
+  }
+
+  const created = await regionModuleService.createRegions({
+    name: "Egypt",
+    currency_code: "egp",
+    countries: ["eg"],
+  })
+  console.log(`[seed] Part A: created Egypt region -> ${created.id}`)
+
+  return created
+}
+
+function variantHasLinkedSeedCurrencyPrice(
+  row: VariantPriceGraphRow | undefined
+): boolean {
+  const prices = row?.price_set?.prices
+  if (!prices?.length) {
+    return false
+  }
+  return prices.some((p) => {
+    const code = p.currency_code?.toLowerCase()
+    if (code !== SEED_CURRENCY) {
+      return false
+    }
+    return p.amount !== null && p.amount !== undefined && p.amount !== ""
+  })
+}
+
+async function ensureVariantPricingForSku(
+  productModuleService: IProductModuleService,
+  pricingModuleService: IPricingModuleService,
+  remoteLink: Link,
+  query: RemoteQueryFunction,
+  region: RegionDTO,
+  sku: string
+): Promise<void> {
+  const [variant] = await productModuleService.listProductVariants(
+    { sku },
+    { take: 1 }
+  )
+
+  if (!variant) {
+    console.log(`[seed] Part B: no variant found for sku=${sku} (skipping pricing)`)
+    return
+  }
+
+  const { data: graphRows } = await query.graph({
+    entity: "variant",
+    fields: [
+      "id",
+      "sku",
+      "price_set.id",
+      "price_set.prices.currency_code",
+      "price_set.prices.amount",
+    ],
+    filters: { sku },
+    context: {
+      currency_code: SEED_CURRENCY,
+      region_id: region.id,
+    },
+  })
+
+  const graphRow = (graphRows as VariantPriceGraphRow[] | undefined)?.[0]
+
+  if (variantHasLinkedSeedCurrencyPrice(graphRow)) {
+    console.log(
+      `[seed] Part B: variant sku=${sku} already has linked EGP price -> ${graphRow?.price_set?.id}`
+    )
+    return
+  }
+
+  const existingPriceSetId = graphRow?.price_set?.id
+
+  if (existingPriceSetId) {
+    console.log(
+      `[seed] Part B: price set ${existingPriceSetId} linked to sku=${sku} but missing EGP price; adding price`
+    )
+    await pricingModuleService.addPrices({
+      priceSetId: existingPriceSetId,
+      prices: [
+        {
+          amount: SEED_PRICE_AMOUNT_MINOR,
+          currency_code: SEED_CURRENCY,
+          rules: {},
+        },
+      ],
+    })
+    return
+  }
+
+  const priceSet = await pricingModuleService.createPriceSets({
+    prices: [
+      {
+        amount: SEED_PRICE_AMOUNT_MINOR,
+        currency_code: SEED_CURRENCY,
+        rules: {},
+      },
+    ],
+  })
+
+  console.log(
+    `[seed] Part B: created price set ${priceSet.id} for variant sku=${sku}`
+  )
+
+  await remoteLink.create([
+    {
+      [Modules.PRODUCT]: { variant_id: variant.id },
+      [Modules.PRICING]: { price_set_id: priceSet.id },
+    },
+  ])
+
+  console.log(`[seed] Part B: linked price set ${priceSet.id} to variant ${variant.id}`)
+}
+
+async function ensureProductThumbnail(
+  productModuleService: IProductModuleService,
+  handle: string
+): Promise<void> {
+  const [product] = await productModuleService.listProducts(
+    { handle },
+    { take: 1 }
+  )
+
+  if (!product) {
+    console.log(
+      `[seed] Part C: no product found for handle=${handle} (skipping images)`
+    )
+    return
+  }
+
+  if (product.thumbnail) {
+    console.log(
+      `[seed] Part C: product handle=${handle} already has thumbnail -> skip`
+    )
+    return
+  }
+
+  const imageUrl = placeholderImageUrl(handle)
+
+  await productModuleService.updateProducts(product.id, {
+    thumbnail: imageUrl,
+    images: [{ url: imageUrl }],
+  })
+
+  console.log(`[seed] Part C: set thumbnail + images for handle=${handle}`)
+}
+
 export default async function seed({ container }: ExecArgs): Promise<void> {
   const productModuleService = container.resolve<IProductModuleService>(
     Modules.PRODUCT
@@ -127,8 +349,14 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
   const pricingModuleService = container.resolve<IPricingModuleService>(
     Modules.PRICING
   )
+  const remoteLink = container.resolve<Link>(ContainerRegistrationKeys.LINK)
+  const query = container.resolve<RemoteQueryFunction>(
+    ContainerRegistrationKeys.QUERY
+  )
 
-  console.log("[seed] Starting BACK-3 product/category seed")
+  await suppressDemoProducts(productModuleService)
+
+  console.log("[seed] Starting BACK-3 / BACK-3b product, pricing, and media seed")
 
   const [, regionCount] = await regionModuleService.listAndCountRegions(
     {},
@@ -142,11 +370,34 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
     `[seed] Context check -> regions=${regionCount}, existing_price_sets=${priceSetCount}`
   )
 
+  const region = await ensureDefaultRegion(regionModuleService)
+  console.log(`[seed] Part A: using region ${region.id} for pricing context`)
+
   const category = await ensureCategory(productModuleService)
 
   for (const product of PRODUCTS) {
     await ensureProduct(productModuleService, category.id, product)
   }
 
-  console.log("[seed] BACK-3 seed completed successfully")
+  for (const product of PRODUCTS) {
+    const sku = product.variants[0]?.sku
+    if (!sku) {
+      console.log(`[seed] Part B: product handle=${product.handle} has no SKU; skip`)
+      continue
+    }
+    await ensureVariantPricingForSku(
+      productModuleService,
+      pricingModuleService,
+      remoteLink,
+      query,
+      region,
+      sku
+    )
+  }
+
+  for (const product of PRODUCTS) {
+    await ensureProductThumbnail(productModuleService, product.handle)
+  }
+
+  console.log("[seed] BACK-3 / BACK-3b seed completed successfully")
 }
