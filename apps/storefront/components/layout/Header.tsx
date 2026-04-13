@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import Container from "./Container";
@@ -19,13 +19,14 @@ import MobileMenu from "./MobileMenu";
   ThemeToggle + LocaleSwitcher + MobileMenu are client boundaries.
 */
 
-const NAV_LINKS = [
-  { key: "products" as const, href: "#" },
-  { key: "collections" as const, href: "#" },
-  { key: "about" as const, href: "#" },
-];
-
 export default async function Header() {
+  const locale = await getLocale();
+  const NAV_LINKS = [
+    { key: "products" as const, href: `/${locale}/products` },
+    { key: "collections" as const, href: "#" },
+    { key: "about" as const, href: "#" },
+  ];
+
   const t = await getTranslations("nav");
   const tCommon = await getTranslations("common");
 

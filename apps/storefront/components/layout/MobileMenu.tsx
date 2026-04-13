@@ -1,14 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/cn";
-
-const NAV_LINKS = [
-  { key: "products" as const, href: "#" },
-  { key: "collections" as const, href: "#" },
-  { key: "about" as const, href: "#" },
-];
 
 /**
  * Hamburger toggle + collapsible mobile nav panel.
@@ -22,6 +16,12 @@ const NAV_LINKS = [
  */
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
+  const locale = useLocale();
+  const NAV_LINKS = [
+    { key: "products" as const, href: `/${locale}/products` },
+    { key: "collections" as const, href: "#" },
+    { key: "about" as const, href: "#" },
+  ];
   const t = useTranslations("nav");
 
   return (

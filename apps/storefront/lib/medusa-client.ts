@@ -50,3 +50,32 @@ export async function getProductByHandle(handle: string) {
   const first = products[0];
   return first ?? null;
 }
+
+type ListCollectionsParams = NonNullable<
+  Parameters<(typeof sdk)["store"]["collection"]["list"]>[0]
+>;
+
+export async function getCollectionByHandle(handle: string) {
+  const { collections } = await sdk.store.collection.list(
+    { handle } as ListCollectionsParams,
+  );
+  return collections[0] ?? null;
+}
+
+export async function listProductsByCollection(
+  collectionId: string,
+  params?: Partial<ListProductsParams>,
+) {
+  const base: ListProductsParams = regionId
+    ? {
+        region_id: regionId,
+        fields:
+          "id,handle,title,description,thumbnail,variants.calculated_price.*",
+      }
+    : {};
+  return sdk.store.product.list({
+    ...base,
+    collection_id: [collectionId],
+    ...params,
+  });
+}

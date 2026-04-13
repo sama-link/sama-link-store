@@ -10,6 +10,12 @@
     "error": "Something went wrong",
     "noResults": "No results found"
   },
+  "breadcrumbs": {
+    "home": "Home",
+    "products": "Products",
+    "collections": "Collections",
+    "aria": "Breadcrumb"
+  },
   "nav": {
     "products": "Products",
     "collections": "Collections",
@@ -37,7 +43,23 @@
   },
   "products": {
     "featuredTitle": "Featured Products",
-    "noProducts": "No products available yet."
+    "noProducts": "No products available yet.",
+    "listing": {
+      "title": "All Products",
+      "description": "Browse our full catalog of networking and surveillance products.",
+      "empty": "No products available yet.",
+      "paginationLabel": "Pagination",
+      "previous": "← Previous",
+      "next": "Next →",
+      "pageOf": "{current} / {total}"
+    }
+  },
+  "collections": {
+    "empty": "No products in this collection yet.",
+    "paginationLabel": "Pagination",
+    "previous": "← Previous",
+    "next": "Next →",
+    "pageOf": "{current} / {total}"
   },
   "footer": {
     "copyright": "All rights reserved",

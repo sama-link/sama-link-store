@@ -10,6 +10,12 @@
     "error": "حدث خطأ",
     "noResults": "لا توجد نتائج"
   },
+  "breadcrumbs": {
+    "home": "ةيسيئرلا",
+    "products": "تاجتنملا",
+    "collections": "تاعومجملا",
+    "aria": "لقنتلا راسم"
+  },
   "nav": {
     "products": "المنتجات",
     "collections": "المجموعات",
@@ -37,7 +43,23 @@
   },
   "products": {
     "featuredTitle": "منتجات مميزة",
-    "noProducts": "لا توجد منتجات متاحة حتى الآن."
+    "noProducts": "لا توجد منتجات متاحة حتى الآن.",
+    "listing": {
+      "title": "تاجتنملا عيمج",
+      "description": "ةبقارملاو تاكبشلا تاجتنم نم لماكلا انجولاتك حفصت.",
+      "empty": "نآلا ىتح ةحاتم تاجتنم دجوت ال.",
+      "paginationLabel": "ترقيم الصفحات",
+      "previous": "← السابق",
+      "next": "التالي →",
+      "pageOf": "{current} / {total}"
+    }
+  },
+  "collections": {
+    "empty": "نآلا ىتح ةعومجملا هذه يف تاجتنم دجوت ال.",
+    "paginationLabel": "تاحفصلا نيب لقنتلا",
+    "previous": "→ قباسلا",
+    "next": "يلاتلا ←",
+    "pageOf": "{current} / {total}"
   },
   "footer": {
     "copyright": "جميع الحقوق محفوظة",

@@ -20,6 +20,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "medusa-public-images.s3.eu-west-1.amazonaws.com",
       },
+      {
+        // Seeded product thumbnails (TP-Link CDN) — replaced by own S3/R2 in CAT-4
+        protocol: "https",
+        hostname: "static.tp-link.com",
+      },
     ],
   },
 };

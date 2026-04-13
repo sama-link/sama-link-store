@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { cache } from "react";
+import { getTranslations } from "next-intl/server";
 import { getProductByHandle } from "@/lib/medusa-client";
+import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
 export const revalidate = 3600; // ISR — ADR-017
 
@@ -30,30 +32,54 @@ function formatVariantPrice(
 export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
-  const { handle } = await params;
+  const { locale, handle } = await params;
   const product = await getCachedProductByHandle(handle);
   if (!product) {
     notFound();
   }
 
+  const canonical = `/${locale}/products/${handle}`;
+  const description = product.description ?? undefined;
+
   return {
     title: product.title,
-    description: product.description ?? undefined,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      type: "website",
+      title: product.title ?? undefined,
+      description,
+      url: canonical,
+      locale: locale === "ar" ? "ar_SA" : "en_US",
+      ...(product.thumbnail
+        ? { images: [{ url: product.thumbnail }] }
+        : {}),
+    },
   };
 }
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
-  const { handle } = await params;
+  const { locale, handle } = await params;
   const product = await getCachedProductByHandle(handle);
   if (!product) {
     notFound();
   }
+
+  const tb = await getTranslations({ locale, namespace: "breadcrumbs" });
 
   const description = product.description?.trim() ?? null;
   const variants = product.variants ?? [];
 
   return (
     <div className="mx-auto max-w-6xl space-y-8 px-4 py-16 sm:px-6 lg:px-8">
+      <Breadcrumbs
+        ariaLabel={tb("aria")}
+        items={[
+          { label: tb("home"), href: `/${locale}` },
+          { label: tb("products"), href: `/${locale}/products` },
+          { label: product.title ?? handle },
+        ]}
+      />
       <header className="space-y-4">
         <h1 className="text-3xl font-bold tracking-tight text-text-primary sm:text-4xl">
           {product.title}
