@@ -1,5 +1,11 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
+import { CART_COOKIE_NAME } from "@/lib/cart-cookie";
+import { listCartShippingOptions } from "@/lib/medusa-client";
+import ShippingMethodSelector, {
+  type ShippingOption,
+} from "@/components/checkout/ShippingMethodSelector";
 
 interface ShippingPageProps {
   params: Promise<{ locale: string }>;
@@ -15,14 +21,22 @@ export async function generateMetadata({
 
 export default async function ShippingPage({ params }: ShippingPageProps) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "checkout.shipping" });
+  const cookieStore = await cookies();
+  const cartId = cookieStore.get(CART_COOKIE_NAME)?.value ?? "";
 
-  return (
-    <div className="rounded-lg border border-border bg-surface p-6">
-      <h2 className="mb-4 text-lg font-semibold text-text-primary">
-        {t("title")}
-      </h2>
-      <p className="text-sm text-text-secondary">{t("placeholder")}</p>
-    </div>
-  );
+  let options: ShippingOption[] = [];
+  if (cartId) {
+    try {
+      const { shipping_options } = await listCartShippingOptions(cartId);
+      options = shipping_options.map((o) => ({
+        id: o.id,
+        name: o.name,
+        amount: o.amount,
+      }));
+    } catch {
+      // Empty options — ShippingMethodSelector handles no-options state
+    }
+  }
+
+  return <ShippingMethodSelector locale={locale} options={options} />;
 }

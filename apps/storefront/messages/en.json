@@ -44,7 +44,10 @@
     },
     "shipping": {
       "title": "Shipping Method",
-      "placeholder": "Shipping options coming in the next step."
+      "noOptions": "No shipping options are available for your address. Please go back and check your address.",
+      "continue": "Continue to Review",
+      "saving": "Saving…",
+      "error": "Failed to apply shipping method. Please try again."
     },
     "review": {
       "title": "Review Order",

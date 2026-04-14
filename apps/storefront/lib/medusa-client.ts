@@ -93,7 +93,8 @@ const CART_FIELDS =
   "shipping_address.first_name,shipping_address.last_name," +
   "shipping_address.address_1,shipping_address.address_2," +
   "shipping_address.city,shipping_address.country_code," +
-  "shipping_address.province,shipping_address.postal_code,shipping_address.phone";
+  "shipping_address.province,shipping_address.postal_code,shipping_address.phone," +
+  "shipping_methods.id,shipping_methods.name,shipping_methods.amount";
 
 const cartSelect = { fields: CART_FIELDS };
 
@@ -167,6 +168,21 @@ export async function updateCartShippingAddress(
   return sdk.store.cart.update(
     cartId,
     { shipping_address: address },
+    cartSelect,
+  );
+}
+
+export async function listCartShippingOptions(cartId: string) {
+  return sdk.store.fulfillment.listCartOptions({ cart_id: cartId });
+}
+
+export async function addShippingMethodToCart(
+  cartId: string,
+  optionId: string,
+) {
+  return sdk.store.cart.addShippingMethod(
+    cartId,
+    { option_id: optionId },
     cartSelect,
   );
 }
