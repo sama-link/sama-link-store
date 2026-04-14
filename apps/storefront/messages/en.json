@@ -27,7 +27,20 @@
     },
     "address": {
       "title": "Shipping Address",
-      "placeholder": "Address form coming in the next step."
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "address1": "Address",
+      "address2": "Apartment, suite, etc. (optional)",
+      "city": "City",
+      "country": "Country",
+      "selectCountry": "Select a country",
+      "province": "State / Province (optional)",
+      "postalCode": "Postal Code (optional)",
+      "phone": "Phone (optional)",
+      "continue": "Continue to Shipping",
+      "saving": "Saving…",
+      "error": "Failed to save address. Please try again.",
+      "required": "This field is required"
     },
     "shipping": {
       "title": "Shipping Method",

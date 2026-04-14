@@ -23,7 +23,7 @@ export const sdk = new Medusa({
   publishableKey,
 });
 
-type ListProductsParams = NonNullable<
+export type ListProductsParams = NonNullable<
   Parameters<(typeof sdk)["store"]["product"]["list"]>[0]
 >;
 
@@ -62,6 +62,10 @@ export async function getCollectionByHandle(handle: string) {
   return collections[0] ?? null;
 }
 
+export async function listCollections() {
+  return sdk.store.collection.list({} as ListCollectionsParams);
+}
+
 export async function listProductsByCollection(
   collectionId: string,
   params?: Partial<ListProductsParams>,
@@ -78,4 +82,91 @@ export async function listProductsByCollection(
     collection_id: [collectionId],
     ...params,
   });
+}
+
+// ── Cart ──────────────────────────────────────────────────────────────────
+
+const CART_FIELDS =
+  "id,currency_code,items,items.id,items.variant_id,items.quantity,items.unit_price," +
+  "items.title,items.thumbnail,items.variant.title," +
+  "items.variant.product.handle,total,subtotal,item_total," +
+  "shipping_address.first_name,shipping_address.last_name," +
+  "shipping_address.address_1,shipping_address.address_2," +
+  "shipping_address.city,shipping_address.country_code," +
+  "shipping_address.province,shipping_address.postal_code,shipping_address.phone";
+
+const cartSelect = { fields: CART_FIELDS };
+
+export async function createCart() {
+  return sdk.store.cart.create(
+    regionId ? { region_id: regionId } : {},
+    cartSelect,
+  );
+}
+
+export async function retrieveCart(cartId: string) {
+  return sdk.store.cart.retrieve(cartId, cartSelect);
+}
+
+export async function addCartLineItem(
+  cartId: string,
+  variantId: string,
+  quantity: number,
+) {
+  return sdk.store.cart.createLineItem(
+    cartId,
+    {
+      variant_id: variantId,
+      quantity,
+    },
+    cartSelect,
+  );
+}
+
+export async function updateCartLineItem(
+  cartId: string,
+  lineItemId: string,
+  quantity: number,
+) {
+  return sdk.store.cart.updateLineItem(
+    cartId,
+    lineItemId,
+    { quantity },
+    cartSelect,
+  );
+}
+
+export async function deleteCartLineItem(cartId: string, lineItemId: string) {
+  const result = await sdk.store.cart.deleteLineItem(
+    cartId,
+    lineItemId,
+    cartSelect,
+  );
+  if (result.parent) {
+    return { cart: result.parent };
+  }
+  return retrieveCart(cartId);
+}
+
+export interface ShippingAddressPayload {
+  first_name: string;
+  last_name: string;
+  address_1: string;
+  address_2?: string;
+  city: string;
+  country_code: string;
+  province?: string;
+  postal_code?: string;
+  phone?: string;
+}
+
+export async function updateCartShippingAddress(
+  cartId: string,
+  address: ShippingAddressPayload,
+) {
+  return sdk.store.cart.update(
+    cartId,
+    { shipping_address: address },
+    cartSelect,
+  );
 }
