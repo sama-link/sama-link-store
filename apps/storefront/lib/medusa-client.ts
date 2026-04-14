@@ -94,7 +94,8 @@ const CART_FIELDS =
   "shipping_address.address_1,shipping_address.address_2," +
   "shipping_address.city,shipping_address.country_code," +
   "shipping_address.province,shipping_address.postal_code,shipping_address.phone," +
-  "shipping_methods.id,shipping_methods.name,shipping_methods.amount";
+  "shipping_methods.id,shipping_methods.name,shipping_methods.amount," +
+  "payment_collection.id";
 
 const cartSelect = { fields: CART_FIELDS };
 
@@ -189,4 +190,22 @@ export async function addShippingMethodToCart(
 
 export async function completeCart(cartId: string) {
   return sdk.store.cart.complete(cartId);
+}
+
+/**
+ * Initiate a payment session for the cart's payment collection (SDK creates collection if needed).
+ * Must be called before `completeCart` when the backend requires an active payment session.
+ */
+export async function initiatePaymentSession(
+  cartId: string,
+  providerId: string,
+) {
+  const { cart } = await retrieveCart(cartId);
+  return sdk.store.payment.initiatePaymentSession(cart, {
+    provider_id: providerId,
+  });
+}
+
+export async function listPaymentProviders(regionId: string) {
+  return sdk.store.payment.listPaymentProviders({ region_id: regionId });
 }

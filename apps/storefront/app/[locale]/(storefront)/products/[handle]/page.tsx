@@ -4,7 +4,9 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { getTranslations } from "next-intl/server";
 import { getProductByHandle } from "@/lib/medusa-client";
+import { formatCatalogPrice } from "@/lib/format-price";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import AddToCartButton from "@/components/products/AddToCartButton";
 
 export const revalidate = 3600; // ISR — ADR-017
 
@@ -14,20 +16,6 @@ interface ProductPageProps {
   params: Promise<{ locale: string; handle: string }>;
 }
 
-function formatVariantPrice(
-  amount: number | null | undefined,
-  currencyCode: string | null | undefined,
-): string | null {
-  if (amount == null || currencyCode == null) return null;
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: currencyCode.toUpperCase(),
-    }).format(amount);
-  } catch {
-    return null;
-  }
-}
 
 export async function generateMetadata({
   params,
@@ -114,10 +102,12 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
           </h2>
           <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
             {variants.map((variant) => {
-              const priceLabel = formatVariantPrice(
-                variant.calculated_price?.calculated_amount,
+              const priceLabel = formatCatalogPrice(
+                variant.calculated_price?.calculated_amount != null
+                  ? Number(variant.calculated_price.calculated_amount)
+                  : null,
                 variant.calculated_price?.currency_code,
-              );
+              ) || null;
               const optionSummary =
                 variant.options
                   ?.map((o) => o.value ?? "")
@@ -140,11 +130,16 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                       <p className="text-xs text-text-muted">SKU: {variant.sku}</p>
                     ) : null}
                   </div>
-                  {priceLabel ? (
-                    <p className="text-base font-semibold text-text-primary sm:text-end">
-                      {priceLabel}
-                    </p>
-                  ) : null}
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-end sm:gap-4">
+                    {priceLabel ? (
+                      <p className="text-base font-semibold text-text-primary sm:text-end">
+                        {priceLabel}
+                      </p>
+                    ) : null}
+                    {variant.id ? (
+                      <AddToCartButton variantId={variant.id} />
+                    ) : null}
+                  </div>
                 </li>
               );
             })}

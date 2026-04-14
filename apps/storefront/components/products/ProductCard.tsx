@@ -7,6 +7,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { getLocale } from "next-intl/server";
 import type { listProducts } from "@/lib/medusa-client";
+import { formatCatalogPrice } from "@/lib/format-price";
 
 export type Product = Awaited<ReturnType<typeof listProducts>>["products"][number];
 
@@ -20,18 +21,10 @@ export default async function ProductCard({ product }: ProductCardProps) {
 
   const firstVariant = product.variants?.[0];
   const calcPrice = firstVariant?.calculated_price;
-  const rawAmount = calcPrice?.calculated_amount;
-  const majorAmount =
-    rawAmount != null && calcPrice?.currency_code
-      ? Number(rawAmount)
-      : null;
-  const priceLabel =
-    majorAmount != null && calcPrice?.currency_code
-      ? new Intl.NumberFormat(undefined, {
-          style: "currency",
-          currency: calcPrice.currency_code.toUpperCase(),
-        }).format(majorAmount)
-      : null;
+  const priceLabel = formatCatalogPrice(
+    calcPrice?.calculated_amount != null ? Number(calcPrice.calculated_amount) : null,
+    calcPrice?.currency_code,
+  ) || null;
 
   const articleClassName = [
     "flex flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm",

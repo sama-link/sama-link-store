@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/cn";
 
-const STEP_KEYS = ["address", "shipping", "review"] as const;
+const STEP_KEYS = ["address", "shipping", "payment", "review"] as const;
 
 interface CheckoutProgressProps {
   locale: string;
