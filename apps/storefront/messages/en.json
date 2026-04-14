@@ -4,6 +4,40 @@
     "notFoundDescription": "The page you're looking for doesn't exist or has been moved.",
     "goHome": "Back to home"
   },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty.",
+    "continueShopping": "Continue Shopping",
+    "subtotal": "Subtotal",
+    "checkout": "Checkout",
+    "proceedToCheckout": "Proceed to Checkout",
+    "orderSummary": "Order Summary",
+    "viewCart": "View Cart",
+    "remove": "Remove",
+    "close": "Close cart",
+    "loading": "Loading cart…"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "steps": {
+      "aria": "Checkout steps",
+      "address": "Address",
+      "shipping": "Shipping",
+      "review": "Review"
+    },
+    "address": {
+      "title": "Shipping Address",
+      "placeholder": "Address form coming in the next step."
+    },
+    "shipping": {
+      "title": "Shipping Method",
+      "placeholder": "Shipping options coming in the next step."
+    },
+    "review": {
+      "title": "Review Order",
+      "placeholder": "Order review coming in the next step."
+    }
+  },
   "common": {
     "storeName": "Sama Link Store",
     "loading": "Loading...",
@@ -14,6 +48,8 @@
     "home": "Home",
     "products": "Products",
     "collections": "Collections",
+    "cart": "Cart",
+    "checkout": "Checkout",
     "aria": "Breadcrumb"
   },
   "nav": {
@@ -52,6 +88,23 @@
       "previous": "← Previous",
       "next": "Next →",
       "pageOf": "{current} / {total}"
+    },
+    "filters": {
+      "heading": "Filters",
+      "collections": "Categories",
+      "allCollections": "All",
+      "priceRange": "Price Range",
+      "clearAll": "Clear filters",
+      "priceBuckets": {
+        "under100": "Under 100",
+        "100to500": "100 – 500",
+        "over500": "500+"
+      }
+    },
+    "detail": {
+      "addToCart": "Add to Cart",
+      "adding": "Adding…",
+      "added": "Added!"
     }
   },
   "collections": {

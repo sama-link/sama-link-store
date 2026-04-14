@@ -4,6 +4,40 @@
     "notFoundDescription": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
     "goHome": "العودة إلى الصفحة الرئيسية"
   },
+  "cart": {
+    "title": "سلة التسوق",
+    "empty": "سلة التسوق فارغة.",
+    "continueShopping": "متابعة التسوق",
+    "subtotal": "المجموع الفرعي",
+    "checkout": "إتمام الشراء",
+    "proceedToCheckout": "المتابعة إلى إتمام الشراء",
+    "orderSummary": "ملخص الطلب",
+    "viewCart": "عرض السلة",
+    "remove": "إزالة",
+    "close": "إغلاق السلة",
+    "loading": "جارٍ تحميل السلة…"
+  },
+  "checkout": {
+    "title": "إتمام الشراء",
+    "steps": {
+      "aria": "خطوات إتمام الشراء",
+      "address": "العنوان",
+      "shipping": "الشحن",
+      "review": "المراجعة"
+    },
+    "address": {
+      "title": "عنوان الشحن",
+      "placeholder": "نموذج العنوان سيُتاح في الخطوة التالية."
+    },
+    "shipping": {
+      "title": "طريقة الشحن",
+      "placeholder": "خيارات الشحن ستُتاح في الخطوة التالية."
+    },
+    "review": {
+      "title": "مراجعة الطلب",
+      "placeholder": "مراجعة الطلب ستُتاح في الخطوة التالية."
+    }
+  },
   "common": {
     "storeName": "متجر سما لينك",
     "loading": "جارٍ التحميل...",
@@ -11,10 +45,12 @@
     "noResults": "لا توجد نتائج"
   },
   "breadcrumbs": {
-    "home": "ةيسيئرلا",
-    "products": "تاجتنملا",
-    "collections": "تاعومجملا",
-    "aria": "لقنتلا راسم"
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "collections": "المجموعات",
+    "cart": "السلة",
+    "checkout": "إتمام الشراء",
+    "aria": "مسار التنقل"
   },
   "nav": {
     "products": "المنتجات",
@@ -45,20 +81,37 @@
     "featuredTitle": "منتجات مميزة",
     "noProducts": "لا توجد منتجات متاحة حتى الآن.",
     "listing": {
-      "title": "تاجتنملا عيمج",
-      "description": "ةبقارملاو تاكبشلا تاجتنم نم لماكلا انجولاتك حفصت.",
-      "empty": "نآلا ىتح ةحاتم تاجتنم دجوت ال.",
+      "title": "جميع المنتجات",
+      "description": "تصفح كتالوجنا الكامل من منتجات الشبكات والمراقبة.",
+      "empty": "لا توجد منتجات متاحة حتى الآن.",
       "paginationLabel": "ترقيم الصفحات",
       "previous": "← السابق",
       "next": "التالي →",
       "pageOf": "{current} / {total}"
+    },
+    "filters": {
+      "heading": "الفلاتر",
+      "collections": "التصنيفات",
+      "allCollections": "الكل",
+      "priceRange": "نطاق السعر",
+      "clearAll": "مسح الفلاتر",
+      "priceBuckets": {
+        "under100": "أقل من 100",
+        "100to500": "100 – 500",
+        "over500": "أكثر من 500"
+      }
+    },
+    "detail": {
+      "addToCart": "أضف إلى السلة",
+      "adding": "جارٍ الإضافة…",
+      "added": "تمت الإضافة!"
     }
   },
   "collections": {
-    "empty": "نآلا ىتح ةعومجملا هذه يف تاجتنم دجوت ال.",
-    "paginationLabel": "تاحفصلا نيب لقنتلا",
-    "previous": "→ قباسلا",
-    "next": "يلاتلا ←",
+    "empty": "لا توجد منتجات في هذه المجموعة حتى الآن.",
+    "paginationLabel": "ترقيم الصفحات",
+    "previous": "← السابق",
+    "next": "التالي →",
     "pageOf": "{current} / {total}"
   },
   "footer": {
