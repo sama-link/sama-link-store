@@ -1,5 +1,14 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { CART_COOKIE_NAME } from "@/lib/cart-cookie";
+import { retrieveCart } from "@/lib/medusa-client";
+import OrderReview, {
+  type ReviewLineItem,
+  type ReviewAddress,
+  type ReviewShippingMethod,
+} from "@/components/checkout/OrderReview";
 
 interface ReviewPageProps {
   params: Promise<{ locale: string }>;
@@ -15,14 +24,69 @@ export async function generateMetadata({
 
 export default async function ReviewPage({ params }: ReviewPageProps) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "checkout.review" });
+  const cookieStore = await cookies();
+  const cartId = cookieStore.get(CART_COOKIE_NAME)?.value ?? "";
+
+  if (!cartId) {
+    redirect(`/${locale}/cart`);
+  }
+
+  const { cart } = await retrieveCart(cartId);
+
+  const addr = cart.shipping_address;
+  if (!addr?.first_name) {
+    redirect(`/${locale}/checkout/address`);
+  }
+
+  const shippingMethods = cart.shipping_methods ?? [];
+  if (shippingMethods.length === 0) {
+    redirect(`/${locale}/checkout/shipping`);
+  }
+
+  const items: ReviewLineItem[] = (cart.items ?? []).map((item) => {
+    const variant =
+      item.variant && typeof item.variant === "object" ? item.variant : null;
+    const variantTitle =
+      variant && "title" in variant ? String(variant.title ?? "") : "";
+    return {
+      id: item.id,
+      title: item.title ?? "",
+      thumbnail: item.thumbnail ?? null,
+      unit_price: item.unit_price ?? 0,
+      quantity: item.quantity ?? 1,
+      variantTitle:
+        variantTitle && variantTitle !== (item.title ?? "")
+          ? variantTitle
+          : "",
+    };
+  });
+
+  const shippingAddress: ReviewAddress = {
+    first_name: addr.first_name ?? "",
+    last_name: addr.last_name ?? "",
+    address_1: addr.address_1 ?? "",
+    address_2: addr.address_2 ?? "",
+    city: addr.city ?? "",
+    country_code: addr.country_code ?? "",
+    province: addr.province ?? "",
+  };
+
+  const firstMethod = shippingMethods[0]!;
+  const shippingMethod: ReviewShippingMethod = {
+    name: firstMethod.name ?? "",
+    amount: Number(firstMethod.amount ?? 0),
+  };
 
   return (
-    <div className="rounded-lg border border-border bg-surface p-6">
-      <h2 className="mb-4 text-lg font-semibold text-text-primary">
-        {t("title")}
-      </h2>
-      <p className="text-sm text-text-secondary">{t("placeholder")}</p>
-    </div>
+    <OrderReview
+      locale={locale}
+      cartId={cartId}
+      currencyCode={cart.currency_code ?? "USD"}
+      items={items}
+      shippingAddress={shippingAddress}
+      shippingMethod={shippingMethod}
+      subtotal={Number(cart.subtotal ?? 0)}
+      total={Number(cart.total ?? 0)}
+    />
   );
 }

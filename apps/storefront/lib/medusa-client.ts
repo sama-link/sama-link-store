@@ -186,3 +186,7 @@ export async function addShippingMethodToCart(
     cartSelect,
   );
 }
+
+export async function completeCart(cartId: string) {
+  return sdk.store.cart.complete(cartId);
+}

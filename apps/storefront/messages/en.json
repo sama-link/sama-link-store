@@ -51,7 +51,21 @@
     },
     "review": {
       "title": "Review Order",
-      "placeholder": "Order review coming in the next step."
+      "items": "Your Items",
+      "deliverTo": "Deliver To",
+      "orderSummary": "Order Summary",
+      "subtotal": "Subtotal",
+      "total": "Total",
+      "placeOrder": "Place Order",
+      "placing": "Placing order…",
+      "error": "Failed to place order. Please try again."
+    },
+    "confirmed": {
+      "title": "Order Confirmed",
+      "heading": "Order Confirmed!",
+      "orderNumber": "Order #{number}",
+      "body": "Thank you for your purchase. You will receive a confirmation email shortly.",
+      "continueShopping": "Continue Shopping"
     }
   },
   "common": {
