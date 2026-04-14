@@ -1,0 +1,135 @@
+key,en,ar,notes
+errors.notFoundTitle,Page not found,الصفحة غير موجودة,
+errors.notFoundDescription,The page you're looking for doesn't exist or has been moved.,الصفحة التي تبحث عنها غير موجودة أو تم نقلها.,
+errors.goHome,Back to home,العودة إلى الصفحة الرئيسية,
+cart.title,Your Cart,سلة التسوق,
+cart.empty,Your cart is empty.,سلة التسوق فارغة.,
+cart.continueShopping,Continue Shopping,متابعة التسوق,
+cart.subtotal,Subtotal,المجموع الفرعي,
+cart.checkout,Checkout,إتمام الشراء,
+cart.proceedToCheckout,Proceed to Checkout,المتابعة إلى إتمام الشراء,
+cart.orderSummary,Order Summary,ملخص الطلب,
+cart.viewCart,View Cart,عرض السلة,
+cart.remove,Remove,إزالة,
+cart.close,Close cart,إغلاق السلة,
+cart.loading,Loading cart…,جارٍ تحميل السلة…,
+checkout.title,Checkout,إتمام الشراء,
+checkout.steps.aria,Checkout steps,خطوات إتمام الشراء,aria-label for progress nav
+checkout.steps.address,Address,العنوان,
+checkout.steps.shipping,Shipping,الشحن,
+checkout.steps.payment,Payment,الدفع,
+checkout.steps.review,Review,المراجعة,
+checkout.address.title,Shipping Address,عنوان الشحن,
+checkout.address.firstName,First Name,الاسم الأول,
+checkout.address.lastName,Last Name,اسم العائلة,
+checkout.address.address1,Address,العنوان,
+checkout.address.address2,"Apartment, suite, etc. (optional)","شقة، جناح، إلخ. (اختياري)",
+checkout.address.city,City,المدينة,
+checkout.address.country,Country,الدولة,
+checkout.address.selectCountry,Select a country,اختر دولة,
+checkout.address.province,State / Province (optional),المنطقة / المحافظة (اختياري),
+checkout.address.postalCode,Postal Code (optional),الرمز البريدي (اختياري),
+checkout.address.phone,Phone (optional),الهاتف (اختياري),
+checkout.address.continue,Continue to Shipping,المتابعة إلى الشحن,
+checkout.address.saving,Saving…,جارٍ الحفظ…,
+checkout.address.error,Failed to save address. Please try again.,فشل حفظ العنوان. يرجى المحاولة مرة أخرى.,
+checkout.address.required,This field is required,هذا الحقل مطلوب,
+checkout.shipping.title,Shipping Method,طريقة الشحن,
+checkout.shipping.noOptions,No shipping options are available for your address. Please go back and check your address.,لا تتوفر خيارات شحن لعنوانك. يرجى العودة والتحقق من عنوانك.,
+checkout.shipping.continue,Continue to Payment,المتابعة إلى الدفع,
+checkout.shipping.saving,Saving…,جارٍ الحفظ…,
+checkout.shipping.error,Failed to apply shipping method. Please try again.,فشل تطبيق طريقة الشحن. يرجى المحاولة مرة أخرى.,
+checkout.payment.title,Payment Method,طريقة الدفع,
+checkout.payment.continue,Continue to Review,المتابعة إلى المراجعة,
+checkout.payment.saving,Saving…,جارٍ الحفظ…,
+checkout.payment.error,Failed to apply payment method. Please try again.,فشل تطبيق طريقة الدفع. يرجى المحاولة مرة أخرى.,
+checkout.payment.noOptions,No payment methods are available.,لا تتوفر طرق دفع حالياً.,
+checkout.payment.providers.pp_system_default,Cash on Delivery,الدفع عند الاستلام,key suffix must match Medusa provider ID exactly
+checkout.review.title,Review Order,مراجعة الطلب,
+checkout.review.items,Your Items,المنتجات,
+checkout.review.deliverTo,Deliver To,التسليم إلى,
+checkout.review.orderSummary,Order Summary,ملخص الطلب,
+checkout.review.subtotal,Subtotal,المجموع الفرعي,
+checkout.review.total,Total,الإجمالي,
+checkout.review.placeOrder,Place Order,تأكيد الطلب,
+checkout.review.placing,Placing order…,جارٍ تقديم الطلب…,
+checkout.review.error,Failed to place order. Please try again.,فشل تقديم الطلب. يرجى المحاولة مرة أخرى.,
+checkout.confirmed.title,Order Confirmed,تم تأكيد الطلب,
+checkout.confirmed.heading,Order Confirmed!,تم تأكيد طلبك!,
+checkout.confirmed.orderNumber,Order #{number},طلب رقم #{number},{number} = Medusa display_id
+checkout.confirmed.body,Thank you for your purchase. You will receive a confirmation email shortly.,شكراً لتسوقك. ستتلقى رسالة تأكيد على بريدك الإلكتروني قريباً.,
+checkout.confirmed.continueShopping,Continue Shopping,متابعة التسوق,
+common.storeName,Sama Link Store,متجر سما لينك,
+common.loading,Loading...,جارٍ التحميل...,
+common.error,Something went wrong,حدث خطأ,
+common.noResults,No results found,لا توجد نتائج,
+breadcrumbs.home,Home,الرئيسية,
+breadcrumbs.products,Products,المنتجات,
+breadcrumbs.collections,Collections,المجموعات,
+breadcrumbs.cart,Cart,السلة,
+breadcrumbs.checkout,Checkout,إتمام الشراء,
+breadcrumbs.aria,Breadcrumb,مسار التنقل,aria-label for breadcrumb nav
+nav.products,Products,المنتجات,
+nav.collections,Collections,المجموعات,
+nav.about,About,من نحن,
+nav.cart,Cart,السلة,
+nav.account,My Account,حسابي,
+nav.mainNavigation,Main navigation,التنقل الرئيسي,aria-label
+nav.logoHomeAria,Sama Link Store — home,متجر سما لينك — الصفحة الرئيسية,aria-label for logo link
+nav.switchLanguage,Switch language,تغيير اللغة,aria-label for language toggle button
+nav.languageToggle,AR / EN,عربي / EN,visible toggle label
+nav.openCart,Open cart ({count} items),فتح السلة ({count} عناصر),{count} is interpolated at runtime
+nav.openMenu,Open menu,فتح القائمة,aria-label
+nav.closeMenu,Close menu,إغلاق القائمة,aria-label
+nav.mobileNavigation,Mobile navigation,التنقل للجوال,aria-label
+nav.switchToEnglish,English,English,language name — intentionally identical in both locales
+nav.switchToArabic,العربية,العربية,language name — intentionally identical in both locales
+home.headline,Sama Link Store,متجر سما لينك,hero headline
+home.subheadline,Discover our curated products,اكتشف منتجاتنا المميزة,hero subheadline
+home.ctaLabel,Browse products,تصفح المنتجات,hero CTA button
+home.comingSoon,"The full product catalog, search, and checkout will arrive in upcoming phases. This storefront skeleton confirms routing, layout, and i18n.","سيُتاح لاحقًا كتالوج المنتجات الكامل والبحث وإتمام الشراء. هذه الصفحة التجريبية تؤكد التوجيه والتخطيط ودعم تعدد اللغات.",placeholder — remove when catalog is live
+home.metaTitle,Sama Link Store — Quality Products Online,متجر سما لينك — منتجات عالية الجودة,SEO <title>
+home.metaDescription,Discover quality products at Sama Link Store. Curated collections delivered to your door.,اكتشف منتجات عالية الجودة في متجر سما لينك. مجموعات مختارة تُوصَّل إلى باب منزلك.,SEO <meta description>
+products.featuredTitle,Featured Products,منتجات مميزة,
+products.noProducts,No products available yet.,لا توجد منتجات متاحة حتى الآن.,
+products.listing.title,All Products,جميع المنتجات,
+products.listing.description,Browse our full catalog of networking and surveillance products.,تصفح كتالوجنا الكامل من منتجات الشبكات والمراقبة.,
+products.listing.empty,No products available yet.,لا توجد منتجات متاحة حتى الآن.,
+products.listing.paginationLabel,Pagination,ترقيم الصفحات,aria-label
+products.listing.previous,← Previous,← السابق,
+products.listing.next,Next →,التالي →,
+products.listing.pageOf,{current} / {total},{current} / {total},{current} and {total} interpolated
+products.filters.heading,Filters,الفلاتر,
+products.filters.collections,Categories,التصنيفات,
+products.filters.allCollections,All,الكل,
+products.filters.priceRange,Price Range,نطاق السعر,
+products.filters.clearAll,Clear filters,مسح الفلاتر,
+products.filters.priceBuckets.under100,Under 100,أقل من 100,price filter bucket
+products.filters.priceBuckets.100to500,100 – 500,100 – 500,price filter bucket — same in both locales
+products.filters.priceBuckets.over500,500+,أكثر من 500,price filter bucket
+products.detail.addToCart,Add to Cart,أضف إلى السلة,
+products.detail.adding,Adding…,جارٍ الإضافة…,button loading state
+products.detail.added,Added!,تمت الإضافة!,button success state
+collections.empty,No products in this collection yet.,لا توجد منتجات في هذه المجموعة حتى الآن.,
+collections.paginationLabel,Pagination,ترقيم الصفحات,aria-label
+collections.previous,← Previous,← السابق,
+collections.next,Next →,التالي →,
+collections.pageOf,{current} / {total},{current} / {total},{current} and {total} interpolated
+footer.copyright,All rights reserved,جميع الحقوق محفوظة,
+footer.privacy,Privacy Policy,سياسة الخصوصية,
+footer.terms,Terms & Conditions,الشروط والأحكام,
+footer.contact,Contact Us,تواصل معنا,
+footer.shop,Shop,تسوق,footer column heading
+footer.support,Support,الدعم,footer column heading
+footer.company,Company,الشركة,footer column heading
+footer.allProducts,All Products,جميع المنتجات,
+footer.collections,Collections,المجموعات,
+footer.newArrivals,New Arrivals,وصل حديثاً,
+footer.sale,Sale,تخفيضات,
+footer.faq,FAQ,الأسئلة الشائعة,
+footer.shippingReturns,Shipping & Returns,الشحن والإرجاع,
+footer.trackOrder,Track Order,تتبع الطلب,
+footer.about,About,من نحن,
+footer.tagline,Quality products delivered to your door.,منتجات عالية الجودة تصل إلى باب منزلك.,
+footer.builtWithCare,Built with care in the Arab world.,صُنع بعناية في العالم العربي.,
+footer.copyrightLine,© {year} {storeName}. {rights},© {year} {storeName}. {rights},{year} {storeName} {rights} interpolated

@@ -25,7 +25,7 @@ Full agent contracts: `.agents/20-contracts.mdc`
 
 ## Project State
 
-**Active phases:** Phase 2 (exit criteria met, BACK-6 outstanding) · Phase 3 (active — CAT-1 ✅, CAT-2 next)
+**Active phases:** Phase 2 complete · Phase 3 (active — CAT-1 ✅ CAT-2 ✅ CAT-3 ✅ CAT-5 ✅ CAT-6 ✅ CHORE-3 ✅)
 **Active branch:** `feature/back-1-medusa-init`
 **Environment:** Docker Compose (ADR-033). Backend `localhost:9000` · Storefront `localhost:3000` · Admin `localhost:9000/app`
 **Rebuild when:** any `docker-compose.dev.yml` or `Dockerfile.dev` change → `docker compose -f docker-compose.dev.yml up -d --build backend`
@@ -69,7 +69,9 @@ Security rules: `.agents/00-core.mdc`
 2. If not decided, evaluate options and record a new ADR in Notion Decision Log
 3. Never adopt a pattern different from what's recorded without updating the Decision Log
 
-**Locked decisions:** i18n: next-intl (ADR-008) · Payments: Stripe (ADR-007) · Backend: Medusa v2 (ADR-003) · DB: PostgreSQL (ADR-004) · TS: strict (ADR-005) · Git workflow: branch from develop (ADR-014) · UI: mobile-first (ADR-015) · SEO: first-class (ADR-016) · Rendering: intentional per-route (ADR-017) · Commerce: Medusa defaults first (ADR-018) · Local env: Docker Compose (ADR-033)
+**Locked decisions:** i18n: next-intl (ADR-008) · Payments: Stripe (ADR-007) · Backend: Medusa v2 (ADR-003) · DB: PostgreSQL (ADR-004) · TS: strict (ADR-005) · Git workflow: branch from develop (ADR-014) · UI: mobile-first (ADR-015) · SEO: first-class (ADR-016) · Rendering: intentional per-route (ADR-017) · Commerce: Medusa defaults first (ADR-018) · Local env: Docker Compose (ADR-033) · UI translations: CSV-first model (ADR-040)
+
+**Translation model (ADR-040):** `translations/storefront.csv` and `translations/admin.csv` are the canonical source for all UI copy. `messages/en.json` and `messages/ar.json` are the runtime format (next-intl). Both must stay in sync. Human translation only — no AI runtime translation. Product/catalog content is out of scope.
 
 ---
 

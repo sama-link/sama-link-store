@@ -11,34 +11,40 @@ All Phase 2 tasks complete. ADR-034 recorded. History in Notion Session Log.
 
 ---
 
-## Active: Phase 3 — Product Catalog
+## ~~Phase 3 — Product Catalog~~ CLOSED ✅
 
-### ~~CAT-2: Product listing page~~ ✅ DONE
-
-Completed 2026-04-13. `/[locale]/products` live with ISR, pagination stub, nav wiring. History in Notion.
-
----
-
-### Pending — Phase 3
-
-- [x] **CAT-3**: Collection/category pages at `/[locale]/collections/[handle]`
-- [ ] **CAT-4a**: Dev media stabilization *(CAT-4 full CDN/S3/R2 deferred to pre-deployment — ADR-035)*
-  - `next.config.ts` `remotePatterns` entries for external hosts are **temporary dev allowances only**
-  - Do **not** add new external image hosts without explicit approval
-  - No implementation work required until release readiness stage
-- [ ] ~~**CAT-4**~~: ~~Image CDN/S3 integration for product media~~ — **DEFERRED** (ADR-035). Full production media architecture (own S3/R2 bucket + CDN) moved to pre-deployment phase.
-- [x] **CAT-5**: Breadcrumbs and SEO metadata on catalog pages
-- [ ] **CAT-6**: Basic filter sidebar (category, price range)
-- [ ] **CHORE-1**: Remove `.gitkeep` files from empty directories
-- [ ] **SEO-1b**: 404 page metadata (deferred — pending Next.js support confirmation)
-- [ ] **INFRA-1**: `packages/config` with `tsconfig.base.json` (deferred, non-blocking)
-- [ ] **INFRA-2**: `packages/types` with domain type stubs (deferred, non-blocking)
+All Phase 3 tasks complete. History in Notion Session Log.
+Deferred (non-blocking): CAT-4 (ADR-035) · SEO-1b · INFRA-1 · INFRA-2
 
 ---
 
-## Phase 3 Exit Criteria (all required)
+## Active: Phase 4 — Cart & Checkout
 
-- [x] Customer can browse all products — CAT-2 ✅
-- [x] Customer can navigate categories — CAT-3 ✅
-- [x] Customer can view product details and select variants — CAT-1 ✅
-- [x] Pages are statically generated with ISR — `revalidate = 3600` on all catalog routes ✅
+ADRs locked: ADR-036 (cookie, no middleware) · ADR-037 (custom drawer) · ADR-038 (multi-route checkout) · ADR-039 (Stripe deferred)
+
+### Cart stream
+
+- [x] **CART-1**: `CartProvider` + `useCart` hook + cart API methods + cookie helpers — done 2026-04-14
+- [x] **CART-3**: "Add to Cart" button wired on product detail page — done 2026-04-14
+- [x] **CART-5**: Header cart icon badge — live item count from `useCart` — done 2026-04-14
+- [x] **CART-2**: Cart drawer — slide-in, RTL-aware, item list, qty controls, remove, empty state — done 2026-04-14
+- [x] **CART-4**: Dedicated `/[locale]/cart` page — done 2026-04-14
+
+### Checkout stream *(after CART-4)*
+
+- [x] **CHK-1**: Route scaffold `/[locale]/checkout/[step]` + shared layout + step progress indicator — done 2026-04-14
+- [x] **CHK-2**: Address form step — shipping address attached to Medusa cart — done 2026-04-14
+- [x] **CHK-3**: Shipping method selection step — list options, select one — done 2026-04-14
+- [x] **CHK-4**: Review/summary step — order summary display + place order CTA (no payment provider — ADR-039) — done 2026-04-14
+
+---
+
+## Phase 4 Exit Criteria (all required)
+
+- [ ] Customer can add product to cart from product detail page
+- [ ] Cart state persists via cookie across page refreshes
+- [ ] Cart drawer shows items, quantities, subtotal; qty and remove work
+- [ ] Dedicated cart page provides same controls as drawer
+- [ ] Customer can complete address → shipping → review checkout steps
+- [ ] Review step shows order summary
+- [ ] No Stripe packages in `package.json`
