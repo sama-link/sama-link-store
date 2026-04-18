@@ -164,7 +164,7 @@ Implementation rule (all Phase 6 tasks): **No hardcoded user-facing strings.** A
 
 ### Active tasks
 
-- [ ] **AUTH-1**: Customer authentication server-side foundation — httpOnly JWT cookie, server-resolved customer, Medusa emailpass via SDK in `jwt` mode, login/register/logout routes, header affordance — branch `feature/auth-1-customer-foundation` (cut from `develop` 2026-04-18) — target Advanced Executor — full brief below
+- [x] **AUTH-1**: Customer authentication server-side foundation — httpOnly JWT cookie, server-resolved customer, Medusa emailpass via SDK in `jwt` mode, login/register/logout routes, header affordance — branch `feature/auth-1-customer-foundation` (cut from `develop` 2026-04-18) — target Advanced Executor — done 2026-04-18 (ADR-046)
 
 ---
 
