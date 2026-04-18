@@ -455,6 +455,13 @@ export async function completeCart(cartId: string) {
   return sdk.store.cart.complete(cartId);
 }
 
+export async function transferCartToCustomer(
+  cartId: string,
+  token: string,
+): Promise<void> {
+  await sdk.store.cart.transferCart(cartId, {}, authHeader(token));
+}
+
 /**
  * Initiate a payment session for the cart's payment collection (SDK creates collection if needed).
  * Must be called before `completeCart` when the backend requires an active payment session.

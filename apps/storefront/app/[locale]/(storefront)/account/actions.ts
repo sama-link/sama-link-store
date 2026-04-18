@@ -9,8 +9,13 @@ import {
   emailpassRegister,
   logoutSession,
   refreshAuthToken,
+  transferCartToCustomer,
 } from "@/lib/medusa-client";
 import { clearAuthCookie, getAuthToken, setAuthCookie } from "@/lib/auth-cookie";
+import {
+  clearCartIdCookie,
+  getCartIdFromCookie,
+} from "@/lib/cart-cookie-server";
 
 type ActionState = { error?: string };
 
@@ -41,6 +46,18 @@ export async function loginAction(
   try {
     const { token } = await emailpassLogin(email.value, password.value);
     await setAuthCookie(token);
+    const guestCartId = await getCartIdFromCookie();
+    if (guestCartId) {
+      try {
+        await transferCartToCustomer(guestCartId, token);
+      } catch (transferError) {
+        // TEMPORARY operational compromise — see brief § Operational
+        // Note on Logging. No project logger utility exists yet and
+        // .agents/00-core.mdc §2 forbids console output in committed
+        // code. Revisit when LOG-* lands.
+        void transferError;
+      }
+    }
   } catch (error) {
     if (error instanceof AuthProviderUnavailableError) throw error;
     return { error: t("genericError") };
@@ -79,6 +96,16 @@ export async function registerAction(
     );
     const sessionToken = await refreshAuthToken(regToken);
     await setAuthCookie(sessionToken);
+    const guestCartId = await getCartIdFromCookie();
+    if (guestCartId) {
+      try {
+        await transferCartToCustomer(guestCartId, sessionToken);
+      } catch (transferError) {
+        // TEMPORARY operational compromise — see brief § Operational
+        // Note on Logging.
+        void transferError;
+      }
+    }
   } catch (error) {
     if (error instanceof AuthProviderUnavailableError) throw error;
     return { error: t("registerError") };
@@ -98,5 +125,6 @@ export async function logoutAction(): Promise<void> {
     }
   }
   await clearAuthCookie();
+  await clearCartIdCookie();
   redirect(`/${locale}`);
 }
