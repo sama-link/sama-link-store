@@ -9,6 +9,7 @@ import MegaMenu from "./MegaMenu";
 import CartButton from "./CartButton";
 import WishlistHeaderButton from "./WishlistHeaderButton";
 import CompareHeaderButton from "./CompareHeaderButton";
+import AccountHeaderLink from "./AccountHeaderLink";
 
 /*
   Responsive layout:
@@ -78,6 +79,8 @@ export default async function Header() {
             <LocaleSwitcher />
 
             <ThemeToggle />
+
+            <AccountHeaderLink />
 
             <WishlistHeaderButton />
 
