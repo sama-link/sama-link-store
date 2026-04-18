@@ -125,6 +125,27 @@
       "emptyCollections": "لا توجد مجموعات بعد."
     }
   },
+  "account": {
+    "title": "",
+    "signIn": "",
+    "signUp": "",
+    "signOut": "",
+    "emailLabel": "",
+    "passwordLabel": "",
+    "firstNameLabel": "",
+    "lastNameLabel": "",
+    "loginCta": "",
+    "registerCta": "",
+    "loginHeading": "",
+    "registerHeading": "",
+    "noAccountPrompt": "",
+    "hasAccountPrompt": "",
+    "genericError": "",
+    "registerError": "",
+    "welcomeBack": "",
+    "placeholderDashboard": "",
+    "greetingSignedOut": ""
+  },
   "home": {
     "headline": "متجر سما لينك",
     "subheadline": "اكتشف منتجاتنا المختارة بعناية",

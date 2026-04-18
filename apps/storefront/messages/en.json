@@ -125,6 +125,27 @@
       "emptyCollections": "No collections yet."
     }
   },
+  "account": {
+    "title": "Account",
+    "signIn": "Sign in",
+    "signUp": "Create account",
+    "signOut": "Sign out",
+    "emailLabel": "Email",
+    "passwordLabel": "Password",
+    "firstNameLabel": "First name",
+    "lastNameLabel": "Last name",
+    "loginCta": "Sign in",
+    "registerCta": "Create account",
+    "loginHeading": "Welcome back",
+    "registerHeading": "Create your account",
+    "noAccountPrompt": "Don't have an account?",
+    "hasAccountPrompt": "Already have an account?",
+    "genericError": "We couldn't sign you in. Check your details and try again.",
+    "registerError": "We couldn't create your account. Try again.",
+    "welcomeBack": "Welcome back, {name}",
+    "placeholderDashboard": "Your account area - more features coming soon.",
+    "greetingSignedOut": "Hello, guest"
+  },
   "home": {
     "headline": "Sama Link Store",
     "subheadline": "Discover our curated products",

@@ -6,6 +6,7 @@ import { useWishlist } from "@/hooks/useWishlist";
 import { useCompare } from "@/hooks/useCompare";
 import { cn } from "@/lib/cn";
 import LocaleSwitcher from "./LocaleSwitcher";
+import AccountHeaderLink from "./AccountHeaderLink";
 
 /**
  * Hamburger toggle + collapsible mobile nav panel.
@@ -99,6 +100,12 @@ export default function MobileMenu() {
           ))}
           <li>
             <LocaleSwitcher variant="mobile" onNavigate={() => setOpen(false)} />
+          </li>
+          <li>
+            <AccountHeaderLink
+              variant="mobile"
+              onNavigate={() => setOpen(false)}
+            />
           </li>
           {COMMERCE_LINKS.map(({ key, href }) => {
             const count =
