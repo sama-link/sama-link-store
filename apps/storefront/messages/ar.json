@@ -4,13 +4,97 @@
     "notFoundDescription": "الصفحة التي تبحث عنها غير موجودة أو تم نقلها.",
     "goHome": "العودة إلى الصفحة الرئيسية"
   },
+  "cart": {
+    "title": "سلة التسوق",
+    "empty": "سلة التسوق فارغة.",
+    "continueShopping": "متابعة التسوق",
+    "subtotal": "المجموع الفرعي",
+    "checkout": "إتمام الشراء",
+    "proceedToCheckout": "المتابعة إلى إتمام الشراء",
+    "orderSummary": "ملخص الطلب",
+    "viewCart": "عرض السلة",
+    "remove": "إزالة",
+    "close": "إغلاق السلة",
+    "loading": "جارٍ تحميل السلة…"
+  },
+  "checkout": {
+    "title": "إتمام الشراء",
+    "steps": {
+      "aria": "خطوات إتمام الشراء",
+      "address": "العنوان",
+      "shipping": "الشحن",
+      "payment": "الدفع",
+      "review": "المراجعة"
+    },
+    "address": {
+      "title": "عنوان الشحن",
+      "firstName": "الاسم الأول",
+      "lastName": "اسم العائلة",
+      "address1": "العنوان",
+      "address2": "شقة، جناح، إلخ. (اختياري)",
+      "city": "المدينة",
+      "country": "الدولة",
+      "selectCountry": "اختر دولة",
+      "province": "المنطقة / المحافظة (اختياري)",
+      "postalCode": "الرمز البريدي (اختياري)",
+      "phone": "الهاتف (اختياري)",
+      "continue": "المتابعة إلى الشحن",
+      "saving": "جارٍ الحفظ…",
+      "error": "تعذّر حفظ العنوان. يرجى المحاولة مرة أخرى.",
+      "required": "هذا الحقل مطلوب"
+    },
+    "shipping": {
+      "title": "طريقة الشحن",
+      "noOptions": "لا تتوفر خيارات شحن لعنوانك. يرجى العودة والتحقق من العنوان.",
+      "continue": "المتابعة إلى الدفع",
+      "saving": "جارٍ الحفظ…",
+      "error": "تعذّر تطبيق طريقة الشحن. يرجى المحاولة مرة أخرى."
+    },
+    "payment": {
+      "title": "طريقة الدفع",
+      "continue": "المتابعة إلى المراجعة",
+      "saving": "جارٍ الحفظ…",
+      "error": "تعذّر تطبيق طريقة الدفع. يرجى المحاولة مرة أخرى.",
+      "noOptions": "لا تتوفر طرق دفع حاليًا.",
+      "providers": {
+        "pp_system_default": "الدفع عند الاستلام"
+      }
+    },
+    "review": {
+      "title": "مراجعة الطلب",
+      "items": "المنتجات",
+      "deliverTo": "يُسلَّم إلى",
+      "orderSummary": "ملخص الطلب",
+      "subtotal": "المجموع الفرعي",
+      "total": "الإجمالي",
+      "placeOrder": "تأكيد الطلب",
+      "placing": "جارٍ تأكيد الطلب…",
+      "error": "تعذّر تأكيد الطلب. يرجى المحاولة مرة أخرى."
+    },
+    "confirmed": {
+      "title": "تم تأكيد الطلب",
+      "heading": "تم تأكيد طلبك بنجاح!",
+      "orderNumber": "طلب رقم #{number}",
+      "body": "شكرًا لتسوقك معنا. ستصلك رسالة تأكيد على بريدك الإلكتروني قريبًا.",
+      "continueShopping": "متابعة التسوق"
+    }
+  },
   "common": {
     "storeName": "متجر سما لينك",
-    "loading": "جارٍ التحميل...",
-    "error": "حدث خطأ",
+    "loading": "جارٍ التحميل…",
+    "error": "حدث خطأ ما",
     "noResults": "لا توجد نتائج"
   },
+  "breadcrumbs": {
+    "home": "الرئيسية",
+    "products": "المنتجات",
+    "collections": "المجموعات",
+    "cart": "السلة",
+    "checkout": "إتمام الشراء",
+    "aria": "مسار التنقل"
+  },
   "nav": {
+    "home": "الرئيسية",
     "products": "المنتجات",
     "collections": "المجموعات",
     "about": "من نحن",
@@ -25,27 +109,243 @@
     "closeMenu": "إغلاق القائمة",
     "mobileNavigation": "التنقل للجوال",
     "switchToEnglish": "English",
-    "switchToArabic": "العربية"
+    "switchToArabic": "العربية",
+    "switchToDark": "التبديل إلى الوضع الداكن",
+    "switchToLight": "التبديل إلى الوضع الفاتح",
+    "wishlist": "المفضلة",
+    "compare": "المقارنة",
+    "wishlistAria": "المفضلة ({count} عناصر)",
+    "compareAria": "المقارنة ({count} عناصر)",
+    "megaMenu": {
+      "productsTrigger": "المنتجات",
+      "collectionsTrigger": "المجموعات",
+      "viewAllProducts": "عرض كل المنتجات",
+      "viewAllCollections": "عرض كل المجموعات",
+      "emptyCategories": "لا توجد تصنيفات بعد.",
+      "emptyCollections": "لا توجد مجموعات بعد."
+    }
   },
   "home": {
     "headline": "متجر سما لينك",
-    "subheadline": "اكتشف منتجاتنا المميزة",
+    "subheadline": "اكتشف منتجاتنا المختارة بعناية",
     "ctaLabel": "تصفح المنتجات",
     "comingSoon": "سيُتاح لاحقًا كتالوج المنتجات الكامل والبحث وإتمام الشراء. هذه الصفحة التجريبية تؤكد التوجيه والتخطيط ودعم تعدد اللغات.",
     "metaTitle": "متجر سما لينك — منتجات عالية الجودة",
     "metaDescription": "اكتشف منتجات عالية الجودة في متجر سما لينك. مجموعات مختارة تُوصَّل إلى باب منزلك."
+  },
+  "products": {
+    "featuredTitle": "منتجات مميزة",
+    "noProducts": "لا توجد منتجات متاحة حتى الآن.",
+    "listing": {
+      "title": "جميع المنتجات",
+      "description": "تصفح كتالوجنا الكامل من منتجات الشبكات والمراقبة.",
+      "empty": "لا توجد منتجات متاحة حتى الآن.",
+      "paginationLabel": "ترقيم الصفحات",
+      "previous": "← السابق",
+      "next": "التالي →",
+      "pageOf": "{current} / {total}"
+    },
+    "filters": {
+      "heading": "الفلاتر",
+      "collections": "المجموعات",
+      "categories": "التصنيفات",
+      "allCategories": "الكل",
+      "allCollections": "الكل",
+      "priceRange": "نطاق السعر",
+      "clearAll": "مسح الفلاتر",
+      "priceBuckets": {
+        "under100": "أقل من 100",
+        "100to500": "100 – 500",
+        "over500": "أكثر من 500"
+      }
+    },
+    "detail": {
+      "addToCart": "أضف إلى السلة",
+      "buyNow": "اشترِ الآن",
+      "adding": "جارٍ الإضافة…",
+      "added": "تمت الإضافة!",
+      "variants": "الإصدارات",
+      "variantDefault": "إصدار",
+      "sku": "الرمز",
+      "material": "الخامة",
+      "weight": "الوزن",
+      "origin": "بلد المنشأ",
+      "details": "تفاصيل المنتج",
+      "inStock": "متوفر",
+      "freeShipping": "شحن مجاني للطلبات فوق 1000 جنيه",
+      "benefits": {
+        "authentic": "منتجات أصلية 100%",
+        "warranty": "ضمان المُصنّع شامل",
+        "fastDelivery": "توصيل سريع لجميع أنحاء مصر",
+        "cashOnDelivery": "الدفع عند الاستلام متاح"
+      },
+      "chooseVariant": "اختر خيارك",
+      "descriptionHeading": "الوصف",
+      "specifications": "المواصفات",
+      "category": "الفئة",
+      "collection": "المجموعة",
+      "tags": "الوسوم",
+      "type": "النوع",
+      "options": "الخيارات",
+      "dimensions": "الأبعاد",
+      "galleryPrev": "الصورة السابقة",
+      "galleryNext": "الصورة التالية",
+      "tabsAria": "تبويبات معلومات المنتج",
+      "carouselPrev": "التمرير للخلف",
+      "carouselNext": "التمرير للأمام",
+      "reviews": {
+        "title": "تقييمات العملاء",
+        "subtitle": "ما يقوله عملاؤنا عن هذا المنتج",
+        "noReviewsTitle": "لا توجد تقييمات بعد",
+        "noReviewsBody": "كن أول من يشارك تجربته مع هذا المنتج."
+      },
+      "relatedTitle": "منتجات ذات صلة",
+      "relatedSubtitle": "المزيد من هذه المجموعة",
+      "suggestedTitle": "قد يعجبك أيضًا",
+      "suggestedSubtitle": "اكتشف منتجات أخرى يحبها العملاء"
+    },
+    "card": {
+      "quickView": "معاينة سريعة",
+      "buyNow": "اشترِ الآن",
+      "addedToast": "تمت الإضافة إلى السلة",
+      "addToCartAria": "أضف إلى السلة"
+    },
+    "quickView": {
+      "title": "معاينة سريعة",
+      "close": "إغلاق",
+      "viewDetails": "عرض كامل التفاصيل",
+      "chooseVariant": "اختر الإصدار"
+    }
+  },
+  "wishlist": {
+    "pageTitle": "المفضلة",
+    "pageDescription": "المنتجات التي حفظتها في قائمتك.",
+    "empty": "قائمة المفضلة فارغة.",
+    "emptyCta": "تصفح المنتجات",
+    "add": "حفظ في المفضلة",
+    "remove": "إزالة من المفضلة",
+    "addedAria": "تمت الإضافة إلى المفضلة",
+    "removedAria": "تمت الإزالة من المفضلة",
+    "removeItem": "إزالة"
+  },
+  "compare": {
+    "pageTitle": "المقارنة",
+    "pageDescription": "قارن بين مواصفات المنتجات جنبًا إلى جنب.",
+    "empty": "لا توجد منتجات للمقارنة بعد.",
+    "emptyCta": "تصفح المنتجات",
+    "add": "أضف إلى المقارنة",
+    "remove": "إزالة من المقارنة",
+    "full": "يمكنك مقارنة {max} منتجات كحدٍّ أقصى. أزل أحدها لإضافة غيره.",
+    "addedAria": "تمت الإضافة إلى المقارنة",
+    "removedAria": "تمت الإزالة من المقارنة",
+    "removeColumn": "إزالة من المقارنة",
+    "headers": {
+      "image": "الصورة",
+      "title": "الاسم",
+      "price": "السعر",
+      "subtitle": "الوصف المختصر",
+      "material": "الخامة",
+      "weight": "الوزن",
+      "origin": "بلد المنشأ"
+    }
+  },
+  "collections": {
+    "listing": {
+      "title": "جميع المجموعات",
+      "empty": "لا توجد مجموعات متاحة حتى الآن.",
+      "metaTitle": "المجموعات — متجر سما لينك",
+      "metaDescription": "تصفح جميع مجموعات المنتجات في متجر سما لينك."
+    },
+    "empty": "لا توجد منتجات في هذه المجموعة حتى الآن.",
+    "paginationLabel": "ترقيم الصفحات",
+    "previous": "← السابق",
+    "next": "التالي →",
+    "pageOf": "{current} / {total}"
+  },
+  "pages": {
+    "about": {
+      "title": "عن المتجر"
+    },
+    "faq": {
+      "title": "الأسئلة الشائعة"
+    },
+    "contact": {
+      "title": "تواصل معنا"
+    },
+    "shippingReturns": {
+      "title": "الشحن والإرجاع"
+    },
+    "privacy": {
+      "title": "سياسة الخصوصية"
+    },
+    "terms": {
+      "title": "الشروط والأحكام"
+    },
+    "fallbackBody": "هذه الصفحة ستتوفر قريبًا."
+  },
+  "trackOrder": {
+    "title": "تتبع الطلب",
+    "body": "ستتوفر خدمة تتبع الطلبات قريبًا."
+  },
+  "meta": {
+    "root": {
+      "description": ""
+    },
+    "cart": {
+      "description": ""
+    },
+    "checkout": {
+      "address": {
+        "description": ""
+      },
+      "shipping": {
+        "description": ""
+      },
+      "payment": {
+        "description": ""
+      },
+      "review": {
+        "description": ""
+      },
+      "confirmed": {
+        "description": ""
+      }
+    },
+    "trackOrder": {
+      "description": ""
+    },
+    "pages": {
+      "about": {
+        "description": ""
+      },
+      "faq": {
+        "description": ""
+      },
+      "contact": {
+        "description": ""
+      },
+      "shippingReturns": {
+        "description": ""
+      },
+      "privacy": {
+        "description": ""
+      },
+      "terms": {
+        "description": ""
+      }
+    }
   },
   "footer": {
     "copyright": "جميع الحقوق محفوظة",
     "privacy": "سياسة الخصوصية",
     "terms": "الشروط والأحكام",
     "contact": "تواصل معنا",
-    "shop": "تسوق",
+    "shop": "تسوّق",
     "support": "الدعم",
     "company": "الشركة",
     "allProducts": "جميع المنتجات",
     "collections": "المجموعات",
-    "newArrivals": "وصل حديثاً",
+    "newArrivals": "وصل حديثًا",
     "sale": "تخفيضات",
     "faq": "الأسئلة الشائعة",
     "shippingReturns": "الشحن والإرجاع",

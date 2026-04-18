@@ -1,0 +1,247 @@
+key,en,ar,notes
+errors.notFoundTitle,Page not found,الصفحة غير موجودة,
+errors.notFoundDescription,The page you're looking for doesn't exist or has been moved.,الصفحة التي تبحث عنها غير موجودة أو تم نقلها.,
+errors.goHome,Back to home,العودة إلى الصفحة الرئيسية,
+cart.title,Your Cart,سلة التسوق,
+cart.empty,Your cart is empty.,سلة التسوق فارغة.,
+cart.continueShopping,Continue Shopping,متابعة التسوق,
+cart.subtotal,Subtotal,المجموع الفرعي,
+cart.checkout,Checkout,إتمام الشراء,
+cart.proceedToCheckout,Proceed to Checkout,المتابعة إلى إتمام الشراء,
+cart.orderSummary,Order Summary,ملخص الطلب,
+cart.viewCart,View Cart,عرض السلة,
+cart.remove,Remove,إزالة,
+cart.close,Close cart,إغلاق السلة,
+cart.loading,Loading cart…,جارٍ تحميل السلة…,
+checkout.title,Checkout,إتمام الشراء,
+checkout.steps.aria,Checkout steps,خطوات إتمام الشراء,aria-label for progress nav
+checkout.steps.address,Address,العنوان,
+checkout.steps.shipping,Shipping,الشحن,
+checkout.steps.payment,Payment,الدفع,
+checkout.steps.review,Review,المراجعة,
+checkout.address.title,Shipping Address,عنوان الشحن,
+checkout.address.firstName,First Name,الاسم الأول,
+checkout.address.lastName,Last Name,اسم العائلة,
+checkout.address.address1,Address,العنوان,
+checkout.address.address2,"Apartment, suite, etc. (optional)","شقة، جناح، إلخ. (اختياري)",
+checkout.address.city,City,المدينة,
+checkout.address.country,Country,الدولة,
+checkout.address.selectCountry,Select a country,اختر دولة,
+checkout.address.province,State / Province (optional),المنطقة / المحافظة (اختياري),
+checkout.address.postalCode,Postal Code (optional),الرمز البريدي (اختياري),
+checkout.address.phone,Phone (optional),الهاتف (اختياري),
+checkout.address.continue,Continue to Shipping,المتابعة إلى الشحن,
+checkout.address.saving,Saving…,جارٍ الحفظ…,
+checkout.address.error,Failed to save address. Please try again.,فشل حفظ العنوان. يرجى المحاولة مرة أخرى.,
+checkout.address.required,This field is required,هذا الحقل مطلوب,
+checkout.shipping.title,Shipping Method,طريقة الشحن,
+checkout.shipping.noOptions,No shipping options are available for your address. Please go back and check your address.,لا تتوفر خيارات شحن لعنوانك. يرجى العودة والتحقق من عنوانك.,
+checkout.shipping.continue,Continue to Payment,المتابعة إلى الدفع,
+checkout.shipping.saving,Saving…,جارٍ الحفظ…,
+checkout.shipping.error,Failed to apply shipping method. Please try again.,فشل تطبيق طريقة الشحن. يرجى المحاولة مرة أخرى.,
+checkout.payment.title,Payment Method,طريقة الدفع,
+checkout.payment.continue,Continue to Review,المتابعة إلى المراجعة,
+checkout.payment.saving,Saving…,جارٍ الحفظ…,
+checkout.payment.error,Failed to apply payment method. Please try again.,فشل تطبيق طريقة الدفع. يرجى المحاولة مرة أخرى.,
+checkout.payment.noOptions,No payment methods are available.,لا تتوفر طرق دفع حالياً.,
+checkout.payment.providers.pp_system_default,Cash on Delivery,الدفع عند الاستلام,key suffix must match Medusa provider ID exactly
+checkout.review.title,Review Order,مراجعة الطلب,
+checkout.review.items,Your Items,المنتجات,
+checkout.review.deliverTo,Deliver To,التسليم إلى,
+checkout.review.orderSummary,Order Summary,ملخص الطلب,
+checkout.review.subtotal,Subtotal,المجموع الفرعي,
+checkout.review.total,Total,الإجمالي,
+checkout.review.placeOrder,Place Order,تأكيد الطلب,
+checkout.review.placing,Placing order…,جارٍ تقديم الطلب…,
+checkout.review.error,Failed to place order. Please try again.,فشل تقديم الطلب. يرجى المحاولة مرة أخرى.,
+checkout.confirmed.title,Order Confirmed,تم تأكيد الطلب,
+checkout.confirmed.heading,Order Confirmed!,تم تأكيد طلبك!,
+checkout.confirmed.orderNumber,Order #{number},طلب رقم #{number},{number} = Medusa display_id
+checkout.confirmed.body,Thank you for your purchase. You will receive a confirmation email shortly.,شكراً لتسوقك. ستتلقى رسالة تأكيد على بريدك الإلكتروني قريباً.,
+checkout.confirmed.continueShopping,Continue Shopping,متابعة التسوق,
+common.storeName,Sama Link Store,متجر سما لينك,
+common.loading,Loading...,جارٍ التحميل...,
+common.error,Something went wrong,حدث خطأ,
+common.noResults,No results found,لا توجد نتائج,
+breadcrumbs.home,Home,الرئيسية,
+breadcrumbs.products,Products,المنتجات,
+breadcrumbs.collections,Collections,المجموعات,
+breadcrumbs.cart,Cart,السلة,
+breadcrumbs.checkout,Checkout,إتمام الشراء,
+breadcrumbs.aria,Breadcrumb,مسار التنقل,aria-label for breadcrumb nav
+nav.products,Products,المنتجات,
+nav.collections,Collections,المجموعات,
+nav.about,About,من نحن,
+nav.cart,Cart,السلة,
+nav.account,My Account,حسابي,
+nav.mainNavigation,Main navigation,التنقل الرئيسي,aria-label
+nav.logoHomeAria,Sama Link Store — home,متجر سما لينك — الصفحة الرئيسية,aria-label for logo link
+nav.switchLanguage,Switch language,تغيير اللغة,aria-label for language toggle button
+nav.languageToggle,AR / EN,عربي / EN,visible toggle label
+nav.openCart,Open cart ({count} items),فتح السلة ({count} عناصر),{count} is interpolated at runtime
+nav.wishlist,Wishlist,المفضلة,
+nav.compare,Compare,المقارنة,
+nav.wishlistAria,Wishlist ({count} items),المفضلة ({count} عناصر),{count} interpolated
+nav.compareAria,Compare ({count} items),المقارنة ({count} عناصر),{count} interpolated
+nav.openMenu,Open menu,فتح القائمة,aria-label
+nav.closeMenu,Close menu,إغلاق القائمة,aria-label
+nav.mobileNavigation,Mobile navigation,التنقل للجوال,aria-label
+nav.switchToEnglish,English,English,language name — intentionally identical in both locales
+nav.switchToArabic,العربية,العربية,language name — intentionally identical in both locales
+nav.switchToDark,Switch to dark mode,التبديل إلى الوضع الداكن,aria-label
+nav.switchToLight,Switch to light mode,التبديل إلى الوضع الفاتح,aria-label
+home.headline,Sama Link Store,متجر سما لينك,hero headline
+home.subheadline,Discover our curated products,اكتشف منتجاتنا المميزة,hero subheadline
+home.ctaLabel,Browse products,تصفح المنتجات,hero CTA button
+home.comingSoon,"The full product catalog, search, and checkout will arrive in upcoming phases. This storefront skeleton confirms routing, layout, and i18n.","سيُتاح لاحقًا كتالوج المنتجات الكامل والبحث وإتمام الشراء. هذه الصفحة التجريبية تؤكد التوجيه والتخطيط ودعم تعدد اللغات.",placeholder — remove when catalog is live
+home.metaTitle,Sama Link Store — Quality Products Online,متجر سما لينك — منتجات عالية الجودة,SEO <title>
+home.metaDescription,Discover quality products at Sama Link Store. Curated collections delivered to your door.,اكتشف منتجات عالية الجودة في متجر سما لينك. مجموعات مختارة تُوصَّل إلى باب منزلك.,SEO <meta description>
+products.featuredTitle,Featured Products,منتجات مميزة,
+products.noProducts,No products available yet.,لا توجد منتجات متاحة حتى الآن.,
+products.listing.title,All Products,جميع المنتجات,
+products.listing.description,Browse our full catalog of networking and surveillance products.,تصفح كتالوجنا الكامل من منتجات الشبكات والمراقبة.,
+products.listing.empty,No products available yet.,لا توجد منتجات متاحة حتى الآن.,
+products.listing.paginationLabel,Pagination,ترقيم الصفحات,aria-label
+products.listing.previous,← Previous,← السابق,
+products.listing.next,Next →,التالي →,
+products.listing.pageOf,{current} / {total},{current} / {total},{current} and {total} interpolated
+products.filters.heading,Filters,الفلاتر,
+products.filters.collections,Collections,المجموعات,
+products.filters.categories,Categories,التصنيفات,
+products.filters.allCategories,All,الكل,
+products.filters.allCollections,All,الكل,
+products.filters.priceRange,Price Range,نطاق السعر,
+products.filters.clearAll,Clear filters,مسح الفلاتر,
+products.filters.priceBuckets.under100,Under 100,أقل من 100,price filter bucket
+products.filters.priceBuckets.100to500,100 – 500,100 – 500,price filter bucket — same in both locales
+products.filters.priceBuckets.over500,500+,أكثر من 500,price filter bucket
+products.detail.addToCart,Add to Cart,أضف إلى السلة,
+products.detail.buyNow,Buy now,اشترِ الآن,
+products.detail.galleryPrev,Previous image,الصورة السابقة,aria-label on PDP gallery arrows
+products.detail.galleryNext,Next image,الصورة التالية,aria-label on PDP gallery arrows
+products.detail.tabsAria,Product information tabs,تبويبات معلومات المنتج,aria-label on PDP tabs
+products.detail.carouselPrev,Scroll previous,التمرير للخلف,aria-label on recommendations carousel
+products.detail.carouselNext,Scroll next,التمرير للأمام,aria-label on recommendations carousel
+products.detail.adding,Adding…,جارٍ الإضافة…,button loading state
+products.detail.added,Added!,تمت الإضافة!,button success state
+products.detail.variants,Variants,الإصدارات,
+products.detail.variantDefault,Variant,إصدار,
+products.detail.sku,SKU,الرمز,
+products.detail.material,Material,الخامة,
+products.detail.weight,Weight,الوزن,
+products.detail.origin,Country of Origin,بلد المنشأ,
+products.detail.details,Product Details,تفاصيل المنتج,
+products.detail.inStock,In stock,متوفر,
+products.detail.freeShipping,Free shipping on orders over EGP 1000,شحن مجاني للطلبات فوق 1000 جنيه,
+products.detail.benefits.authentic,100% authentic products,منتجات أصلية 100%,
+products.detail.benefits.warranty,Manufacturer warranty included,ضمان المُصنّع شامل,
+products.detail.benefits.fastDelivery,Fast delivery across Egypt,توصيل سريع لجميع أنحاء مصر,
+products.detail.benefits.cashOnDelivery,Cash on delivery available,الدفع عند الاستلام متاح,
+products.detail.chooseVariant,Choose your option,اختر خيارك,
+products.detail.descriptionHeading,Description,الوصف,
+products.detail.specifications,Specifications,المواصفات,
+products.detail.category,Category,الفئة,
+products.detail.collection,Collection,المجموعة,
+products.detail.tags,Tags,الوسوم,
+products.detail.type,Type,النوع,
+products.detail.options,Options,الخيارات,
+products.detail.dimensions,Dimensions,الأبعاد,
+products.detail.reviews.title,Customer Reviews,تقييمات العملاء,
+products.detail.reviews.subtitle,What our customers say about this product,ما يقوله عملاؤنا عن هذا المنتج,
+products.detail.reviews.noReviewsTitle,No reviews yet,لا توجد تقييمات بعد,
+products.detail.reviews.noReviewsBody,Be the first to share your experience with this product.,كن أول من يشارك تجربته مع هذا المنتج.,
+products.detail.relatedTitle,Related Products,منتجات ذات صلة,
+products.detail.relatedSubtitle,More from this collection,المزيد من هذه المجموعة,
+products.detail.suggestedTitle,You May Also Like,قد يعجبك أيضًا,
+products.detail.suggestedSubtitle,Discover other products customers love,اكتشف منتجات أخرى يحبها العملاء,
+products.card.quickView,Quick view,معاينة سريعة,
+products.card.buyNow,Buy now,اشترِ الآن,
+products.card.addedToast,Added to cart,تمت الإضافة إلى السلة,
+products.card.addToCartAria,Add to cart,أضف إلى السلة,
+products.quickView.title,Quick view,معاينة سريعة,
+products.quickView.close,Close,إغلاق,
+products.quickView.viewDetails,View full details,عرض كامل التفاصيل,
+products.quickView.chooseVariant,Choose a variant,اختر الإصدار,
+wishlist.pageTitle,Wishlist,المفضلة,
+wishlist.pageDescription,Products you have saved to your wishlist.,المنتجات التي حفظتها في قائمتك.,
+wishlist.empty,Your wishlist is empty.,قائمة المفضلة فارغة.,
+wishlist.emptyCta,Browse products,تصفح المنتجات,
+wishlist.add,Save to wishlist,حفظ في المفضلة,
+wishlist.remove,Remove from wishlist,إزالة من المفضلة,
+wishlist.addedAria,Added to wishlist,تمت الإضافة إلى المفضلة,
+wishlist.removedAria,Removed from wishlist,تمت الإزالة من المفضلة,
+wishlist.removeItem,Remove,إزالة,
+compare.pageTitle,Compare,المقارنة,
+compare.pageDescription,Compare product specifications side by side.,قارن بين مواصفات المنتجات جنبًا إلى جنب.,
+compare.empty,Nothing to compare yet.,لا توجد منتجات للمقارنة بعد.,
+compare.emptyCta,Browse products,تصفح المنتجات,
+compare.add,Add to compare,أضف إلى المقارنة,
+compare.remove,Remove from compare,إزالة من المقارنة,
+compare.full,You can compare up to {max} products. Remove one to add another.,يمكنك مقارنة {max} منتجات كحدٍّ أقصى. أزل أحدها لإضافة غيره.,
+compare.addedAria,Added to compare,تمت الإضافة إلى المقارنة,
+compare.removedAria,Removed from compare,تمت الإزالة من المقارنة,
+compare.removeColumn,Remove from compare,إزالة من المقارنة,
+compare.headers.image,Image,الصورة,
+compare.headers.title,Title,الاسم,
+compare.headers.price,Price,السعر,
+compare.headers.subtitle,Subtitle,الوصف المختصر,
+compare.headers.material,Material,الخامة,
+compare.headers.weight,Weight,الوزن,
+compare.headers.origin,Origin,بلد المنشأ,
+collections.empty,No products in this collection yet.,لا توجد منتجات في هذه المجموعة حتى الآن.,
+collections.listing.title,All Collections,جميع المجموعات,
+collections.listing.empty,No collections available yet.,لا توجد مجموعات متاحة حتى الآن.,
+collections.listing.metaTitle,Collections — Sama Link Store,المجموعات — متجر سما لينك,
+collections.listing.metaDescription,Browse all product collections at Sama Link Store.,تصفح جميع مجموعات المنتجات في متجر سما لينك.,
+collections.paginationLabel,Pagination,ترقيم الصفحات,aria-label
+collections.previous,← Previous,← السابق,
+collections.next,Next →,التالي →,
+collections.pageOf,{current} / {total},{current} / {total},{current} and {total} interpolated
+pages.about.title,About Us,عن المتجر,
+pages.faq.title,FAQ,الأسئلة الشائعة,
+pages.contact.title,Contact Us,تواصل معنا,
+pages.shippingReturns.title,Shipping & Returns,الشحن والإرجاع,
+pages.privacy.title,Privacy Policy,سياسة الخصوصية,
+pages.terms.title,Terms & Conditions,الشروط والأحكام,
+pages.fallbackBody,This page is coming soon.,هذه الصفحة ستتوفر قريبًا.,
+nav.home,Home,الرئيسية,
+nav.megaMenu.productsTrigger,Products,المنتجات,desktop mega menu trigger — panel lists categories
+nav.megaMenu.collectionsTrigger,Collections,المجموعات,desktop mega menu trigger — panel lists collections
+nav.megaMenu.viewAllProducts,View all products,عرض كل المنتجات,footer link in products mega panel
+nav.megaMenu.viewAllCollections,View all collections,عرض كل المجموعات,footer link in collections mega panel
+nav.megaMenu.emptyCategories,No categories yet.,لا توجد تصنيفات بعد.,empty state when Medusa returns no categories
+nav.megaMenu.emptyCollections,No collections yet.,لا توجد مجموعات بعد.,empty state when Medusa returns no collections
+trackOrder.title,Track Order,تتبع الطلب,
+trackOrder.body,Order tracking will be available soon.,ستتوفر خدمة تتبع الطلبات قريبًا.,
+footer.copyright,All rights reserved,جميع الحقوق محفوظة,
+footer.privacy,Privacy Policy,سياسة الخصوصية,
+footer.terms,Terms & Conditions,الشروط والأحكام,
+footer.contact,Contact Us,تواصل معنا,
+footer.shop,Shop,تسوق,footer column heading
+footer.support,Support,الدعم,footer column heading
+footer.company,Company,الشركة,footer column heading
+footer.allProducts,All Products,جميع المنتجات,
+footer.collections,Collections,المجموعات,
+footer.newArrivals,New Arrivals,وصل حديثاً,
+footer.sale,Sale,تخفيضات,
+footer.faq,FAQ,الأسئلة الشائعة,
+footer.shippingReturns,Shipping & Returns,الشحن والإرجاع,
+footer.trackOrder,Track Order,تتبع الطلب,
+footer.about,About,من نحن,
+footer.tagline,Quality products delivered to your door.,منتجات عالية الجودة تصل إلى باب منزلك.,
+footer.builtWithCare,Built with care in the Arab world.,صُنع بعناية في العالم العربي.,
+footer.copyrightLine,© {year} {storeName}. {rights},© {year} {storeName}. {rights},{year} {storeName} {rights} interpolated
+meta.root.description,Your destination for quality products.,,MVP-10 SEO — root layout description; AR pending human translation (ADR-040)
+meta.cart.description,Review items in your cart and proceed to checkout.,,MVP-10 SEO — noindex route
+meta.checkout.address.description,Enter your shipping address to continue checkout.,,MVP-10 SEO — noindex route
+meta.checkout.shipping.description,Choose a shipping method for your order.,,MVP-10 SEO — noindex route
+meta.checkout.payment.description,Select your preferred payment method.,,MVP-10 SEO — noindex route
+meta.checkout.review.description,Review your order before placing it.,,MVP-10 SEO — noindex route
+meta.checkout.confirmed.description,Your order has been confirmed.,,MVP-10 SEO — noindex route
+meta.trackOrder.description,Track the status of your order.,,MVP-10 SEO — noindex route
+meta.pages.about.description,Learn about Sama Link Store — our story and values.,,MVP-10 SEO — info page description
+meta.pages.faq.description,Frequently asked questions about Sama Link Store orders and services.,,MVP-10 SEO — info page description
+meta.pages.contact.description,Get in touch with Sama Link Store customer support.,,MVP-10 SEO — info page description
+meta.pages.shippingReturns.description,Shipping and returns information for Sama Link Store orders.,,MVP-10 SEO — info page description
+meta.pages.privacy.description,Sama Link Store privacy policy — how we collect and handle your data.,,MVP-10 SEO — info page description
+meta.pages.terms.description,Sama Link Store terms and conditions of use.,,MVP-10 SEO — info page description

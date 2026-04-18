@@ -1,0 +1,132 @@
+---
+description: Skills — task brief format, executor selection, review gate, and Notion sync protocol
+globs: "**/*"
+---
+
+# Skills
+
+---
+
+## Skill 1: Task Shaping
+
+**Trigger:** When Claude produces a task brief for an executor role.
+
+### Executor Selection
+| Role | When to Use |
+|---|---|
+| `Literal Executor` | Narrow scope, ≤5 files, exact implementation, zero ambiguity tolerance |
+| `Advanced Executor` | Broad/complex/multi-system tasks requiring technical reasoning |
+| `Backend Specialist` | Medusa v2, PostgreSQL, integration layer, webhook work |
+
+Always declare in brief header: `**Target Executor:** [role]`
+
+### Mandatory Brief Fields (all required — no exceptions)
+1. **Task ID** — unique identifier (e.g. `CAT-2`, `BACK-6`)
+2. **Phase** — current active phase
+3. **Target Executor** — role name
+4. **Depends on** — prerequisite task IDs or `none`
+5. **Goal** — one sentence
+6. **Context** — why this task exists; which ADRs or constraints it implements
+7. **Files Allowed** — explicit file list (no wildcards)
+8. **Files Forbidden** — always includes: `CLAUDE.md`, `TASKS.md`, `docs/` (entire directory), `.agents/` (entire directory)
+9. **Implementation Steps** — numbered, deterministic
+10. **Acceptance Criteria** — verifiable; always includes `tsc --noEmit` + `next build`
+11. **Out of Scope** — explicit list of what executor must NOT do
+
+### REQUIRED READING Block (ADR-033 — mandatory in every brief)
+
+Place between the header fields and `INTERPRETATION MODE`. All five layers required:
+
+| Layer | Type | What Claude populates |
+|---|---|---|
+| [1] | Project Context | Notion Project Definition · Notion Implementation Canon (scoped to task) |
+| [2] | Task State | `TASKS.md` (repo) · Notion Hub active phase callout |
+| [3] | Role Contract | `.agents/20-contracts.mdc` — role-specific section (Literal / Advanced / Backend Specialist) |
+| [4] | Governing Rules & ADRs | `.agents/00-core.mdc` · `.agents/10-skills.mdc` · only the Notion ADRs governing this task |
+| [5] | This Brief | Sequencing gate — executor proceeds only after [1]–[4] read |
+
+Self-alignment check: all five layers must be populated before Goal/Context/Scope is authored. Missing layers = blocking condition.
+
+### Brief Quality Rules
+- Each task = one clearly bounded unit of work
+- Tasks ordered by dependency — no brief issued before its prerequisite is complete
+- `ENV-*` tasks (env scripts, health checks, `.env.example`) are within executor scope (ADR-026)
+- Executors may NOT modify real `.env` values or access remote infrastructure
+
+### Blocking Conditions
+A task is blocked if:
+- Its prerequisite has not passed review
+- The required Notion Decision Log entry doesn't exist for the approach
+- The Files Allowed list would require touching architecture or governance surfaces
+
+---
+
+## Skill 2: Review Gate
+
+**Trigger:** After every executor task completion report is returned.
+
+### Review Checklist (in order)
+1. **Acceptance criteria** — verify each criterion against actual files modified
+2. **Scope compliance** — confirm all changes are within the brief's Files Allowed list
+3. **Forbidden file integrity** — confirm `CLAUDE.md`, `TASKS.md`, `docs/`, `.agents/` are untouched
+4. **Build verification** — `tsc --noEmit` passes · `next build` succeeds
+5. **Architecture boundaries** — `components/` has no business logic; Medusa calls only through `lib/medusa-client.ts`; no `NEXT_PUBLIC_*` secrets
+6. **TypeScript compliance** — no new `any` without documented justification
+
+### Pass → Next Step
+- Mark task `[x]` in `TASKS.md`
+- Update Notion Task Tracker: status → Done
+- Brief next task if Loop 1 continues
+- Trigger Loop 2 if batch threshold reached
+
+### Fail → Return
+- List each unmet acceptance criterion explicitly
+- Specify exactly which files to fix and what must change
+- Return to executor with precise remediation requirements
+- Do not advance task status until criteria are fully met
+
+### Drift Flags (escalate immediately)
+Flag and block if executor:
+- Modified files outside the brief's Files Allowed list
+- Made architectural decisions outside brief scope
+- Added undeclared dependencies
+- Touched `CLAUDE.md`, `TASKS.md`, `.agents/`, or `docs/` in any way
+- Introduced `any` without justification comment
+
+---
+
+## Skill 3: Notion Sync
+
+**Trigger:** Loop 2 completion, phase milestone, session end.
+
+### Notion Database IDs (canonical)
+| Surface | Collection URL |
+|---|---|
+| Task Tracker | `collection://a74e62ce-09da-455d-b2ee-7ade3d89ff47` |
+| Feature Tracker | `collection://c357977b-4718-4ce1-97d9-971f70c86ba1` |
+| Decision Log | `collection://b10e204a-78f4-43c7-9aab-6fb25eb44203` |
+| Phase Progress | `collection://824857c4-a1f6-4cd3-9d8a-5520d533aca7` |
+| Session Log | `collection://1b7a295a-6427-44c4-9bcd-00b9f03692a0` |
+| Project Hub | `https://www.notion.so/33613205fce68182a043cc6ad0088c3e` |
+
+### Sync Sequence (session end)
+1. Task Tracker: completed tasks → Done; new tasks added with all required fields
+2. Feature Tracker: status updated for features that progressed this session
+3. Decision Log: new ADRs added (Status = Accepted, Summary, Date)
+4. Session Log: new entry added — mandatory every session, no exception
+5. Hub callout: update with current state string
+6. Phase Progress: update if phase milestone reached
+
+### Hub Callout Format
+```
+[Phase X] active. [Task ID] [status]. Branch: `[branch-name]`. Build: ✅/⚠️/❌ | Notion sync: ✅/❌ | Updated: YYYY-MM-DD
+```
+
+### System Health Validation (before sync close)
+- Task Tracker → Invalid Tasks view = 0 rows
+- Feature Tracker → Invalid Features view = 0 rows
+- Active Blockers view matches blockers listed in `TASKS.md`
+
+### Ownership
+Claude is the sole agent with Notion write access.
+Executors never touch Notion. Human may update as directed by Claude.

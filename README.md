@@ -1,22 +1,31 @@
 # Sama Link Store
 
-A production-grade, multilingual, SEO-friendly, AI-friendly e-commerce platform built on a modern composable commerce stack.
+A production-grade, multilingual, SEO-friendly e-commerce platform built on a composable commerce stack.
+
+**Stack:** Next.js 15 App Router · TypeScript strict · Tailwind v4 · Medusa v2 · PostgreSQL · Turborepo
 
 ---
 
-## Stack
+## Quick Setup
 
-| Layer | Technology |
+```bash
+# Copy env file and fill in values
+cp .env.example apps/backend/.env
+
+# Start all services via Docker Compose
+docker compose -f docker-compose.dev.yml up -d
+```
+
+| Service | URL |
 |---|---|
-| Storefront | Next.js 14+ (App Router, TypeScript) |
-| Admin / Dashboard | Next.js (custom) or Medusa Admin (Phase 6) |
-| Commerce Backend | Medusa v2 |
-| Database | PostgreSQL |
-| Search | Meilisearch (Phase 7) |
-| Payments | Stripe (Phase 4) |
-| Storage | S3-compatible (Phase 3) |
-| Monorepo tooling | Turborepo + npm workspaces |
-| Deployment | Vercel (storefront), Node/VPS or Railway (backend) |
+| Storefront | http://localhost:3000 |
+| Backend / Admin | http://localhost:9000 |
+| Admin UI | http://localhost:9000/app |
+
+**Prerequisites:** Docker Desktop
+
+> Rebuild after any `docker-compose.dev.yml` or `Dockerfile.dev` change:
+> `docker compose -f docker-compose.dev.yml up -d --build backend`
 
 ---
 
@@ -25,94 +34,56 @@ A production-grade, multilingual, SEO-friendly, AI-friendly e-commerce platform 
 ```
 sama-link-store/
 ├── apps/
-│   ├── storefront/        # Next.js customer-facing store
-│   ├── admin/             # Admin/dashboard app (Phase 6)
-│   └── backend/           # Medusa commerce backend
+│   ├── storefront/   # Next.js customer-facing store
+│   └── backend/      # Medusa v2 commerce backend
 ├── packages/
-│   ├── ui/                # Shared React UI primitives
-│   ├── types/             # Shared TypeScript types & domain models
-│   └── config/            # Shared ESLint, TS, Tailwind configs
-├── docs/                  # Extended documentation
-├── .env.example           # Environment variable reference
-├── turbo.json             # Turborepo pipeline config
-└── package.json           # Monorepo root
+│   ├── ui/           # Shared React UI primitives
+│   ├── types/        # Shared TypeScript types
+│   └── config/       # Shared ESLint, TS, Tailwind configs
+├── .agents/          # Agent contracts (Claude tooling)
+├── CLAUDE.md         # Claude Code session entry point
+└── TASKS.md          # Active task queue
 ```
 
 ---
 
-## Getting Started
+## Project Knowledge Base
 
-### Prerequisites
+All governance, decisions, architecture, and operations documentation lives in **Notion**.  
+The repository holds no duplicate knowledge — Notion is the single source of truth.
 
-- Node.js >= 20
-- npm >= 10
-- PostgreSQL running locally or via Docker
-- (Optional) Redis for sessions/queues
-
-### Setup
-
-```bash
-# 1. Clone / enter the project
-cd sama-link-store
-
-# 2. Copy env files and fill in values
-cp .env.example apps/backend/.env
-cp .env.example apps/storefront/.env.local
-
-# 3. Install dependencies (once apps are scaffolded)
-npm install
-
-# 4. Run everything in dev mode
-npm run dev
-```
-
-> **Note:** Individual apps have not been scaffolded yet — see ROADMAP.md Phase 0–1.
-
----
-
-## Development Phases
-
-| Phase | Focus |
+| Surface | Link |
 |---|---|
-| 0 | Project foundation, structure, docs |
-| 1 | Storefront skeleton (Next.js, layout, routing) |
-| 2 | Medusa backend integration |
-| 3 | Product catalog |
-| 4 | Cart and checkout |
-| 5 | Orders and customer accounts |
-| 6 | Admin/dashboard |
-| 7 | SEO, localization, analytics |
-| 8 | Hardening and launch readiness |
+| Project Hub | https://www.notion.so/33613205fce68182a043cc6ad0088c3e |
+| Decision Log (ADRs) | https://www.notion.so/76a704d872c34874bfac1e8454f6134b |
+| Implementation Canon | https://www.notion.so/34113205fce681468f8dc7185f1a55d4 |
 
-See [ROADMAP.md](./ROADMAP.md) for detailed phase breakdown.
+### In-repo agent layer
 
----
+The `.agents/` directory contains the operative layer for Claude Code sessions — not documentation.
 
-## Key Documentation
-
-- [PROJECT_BRIEF.md](./PROJECT_BRIEF.md) — Business goals, product vision, MVP scope
-- [ARCHITECTURE.md](./ARCHITECTURE.md) — System design and integration boundaries
-- [DEVELOPMENT_RULES.md](./DEVELOPMENT_RULES.md) — Coding standards and project rules
-- [ROADMAP.md](./ROADMAP.md) — Phased implementation plan
-- [TASKS.md](./TASKS.md) — Actionable task backlog
-- [DECISIONS.md](./DECISIONS.md) — Architectural decision log
-- [SESSION_GUIDE.md](./SESSION_GUIDE.md) — Guide for future Claude/AI sessions
-- [docs/](./docs/) — Extended technical documentation
+| File | Purpose |
+|---|---|
+| `.agents/00-core.mdc` | Architecture boundaries, branching rules, security constraints |
+| `.agents/10-skills.mdc` | Task brief format, review checklist, session sync protocol |
+| `.agents/20-contracts.mdc` | Per-role executor contracts |
 
 ---
 
-## Branching Strategy
+## Branching
 
 | Branch | Purpose |
-|--------|---------|
-| `main` | Production-only. Never commit directly. |
-| `develop` | Default working branch. Safe for docs, minor UI, config changes. |
-| `feature/back-N-<slug>` | Required for all backend, security, env, or multi-file structural changes. |
+|---|---|
+| `main` | Production only. Never commit directly. |
+| `develop` | Default working branch for low-risk changes. |
+| `feature/back-N-<slug>` | Required for backend, security, env, or structural changes. |
 
-**Decision rule:** If the change touches runtime, backend, env, security, or more than ~3 files → use a feature branch. Otherwise → commit directly to `develop`.
+**Rule:** runtime / backend / env / security / DB / > 3 files → feature branch. Otherwise → `develop`.
 
 ---
 
-## Contributing / Development
+## Agent Sessions
 
-See [DEVELOPMENT_RULES.md](./DEVELOPMENT_RULES.md) for all coding and workflow standards.
+- [`CLAUDE.md`](CLAUDE.md) — Auto-read by Claude Code. Pre-flight checklist, guardrails, and Notion surface index.
+- [`TASKS.md`](TASKS.md) — Active task queue for the current sprint.
+- [`.env.example`](.env.example) — Environment variable reference.

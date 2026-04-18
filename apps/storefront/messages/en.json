@@ -4,13 +4,97 @@
     "notFoundDescription": "The page you're looking for doesn't exist or has been moved.",
     "goHome": "Back to home"
   },
+  "cart": {
+    "title": "Your Cart",
+    "empty": "Your cart is empty.",
+    "continueShopping": "Continue Shopping",
+    "subtotal": "Subtotal",
+    "checkout": "Checkout",
+    "proceedToCheckout": "Proceed to Checkout",
+    "orderSummary": "Order Summary",
+    "viewCart": "View Cart",
+    "remove": "Remove",
+    "close": "Close cart",
+    "loading": "Loading cart…"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "steps": {
+      "aria": "Checkout steps",
+      "address": "Address",
+      "shipping": "Shipping",
+      "payment": "Payment",
+      "review": "Review"
+    },
+    "address": {
+      "title": "Shipping Address",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "address1": "Address",
+      "address2": "Apartment, suite, etc. (optional)",
+      "city": "City",
+      "country": "Country",
+      "selectCountry": "Select a country",
+      "province": "State / Province (optional)",
+      "postalCode": "Postal Code (optional)",
+      "phone": "Phone (optional)",
+      "continue": "Continue to Shipping",
+      "saving": "Saving…",
+      "error": "Failed to save address. Please try again.",
+      "required": "This field is required"
+    },
+    "shipping": {
+      "title": "Shipping Method",
+      "noOptions": "No shipping options are available for your address. Please go back and check your address.",
+      "continue": "Continue to Payment",
+      "saving": "Saving…",
+      "error": "Failed to apply shipping method. Please try again."
+    },
+    "payment": {
+      "title": "Payment Method",
+      "continue": "Continue to Review",
+      "saving": "Saving…",
+      "error": "Failed to apply payment method. Please try again.",
+      "noOptions": "No payment methods are available.",
+      "providers": {
+        "pp_system_default": "Cash on Delivery"
+      }
+    },
+    "review": {
+      "title": "Review Order",
+      "items": "Your Items",
+      "deliverTo": "Deliver To",
+      "orderSummary": "Order Summary",
+      "subtotal": "Subtotal",
+      "total": "Total",
+      "placeOrder": "Place Order",
+      "placing": "Placing order…",
+      "error": "Failed to place order. Please try again."
+    },
+    "confirmed": {
+      "title": "Order Confirmed",
+      "heading": "Order Confirmed!",
+      "orderNumber": "Order #{number}",
+      "body": "Thank you for your purchase. You will receive a confirmation email shortly.",
+      "continueShopping": "Continue Shopping"
+    }
+  },
   "common": {
     "storeName": "Sama Link Store",
     "loading": "Loading...",
     "error": "Something went wrong",
     "noResults": "No results found"
   },
+  "breadcrumbs": {
+    "home": "Home",
+    "products": "Products",
+    "collections": "Collections",
+    "cart": "Cart",
+    "checkout": "Checkout",
+    "aria": "Breadcrumb"
+  },
   "nav": {
+    "home": "Home",
     "products": "Products",
     "collections": "Collections",
     "about": "About",
@@ -25,7 +109,21 @@
     "closeMenu": "Close menu",
     "mobileNavigation": "Mobile navigation",
     "switchToEnglish": "English",
-    "switchToArabic": "العربية"
+    "switchToArabic": "العربية",
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode",
+    "wishlist": "Wishlist",
+    "compare": "Compare",
+    "wishlistAria": "Wishlist ({count} items)",
+    "compareAria": "Compare ({count} items)",
+    "megaMenu": {
+      "productsTrigger": "Products",
+      "collectionsTrigger": "Collections",
+      "viewAllProducts": "View all products",
+      "viewAllCollections": "View all collections",
+      "emptyCategories": "No categories yet.",
+      "emptyCollections": "No collections yet."
+    }
   },
   "home": {
     "headline": "Sama Link Store",
@@ -34,6 +132,208 @@
     "comingSoon": "The full product catalog, search, and checkout will arrive in upcoming phases. This storefront skeleton confirms routing, layout, and i18n.",
     "metaTitle": "Sama Link Store — Quality Products Online",
     "metaDescription": "Discover quality products at Sama Link Store. Curated collections delivered to your door."
+  },
+  "products": {
+    "featuredTitle": "Featured Products",
+    "noProducts": "No products available yet.",
+    "listing": {
+      "title": "All Products",
+      "description": "Browse our full catalog of networking and surveillance products.",
+      "empty": "No products available yet.",
+      "paginationLabel": "Pagination",
+      "previous": "← Previous",
+      "next": "Next →",
+      "pageOf": "{current} / {total}"
+    },
+    "filters": {
+      "heading": "Filters",
+      "collections": "Collections",
+      "categories": "Categories",
+      "allCategories": "All",
+      "allCollections": "All",
+      "priceRange": "Price Range",
+      "clearAll": "Clear filters",
+      "priceBuckets": {
+        "under100": "Under 100",
+        "100to500": "100 – 500",
+        "over500": "500+"
+      }
+    },
+    "detail": {
+      "addToCart": "Add to Cart",
+      "buyNow": "Buy now",
+      "adding": "Adding…",
+      "added": "Added!",
+      "variants": "Variants",
+      "variantDefault": "Variant",
+      "sku": "SKU",
+      "material": "Material",
+      "weight": "Weight",
+      "origin": "Country of Origin",
+      "details": "Product Details",
+      "inStock": "In stock",
+      "freeShipping": "Free shipping on orders over EGP 1000",
+      "benefits": {
+        "authentic": "100% authentic products",
+        "warranty": "Manufacturer warranty included",
+        "fastDelivery": "Fast delivery across Egypt",
+        "cashOnDelivery": "Cash on delivery available"
+      },
+      "chooseVariant": "Choose your option",
+      "descriptionHeading": "Description",
+      "specifications": "Specifications",
+      "category": "Category",
+      "collection": "Collection",
+      "tags": "Tags",
+      "type": "Type",
+      "options": "Options",
+      "dimensions": "Dimensions",
+      "galleryPrev": "Previous image",
+      "galleryNext": "Next image",
+      "tabsAria": "Product information tabs",
+      "carouselPrev": "Scroll previous",
+      "carouselNext": "Scroll next",
+      "reviews": {
+        "title": "Customer Reviews",
+        "subtitle": "What our customers say about this product",
+        "noReviewsTitle": "No reviews yet",
+        "noReviewsBody": "Be the first to share your experience with this product."
+      },
+      "relatedTitle": "Related Products",
+      "relatedSubtitle": "More from this collection",
+      "suggestedTitle": "You May Also Like",
+      "suggestedSubtitle": "Discover other products customers love"
+    },
+    "card": {
+      "quickView": "Quick view",
+      "buyNow": "Buy now",
+      "addedToast": "Added to cart",
+      "addToCartAria": "Add to cart"
+    },
+    "quickView": {
+      "title": "Quick view",
+      "close": "Close",
+      "viewDetails": "View full details",
+      "chooseVariant": "Choose a variant"
+    }
+  },
+  "wishlist": {
+    "pageTitle": "Wishlist",
+    "pageDescription": "Products you have saved to your wishlist.",
+    "empty": "Your wishlist is empty.",
+    "emptyCta": "Browse products",
+    "add": "Save to wishlist",
+    "remove": "Remove from wishlist",
+    "addedAria": "Added to wishlist",
+    "removedAria": "Removed from wishlist",
+    "removeItem": "Remove"
+  },
+  "compare": {
+    "pageTitle": "Compare",
+    "pageDescription": "Compare product specifications side by side.",
+    "empty": "Nothing to compare yet.",
+    "emptyCta": "Browse products",
+    "add": "Add to compare",
+    "remove": "Remove from compare",
+    "full": "You can compare up to {max} products. Remove one to add another.",
+    "addedAria": "Added to compare",
+    "removedAria": "Removed from compare",
+    "removeColumn": "Remove from compare",
+    "headers": {
+      "image": "Image",
+      "title": "Title",
+      "price": "Price",
+      "subtitle": "Subtitle",
+      "material": "Material",
+      "weight": "Weight",
+      "origin": "Origin"
+    }
+  },
+  "collections": {
+    "listing": {
+      "title": "All Collections",
+      "empty": "No collections available yet.",
+      "metaTitle": "Collections — Sama Link Store",
+      "metaDescription": "Browse all product collections at Sama Link Store."
+    },
+    "empty": "No products in this collection yet.",
+    "paginationLabel": "Pagination",
+    "previous": "← Previous",
+    "next": "Next →",
+    "pageOf": "{current} / {total}"
+  },
+  "pages": {
+    "about": {
+      "title": "About Us"
+    },
+    "faq": {
+      "title": "FAQ"
+    },
+    "contact": {
+      "title": "Contact Us"
+    },
+    "shippingReturns": {
+      "title": "Shipping & Returns"
+    },
+    "privacy": {
+      "title": "Privacy Policy"
+    },
+    "terms": {
+      "title": "Terms & Conditions"
+    },
+    "fallbackBody": "This page is coming soon."
+  },
+  "trackOrder": {
+    "title": "Track Order",
+    "body": "Order tracking will be available soon."
+  },
+  "meta": {
+    "root": {
+      "description": "Your destination for quality products."
+    },
+    "cart": {
+      "description": "Review items in your cart and proceed to checkout."
+    },
+    "checkout": {
+      "address": {
+        "description": "Enter your shipping address to continue checkout."
+      },
+      "shipping": {
+        "description": "Choose a shipping method for your order."
+      },
+      "payment": {
+        "description": "Select your preferred payment method."
+      },
+      "review": {
+        "description": "Review your order before placing it."
+      },
+      "confirmed": {
+        "description": "Your order has been confirmed."
+      }
+    },
+    "trackOrder": {
+      "description": "Track the status of your order."
+    },
+    "pages": {
+      "about": {
+        "description": "Learn about Sama Link Store — our story and values."
+      },
+      "faq": {
+        "description": "Frequently asked questions about Sama Link Store orders and services."
+      },
+      "contact": {
+        "description": "Get in touch with Sama Link Store customer support."
+      },
+      "shippingReturns": {
+        "description": "Shipping and returns information for Sama Link Store orders."
+      },
+      "privacy": {
+        "description": "Sama Link Store privacy policy — how we collect and handle your data."
+      },
+      "terms": {
+        "description": "Sama Link Store terms and conditions of use."
+      }
+    }
   },
   "footer": {
     "copyright": "All rights reserved",
