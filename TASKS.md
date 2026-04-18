@@ -88,7 +88,7 @@ Implementation rule (all tasks): **No hardcoded user-facing strings.** All copy 
 
 ### Workstream H — Mega Menu (ADR-041, blocked on MVP-6 + MVP-7)
 
-- [ ] **MVP-8**: Mega menu — install `@radix-ui/react-navigation-menu`, build desktop mega menu with categories + collections panels, wire to real routes
+- [x] **MVP-8**: Mega menu — install `@radix-ui/react-navigation-menu`, build desktop mega menu with categories + collections panels, wire to real routes — done 2026-04-18 (MVP-8b visual polish pass: chevrons, accent bar, hierarchy, pill CTA, icon empty state)
 
 ### Workstream I — Brand & Mobile Polish
 
@@ -96,7 +96,7 @@ Implementation rule (all tasks): **No hardcoded user-facing strings.** All copy 
 
 ### Workstream J — SEO Foundational Pass
 
-- [ ] **MVP-10**: SEO — sitemap.xml (dynamic, all product + collection + page routes), robots.txt, JSON-LD structured data (Organization, Product, BreadcrumbList), page metadata audit, semantic heading structure check
+- [x] **MVP-10**: SEO — sitemap.xml (dynamic, all product + collection + page routes), robots.txt, JSON-LD structured data (Organization, Product, BreadcrumbList), page metadata audit, semantic heading structure check — done 2026-04-18 (sitemap 120 URLs, `lib/seo.ts` shared helpers, Organization + Product JSON-LD added, BreadcrumbList pre-existing in `Breadcrumbs.tsx`, 14 new `meta.*` CSV keys)
 
 ---
 
@@ -133,7 +133,23 @@ NOTE: MVP-7 is NOT blocked on CMS content completeness — only on route existen
 - [x] Product cards visually consistent across grid (height, image, clamping, price/action) — MVP-3 ✅ 2026-04-16
 - [x] Mobile locale switcher visible and usable — MVP-9 ✅ 2026-04-18
 - [x] Responsive behavior acceptable across mobile / tablet / desktop — MVP-9 ✅ 2026-04-18
-- [ ] Foundational SEO artifacts present (sitemap, robots.txt, JSON-LD, metadata, locale alternates) — sitemap/robots present; JSON-LD + audit pending MVP-10
+- [x] Foundational SEO artifacts present (sitemap, robots.txt, JSON-LD, metadata, locale alternates) — MVP-10 ✅ 2026-04-18
 - [x] No hardcoded user-facing strings in any touched frontend code path; all copy in storefront.csv + messages pipeline — verified across MVP-1/3/4/5/6/7 + PDP redesign
 - [x] Arabic strings added in this phase are clean, readable, and ecommerce-appropriate — backfilled 2026-04-16
 - [x] No Stripe packages in `package.json` ✅
+
+---
+
+## Phase 5 → Phase 6 Governance Closeout (mandatory before Phase 6 opens)
+
+ADR-044 is time-boxed. The back-merge below restores ADR-014 and expires ADR-044. **Phase 6 planning does not open until `GIT-2` is `[x]`.**
+
+- [ ] **GIT-2**: Trunk reconciliation back-merge (ADR-044 exit criteria)
+  - [ ] Merge active feature branch (current: `feature/front-10-seo-foundational`, plus any subsequent Phase 5 branches) into `develop`
+  - [ ] Merge `develop` into `main`
+  - [ ] Verify `develop` now contains all Phase 2–5 product code
+  - [ ] Update `CLAUDE.md` § Project State → `Active branch:` back to `develop` (or the next Phase 6 feature branch once cut)
+  - [ ] Archive ADR-044 in Notion Decision Log (Status → Expired, with exit-criteria checklist attached)
+  - [ ] First Phase 6 task branch demonstrably cut from `develop` — evidenced in the task's brief header
+
+**Blocker:** Phase 6 kickoff. Do not open Phase 6 planning, brief Phase 6 tasks, or assign Phase 6 work until every sub-item above is `[x]` and ADR-044 is archived.
