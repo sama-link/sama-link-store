@@ -15,9 +15,14 @@ out/
 .env
 .env.local
 .env.development.local
+.env.test
 .env.test.local
 .env.production.local
 .env.production
+.dev.pids
+.dev.backend.log
+.dev.storefront.log
+.dev.root.log
 
 # Logs
 npm-debug.log*

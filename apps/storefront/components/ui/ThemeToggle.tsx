@@ -1,24 +1,22 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useTheme } from "./ThemeProvider";
 
 /**
- * Minimal theme control for BRAND-4. Not mounted in the shell until BRAND-5.
+ * Minimal theme control.
  */
 export default function ThemeToggle() {
   const { theme, toggle } = useTheme();
+  const t = useTranslations("nav");
 
   return (
     <button
       type="button"
       onClick={toggle}
-      aria-label={
-        theme === "light"
-          ? "Switch to dark mode"
-          : "Switch to light mode"
-      }
+      aria-label={theme === "light" ? t("switchToDark") : t("switchToLight")}
       aria-pressed={theme === "dark"}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface text-text-secondary shadow-sm hover:bg-surface-subtle hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface text-text-secondary shadow-sm hover:bg-surface-subtle hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
     >
       {theme === "light" ? (
         <svg

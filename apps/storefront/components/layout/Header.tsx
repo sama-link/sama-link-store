@@ -1,9 +1,14 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import { listCollections, listProductCategories } from "@/lib/medusa-client";
 import Container from "./Container";
 import LocaleSwitcher from "./LocaleSwitcher";
 import MobileMenu from "./MobileMenu";
+import MegaMenu from "./MegaMenu";
+import CartButton from "./CartButton";
+import WishlistHeaderButton from "./WishlistHeaderButton";
+import CompareHeaderButton from "./CompareHeaderButton";
 
 /*
   Responsive layout:
@@ -13,19 +18,33 @@ import MobileMenu from "./MobileMenu";
     ↕ MobileMenu panel (toggle)
 
   Desktop (≥ 640px)
-    [Logo]   [Products  Collections  About]   [locale  theme  🛒]
+    [Logo]   [MegaMenu: Home  Products▼  Collections▼  About]   [locale  theme  wishlist  compare  cart]
 
   Header is a Server Component.
   ThemeToggle + LocaleSwitcher + MobileMenu are client boundaries.
 */
 
-const NAV_LINKS = [
-  { key: "products" as const, href: "#" },
-  { key: "collections" as const, href: "#" },
-  { key: "about" as const, href: "#" },
-];
-
 export default async function Header() {
+  const locale = await getLocale();
+
+  const [{ product_categories }, { collections }] = await Promise.all([
+    listProductCategories(),
+    listCollections(),
+  ]);
+
+  const megaCategories = product_categories.map((c) => ({
+    id: c.id,
+    name: c.name ?? c.handle ?? c.id,
+  }));
+
+  const megaCollections = collections
+    .filter((c) => typeof c.handle === "string" && c.handle.length > 0)
+    .map((c) => ({
+      id: c.id,
+      title: c.title ?? c.handle ?? c.id,
+      handle: c.handle as string,
+    }));
+
   const t = await getTranslations("nav");
   const tCommon = await getTranslations("common");
 
@@ -36,33 +55,22 @@ export default async function Header() {
 
           {/* ── Logo ── */}
           <a
-            href="/"
+            href={`/${locale}`}
             className="inline-flex shrink-0 items-center transition-opacity hover:opacity-90"
             aria-label={t("logoHomeAria")}
           >
             <Logo
               variant="horizontal-no-tagline"
               alt={tCommon("storeName")}
-              className="h-8 w-auto"
+              className="h-10 w-auto"
               priority
             />
           </a>
 
-          {/* ── Desktop nav ── */}
-          <nav aria-label={t("mainNavigation")} className="hidden sm:block">
-            <ul className="flex items-center gap-6">
-              {NAV_LINKS.map(({ key, href }) => (
-                <li key={key}>
-                  <a
-                    href={href}
-                    className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
-                  >
-                    {t(key)}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          {/* ── Desktop nav (mega menu); mobile uses MobileMenu unchanged ── */}
+          <div className="hidden sm:flex sm:flex-1 sm:justify-center">
+            <MegaMenu categories={megaCategories} collections={megaCollections} />
+          </div>
 
           {/* ── Actions ── */}
           <div className="flex items-center gap-1 sm:gap-3">
@@ -71,29 +79,11 @@ export default async function Header() {
 
             <ThemeToggle />
 
-            {/* Cart icon — wired in Phase 4 */}
-            <button
-              type="button"
-              disabled
-              aria-label={t("openCart", { count: 0 })}
-              className="relative flex h-9 w-9 items-center justify-center rounded-md text-text-secondary hover:bg-surface-subtle hover:text-text-primary transition-colors"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={1.75}
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25 5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z"
-                />
-              </svg>
-            </button>
+            <WishlistHeaderButton />
+
+            <CompareHeaderButton />
+
+            <CartButton />
 
             {/* Hamburger (mobile only) — rendered by MobileMenu */}
             <MobileMenu />
