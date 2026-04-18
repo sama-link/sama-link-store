@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useWishlist } from "@/hooks/useWishlist";
 import { useCompare } from "@/hooks/useCompare";
 import { cn } from "@/lib/cn";
+import LocaleSwitcher from "./LocaleSwitcher";
 
 /**
  * Hamburger toggle + collapsible mobile nav panel.
@@ -96,6 +97,9 @@ export default function MobileMenu() {
               </a>
             </li>
           ))}
+          <li>
+            <LocaleSwitcher variant="mobile" onNavigate={() => setOpen(false)} />
+          </li>
           {COMMERCE_LINKS.map(({ key, href }) => {
             const count =
               key === "wishlist"

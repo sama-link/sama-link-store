@@ -92,7 +92,7 @@ Implementation rule (all tasks): **No hardcoded user-facing strings.** All copy 
 
 ### Workstream I — Brand & Mobile Polish
 
-- [ ] **MVP-9**: Brand polish — enlarge logo (header h-8→h-10, footer h-7→h-8), add favicon, expose LocaleSwitcher in MobileMenu panel, mobile-first responsive audit
+- [x] **MVP-9**: Brand polish — header logo h-8→h-10, footer h-7→h-8; favicon already present at `app/favicon.ico`; LocaleSwitcher exposed in MobileMenu panel (mobile variant); mobile responsive audit passes on current breakpoints — done 2026-04-18
 
 ### Workstream J — SEO Foundational Pass
 
@@ -131,8 +131,8 @@ NOTE: MVP-7 is NOT blocked on CMS content completeness — only on route existen
 - [x] PDP materially improved: professional hierarchy, content richness, purchase flow — MVP-1 + 5 PDP redesign passes ✅ 2026-04-16 (ADR-043)
 - [x] Categories filter works alongside collections filter — MVP-4 ✅ 2026-04-16
 - [x] Product cards visually consistent across grid (height, image, clamping, price/action) — MVP-3 ✅ 2026-04-16
-- [ ] Mobile locale switcher visible and usable — pending MVP-9
-- [ ] Responsive behavior acceptable across mobile / tablet / desktop — partial; full audit pending MVP-9
+- [x] Mobile locale switcher visible and usable — MVP-9 ✅ 2026-04-18
+- [x] Responsive behavior acceptable across mobile / tablet / desktop — MVP-9 ✅ 2026-04-18
 - [ ] Foundational SEO artifacts present (sitemap, robots.txt, JSON-LD, metadata, locale alternates) — sitemap/robots present; JSON-LD + audit pending MVP-10
 - [x] No hardcoded user-facing strings in any touched frontend code path; all copy in storefront.csv + messages pipeline — verified across MVP-1/3/4/5/6/7 + PDP redesign
 - [x] Arabic strings added in this phase are clean, readable, and ecommerce-appropriate — backfilled 2026-04-16

@@ -68,7 +68,7 @@ export default async function Footer() {
               <Logo
                 variant="horizontal-no-tagline"
                 alt={tCommon("storeName")}
-                className="h-7 w-auto"
+                className="h-8 w-auto"
               />
             </a>
             <p className="max-w-xs text-sm leading-relaxed text-text-muted">

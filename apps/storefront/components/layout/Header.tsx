@@ -48,7 +48,7 @@ export default async function Header() {
             <Logo
               variant="horizontal-no-tagline"
               alt={tCommon("storeName")}
-              className="h-8 w-auto"
+              className="h-10 w-auto"
               priority
             />
           </a>
