@@ -164,7 +164,8 @@ Implementation rule (all Phase 6 tasks): **No hardcoded user-facing strings.** A
 
 ### Active tasks
 
-- [x] **AUTH-1**: Customer authentication server-side foundation — httpOnly JWT cookie, server-resolved customer, Medusa emailpass via SDK in `jwt` mode, login/register/logout routes, header affordance — branch `feature/auth-1-customer-foundation` (cut from `develop` 2026-04-18) — target Advanced Executor — done 2026-04-18 (ADR-046)
+- [x] **AUTH-1**: Customer authentication server-side foundation — httpOnly JWT cookie, server-resolved customer, Medusa emailpass via SDK in `jwt` mode, login/register/logout routes, header affordance — branch `feature/auth-1-customer-foundation` (cut from `develop` 2026-04-18, back-merged to `develop` as merge commit `382e1ab` on 2026-04-18) — target Advanced Executor — done 2026-04-18 (ADR-046)
+- [ ] **CART-MERGE**: Cart-auth seam — transfer guest cart to customer on login/register via `sdk.store.cart.transferCart`; clear cart cookie on logout; silent best-effort failures (TEMPORARY operational compromise pending a future logging utility) — branch `feature/cart-merge-auth-seam` (cut from `develop` 2026-04-18, post-AUTH-1 back-merge) — target Advanced Executor
 
 ---
 
@@ -628,4 +629,408 @@ Completion Report
   criteria with met/unmet status, the build results (`tsc --noEmit` +
   `next build`), the grep outputs from Step 11, and a full `git status`
   showing only Files Allowed were modified.
+```
+
+---
+
+### CART-MERGE — canonical brief
+
+```
+================================================================
+Task ID:           CART-MERGE
+Phase:             Phase 6 — Customer Accounts
+Target Executor:   Advanced Executor
+Branch:            feature/cart-merge-auth-seam
+                   (cut from develop 2026-04-18, immediately after the
+                    AUTH-1 back-merge landed as merge commit 382e1ab)
+Depends on:        AUTH-1 merged into develop (done — 382e1ab)
+Governs:           ADR-018 (native first — sdk.store.cart.transferCart
+                                          used as-is, no custom wrapper)
+                   ADR-036 (no middleware — Server-Action-only plumbing)
+                   ADR-046 (Phase 6 auth; JWT bearer)
+================================================================
+
+REQUIRED READING (ADR-033 — blocking; all five layers must be read)
+  [1] Project Context
+      - Notion Project Definition
+      - Notion Implementation Canon — § Cart model, § Customer model,
+        § Medusa auth surface
+  [2] Task State
+      - TASKS.md (repo) — this section; confirm AUTH-1 is [x] on develop
+      - Notion Hub active-phase callout — confirm "Phase 6 active"
+  [3] Role Contract
+      - .agents/20-contracts.mdc — Advanced Executor section
+  [4] Governing Rules & ADRs
+      - .agents/00-core.mdc (whole file — §2 boundaries + §3 security are
+        load-bearing; §2 "no console.log in committed code" is directly
+        referenced by this brief — read carefully)
+      - .agents/10-skills.mdc — Skill 1 (brief fields) + Skill 2 (review gate)
+      - Notion ADR-018, ADR-036, ADR-046
+  [5] This Brief
+
+Self-alignment check: If any of [1]–[4] is unavailable, STOP and report.
+Do not proceed to Goal/Scope until all five are confirmed read.
+
+----------------------------------------------------------------
+Goal
+  Attach the authenticated customer's guest cart to their account on
+  login and registration, and clear the cart cookie on logout, so that
+  cart ownership follows the auth boundary without leaking state across
+  users on a shared device.
+
+Context
+  AUTH-1 (ADR-046) landed Medusa native emailpass auth with an httpOnly
+  JWT cookie and server-resolved customer. The guest cart stream
+  (ADR-036) is still client-managed via the `medusa_cart_id` cookie
+  (NOT httpOnly, readable by both client and server). These two cookies
+  are currently disconnected — a signed-in customer's cart is still an
+  "anonymous" cart from Medusa's perspective, and a logged-out guest
+  can still see the previous customer's cart items if the cart cookie
+  is left behind.
+
+  This task closes both gaps using Medusa v2's native cart-transfer
+  endpoint (sdk.store.cart.transferCart, confirmed present in
+  @medusajs/js-sdk@^2.13.1 — see
+  node_modules/@medusajs/js-sdk/dist/esm/store/index.d.ts:594).
+
+  No new ADR is required — this is an extension of ADR-046's auth seam
+  and ADR-036's no-middleware posture. The logout-clears-cart decision
+  is recorded by Claude in the Notion Decision Log as a scoped
+  supplement to ADR-046 once the task passes review.
+
+  Design constraints (DO NOT deviate):
+    (a) Transfer is best-effort. Failures do NOT block login/register.
+    (b) No UI surface — silent plumbing. No toasts, no CSV keys.
+    (c) No cross-device cart persistence. A customer signing in on a
+        new device sees only whatever guest cart (if any) is already in
+        the cookie. Their prior-session cart stays orphaned in the
+        backend. That is a future task, NOT this one.
+    (d) Cart operations remain anonymous (identified by cart_id alone) —
+        we do NOT start forwarding the bearer token on cart line-item
+        ops. Transferred carts remain publicly manipulable by cart_id,
+        matching Medusa v2's default posture.
+    (e) CartProvider (hooks/useCart.ts) is NOT modified. The cart cookie
+        id is stable across transfer, so the client cart continues to
+        work without re-bootstrapping.
+
+  OPERATIONAL NOTE ON LOGGING (TEMPORARY COMPROMISE — read carefully):
+    The silent swallow of transfer failures prescribed below is a
+    DELIBERATE, TEMPORARY operational compromise, not a final posture.
+    Two constraints collide today:
+      (i)  No approved project logger utility exists.
+      (ii) .agents/00-core.mdc §2 forbids `console.log` / `console.error`
+           in committed code — no eslint override granted for this file.
+    Between those two, silent swallow is the ONLY compliant option at
+    this moment. When a project logging utility is later adopted (future
+    LOG-* task, not yet briefed), this swallow becomes a KNOWN follow-up
+    defect and must be revisited. The executor MUST record this in
+    `task report.txt` under a "Known follow-ups" block so the next
+    reviewer of this area has a breadcrumb. The executor MUST NOT
+    preempt LOG-* by introducing their own logger — that is scope creep.
+
+----------------------------------------------------------------
+Files Allowed (explicit — no wildcards)
+
+  Storefront — new
+    apps/storefront/lib/cart-cookie-server.ts
+      (server-only companion to lib/cart-cookie.ts; reads and clears
+       the cart cookie via next/headers — required because Server
+       Actions cannot use document.cookie. Top of file:
+       `import "server-only";`)
+
+  Storefront — modify
+    apps/storefront/lib/medusa-client.ts
+      Add ONE new helper (exactly one — no other changes to this file):
+        transferCartToCustomer(cartId: string, token: string): Promise<void>
+          → await sdk.store.cart.transferCart(cartId, {}, authHeader(token))
+          → Do NOT return the cart body; the caller doesn't need it.
+          → Do NOT swallow errors inside this helper — let them propagate.
+             The Server Action wraps the call in a best-effort try/catch.
+          → Reuse the existing `authHeader(token)` helper (current line 81).
+          → Place the function immediately AFTER `completeCart` (current
+             line ~456) to keep cart helpers grouped.
+
+    apps/storefront/app/[locale]/(storefront)/account/actions.ts
+      Wire the transfer into loginAction + registerAction; wire the
+      cart-cookie clear into logoutAction. See Implementation Steps for
+      exact ordering within each action.
+
+  Files Forbidden (always — even if they seem related)
+    - CLAUDE.md
+    - TASKS.md
+    - .agents/      (entire directory)
+    - docs/         (entire directory — archived history)
+    - Root .gitignore, turbo.json, root package.json
+    - apps/backend/ (entire directory)
+    - apps/storefront/middleware.ts
+      (ADR-036: no middleware for cart; same stance as AUTH-1. Auth seam
+       plumbing belongs in Server Actions, not middleware.)
+    - apps/storefront/hooks/useCart.ts
+      (Cart provider stays untouched — transfer is a server-side op that
+       reuses the existing cart_id; client state does not change.)
+    - apps/storefront/hooks/useCustomer.ts
+      (No client state change on transfer — the customer object is still
+       the one resolved server-side by getCurrentCustomerFromCookie.)
+    - apps/storefront/lib/cart-cookie.ts
+      (Current file is client-only; do NOT add server APIs to it — they
+       would force next/headers into a file that also uses document.cookie,
+       which breaks the client bundle. New server companion file instead.)
+    - apps/storefront/lib/auth-cookie.ts
+      (Untouched — auth cookie lifecycle is owned by AUTH-1.)
+    - apps/storefront/lib/customer-server.ts
+      (Untouched — customer resolution is owned by AUTH-1.)
+    - apps/storefront/app/[locale]/(storefront)/layout.tsx
+      (Provider composition unchanged.)
+    - Any translation file (translations/*.csv, messages/*.json) —
+      this task introduces ZERO user-facing copy. If you feel tempted
+      to add a "Your cart was merged" string, you are out of scope —
+      stop and report.
+    - ProductCard, PDP, checkout routes, any order-history surface.
+
+----------------------------------------------------------------
+Implementation Steps (deterministic — do not skip or reorder)
+
+1.  Create apps/storefront/lib/cart-cookie-server.ts
+    ```ts
+    import "server-only";
+    import { cookies } from "next/headers";
+    import { CART_COOKIE_NAME } from "./cart-cookie";
+
+    export async function getCartIdFromCookie(): Promise<string | null> {
+      const store = await cookies();
+      return store.get(CART_COOKIE_NAME)?.value ?? null;
+    }
+
+    export async function clearCartIdCookie(): Promise<void> {
+      const store = await cookies();
+      store.set(CART_COOKIE_NAME, "", { maxAge: 0, path: "/" });
+    }
+    ```
+    - Do NOT re-declare CART_COOKIE_NAME locally — import from
+      ./cart-cookie to keep a single source of truth.
+    - Do NOT add setCartIdCookie — writing the cart cookie server-side
+      is not needed in this task.
+
+2.  Extend apps/storefront/lib/medusa-client.ts
+    - Add the following immediately after `completeCart`:
+    ```ts
+    export async function transferCartToCustomer(
+      cartId: string,
+      token: string,
+    ): Promise<void> {
+      await sdk.store.cart.transferCart(cartId, {}, authHeader(token));
+    }
+    ```
+    - Do not change any existing exports, imports, or the `sdk`
+      singleton. Do not add a new error class. Transfer errors use
+      native Error — the Server Action layer decides how to respond.
+
+3.  Modify apps/storefront/app/[locale]/(storefront)/account/actions.ts —
+    loginAction
+    - Import additions at top of file:
+        import { getCartIdFromCookie } from "@/lib/cart-cookie-server";
+        import { transferCartToCustomer } from "@/lib/medusa-client";
+    - Inside the existing try block, AFTER `await setAuthCookie(token)`
+      but BEFORE the `redirect(...)` call, add a best-effort transfer:
+    ```ts
+    const guestCartId = await getCartIdFromCookie();
+    if (guestCartId) {
+      try {
+        await transferCartToCustomer(guestCartId, token);
+      } catch (transferError) {
+        // TEMPORARY operational compromise — see brief § Operational
+        // Note on Logging. No project logger utility exists yet and
+        // .agents/00-core.mdc §2 forbids console output in committed
+        // code. Revisit when LOG-* lands.
+        void transferError;
+      }
+    }
+    ```
+    - The `redirect()` call stays where it is. Do not move it.
+
+4.  Modify the same file — registerAction
+    - Imports already added in step 3.
+    - Current order inside the try block is:
+        emailpassRegister → createCustomer → refreshAuthToken → setAuthCookie
+    - AFTER `await setAuthCookie(sessionToken)` and BEFORE the redirect,
+      add the SAME best-effort transfer block, using `sessionToken`
+      (NOT `regToken`):
+    ```ts
+    const guestCartId = await getCartIdFromCookie();
+    if (guestCartId) {
+      try {
+        await transferCartToCustomer(guestCartId, sessionToken);
+      } catch (transferError) {
+        // TEMPORARY operational compromise — see brief § Operational
+        // Note on Logging.
+        void transferError;
+      }
+    }
+    ```
+    - Do NOT extract the transfer block into a shared helper (two call
+      sites, seven lines each — does not warrant abstraction).
+
+5.  Modify the same file — logoutAction
+    - Add import at top:
+        import { clearCartIdCookie } from "@/lib/cart-cookie-server";
+    - In the function body, AFTER `await clearAuthCookie()` and BEFORE
+      `redirect(`/${locale}`)`, add:
+        await clearCartIdCookie();
+    - Do NOT wrap in try/catch — clearing a cookie cannot fail in a way
+      worth handling. If `cookies()` throws, the entire action is broken
+      and the user needs to see the failure.
+    - Ordering matters: auth cookie cleared first (closes the auth
+      session with Medusa), then cart cookie cleared.
+
+6.  Verification / manual test matrix (run in Docker dev — backend at
+    :9000, storefront at :3000; exercise both /en and /ar):
+
+    (a) Guest → Register flow
+        - Clear all cookies for localhost:3000.
+        - /en/products/<any-product> → Add 2 items.
+        - Header badge shows "2". /en/cart shows 2 items.
+        - /en/account/register → register with a fresh email.
+        - Land on /en/account. Header badge STILL "2". /en/cart still
+          shows the same 2 items.
+        - Add a 3rd item. Badge shows "3". Cart page shows 3 items.
+          (Confirms cart-id continuity across transfer.)
+
+    (b) Sign out clears cart
+        - From (a), click Sign out on /en/account.
+        - Land on /en with header in signed-out state.
+        - DevTools → Application → Cookies: `medusa_cart_id` gone;
+          `sama_customer_session` gone.
+        - Header cart badge 0/hidden. /en/cart either empty or creates
+          a fresh cart on load.
+
+    (c) Guest → Login flow
+        - Clear all cookies.
+        - Add 1 item as guest. Badge "1".
+        - /en/account/login → sign in with the account from (a).
+        - Land on /en/account. Badge "1". /en/cart shows 1 item.
+
+    (d) Login with no guest cart
+        - Clear all cookies. DO NOT add anything.
+        - Sign in with the same account.
+        - Land on /en/account. Cart badge 0/hidden. Transfer NOT
+          attempted (guard clause skipped).
+
+    (e) Login with stale guest cart id
+        - Clear all cookies. Add 1 item.
+        - In DevTools → Cookies, overwrite `medusa_cart_id` with a
+          bogus value like `cart_00000000`.
+        - Attempt login.
+        - Login MUST succeed and land on /en/account. No uncaught
+          throw. No error shown. Cart badge ends at 0 (CartProvider's
+          retrieveCart catch branch will replace the stale id on next
+          bootstrap).
+
+    (f) Arabic locale parity
+        - Repeat (a), (b), (c) under /ar — verify redirects go to
+          /ar/account and /ar/.
+
+    (g) Regression check (MUST pass)
+        - Guest add-to-cart, drawer open/close, line-item qty update,
+          line-item remove, /cart page, checkout /address → /shipping
+          → /review all still work for an UNauthenticated visitor.
+        - Same flow end-to-end for an authenticated customer.
+
+7.  Static verification (before declaring done; include outputs in
+    task report.txt):
+    - `tsc --noEmit` (from apps/storefront or repo root via turbo) — ✅
+    - `next build` (apps/storefront) — ✅
+    - `rg "transferCart" apps/storefront`
+        expected: matches only in lib/medusa-client.ts and
+        app/[locale]/(storefront)/account/actions.ts.
+    - `rg "clearCartIdCookie|getCartIdFromCookie" apps/storefront`
+        expected: matches only in lib/cart-cookie-server.ts and
+        app/[locale]/(storefront)/account/actions.ts.
+    - `rg "document\.cookie" apps/storefront/app/\[locale\]/\(storefront\)/account`
+        expected: zero matches.
+    - `rg "console\." apps/storefront/app/\[locale\]/\(storefront\)/account/actions.ts`
+        expected: zero matches (no logger added — TEMPORARY compromise
+        enforced).
+
+----------------------------------------------------------------
+Acceptance Criteria (all must be verifiable)
+
+  [ ]  1. After a guest adds items to cart and then registers, cart
+          items remain visible immediately on /account and /cart, same
+          count, in both /en and /ar. (Test 6a + 6f.)
+  [ ]  2. After a guest adds items to cart and then logs in, same
+          invariant holds. (Test 6c + 6f.)
+  [ ]  3. Logout removes both `sama_customer_session` and
+          `medusa_cart_id` from DevTools → Cookies; header renders in
+          signed-out state; cart badge reflects no cart. (Test 6b.)
+  [ ]  4. Login / register proceeds to the /account redirect even when
+          the guest cart cookie points at a non-existent cart — no
+          uncaught exception reaches the user, no error string rendered.
+          (Test 6e.)
+  [ ]  5. Login / register with no guest cart cookie proceeds normally;
+          no 500, no Medusa error body. (Test 6d.)
+  [ ]  6. Cart operations (add / update / remove / drawer / /cart page
+          / checkout address → shipping → review) continue to work
+          end-to-end for BOTH unauthenticated and authenticated users
+          after the change. (Test 6g.)
+  [ ]  7. `tsc --noEmit` passes.
+  [ ]  8. `next build` succeeds.
+  [ ]  9. No new `any` introduced without a justification comment.
+  [ ] 10. No files outside Files Allowed are modified. Include full
+          `git status` output in the task report.
+  [ ] 11. The four grep checks in Step 7 return the expected matches
+          (or zero matches where zero is expected). Include outputs
+          verbatim in the task report.
+  [ ] 12. hooks/useCart.ts, hooks/useCustomer.ts, lib/cart-cookie.ts,
+          lib/auth-cookie.ts, lib/customer-server.ts, middleware.ts,
+          and (storefront)/layout.tsx are all UNTOUCHED (diff empty
+          for each — verified in git status).
+  [ ] 13. No translation file changed (translations/*.csv,
+          messages/*.json diffs empty).
+  [ ] 14. `task report.txt` contains a "Known follow-ups" block
+          recording the silent-swallow pattern as a TEMPORARY
+          operational compromise to revisit once a project logging
+          utility is adopted. Exact wording is the executor's — the
+          presence of the entry is the criterion.
+
+----------------------------------------------------------------
+Out of Scope (executor MUST NOT do any of these)
+
+  - Introducing a project logger utility or using `console.*` in the
+    transfer error path — TEMPORARY compromise enforced; separate
+    future task (LOG-*)
+  - Cross-device cart restoration (customer signs in on new device
+    and sees their prior-session cart)                     → future
+  - Line-item conflict resolution between a guest cart and a prior
+    customer cart (Medusa transfers — does not merge)      → not built
+  - Forwarding the bearer token on cart operations for signed-in
+    users → explicitly deferred; cart ops stay cart-id-keyed
+  - Any UI affordance announcing the transfer (toast, banner, modal)
+  - Any CSV key, messages/*.json change, or Arabic translation
+  - A "Your saved carts" surface                           → future
+  - Order history, addresses CRUD, profile editing
+    → ACC-2 / ACC-3 / ACC-4 (future briefs)
+  - Password reset, email verification                    → AUTH-2 / AUTH-3
+  - Guest → guest cart merging (nonsensical — no auth seam)
+  - Touching CartProvider, useCart, or any cart UI component
+  - Touching apps/backend/ in any way
+  - Extracting the 7-line transfer block into a shared helper
+    (two call sites do not warrant abstraction — resist the urge)
+  - Refactoring medusa-client.ts beyond adding the single
+    `transferCartToCustomer` function
+
+----------------------------------------------------------------
+Completion Report
+  Overwrite `task report.txt` at repo root per Shared Rules
+  (.agents/20-contracts.mdc — do not append). Include:
+    - All 14 acceptance criteria with met/unmet status.
+    - Full `git status` showing only Files Allowed were modified.
+    - `tsc --noEmit` + `next build` outputs.
+    - The four grep results from Step 7 (verbatim).
+    - One-line pass/fail note per manual test (6a–6g).
+    - A "Known follow-ups" block recording the silent-swallow
+      pattern as a TEMPORARY operational compromise pending
+      adoption of a project logging utility (acceptance criterion 14).
+    - Any edge case where observed behavior differs from the
+      expected matrix — gap-report to Claude immediately rather
+      than adjusting scope.
 ```
