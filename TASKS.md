@@ -166,14 +166,15 @@ Implementation rule (all Phase 6 tasks): **No hardcoded user-facing strings.** A
 
 - [x] **AUTH-1**: Customer authentication server-side foundation — httpOnly JWT cookie, server-resolved customer, Medusa emailpass via SDK in `jwt` mode, login/register/logout routes, header affordance — branch `feature/auth-1-customer-foundation` (cut from `develop` 2026-04-18, back-merged to `develop` as merge commit `382e1ab` on 2026-04-18) — target Advanced Executor — done 2026-04-18 (ADR-046)
 - [x] **CART-MERGE**: Cart-auth seam — transfer guest cart to customer on login/register via `sdk.store.cart.transferCart`; clear cart cookie on logout; silent best-effort failures (TEMPORARY operational compromise pending a future logging utility) — branch `feature/cart-merge-auth-seam` (cut from `develop` 2026-04-18, post-AUTH-1 back-merge) — target Advanced Executor — done 2026-04-18 (all 14 ACs verified; live 6a–6g matrix PASS on /en + /ar; `clearCartIdCookie` sameSite alignment fix applied by Tech Lead; follow-ups recorded: LOG-1, TEST-1, AUTH-1a — see task report.txt)
+- [ ] **TEST-0**: Storefront test harness bootstrap — install Vitest + jsdom in `apps/storefront`, add `vitest.config.ts`, add `test` script + turbo pipeline entry, ship one passing smoke test on `medusa-client.ts::getErrorStatusCode`. Strictly infra only — no seam coverage (that is TEST-1). Branch `feature/test-0-vitest-harness` (cut from `develop` 2026-04-19, post-AUTH-1a merge `561da65`). Target Literal Executor. Full brief below.
 
 ### Follow-ups (deferred — full briefs pending)
 
 - [ ] **LOG-1**: Adopt a project logging utility — single logger surface (server + client) to replace silent-swallow patterns in `loginAction`/`registerAction` transfer catch blocks with structured warn-level logs. Once landed, revise the `void transferError` compromise from CART-MERGE. Triggered by: CART-MERGE.
 
-- [ ] **TEST-1**: Automated coverage for the auth/cart seam — server-action tests for `loginAction` / `registerAction` / `logoutAction`, plus a contract-level test for `transferCartToCustomer` exercising the three guard paths (no cart / valid cart / bogus cart). Triggered by: AUTH-1 + CART-MERGE code review.
+- [ ] **TEST-1**: Automated coverage for the auth/cart seam — server-action tests for `loginAction` / `registerAction` / `logoutAction`, plus a contract-level test for `transferCartToCustomer` exercising the three guard paths (no cart / valid cart / bogus cart), plus cookie-pair attribute parity tests for both `setAuthCookie`/`clearAuthCookie` and `setCartId`/`clearCartIdCookie`. Blocked on TEST-0 (harness). Target Advanced Executor. **Guardrail (Tech Lead, 2026-04-19):** if production source under `apps/storefront/**` would need to change for testability, STOP and escalate — do NOT refactor production code inside TEST-1. Triggered by: AUTH-1 + CART-MERGE + AUTH-1a code review pattern.
 
-- [ ] **AUTH-1a**: Align `clearAuthCookie` attributes with its setter — mirror the fix applied in CART-MERGE for `clearCartIdCookie`. One-file change to `apps/storefront/lib/auth-cookie.ts` adding `sameSite: "strict"`, `secure: true`, `httpOnly: true` on clear. No new ADR. Triggered by: CART-MERGE review.
+- [x] **AUTH-1a**: Align `clearAuthCookie` attributes with its setter — mirror the fix applied in CART-MERGE for `clearCartIdCookie`. One-file change to `apps/storefront/lib/auth-cookie.ts` adding `sameSite: "strict"`, `secure: true`, `httpOnly: true` on clear. No new ADR. Triggered by: CART-MERGE review — done 2026-04-19 (PR #3 → merge commit `561da65`).
 
 ---
 
@@ -1041,4 +1042,180 @@ Completion Report
     - Any edge case where observed behavior differs from the
       expected matrix — gap-report to Claude immediately rather
       than adjusting scope.
+```
+
+---
+
+### TEST-0 — canonical brief
+
+```
+================================================================
+Task ID:           TEST-0
+Phase:             Phase 6 — Customer Accounts
+Target Executor:   Literal Executor
+Branch:            feature/test-0-vitest-harness
+                   (cut from develop, post-AUTH-1a merge — commit 561da65)
+Depends on:        AUTH-1a merged into develop (done — PR #3)
+Governs:           ADR-005 (TypeScript strict),
+                   ADR-014 (branch strategy — runtime-adjacent, feature branch),
+                   ADR-033 (Docker Compose dev env — tests run locally, no Docker)
+================================================================
+
+REQUIRED READING (ADR-033 — blocking; all five layers)
+  [1] Project Context
+      - Notion Project Definition
+      - Notion Implementation Canon — § Storefront boundary rules
+  [2] Task State
+      - TASKS.md (repo) — this section; confirm AUTH-1a is [x] on develop
+      - Notion Hub active-phase callout — confirm "Phase 6 active"
+  [3] Role Contract
+      - .agents/20-contracts.mdc — Literal Executor section
+  [4] Governing Rules & ADRs
+      - .agents/00-core.mdc — whole file; §2 "no console.log" applies to
+        test helpers; §2 architecture boundaries apply
+      - .agents/10-skills.mdc — Skill 1 (brief fields) + Skill 2 (review gate)
+  [5] This Brief
+
+Self-alignment check: If any of [1]–[4] is unavailable, STOP and report.
+
+----------------------------------------------------------------
+Goal
+  Install and configure Vitest as the storefront's test runner, with
+  enough scaffolding to make TEST-1 (seam coverage) possible. Ship one
+  passing smoke test to prove the harness works. No seam coverage in
+  this task — that is TEST-1's scope.
+
+Context
+  The storefront has no test infrastructure today. Phase 6 has produced
+  three review-discovered fixes on the auth/cart/cookie seam (AUTH-1,
+  CART-MERGE, AUTH-1a); automated regression coverage for that seam is
+  the goal of TEST-1. TEST-0 exists solely to unblock TEST-1 with the
+  smallest reviewable harness change.
+
+  Vitest chosen (Tech Lead decision, 2026-04-19): native Vite/ESM,
+  fast, first-class TypeScript, minimal config, zero conflict with
+  Next 16 / React 19. `jsdom` included because TEST-1 covers the
+  client-side `cart-cookie.ts` helper which uses `document.cookie`.
+
+----------------------------------------------------------------
+Files Allowed (and ONLY these)
+  - apps/storefront/package.json           (add devDependencies + script)
+  - apps/storefront/vitest.config.ts       (NEW)
+  - apps/storefront/lib/medusa-client.smoke.test.ts (NEW — smoke test)
+  - turbo.json                             (add "test" pipeline entry)
+  - package-lock.json                      (auto-regenerated by npm install)
+
+Files Forbidden
+  - CLAUDE.md, TASKS.md, docs/**, .agents/**
+  - Any other file under apps/storefront/** (especially: do NOT modify
+    auth-cookie.ts, cart-cookie.ts, cart-cookie-server.ts, medusa-client.ts,
+    actions.ts, or any component/route/page file)
+  - .env, .env.example, .env.local
+  - apps/backend/**, apps/admin/**, packages/**
+
+----------------------------------------------------------------
+Implementation Steps
+  1. From repo root, cd into apps/storefront and install dev deps:
+        npm install --save-dev vitest jsdom
+     (Do NOT install @vitest/ui, @vitest/coverage-v8, @vitejs/plugin-react,
+      or any other optional vitest add-ons. Not in scope.)
+
+  2. Add to apps/storefront/package.json "scripts":
+        "test": "vitest run",
+        "test:watch": "vitest"
+     (Do not change any existing script.)
+
+  3. Create apps/storefront/vitest.config.ts with:
+        import { defineConfig } from "vitest/config";
+        import path from "node:path";
+
+        export default defineConfig({
+          test: {
+            environment: "node",
+            include: ["**/*.test.ts", "**/*.smoke.test.ts"],
+            exclude: ["**/node_modules/**", "**/.next/**"],
+          },
+          resolve: {
+            alias: {
+              "@": path.resolve(__dirname),
+            },
+          },
+        });
+
+  4. Add a "test" task to turbo.json "tasks":
+        "test": {
+          "dependsOn": ["^build"],
+          "outputs": []
+        }
+     (Keep the existing tasks unchanged; insert "test" alphabetically.)
+
+  5. Create apps/storefront/lib/medusa-client.smoke.test.ts with:
+        import { describe, expect, it } from "vitest";
+        import { getErrorStatusCode } from "./medusa-client";
+
+        describe("medusa-client smoke", () => {
+          it("returns null for non-object inputs", () => {
+            expect(getErrorStatusCode(null)).toBeNull();
+            expect(getErrorStatusCode("oops")).toBeNull();
+          });
+
+          it("reads status from response.status", () => {
+            expect(
+              getErrorStatusCode({ response: { status: 404 } }),
+            ).toBe(404);
+          });
+        });
+
+  6. From apps/storefront, run:
+        npm test
+     Confirm: 2 tests passed, 0 failed.
+
+  7. From repo root, run:
+        npx turbo run test --filter=storefront
+     Confirm the turbo pipeline picks up the new task and tests pass.
+
+  8. From repo root, run:
+        npx turbo run typecheck --filter=storefront
+        npx turbo run build --filter=storefront
+     Confirm both pass (test dependencies must not break tsc or next build).
+
+----------------------------------------------------------------
+Acceptance Criteria
+  [ ] apps/storefront/package.json has `vitest` and `jsdom` in
+      devDependencies (no other new deps).
+  [ ] apps/storefront/package.json has "test" and "test:watch" scripts.
+  [ ] apps/storefront/vitest.config.ts exists and matches the content
+      above exactly (whitespace may differ, semantics must not).
+  [ ] turbo.json has a "test" task entry.
+  [ ] apps/storefront/lib/medusa-client.smoke.test.ts exists with the
+      two-test content above.
+  [ ] `npm test` from apps/storefront → 2 passed, 0 failed.
+  [ ] `npx turbo run test --filter=storefront` from repo root → passes.
+  [ ] `npx turbo run typecheck --filter=storefront` → passes.
+  [ ] `npx turbo run build --filter=storefront` → passes.
+  [ ] No file outside Files Allowed is modified.
+  [ ] `git diff --stat` shows at most 5 files (package.json, vitest.config.ts,
+      the smoke test, turbo.json, package-lock.json).
+
+----------------------------------------------------------------
+Out of Scope (hard)
+  - Writing seam tests (auth/cart/cookie) — that is TEST-1.
+  - Coverage thresholds, coverage reporting, @vitest/coverage-v8.
+  - CI integration (GitHub Actions, etc.) — deferred to a future TEST task.
+  - Component tests, React Testing Library, Playwright, E2E.
+  - Modifying any production source under apps/storefront/app/**,
+    components/**, hooks/**, or lib/** (except the new smoke test file).
+  - Backend / admin test infra — out of scope.
+  - Pretty-printer / ESLint config changes for test files.
+
+----------------------------------------------------------------
+Completion Report (mandatory)
+  Overwrite `task report.txt` at repo root per Shared Rules
+  (.agents/20-contracts.mdc — do not append). Include:
+    - Exact `npm test` output (full, not summarized)
+    - Exact `npx turbo run test --filter=storefront` output
+    - Exact `npx turbo run typecheck --filter=storefront` output
+    - Exact `npx turbo run build --filter=storefront` output
+    - `git status` showing only Files Allowed modified
+    - `git diff --stat` for the full branch
 ```
