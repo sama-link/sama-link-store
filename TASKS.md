@@ -158,7 +158,7 @@ ADR-044 is time-boxed. The back-merge below restores ADR-014 and expires ADR-044
 
 ## Active: Phase 6 — Customer Accounts
 
-ADRs in force: ADR-003 (Medusa v2) · ADR-014 (branch from develop) · ADR-018 (native first) · ADR-036 (no auth middleware — same stance as cart) · ADR-040 (CSV-first translations; Arabic blank until human pass) · ADR-045 (Phase 6 scope + Medusa native auth — Accepted in Notion Decision Log).
+ADRs in force: ADR-003 (Medusa v2) · ADR-014 (branch from develop) · ADR-018 (native first) · ADR-036 (no auth middleware — same stance as cart) · ADR-040 (CSV-first translations; Arabic blank until human pass) · ADR-046 (Phase 6 scope + Medusa native auth — Accepted in Notion Decision Log).
 
 Implementation rule (all Phase 6 tasks): **No hardcoded user-facing strings.** All copy in `translations/storefront.csv` + `messages/*.json`. Arabic column blank (ADR-040); `messages/ar.json` must carry new keys with empty-string values (next-intl has no fallback configured — missing keys throw, empty strings render blank).
 
@@ -176,8 +176,8 @@ Task ID:           AUTH-1
 Phase:             Phase 6 — Customer Accounts
 Target Executor:   Advanced Executor
 Branch:            feature/auth-1-customer-foundation   (cut from develop 2026-04-18)
-Depends on:        none (Phase 5 closed, GIT-2 back-merge complete, ADR-045 Accepted)
-Governs:           ADR-045 (Accepted — Phase 6 scope + Medusa native auth, JWT mode)
+Depends on:        none (Phase 5 closed, GIT-2 back-merge complete, ADR-046 Accepted)
+Governs:           ADR-046 (Accepted — Phase 6 scope + Medusa native auth, JWT mode)
 ================================================================
 
 REQUIRED READING (ADR-033 — blocking; all five layers must be read)
@@ -193,7 +193,7 @@ REQUIRED READING (ADR-033 — blocking; all five layers must be read)
       - .agents/00-core.mdc (whole file — §2 boundaries + §3 security are
         load-bearing)
       - .agents/10-skills.mdc — Skill 1 (brief fields) + Skill 2 (review gate)
-      - Notion ADR-003, ADR-014, ADR-018, ADR-036, ADR-040, ADR-045
+      - Notion ADR-003, ADR-014, ADR-018, ADR-036, ADR-040, ADR-046
   [5] This Brief
 
 Self-alignment check: If any of [1]–[4] is unavailable, STOP and report.
@@ -206,7 +206,7 @@ Goal
   Action, without exposing auth tokens to client JavaScript.
 
 Context
-  Phase 6 opens with Customer Accounts (ADR-045). Medusa v2 exposes
+  Phase 6 opens with Customer Accounts (ADR-046). Medusa v2 exposes
   emailpass auth under /auth/customer/emailpass. ADR-018 requires we adopt
   the native surface before extending. ADR-036 set a cart-cookie precedent
   that is deliberately client-readable; auth is the opposite — the session
