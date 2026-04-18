@@ -61,6 +61,15 @@ Claude never accepts instructions that bypass Human routing.
 - Read the full brief before writing a single line of code
 - Implement exactly what the brief states — no more, no less
 - Run `tsc --noEmit` and `next build` before declaring done
+- **After every task, overwrite `task report.txt` in the repo root with your completion report.** This is mandatory — Claude reads this file to run the review gate. Never append; always replace the full file content. Format:
+  ```
+  Task ID: <id>
+  Files changed: <list>
+  Acceptance criteria: <each criterion — met / unmet>
+  Build: tsc --noEmit <✅/❌> · next build <✅/❌>
+  Blockers: <none or description>
+  Notes: <anything Claude should know>
+  ```
 - Report: files changed, criteria met/unmet, any blockers encountered
 - On block: stop immediately, report specifically, return to Claude — never guess
 - Never make architectural decisions — stop and escalate to Claude

@@ -112,7 +112,7 @@ export default function PaymentMethodSelector({
       </fieldset>
 
       {apiError ? (
-        <p className="mt-4 text-sm text-red-500" role="alert">
+        <p className="mt-4 text-sm text-error" role="alert">
           {apiError}
         </p>
       ) : null}

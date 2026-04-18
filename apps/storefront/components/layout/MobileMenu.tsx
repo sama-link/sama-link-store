@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { useWishlist } from "@/hooks/useWishlist";
+import { useCompare } from "@/hooks/useCompare";
 import { cn } from "@/lib/cn";
 
 /**
@@ -18,11 +20,20 @@ export default function MobileMenu() {
   const [open, setOpen] = useState(false);
   const locale = useLocale();
   const NAV_LINKS = [
+    { key: "home" as const, href: `/${locale}` },
     { key: "products" as const, href: `/${locale}/products` },
-    { key: "collections" as const, href: "#" },
-    { key: "about" as const, href: "#" },
+    { key: "collections" as const, href: `/${locale}/collections` },
+    { key: "about" as const, href: `/${locale}/pages/about` },
+  ];
+  const COMMERCE_LINKS = [
+    { key: "wishlist" as const, href: `/${locale}/wishlist` },
+    { key: "compare" as const, href: `/${locale}/compare` },
   ];
   const t = useTranslations("nav");
+  const { items: wishlistItems, isHydrated: wishHydrated } = useWishlist();
+  const { items: compareItems, isHydrated: compareHydrated } = useCompare();
+  const wishCount = wishlistItems.length;
+  const compareCount = compareItems.length;
 
   return (
     <>
@@ -85,6 +96,35 @@ export default function MobileMenu() {
               </a>
             </li>
           ))}
+          {COMMERCE_LINKS.map(({ key, href }) => {
+            const count =
+              key === "wishlist"
+                ? wishHydrated
+                  ? wishCount
+                  : 0
+                : compareHydrated
+                  ? compareCount
+                  : 0;
+            return (
+              <li key={key}>
+                <a
+                  href={href}
+                  onClick={() => setOpen(false)}
+                  className="flex h-12 items-center justify-between gap-3 px-4 text-sm font-medium text-text-secondary hover:bg-surface-subtle hover:text-text-primary transition-colors"
+                >
+                  <span>{t(key)}</span>
+                  {count > 0 ? (
+                    <span
+                      aria-hidden="true"
+                      className="flex h-6 min-w-6 shrink-0 items-center justify-center rounded-full bg-brand px-2 text-xs font-bold text-text-inverse"
+                    >
+                      {count > 99 ? "99+" : count}
+                    </span>
+                  ) : null}
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </>

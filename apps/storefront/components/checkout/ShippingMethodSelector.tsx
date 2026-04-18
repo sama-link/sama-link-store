@@ -109,7 +109,7 @@ export default function ShippingMethodSelector({
                 </span>
               </div>
               <span className="text-sm font-semibold text-text-primary">
-                {formatPrice(option.amount, currencyCode)}
+                {formatPrice(option.amount, currencyCode, locale)}
               </span>
             </label>
           );
@@ -117,7 +117,7 @@ export default function ShippingMethodSelector({
       </fieldset>
 
       {apiError ? (
-        <p className="mt-4 text-sm text-red-500" role="alert">
+        <p className="mt-4 text-sm text-error" role="alert">
           {apiError}
         </p>
       ) : null}

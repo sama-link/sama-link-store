@@ -43,7 +43,16 @@ export async function getProductByHandle(handle: string) {
     ? {
         region_id: regionId,
         fields:
-          "id,handle,title,description,thumbnail,variants.*,variants.calculated_price.*",
+          "id,handle,title,subtitle,description,thumbnail," +
+          "material,weight,length,width,height,origin_country,hs_code,mid_code," +
+          "images.id,images.url,images.rank," +
+          "collection.id,collection.title,collection.handle," +
+          "categories.id,categories.name,categories.handle," +
+          "tags.id,tags.value," +
+          "type.id,type.value," +
+          "options.id,options.title,options.values.value," +
+          "variants.*,variants.calculated_price.*," +
+          "variants.options.value,variants.options.option_id",
       }
     : {};
   const { products } = await sdk.store.product.list({ ...base, handle });
@@ -51,8 +60,69 @@ export async function getProductByHandle(handle: string) {
   return first ?? null;
 }
 
+/**
+ * Related products carousel source.
+ * Strategy: pull up to `limit` products from the same collection;
+ * if collection yields fewer, top up with newest products globally.
+ * The two recommendation sections were collapsed into one (see PDP redesign notes).
+ */
+export async function listRelatedProducts(
+  collectionId: string | null,
+  excludeProductId: string,
+  limit = 20,
+) {
+  const base: ListProductsParams = regionId
+    ? {
+        region_id: regionId,
+        fields:
+          "id,handle,title,description,thumbnail,variants.calculated_price.*",
+      }
+    : {};
+
+  const collected: Array<
+    Awaited<ReturnType<typeof sdk.store.product.list>>["products"][number]
+  > = [];
+  const seenIds = new Set<string>([excludeProductId]);
+
+  // 1) Same-collection pool
+  if (collectionId) {
+    const { products } = await sdk.store.product.list({
+      ...base,
+      collection_id: [collectionId],
+      limit: limit + 1,
+    });
+    for (const p of products) {
+      if (seenIds.has(p.id)) continue;
+      collected.push(p);
+      seenIds.add(p.id);
+      if (collected.length >= limit) break;
+    }
+  }
+
+  // 2) Top up with newest if needed
+  if (collected.length < limit) {
+    const { products } = await sdk.store.product.list({
+      ...base,
+      limit: limit + collected.length + 1,
+      order: "-created_at",
+    });
+    for (const p of products) {
+      if (seenIds.has(p.id)) continue;
+      collected.push(p);
+      seenIds.add(p.id);
+      if (collected.length >= limit) break;
+    }
+  }
+
+  return collected;
+}
+
 type ListCollectionsParams = NonNullable<
   Parameters<(typeof sdk)["store"]["collection"]["list"]>[0]
+>;
+
+type ListProductCategoriesParams = NonNullable<
+  Parameters<(typeof sdk)["store"]["category"]["list"]>[0]
 >;
 
 export async function getCollectionByHandle(handle: string) {
@@ -64,6 +134,13 @@ export async function getCollectionByHandle(handle: string) {
 
 export async function listCollections() {
   return sdk.store.collection.list({} as ListCollectionsParams);
+}
+
+export async function listProductCategories() {
+  return sdk.store.category.list({
+    fields: "id,name,handle",
+    limit: 100,
+  } as ListProductCategoriesParams);
 }
 
 export async function listProductsByCollection(
@@ -82,6 +159,25 @@ export async function listProductsByCollection(
     collection_id: [collectionId],
     ...params,
   });
+}
+
+export interface CmsPage {
+  handle: string;
+  title: string;
+  body: string | null;
+}
+
+export async function getCmsPageByHandle(
+  handle: string,
+): Promise<CmsPage | null> {
+  // GAP: Medusa CMS page API not available in sdk.store — document in task report.txt
+  void handle;
+  return null;
+}
+
+export async function listCmsPages(): Promise<CmsPage[]> {
+  // GAP: Medusa CMS page API not available in sdk.store — document in task report.txt
+  return [];
 }
 
 // ── Cart ──────────────────────────────────────────────────────────────────

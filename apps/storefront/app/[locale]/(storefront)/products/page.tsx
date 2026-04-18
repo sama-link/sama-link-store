@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import {
   listCollections,
+  listProductCategories,
   listProducts,
   type ListProductsParams,
 } from "@/lib/medusa-client";
 import ProductGrid from "@/components/products/ProductGrid";
 import FilterSidebar, {
+  type FilterCategoryOption,
   type FilterCollectionOption,
 } from "@/components/products/FilterSidebar";
 import Container from "@/components/layout/Container";
@@ -57,12 +59,14 @@ function buildProductsListHref(
   pageNum: number,
   opts: {
     collection?: string;
+    category?: string;
     minPrice?: string;
     maxPrice?: string;
   },
 ): string {
   const params = new URLSearchParams();
   if (opts.collection) params.set("collection", opts.collection);
+  if (opts.category) params.set("category", opts.category);
   if (opts.minPrice) params.set("minPrice", opts.minPrice);
   if (opts.maxPrice) params.set("maxPrice", opts.maxPrice);
   if (pageNum > 1) params.set("page", String(pageNum));
@@ -79,11 +83,23 @@ function mapCollectionsForFilters(
   }));
 }
 
+function mapCategoriesForFilters(
+  categories: Awaited<
+    ReturnType<typeof listProductCategories>
+  >["product_categories"],
+): FilterCategoryOption[] {
+  return categories.map((c) => ({
+    id: c.id,
+    title: (c.name && c.name.trim() !== "" ? c.name : c.handle) ?? c.id,
+  }));
+}
+
 interface ProductsPageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{
     page?: string;
     collection?: string;
+    category?: string;
     minPrice?: string;
     maxPrice?: string;
   }>;
@@ -114,7 +130,7 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   const { locale } = await params;
-  const { page, collection, minPrice, maxPrice } = await searchParams;
+  const { page, collection, category, minPrice, maxPrice } = await searchParams;
   const t = await getTranslations({ locale, namespace: "products.listing" });
   const tb = await getTranslations({ locale, namespace: "breadcrumbs" });
 
@@ -125,15 +141,19 @@ export default async function ProductsPage({
   if (collection) {
     filterParams.collection_id = [collection];
   }
+  if (category) {
+    filterParams.category_id = [category];
+  }
   // TODO CAT-6: wire price filter to Medusa store product list (e.g. price_list) when param confirmed
 
-  const [listResult, collectionsResult] = await Promise.all([
+  const [listResult, collectionsResult, categoriesResult] = await Promise.all([
     listProducts({
       limit: PRODUCTS_PER_PAGE,
       offset,
       ...filterParams,
     }),
     listCollections(),
+    listProductCategories(),
   ]);
 
   let { products } = listResult;
@@ -152,12 +172,16 @@ export default async function ProductsPage({
 
   const paginationBase = {
     collection,
+    category,
     minPrice,
     maxPrice,
   };
 
   const filterCollections = mapCollectionsForFilters(
     collectionsResult.collections,
+  );
+  const filterCategories = mapCategoriesForFilters(
+    categoriesResult.product_categories,
   );
 
   return (
@@ -166,7 +190,9 @@ export default async function ProductsPage({
         <aside className="w-full shrink-0 lg:w-64">
           <FilterSidebar
             collections={filterCollections}
+            categories={filterCategories}
             activeCollection={collection ?? null}
+            activeCategory={category ?? null}
             activeMinPrice={minPrice ?? null}
             activeMaxPrice={maxPrice ?? null}
             locale={locale}

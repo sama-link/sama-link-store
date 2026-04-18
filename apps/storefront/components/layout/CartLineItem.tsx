@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useLocale } from "next-intl";
 import { type StoreCartLineItem } from "@/hooks/useCart";
 import { formatPrice } from "@/lib/format-price";
 import { cn } from "@/lib/cn";
@@ -23,6 +24,7 @@ export default function CartLineItem({
   removeLabel,
   variant = "drawer",
 }: CartLineItemProps) {
+  const locale = useLocale();
   const qty = item.quantity ?? 1;
   const variantTitle =
     item.variant &&
@@ -62,7 +64,7 @@ export default function CartLineItem({
             <p className="text-sm text-text-secondary">{variantTitle}</p>
           ) : null}
           <p className="text-sm font-medium text-text-primary">
-            {formatPrice(item.unit_price, currencyCode)} × {qty}
+            {formatPrice(item.unit_price, currencyCode, locale)} × {qty}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">

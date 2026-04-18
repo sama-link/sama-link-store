@@ -5,6 +5,8 @@ import Container from "./Container";
 import LocaleSwitcher from "./LocaleSwitcher";
 import MobileMenu from "./MobileMenu";
 import CartButton from "./CartButton";
+import WishlistHeaderButton from "./WishlistHeaderButton";
+import CompareHeaderButton from "./CompareHeaderButton";
 
 /*
   Responsive layout:
@@ -14,7 +16,7 @@ import CartButton from "./CartButton";
     ↕ MobileMenu panel (toggle)
 
   Desktop (≥ 640px)
-    [Logo]   [Products  Collections  About]   [locale  theme  🛒]
+    [Logo]   [Products  Collections  About]   [locale  theme  wishlist  compare  cart]
 
   Header is a Server Component.
   ThemeToggle + LocaleSwitcher + MobileMenu are client boundaries.
@@ -23,9 +25,10 @@ import CartButton from "./CartButton";
 export default async function Header() {
   const locale = await getLocale();
   const NAV_LINKS = [
+    { key: "home" as const, href: `/${locale}` },
     { key: "products" as const, href: `/${locale}/products` },
-    { key: "collections" as const, href: "#" },
-    { key: "about" as const, href: "#" },
+    { key: "collections" as const, href: `/${locale}/collections` },
+    { key: "about" as const, href: `/${locale}/pages/about` },
   ];
 
   const t = await getTranslations("nav");
@@ -38,7 +41,7 @@ export default async function Header() {
 
           {/* ── Logo ── */}
           <a
-            href="/"
+            href={`/${locale}`}
             className="inline-flex shrink-0 items-center transition-opacity hover:opacity-90"
             aria-label={t("logoHomeAria")}
           >
@@ -72,6 +75,10 @@ export default async function Header() {
             <LocaleSwitcher />
 
             <ThemeToggle />
+
+            <WishlistHeaderButton />
+
+            <CompareHeaderButton />
 
             <CartButton />
 

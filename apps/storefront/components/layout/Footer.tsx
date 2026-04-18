@@ -1,4 +1,4 @@
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import Logo from "@/components/ui/Logo";
 import Container from "./Container";
 
@@ -11,36 +11,43 @@ import Container from "./Container";
   Bottom bar         — copyright left, legal links right
 */
 
-const FOOTER_SECTIONS = [
-  {
-    titleKey: "shop" as const,
-    links: [
-      { key: "allProducts" as const, href: "#" },
-      { key: "collections" as const, href: "#" },
-      { key: "newArrivals" as const, href: "#" },
-      { key: "sale" as const, href: "#" },
-    ],
-  },
-  {
-    titleKey: "support" as const,
-    links: [
-      { key: "contact" as const, href: "#" },
-      { key: "faq" as const, href: "#" },
-      { key: "shippingReturns" as const, href: "#" },
-      { key: "trackOrder" as const, href: "#" },
-    ],
-  },
-  {
-    titleKey: "company" as const,
-    links: [
-      { key: "about" as const, href: "#" },
-      { key: "privacy" as const, href: "#" },
-      { key: "terms" as const, href: "#" },
-    ],
-  },
-] as const;
+function getFooterSections(locale: string) {
+  return [
+    {
+      titleKey: "shop" as const,
+      links: [
+        { key: "allProducts" as const, href: `/${locale}/products` },
+        { key: "collections" as const, href: `/${locale}/collections` },
+        { key: "newArrivals" as const, href: `/${locale}/products` }, /* temporary: no dedicated route */
+        { key: "sale" as const, href: `/${locale}/products` }, /* temporary: no dedicated route */
+      ],
+    },
+    {
+      titleKey: "support" as const,
+      links: [
+        { key: "contact" as const, href: `/${locale}/pages/contact` },
+        { key: "faq" as const, href: `/${locale}/pages/faq` },
+        {
+          key: "shippingReturns" as const,
+          href: `/${locale}/pages/shipping-returns`,
+        },
+        { key: "trackOrder" as const, href: `/${locale}/track-order` },
+      ],
+    },
+    {
+      titleKey: "company" as const,
+      links: [
+        { key: "about" as const, href: `/${locale}/pages/about` },
+        { key: "privacy" as const, href: `/${locale}/pages/privacy` },
+        { key: "terms" as const, href: `/${locale}/pages/terms` },
+      ],
+    },
+  ] as const;
+}
 
 export default async function Footer() {
+  const locale = await getLocale();
+  const footerSections = getFooterSections(locale);
   const currentYear = new Date().getFullYear();
   const t = await getTranslations("footer");
   const tCommon = await getTranslations("common");
@@ -55,7 +62,7 @@ export default async function Footer() {
           {/* Brand column */}
           <div className="flex flex-col gap-4">
             <a
-              href="/"
+              href={`/${locale}`}
               className="inline-flex max-w-full items-center transition-opacity hover:opacity-90"
             >
               <Logo
@@ -71,7 +78,7 @@ export default async function Footer() {
           </div>
 
           {/* Link columns */}
-          {FOOTER_SECTIONS.map((section) => (
+          {footerSections.map((section) => (
             <div key={section.titleKey} className="flex flex-col gap-4">
               <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted">
                 {t(section.titleKey)}

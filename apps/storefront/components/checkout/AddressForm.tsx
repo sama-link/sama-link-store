@@ -50,13 +50,13 @@ function Field({
       <label className="block text-sm font-medium text-text-primary">
         {label}
         {required ? (
-          <span className="ms-0.5 text-red-500" aria-hidden="true">
+          <span className="ms-0.5 text-error" aria-hidden="true">
             *
           </span>
         ) : null}
       </label>
       {children}
-      {error ? <p className="text-xs text-red-500">{error}</p> : null}
+      {error ? <p className="text-xs text-error">{error}</p> : null}
     </div>
   );
 }
@@ -299,7 +299,7 @@ export default function AddressForm({ locale }: AddressFormProps) {
       </div>
 
       {apiError ? (
-        <p className="mt-4 text-sm text-red-500" role="alert">
+        <p className="mt-4 text-sm text-error" role="alert">
           {apiError}
         </p>
       ) : null}

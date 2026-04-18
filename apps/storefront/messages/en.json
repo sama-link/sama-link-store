@@ -94,6 +94,7 @@
     "aria": "Breadcrumb"
   },
   "nav": {
+    "home": "Home",
     "products": "Products",
     "collections": "Collections",
     "about": "About",
@@ -108,7 +109,13 @@
     "closeMenu": "Close menu",
     "mobileNavigation": "Mobile navigation",
     "switchToEnglish": "English",
-    "switchToArabic": "العربية"
+    "switchToArabic": "العربية",
+    "switchToDark": "Switch to dark mode",
+    "switchToLight": "Switch to light mode",
+    "wishlist": "Wishlist",
+    "compare": "Compare",
+    "wishlistAria": "Wishlist ({count} items)",
+    "compareAria": "Compare ({count} items)"
   },
   "home": {
     "headline": "Sama Link Store",
@@ -132,7 +139,9 @@
     },
     "filters": {
       "heading": "Filters",
-      "collections": "Categories",
+      "collections": "Collections",
+      "categories": "Categories",
+      "allCategories": "All",
       "allCollections": "All",
       "priceRange": "Price Range",
       "clearAll": "Clear filters",
@@ -144,16 +153,131 @@
     },
     "detail": {
       "addToCart": "Add to Cart",
+      "buyNow": "Buy now",
       "adding": "Adding…",
-      "added": "Added!"
+      "added": "Added!",
+      "variants": "Variants",
+      "variantDefault": "Variant",
+      "sku": "SKU",
+      "material": "Material",
+      "weight": "Weight",
+      "origin": "Country of Origin",
+      "details": "Product Details",
+      "inStock": "In stock",
+      "freeShipping": "Free shipping on orders over EGP 1000",
+      "benefits": {
+        "authentic": "100% authentic products",
+        "warranty": "Manufacturer warranty included",
+        "fastDelivery": "Fast delivery across Egypt",
+        "cashOnDelivery": "Cash on delivery available"
+      },
+      "chooseVariant": "Choose your option",
+      "descriptionHeading": "Description",
+      "specifications": "Specifications",
+      "category": "Category",
+      "collection": "Collection",
+      "tags": "Tags",
+      "type": "Type",
+      "options": "Options",
+      "dimensions": "Dimensions",
+      "galleryPrev": "Previous image",
+      "galleryNext": "Next image",
+      "tabsAria": "Product information tabs",
+      "carouselPrev": "Scroll previous",
+      "carouselNext": "Scroll next",
+      "reviews": {
+        "title": "Customer Reviews",
+        "subtitle": "What our customers say about this product",
+        "noReviewsTitle": "No reviews yet",
+        "noReviewsBody": "Be the first to share your experience with this product."
+      },
+      "relatedTitle": "Related Products",
+      "relatedSubtitle": "More from this collection",
+      "suggestedTitle": "You May Also Like",
+      "suggestedSubtitle": "Discover other products customers love"
+    },
+    "card": {
+      "quickView": "Quick view",
+      "buyNow": "Buy now",
+      "addedToast": "Added to cart",
+      "addToCartAria": "Add to cart"
+    },
+    "quickView": {
+      "title": "Quick view",
+      "close": "Close",
+      "viewDetails": "View full details",
+      "chooseVariant": "Choose a variant"
+    }
+  },
+  "wishlist": {
+    "pageTitle": "Wishlist",
+    "pageDescription": "Products you have saved to your wishlist.",
+    "empty": "Your wishlist is empty.",
+    "emptyCta": "Browse products",
+    "add": "Save to wishlist",
+    "remove": "Remove from wishlist",
+    "addedAria": "Added to wishlist",
+    "removedAria": "Removed from wishlist",
+    "removeItem": "Remove"
+  },
+  "compare": {
+    "pageTitle": "Compare",
+    "pageDescription": "Compare product specifications side by side.",
+    "empty": "Nothing to compare yet.",
+    "emptyCta": "Browse products",
+    "add": "Add to compare",
+    "remove": "Remove from compare",
+    "full": "You can compare up to {max} products. Remove one to add another.",
+    "addedAria": "Added to compare",
+    "removedAria": "Removed from compare",
+    "removeColumn": "Remove from compare",
+    "headers": {
+      "image": "Image",
+      "title": "Title",
+      "price": "Price",
+      "subtitle": "Subtitle",
+      "material": "Material",
+      "weight": "Weight",
+      "origin": "Origin"
     }
   },
   "collections": {
+    "listing": {
+      "title": "All Collections",
+      "empty": "No collections available yet.",
+      "metaTitle": "Collections — Sama Link Store",
+      "metaDescription": "Browse all product collections at Sama Link Store."
+    },
     "empty": "No products in this collection yet.",
     "paginationLabel": "Pagination",
     "previous": "← Previous",
     "next": "Next →",
     "pageOf": "{current} / {total}"
+  },
+  "pages": {
+    "about": {
+      "title": "About Us"
+    },
+    "faq": {
+      "title": "FAQ"
+    },
+    "contact": {
+      "title": "Contact Us"
+    },
+    "shippingReturns": {
+      "title": "Shipping & Returns"
+    },
+    "privacy": {
+      "title": "Privacy Policy"
+    },
+    "terms": {
+      "title": "Terms & Conditions"
+    },
+    "fallbackBody": "This page is coming soon."
+  },
+  "trackOrder": {
+    "title": "Track Order",
+    "body": "Order tracking will be available soon."
   },
   "footer": {
     "copyright": "All rights reserved",

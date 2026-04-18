@@ -171,7 +171,7 @@ export default function CartDrawer() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-text-secondary">{t("subtotal")}</span>
               <span className="font-semibold text-text-primary">
-                {formatPrice(cart?.subtotal, currencyCode)}
+                {formatPrice(cart?.subtotal, currencyCode, locale)}
               </span>
             </div>
             <a

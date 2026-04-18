@@ -9,6 +9,11 @@ export interface FilterCollectionOption {
   title: string;
 }
 
+export interface FilterCategoryOption {
+  id: string;
+  title: string;
+}
+
 const PRICE_BUCKETS = [
   { key: "under100" as const, min: "0", max: "100" },
   { key: "100to500" as const, min: "100", max: "500" },
@@ -43,7 +48,9 @@ function isBucketActive(
 
 export interface FilterSidebarProps {
   collections: FilterCollectionOption[];
+  categories: FilterCategoryOption[];
   activeCollection: string | null;
+  activeCategory: string | null;
   activeMinPrice: string | null;
   activeMaxPrice: string | null;
   locale: string;
@@ -51,7 +58,9 @@ export interface FilterSidebarProps {
 
 export default function FilterSidebar({
   collections,
+  categories,
   activeCollection,
+  activeCategory,
   activeMinPrice,
   activeMaxPrice,
   locale,
@@ -71,6 +80,7 @@ export default function FilterSidebar({
 
   const hasActiveFilters =
     activeCollection != null ||
+    activeCategory != null ||
     activeMinPrice != null ||
     activeMaxPrice != null;
 
@@ -86,6 +96,7 @@ export default function FilterSidebar({
             onClick={() =>
               navigate({
                 collection: null,
+                category: null,
                 minPrice: null,
                 maxPrice: null,
               })
@@ -96,6 +107,48 @@ export default function FilterSidebar({
           </button>
         ) : null}
       </div>
+
+      <section className="space-y-3" aria-labelledby="filter-categories-heading">
+        <h3
+          id="filter-categories-heading"
+          className="text-xs font-medium uppercase tracking-wide text-text-secondary"
+        >
+          {t("categories")}
+        </h3>
+        <ul className="flex flex-col gap-1">
+          <li>
+            <button
+              type="button"
+              onClick={() => navigate({ category: null })}
+              className={
+                activeCategory == null
+                  ? "text-left text-sm font-semibold text-text-primary"
+                  : "text-left text-sm text-text-secondary transition-colors hover:text-text-primary"
+              }
+            >
+              {t("allCategories")}
+            </button>
+          </li>
+          {categories.map((c) => {
+            const isActive = activeCategory === c.id;
+            return (
+              <li key={c.id}>
+                <button
+                  type="button"
+                  onClick={() => navigate({ category: isActive ? null : c.id })}
+                  className={
+                    isActive
+                      ? "text-left text-sm font-semibold text-text-primary"
+                      : "text-left text-sm text-text-secondary transition-colors hover:text-text-primary"
+                  }
+                >
+                  {c.title}
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
 
       <section className="space-y-3" aria-labelledby="filter-collections-heading">
         <h3

@@ -4,7 +4,7 @@ import { cn } from "@/lib/cn";
 
 const variantClasses = {
   primary:
-    "bg-brand text-text-inverse hover:bg-brand-hover focus-visible:ring-brand",
+    "bg-brand text-text-inverse hover:bg-brand-hover focus-visible:ring-brand dark:bg-text-primary dark:text-surface dark:border-text-primary dark:border dark:hover:bg-white dark:focus-visible:ring-text-primary",
   secondary:
     "bg-surface-subtle text-text-primary border border-border hover:bg-surface-raised hover:border-border-strong focus-visible:ring-brand",
   outline:
@@ -12,7 +12,7 @@ const variantClasses = {
   ghost:
     "bg-transparent text-text-secondary hover:bg-surface-subtle hover:text-text-primary focus-visible:ring-brand",
   destructive:
-    "bg-error text-text-inverse hover:bg-red-700 focus-visible:ring-error",
+    "bg-error text-text-inverse hover:opacity-90 focus-visible:ring-error",
 } as const;
 
 const sizeClasses = {
@@ -94,7 +94,7 @@ export default function Button({
       aria-busy={loading}
       className={cn(
         /* Base */
-        "inline-flex items-center justify-center rounded-md font-medium",
+        "inline-flex items-center justify-center rounded-lg font-medium",
         "transition-colors duration-150",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         /* Variant */

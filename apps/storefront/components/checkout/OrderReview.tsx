@@ -79,7 +79,7 @@ export default function OrderReview({
     }
   }
 
-  const fmt = (amount: number) => formatPrice(amount, currencyCode);
+  const fmt = (amount: number) => formatPrice(amount, currencyCode, locale);
 
   return (
     <div className="lg:grid lg:grid-cols-3 lg:gap-8">
@@ -177,7 +177,7 @@ export default function OrderReview({
           </div>
 
           {apiError ? (
-            <p className="text-sm text-red-500" role="alert">
+            <p className="text-sm text-error" role="alert">
               {apiError}
             </p>
           ) : null}
