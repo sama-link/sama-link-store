@@ -231,3 +231,17 @@ footer.about,About,من نحن,
 footer.tagline,Quality products delivered to your door.,منتجات عالية الجودة تصل إلى باب منزلك.,
 footer.builtWithCare,Built with care in the Arab world.,صُنع بعناية في العالم العربي.,
 footer.copyrightLine,© {year} {storeName}. {rights},© {year} {storeName}. {rights},{year} {storeName} {rights} interpolated
+meta.root.description,Your destination for quality products.,,MVP-10 SEO — root layout description; AR pending human translation (ADR-040)
+meta.cart.description,Review items in your cart and proceed to checkout.,,MVP-10 SEO — noindex route
+meta.checkout.address.description,Enter your shipping address to continue checkout.,,MVP-10 SEO — noindex route
+meta.checkout.shipping.description,Choose a shipping method for your order.,,MVP-10 SEO — noindex route
+meta.checkout.payment.description,Select your preferred payment method.,,MVP-10 SEO — noindex route
+meta.checkout.review.description,Review your order before placing it.,,MVP-10 SEO — noindex route
+meta.checkout.confirmed.description,Your order has been confirmed.,,MVP-10 SEO — noindex route
+meta.trackOrder.description,Track the status of your order.,,MVP-10 SEO — noindex route
+meta.pages.about.description,Learn about Sama Link Store — our story and values.,,MVP-10 SEO — info page description
+meta.pages.faq.description,Frequently asked questions about Sama Link Store orders and services.,,MVP-10 SEO — info page description
+meta.pages.contact.description,Get in touch with Sama Link Store customer support.,,MVP-10 SEO — info page description
+meta.pages.shippingReturns.description,Shipping and returns information for Sama Link Store orders.,,MVP-10 SEO — info page description
+meta.pages.privacy.description,Sama Link Store privacy policy — how we collect and handle your data.,,MVP-10 SEO — info page description
+meta.pages.terms.description,Sama Link Store terms and conditions of use.,,MVP-10 SEO — info page description

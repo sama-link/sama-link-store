@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import ProductCard from "@/components/products/ProductCard";
 import { listProducts } from "@/lib/medusa-client";
+import { buildCanonical, buildLanguageAlternates } from "@/lib/seo";
 
 export const revalidate = 3600; // ISR — ADR-017
 
@@ -15,18 +16,14 @@ export async function generateMetadata({
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "home" });
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-  const canonical = `${baseUrl}/${locale}`;
+  const canonical = buildCanonical(locale, "/");
 
   return {
-    title: t("metaTitle"),
+    title: { absolute: t("metaTitle") },
     description: t("metaDescription"),
     alternates: {
       canonical,
-      languages: {
-        en: `${baseUrl}/en`,
-        ar: `${baseUrl}/ar`,
-      },
+      languages: buildLanguageAlternates("/"),
     },
     openGraph: {
       type: "website",

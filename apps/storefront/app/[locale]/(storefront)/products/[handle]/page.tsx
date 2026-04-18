@@ -6,6 +6,11 @@ import {
   getProductByHandle,
   listRelatedProducts,
 } from "@/lib/medusa-client";
+import {
+  buildCanonical,
+  buildLanguageAlternates,
+  buildProductJsonLd,
+} from "@/lib/seo";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import ProductCard from "@/components/products/ProductCard";
 import ProductGallery, {
@@ -45,13 +50,16 @@ export async function generateMetadata({
     notFound();
   }
 
-  const canonical = `/${locale}/products/${handle}`;
+  const canonical = buildCanonical(locale, `/products/${handle}`);
   const description = product.description ?? undefined;
 
   return {
     title: product.title,
     description,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      languages: buildLanguageAlternates(`/products/${handle}`),
+    },
     openGraph: {
       type: "website",
       title: product.title ?? undefined,
@@ -276,8 +284,25 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         }
       : null;
 
+  const productCanonical = buildCanonical(locale, `/products/${handle}`);
+  const productJsonLd = buildProductJsonLd(
+    {
+      title: product.title,
+      description: product.description,
+      thumbnail: product.thumbnail,
+      images: rawImages,
+      variants,
+    },
+    locale,
+    productCanonical,
+  );
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <StickyPurchaseBar
         observeId={CTA_SENTINEL_ID}
         productTitle={product.title ?? ""}

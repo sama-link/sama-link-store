@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { CART_COOKIE_NAME } from "@/lib/cart-cookie";
 import { retrieveCart } from "@/lib/medusa-client";
+import { buildCanonical } from "@/lib/seo";
 import OrderReview, {
   type ReviewLineItem,
   type ReviewAddress,
@@ -19,7 +20,16 @@ export async function generateMetadata({
 }: ReviewPageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "checkout.review" });
-  return { title: t("title") };
+  const tMeta = await getTranslations({
+    locale,
+    namespace: "meta.checkout.review",
+  });
+  return {
+    title: t("title"),
+    description: tMeta("description"),
+    alternates: { canonical: buildCanonical(locale, "/checkout/review") },
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function ReviewPage({ params }: ReviewPageProps) {

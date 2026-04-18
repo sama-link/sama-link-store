@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { listCollections } from "@/lib/medusa-client";
+import { buildCanonical, buildLanguageAlternates } from "@/lib/seo";
 import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
@@ -16,11 +17,14 @@ export async function generateMetadata({
 }: CollectionsPageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "collections.listing" });
-  const canonical = `/${locale}/collections`;
+  const canonical = buildCanonical(locale, "/collections");
   return {
     title: t("metaTitle"),
     description: t("metaDescription"),
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      languages: buildLanguageAlternates("/collections"),
+    },
     openGraph: {
       type: "website",
       title: t("metaTitle"),

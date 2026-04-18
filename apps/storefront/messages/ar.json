@@ -287,6 +287,54 @@
     "title": "تتبع الطلب",
     "body": "ستتوفر خدمة تتبع الطلبات قريبًا."
   },
+  "meta": {
+    "root": {
+      "description": ""
+    },
+    "cart": {
+      "description": ""
+    },
+    "checkout": {
+      "address": {
+        "description": ""
+      },
+      "shipping": {
+        "description": ""
+      },
+      "payment": {
+        "description": ""
+      },
+      "review": {
+        "description": ""
+      },
+      "confirmed": {
+        "description": ""
+      }
+    },
+    "trackOrder": {
+      "description": ""
+    },
+    "pages": {
+      "about": {
+        "description": ""
+      },
+      "faq": {
+        "description": ""
+      },
+      "contact": {
+        "description": ""
+      },
+      "shippingReturns": {
+        "description": ""
+      },
+      "privacy": {
+        "description": ""
+      },
+      "terms": {
+        "description": ""
+      }
+    }
+  },
   "footer": {
     "copyright": "جميع الحقوق محفوظة",
     "privacy": "سياسة الخصوصية",

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { getCmsPageByHandle } from "@/lib/medusa-client";
+import { buildCanonical, buildLanguageAlternates } from "@/lib/seo";
 import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
@@ -27,15 +28,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!keyName) return {};
 
   const t = await getTranslations({ locale, namespace: "pages" });
+  const tMeta = await getTranslations({ locale, namespace: "meta.pages" });
   const title = t(`${keyName}.title`);
-  const canonical = `/${locale}/pages/${handle}`;
+  const description = tMeta(`${keyName}.description`);
+  const canonical = buildCanonical(locale, `/pages/${handle}`);
 
   return {
     title,
-    alternates: { canonical },
+    description,
+    alternates: {
+      canonical,
+      languages: buildLanguageAlternates(`/pages/${handle}`),
+    },
     openGraph: {
       type: "website",
       title,
+      description,
       url: canonical,
       locale: locale === "ar" ? "ar_SA" : "en_US",
     },

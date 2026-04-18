@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { buildCanonical } from "@/lib/seo";
 import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 import CartPageContent from "@/components/layout/CartPageContent";
@@ -13,7 +14,13 @@ export async function generateMetadata({
 }: CartPageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "cart" });
-  return { title: t("title") };
+  const tMeta = await getTranslations({ locale, namespace: "meta.cart" });
+  return {
+    title: t("title"),
+    description: tMeta("description"),
+    alternates: { canonical: buildCanonical(locale, "/cart") },
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function CartPage({ params }: CartPageProps) {

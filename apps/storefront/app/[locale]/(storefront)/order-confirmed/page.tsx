@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { buildCanonical } from "@/lib/seo";
 import Container from "@/components/layout/Container";
 
 interface ConfirmedPageProps {
@@ -12,7 +13,16 @@ export async function generateMetadata({
 }: ConfirmedPageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "checkout.confirmed" });
-  return { title: t("title") };
+  const tMeta = await getTranslations({
+    locale,
+    namespace: "meta.checkout.confirmed",
+  });
+  return {
+    title: t("title"),
+    description: tMeta("description"),
+    alternates: { canonical: buildCanonical(locale, "/order-confirmed") },
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function OrderConfirmedPage({

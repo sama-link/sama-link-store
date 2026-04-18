@@ -6,6 +6,7 @@ import {
   getCollectionByHandle,
   listProductsByCollection,
 } from "@/lib/medusa-client";
+import { buildCanonical, buildLanguageAlternates } from "@/lib/seo";
 import ProductGrid from "@/components/products/ProductGrid";
 import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
@@ -28,7 +29,7 @@ export async function generateMetadata({
   const collection = await getCachedCollection(handle);
   if (!collection) notFound();
 
-  const canonical = `/${locale}/collections/${handle}`;
+  const canonical = buildCanonical(locale, `/collections/${handle}`);
   const description =
     "description" in collection && typeof collection.description === "string"
       ? collection.description
@@ -37,7 +38,10 @@ export async function generateMetadata({
   return {
     title: collection.title,
     description,
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      languages: buildLanguageAlternates(`/collections/${handle}`),
+    },
     openGraph: {
       type: "website",
       title: collection.title ?? undefined,

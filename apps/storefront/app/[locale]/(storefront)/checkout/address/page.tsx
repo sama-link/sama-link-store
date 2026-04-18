@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { buildCanonical } from "@/lib/seo";
 import AddressForm from "@/components/checkout/AddressForm";
 
 interface AddressPageProps {
@@ -11,7 +12,16 @@ export async function generateMetadata({
 }: AddressPageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "checkout.address" });
-  return { title: t("title") };
+  const tMeta = await getTranslations({
+    locale,
+    namespace: "meta.checkout.address",
+  });
+  return {
+    title: t("title"),
+    description: tMeta("description"),
+    alternates: { canonical: buildCanonical(locale, "/checkout/address") },
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function AddressPage({ params }: AddressPageProps) {

@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { getTranslations } from "next-intl/server";
 import { CART_COOKIE_NAME } from "@/lib/cart-cookie";
 import { listCartShippingOptions } from "@/lib/medusa-client";
+import { buildCanonical } from "@/lib/seo";
 import ShippingMethodSelector, {
   type ShippingOption,
 } from "@/components/checkout/ShippingMethodSelector";
@@ -16,7 +17,16 @@ export async function generateMetadata({
 }: ShippingPageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "checkout.shipping" });
-  return { title: t("title") };
+  const tMeta = await getTranslations({
+    locale,
+    namespace: "meta.checkout.shipping",
+  });
+  return {
+    title: t("title"),
+    description: tMeta("description"),
+    alternates: { canonical: buildCanonical(locale, "/checkout/shipping") },
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function ShippingPage({ params }: ShippingPageProps) {

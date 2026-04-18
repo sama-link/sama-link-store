@@ -6,6 +6,7 @@ import {
   listProducts,
   type ListProductsParams,
 } from "@/lib/medusa-client";
+import { buildCanonical, buildLanguageAlternates } from "@/lib/seo";
 import ProductGrid from "@/components/products/ProductGrid";
 import FilterSidebar, {
   type FilterCategoryOption,
@@ -110,11 +111,14 @@ export async function generateMetadata({
 }: ProductsPageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "products.listing" });
-  const canonical = `/${locale}/products`;
+  const canonical = buildCanonical(locale, "/products");
   return {
     title: t("title"),
     description: t("description"),
-    alternates: { canonical },
+    alternates: {
+      canonical,
+      languages: buildLanguageAlternates("/products"),
+    },
     openGraph: {
       type: "website",
       title: t("title"),

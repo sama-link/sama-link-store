@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
+import { buildCanonical } from "@/lib/seo";
 import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
@@ -14,16 +15,15 @@ export async function generateMetadata({
 }: TrackOrderPageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "trackOrder" });
-  const canonical = `/${locale}/track-order`;
+  const tMeta = await getTranslations({
+    locale,
+    namespace: "meta.trackOrder",
+  });
   return {
     title: t("title"),
-    alternates: { canonical },
-    openGraph: {
-      type: "website",
-      title: t("title"),
-      url: canonical,
-      locale: locale === "ar" ? "ar_SA" : "en_US",
-    },
+    description: tMeta("description"),
+    alternates: { canonical: buildCanonical(locale, "/track-order") },
+    robots: { index: false, follow: false },
   };
 }
 

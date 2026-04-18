@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { listPaymentProviders } from "@/lib/medusa-client";
+import { buildCanonical } from "@/lib/seo";
 import PaymentMethodSelector, {
   type PaymentProvider,
 } from "@/components/checkout/PaymentMethodSelector";
@@ -14,7 +15,16 @@ export async function generateMetadata({
 }: PaymentPageProps): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "checkout.payment" });
-  return { title: t("title") };
+  const tMeta = await getTranslations({
+    locale,
+    namespace: "meta.checkout.payment",
+  });
+  return {
+    title: t("title"),
+    description: tMeta("description"),
+    alternates: { canonical: buildCanonical(locale, "/checkout/payment") },
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function PaymentPage({ params }: PaymentPageProps) {

@@ -287,6 +287,54 @@
     "title": "Track Order",
     "body": "Order tracking will be available soon."
   },
+  "meta": {
+    "root": {
+      "description": "Your destination for quality products."
+    },
+    "cart": {
+      "description": "Review items in your cart and proceed to checkout."
+    },
+    "checkout": {
+      "address": {
+        "description": "Enter your shipping address to continue checkout."
+      },
+      "shipping": {
+        "description": "Choose a shipping method for your order."
+      },
+      "payment": {
+        "description": "Select your preferred payment method."
+      },
+      "review": {
+        "description": "Review your order before placing it."
+      },
+      "confirmed": {
+        "description": "Your order has been confirmed."
+      }
+    },
+    "trackOrder": {
+      "description": "Track the status of your order."
+    },
+    "pages": {
+      "about": {
+        "description": "Learn about Sama Link Store — our story and values."
+      },
+      "faq": {
+        "description": "Frequently asked questions about Sama Link Store orders and services."
+      },
+      "contact": {
+        "description": "Get in touch with Sama Link Store customer support."
+      },
+      "shippingReturns": {
+        "description": "Shipping and returns information for Sama Link Store orders."
+      },
+      "privacy": {
+        "description": "Sama Link Store privacy policy — how we collect and handle your data."
+      },
+      "terms": {
+        "description": "Sama Link Store terms and conditions of use."
+      }
+    }
+  },
   "footer": {
     "copyright": "All rights reserved",
     "privacy": "Privacy Policy",
