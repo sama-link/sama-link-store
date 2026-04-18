@@ -144,12 +144,12 @@ NOTE: MVP-7 is NOT blocked on CMS content completeness — only on route existen
 
 ADR-044 is time-boxed. The back-merge below restores ADR-014 and expires ADR-044. **Phase 6 planning does not open until `GIT-2` is `[x]`.**
 
-- [ ] **GIT-2**: Trunk reconciliation back-merge (ADR-044 exit criteria)
-  - [ ] Merge active feature branch (current: `feature/front-10-seo-foundational`, plus any subsequent Phase 5 branches) into `develop`
-  - [ ] Merge `develop` into `main`
-  - [ ] Verify `develop` now contains all Phase 2–5 product code
-  - [ ] Update `CLAUDE.md` § Project State → `Active branch:` back to `develop` (or the next Phase 6 feature branch once cut)
-  - [ ] Archive ADR-044 in Notion Decision Log (Status → Expired, with exit-criteria checklist attached)
-  - [ ] First Phase 6 task branch demonstrably cut from `develop` — evidenced in the task's brief header
+- [x] **GIT-2**: Trunk reconciliation back-merge (ADR-044 exit criteria) — done 2026-04-18
+  - [x] Merge active feature branch (`feature/front-10-seo-foundational`) into `develop` — merge commit `79cb5fd`
+  - [x] Merge `develop` into `main` — merge commit landed on main 2026-04-18
+  - [x] Verify `develop` now contains all Phase 2–5 product code — verified via `git log main..develop` diff
+  - [x] Update `CLAUDE.md` § Project State → `Active branch: develop`
+  - [ ] Archive ADR-044 in Notion Decision Log (Status → Expired, with exit-criteria checklist attached) — pending Notion sync at session end
+  - [ ] First Phase 6 task branch demonstrably cut from `develop` — evidenced when first Phase 6 task is briefed
 
-**Blocker:** Phase 6 kickoff. Do not open Phase 6 planning, brief Phase 6 tasks, or assign Phase 6 work until every sub-item above is `[x]` and ADR-044 is archived.
+**Status:** Phase 6 planning may now open. Final Notion archival of ADR-044 and first Phase 6 branch evidence are tracked under Phase 6 kickoff.
