@@ -22,7 +22,10 @@ export async function getAuthToken(): Promise<string | null> {
 export async function clearAuthCookie(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set(AUTH_COOKIE_NAME, "", {
-    maxAge: 0,
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
     path: "/",
+    maxAge: 0,
   });
 }
