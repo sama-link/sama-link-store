@@ -165,7 +165,15 @@ Implementation rule (all Phase 6 tasks): **No hardcoded user-facing strings.** A
 ### Active tasks
 
 - [x] **AUTH-1**: Customer authentication server-side foundation — httpOnly JWT cookie, server-resolved customer, Medusa emailpass via SDK in `jwt` mode, login/register/logout routes, header affordance — branch `feature/auth-1-customer-foundation` (cut from `develop` 2026-04-18, back-merged to `develop` as merge commit `382e1ab` on 2026-04-18) — target Advanced Executor — done 2026-04-18 (ADR-046)
-- [ ] **CART-MERGE**: Cart-auth seam — transfer guest cart to customer on login/register via `sdk.store.cart.transferCart`; clear cart cookie on logout; silent best-effort failures (TEMPORARY operational compromise pending a future logging utility) — branch `feature/cart-merge-auth-seam` (cut from `develop` 2026-04-18, post-AUTH-1 back-merge) — target Advanced Executor
+- [x] **CART-MERGE**: Cart-auth seam — transfer guest cart to customer on login/register via `sdk.store.cart.transferCart`; clear cart cookie on logout; silent best-effort failures (TEMPORARY operational compromise pending a future logging utility) — branch `feature/cart-merge-auth-seam` (cut from `develop` 2026-04-18, post-AUTH-1 back-merge) — target Advanced Executor — done 2026-04-18 (all 14 ACs verified; live 6a–6g matrix PASS on /en + /ar; `clearCartIdCookie` sameSite alignment fix applied by Tech Lead; follow-ups recorded: LOG-1, TEST-1, AUTH-1a — see task report.txt)
+
+### Follow-ups (deferred — full briefs pending)
+
+- [ ] **LOG-1**: Adopt a project logging utility — single logger surface (server + client) to replace silent-swallow patterns in `loginAction`/`registerAction` transfer catch blocks with structured warn-level logs. Once landed, revise the `void transferError` compromise from CART-MERGE. Triggered by: CART-MERGE.
+
+- [ ] **TEST-1**: Automated coverage for the auth/cart seam — server-action tests for `loginAction` / `registerAction` / `logoutAction`, plus a contract-level test for `transferCartToCustomer` exercising the three guard paths (no cart / valid cart / bogus cart). Triggered by: AUTH-1 + CART-MERGE code review.
+
+- [ ] **AUTH-1a**: Align `clearAuthCookie` attributes with its setter — mirror the fix applied in CART-MERGE for `clearCartIdCookie`. One-file change to `apps/storefront/lib/auth-cookie.ts` adding `sameSite: "strict"`, `secure: true`, `httpOnly: true` on clear. No new ADR. Triggered by: CART-MERGE review.
 
 ---
 
