@@ -115,7 +115,15 @@
     "wishlist": "Wishlist",
     "compare": "Compare",
     "wishlistAria": "Wishlist ({count} items)",
-    "compareAria": "Compare ({count} items)"
+    "compareAria": "Compare ({count} items)",
+    "megaMenu": {
+      "productsTrigger": "Products",
+      "collectionsTrigger": "Collections",
+      "viewAllProducts": "View all products",
+      "viewAllCollections": "View all collections",
+      "emptyCategories": "No categories yet.",
+      "emptyCollections": "No collections yet."
+    }
   },
   "home": {
     "headline": "Sama Link Store",

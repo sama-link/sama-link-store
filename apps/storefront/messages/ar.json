@@ -115,7 +115,15 @@
     "wishlist": "المفضلة",
     "compare": "المقارنة",
     "wishlistAria": "المفضلة ({count} عناصر)",
-    "compareAria": "المقارنة ({count} عناصر)"
+    "compareAria": "المقارنة ({count} عناصر)",
+    "megaMenu": {
+      "productsTrigger": "المنتجات",
+      "collectionsTrigger": "المجموعات",
+      "viewAllProducts": "عرض كل المنتجات",
+      "viewAllCollections": "عرض كل المجموعات",
+      "emptyCategories": "لا توجد تصنيفات بعد.",
+      "emptyCollections": "لا توجد مجموعات بعد."
+    }
   },
   "home": {
     "headline": "متجر سما لينك",

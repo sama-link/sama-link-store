@@ -205,6 +205,12 @@ pages.privacy.title,Privacy Policy,سياسة الخصوصية,
 pages.terms.title,Terms & Conditions,الشروط والأحكام,
 pages.fallbackBody,This page is coming soon.,هذه الصفحة ستتوفر قريبًا.,
 nav.home,Home,الرئيسية,
+nav.megaMenu.productsTrigger,Products,المنتجات,desktop mega menu trigger — panel lists categories
+nav.megaMenu.collectionsTrigger,Collections,المجموعات,desktop mega menu trigger — panel lists collections
+nav.megaMenu.viewAllProducts,View all products,عرض كل المنتجات,footer link in products mega panel
+nav.megaMenu.viewAllCollections,View all collections,عرض كل المجموعات,footer link in collections mega panel
+nav.megaMenu.emptyCategories,No categories yet.,لا توجد تصنيفات بعد.,empty state when Medusa returns no categories
+nav.megaMenu.emptyCollections,No collections yet.,لا توجد مجموعات بعد.,empty state when Medusa returns no collections
 trackOrder.title,Track Order,تتبع الطلب,
 trackOrder.body,Order tracking will be available soon.,ستتوفر خدمة تتبع الطلبات قريبًا.,
 footer.copyright,All rights reserved,جميع الحقوق محفوظة,

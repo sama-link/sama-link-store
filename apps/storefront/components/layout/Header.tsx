@@ -1,9 +1,11 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
+import { listCollections, listProductCategories } from "@/lib/medusa-client";
 import Container from "./Container";
 import LocaleSwitcher from "./LocaleSwitcher";
 import MobileMenu from "./MobileMenu";
+import MegaMenu from "./MegaMenu";
 import CartButton from "./CartButton";
 import WishlistHeaderButton from "./WishlistHeaderButton";
 import CompareHeaderButton from "./CompareHeaderButton";
@@ -16,7 +18,7 @@ import CompareHeaderButton from "./CompareHeaderButton";
     ↕ MobileMenu panel (toggle)
 
   Desktop (≥ 640px)
-    [Logo]   [Products  Collections  About]   [locale  theme  wishlist  compare  cart]
+    [Logo]   [MegaMenu: Home  Products▼  Collections▼  About]   [locale  theme  wishlist  compare  cart]
 
   Header is a Server Component.
   ThemeToggle + LocaleSwitcher + MobileMenu are client boundaries.
@@ -24,12 +26,24 @@ import CompareHeaderButton from "./CompareHeaderButton";
 
 export default async function Header() {
   const locale = await getLocale();
-  const NAV_LINKS = [
-    { key: "home" as const, href: `/${locale}` },
-    { key: "products" as const, href: `/${locale}/products` },
-    { key: "collections" as const, href: `/${locale}/collections` },
-    { key: "about" as const, href: `/${locale}/pages/about` },
-  ];
+
+  const [{ product_categories }, { collections }] = await Promise.all([
+    listProductCategories(),
+    listCollections(),
+  ]);
+
+  const megaCategories = product_categories.map((c) => ({
+    id: c.id,
+    name: c.name ?? c.handle ?? c.id,
+  }));
+
+  const megaCollections = collections
+    .filter((c) => typeof c.handle === "string" && c.handle.length > 0)
+    .map((c) => ({
+      id: c.id,
+      title: c.title ?? c.handle ?? c.id,
+      handle: c.handle as string,
+    }));
 
   const t = await getTranslations("nav");
   const tCommon = await getTranslations("common");
@@ -53,21 +67,10 @@ export default async function Header() {
             />
           </a>
 
-          {/* ── Desktop nav ── */}
-          <nav aria-label={t("mainNavigation")} className="hidden sm:block">
-            <ul className="flex items-center gap-6">
-              {NAV_LINKS.map(({ key, href }) => (
-                <li key={key}>
-                  <a
-                    href={href}
-                    className="text-sm font-medium text-text-secondary hover:text-text-primary transition-colors"
-                  >
-                    {t(key)}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          {/* ── Desktop nav (mega menu); mobile uses MobileMenu unchanged ── */}
+          <div className="hidden sm:flex sm:flex-1 sm:justify-center">
+            <MegaMenu categories={megaCategories} collections={megaCollections} />
+          </div>
 
           {/* ── Actions ── */}
           <div className="flex items-center gap-1 sm:gap-3">
