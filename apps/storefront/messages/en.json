@@ -116,14 +116,30 @@
     "compare": "Compare",
     "wishlistAria": "Wishlist ({count} items)",
     "compareAria": "Compare ({count} items)",
+    "catbarLabel": "Category shortcuts",
+    "searchLabel": "Search",
+    "searchPlaceholder": "Search products, brands, categories…",
+    "searchSubmit": "Search",
+    "search": "Search",
+    "theme": "Theme",
     "megaMenu": {
       "productsTrigger": "Products",
       "collectionsTrigger": "Collections",
       "viewAllProducts": "View all products",
       "viewAllCollections": "View all collections",
       "emptyCategories": "No categories yet.",
-      "emptyCollections": "No collections yet."
+      "emptyCollections": "No collections yet.",
+      "promo": {
+        "tag": "Limited offer",
+        "title": "Up to 30% off Wi-Fi 6 systems",
+        "body": "Free shipping · certified warranty",
+        "cta": "Shop deals"
+      }
     }
+  },
+  "topbar": {
+    "announcement": "Free shipping on orders over EGP 1,500",
+    "announcementCta": "Shop now"
   },
   "account": {
     "title": "Account",
@@ -152,7 +168,68 @@
     "ctaLabel": "Browse products",
     "comingSoon": "The full product catalog, search, and checkout will arrive in upcoming phases. This storefront skeleton confirms routing, layout, and i18n.",
     "metaTitle": "Sama Link Store — Quality Products Online",
-    "metaDescription": "Discover quality products at Sama Link Store. Curated collections delivered to your door."
+    "metaDescription": "Discover quality products at Sama Link Store. Curated collections delivered to your door.",
+    "viewAll": "View all",
+    "noProductsFallback": "Our catalog is coming online. Check back in a moment.",
+    "hero": {
+      "eyebrow": "Speed of Life",
+      "titleLead": "Professional",
+      "titleAccent": "connectivity",
+      "titleCoda": "for every space.",
+      "sub": "Networking, surveillance, and smart home gear — authentic, warrantied, delivered across Egypt in 48 hours.",
+      "ctaBrowse": "Browse products",
+      "ctaCollections": "View collections",
+      "trust": {
+        "authentic": { "title": "Authentic only", "body": "Manufacturer-backed warranty" },
+        "delivery":  { "title": "48h delivery",   "body": "Fast shipping across Egypt" },
+        "cod":       { "title": "Cash on delivery", "body": "Pay when you receive" }
+      },
+      "cards": {
+        "networking":   { "eyebrow": "Networking",   "sub": "EGP 4,299" },
+        "surveillance": { "eyebrow": "Surveillance", "sub": "IP67 · Night Vision" },
+        "power":        { "eyebrow": "Power",        "sub": "Protection" },
+        "smart":        { "eyebrow": "Smart",        "sub": "EGP 240" }
+      }
+    },
+    "sections": {
+      "categories": {
+        "eyebrow": "Shop by category",
+        "title": "Everything that keeps you connected",
+        "items": "{count, plural, one {1 item} other {# items}}"
+      },
+      "featured": { "eyebrow": "Featured products", "title": "Trending this week" },
+      "trending": { "eyebrow": "Trending now",      "title": "Best sellers this week" },
+      "why":      { "eyebrow": "Why Sama Link",     "title": "Standards we stand behind" },
+      "newsletter": {
+        "eyebrow": "Stay in the loop",
+        "title": "Join the loyalty program",
+        "body": "Exclusive offers and free shipping on your first order.",
+        "placeholder": "your@email.com",
+        "emailLabel": "Email address",
+        "subscribe": "Subscribe",
+        "privacy": "We'll never share your email.",
+        "success": {
+          "title": "Thanks for subscribing",
+          "body": "Check your inbox for a welcome note."
+        }
+      }
+    },
+    "banners": {
+      "largeEyebrow": "Exclusive offer",
+      "largeTitle": "Save up to 30% on surveillance kits",
+      "largeBody": "NVR + PoE kits, ready to install.",
+      "largeCta": "Shop deals",
+      "smallEyebrow": "Free shipping",
+      "smallTitle": "On orders over EGP 1,500",
+      "smallBody": "Door-to-door in 48 hours.",
+      "smallCta": "Learn more"
+    },
+    "why": {
+      "delivery":  { "title": "Fast delivery",           "body": "48 hours. Every governorate." },
+      "authentic": { "title": "100% authentic",          "body": "Manufacturer-backed warranty." },
+      "support":   { "title": "Real support",            "body": "Bilingual, before and after you buy." },
+      "payment":   { "title": "Flexible payment",        "body": "COD · card · installments." }
+    }
   },
   "products": {
     "featuredTitle": "Featured Products",
@@ -164,8 +241,34 @@
       "paginationLabel": "Pagination",
       "previous": "← Previous",
       "next": "Next →",
-      "pageOf": "{current} / {total}"
+      "pageOf": "{current} / {total}",
+      "loadMore": "Load more",
+      "loading": "Loading…",
+      "loadMoreEnd": "You've seen everything.",
+      "loadMoreError": "Couldn't load more products. Please try again."
     },
+    "toolbar": {
+      "sortBy": "Sort by",
+      "density": "Columns",
+      "view": "View",
+      "viewMode": "Layout",
+      "densityCols": "{count} columns",
+      "showing": "Showing {shown}",
+      "showingOf": "Showing {shown} of {total}",
+      "close": "Close",
+      "sort": {
+        "newest": "Newest",
+        "price-asc": "Price: low to high",
+        "price-desc": "Price: high to low",
+        "title": "Name (A–Z)"
+      },
+      "viewModes": {
+        "grid": "Grid",
+        "list": "List"
+      },
+      "applyView": "Apply view"
+    },
+    "filtersAndViewAria": "Filters and view controls",
     "filters": {
       "heading": "Filters",
       "collections": "Collections",
@@ -174,6 +277,15 @@
       "allCollections": "All",
       "priceRange": "Price Range",
       "clearAll": "Clear filters",
+      "minPlaceholder": "Min",
+      "maxPlaceholder": "Max",
+      "rating": "Rating",
+      "ratingAndUp": "& up",
+      "availability": "Availability",
+      "inStock": "In stock",
+      "searchChipLabel": "Searching:",
+      "clearSearch": "Clear search",
+      "apply": "Apply filters",
       "priceBuckets": {
         "under100": "Under 100",
         "100to500": "100 – 500",
@@ -223,7 +335,18 @@
       "relatedTitle": "Related Products",
       "relatedSubtitle": "More from this collection",
       "suggestedTitle": "You May Also Like",
-      "suggestedSubtitle": "Discover other products customers love"
+      "suggestedSubtitle": "Discover other products customers love",
+      "save": "Save {percent}%",
+      "inclVat": "Incl. VAT",
+      "inStockShipsIn": "In stock — Ships within 48 hours",
+      "qtyDecrease": "Decrease quantity",
+      "qtyIncrease": "Increase quantity",
+      "trustGrid": {
+        "delivery": { "title": "48h delivery", "body": "Across every governorate" },
+        "warranty": { "title": "2-year warranty", "body": "Manufacturer-backed" },
+        "returns":  { "title": "14-day returns", "body": "No questions asked" },
+        "cod":      { "title": "Cash on delivery", "body": "or pay by card" }
+      }
     },
     "card": {
       "quickView": "Quick view",
@@ -247,7 +370,8 @@
     "remove": "Remove from wishlist",
     "addedAria": "Added to wishlist",
     "removedAria": "Removed from wishlist",
-    "removeItem": "Remove"
+    "removeItem": "Remove",
+    "viewFullPage": "Open full wishlist"
   },
   "compare": {
     "pageTitle": "Compare",
@@ -260,6 +384,7 @@
     "addedAria": "Added to compare",
     "removedAria": "Removed from compare",
     "removeColumn": "Remove from compare",
+    "viewFullPage": "Open full compare",
     "headers": {
       "image": "Image",
       "title": "Title",
@@ -374,6 +499,21 @@
     "about": "About",
     "tagline": "Quality products delivered to your door.",
     "builtWithCare": "Built with care in the Arab world.",
-    "copyrightLine": "© {year} {storeName}. {rights}"
+    "copyrightLine": "© {year} {storeName}. {rights}",
+    "paymentsLabel": "Payment methods accepted",
+    "socials": {
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "twitter": "X (Twitter)",
+      "youtube": "YouTube",
+      "whatsapp": "WhatsApp"
+    },
+    "payments": {
+      "visa": "VISA",
+      "mastercard": "MASTERCARD",
+      "meeza": "MEEZA",
+      "valu": "VALU",
+      "cod": "COD"
+    }
   }
 }

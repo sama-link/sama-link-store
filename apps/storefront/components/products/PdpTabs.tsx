@@ -33,7 +33,7 @@ export default function PdpTabs({ description, specs, reviews }: PdpTabsProps) {
       <div
         role="tablist"
         aria-label={t("tabsAria")}
-        className="flex gap-1 overflow-x-auto border-b border-border"
+        className="no-scrollbar flex gap-1 overflow-x-auto border-b border-border"
       >
         {tabs.map((tab) => {
           const isActive = tab.key === active;

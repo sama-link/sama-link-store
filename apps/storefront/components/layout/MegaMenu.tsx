@@ -79,17 +79,23 @@ interface MegaMenuProps {
 export default function MegaMenu({ categories, collections }: MegaMenuProps) {
   const locale = useLocale();
   const t = useTranslations("nav");
+  const tPromo = useTranslations("nav.megaMenu.promo");
   const dir = locale === "ar" ? "rtl" : "ltr";
 
   const productsHref = `/${locale}/products`;
   const collectionsIndexHref = `/${locale}/collections`;
   const aboutHref = `/${locale}/pages/about`;
+  const promoHref = `/${locale}/collections`;
 
   const catCount = categories.length;
-  const catGridClass =
+  /* Flat refresh: Products panel now has a 2-col layout when categories exist —
+     categories list + promo card feature pane. */
+  const catHasContent = catCount > 0;
+  const catListClass =
     catCount >= 6 ? "grid grid-cols-2 gap-x-2 gap-y-1" : "flex flex-col gap-1";
-  const catPanelWidth = catCount >= 6 ? "w-full sm:w-[36rem]" : "w-full sm:w-[22rem]";
-  const catMinHeight = catCount <= 2 ? "min-h-[8rem]" : "";
+  const productsPanelWidth = catHasContent
+    ? "w-full sm:w-[44rem]"
+    : "w-full sm:w-[22rem]";
 
   const colCount = collections.length;
   const colGridClass =
@@ -117,40 +123,73 @@ export default function MegaMenu({ categories, collections }: MegaMenuProps) {
             <span className="absolute inset-x-0 bottom-0 hidden h-[2px] bg-brand group-data-[state=open]:block" />
           </NavigationMenu.Trigger>
           <NavigationMenu.Content className="absolute start-0 top-0 w-full sm:w-auto">
-            <div className={`p-4 ${catPanelWidth} ${catMinHeight}`}>
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-secondary">
-                {t("megaMenu.productsTrigger")}
-              </h3>
-              {catCount === 0 ? (
+            <div className={`p-4 ${productsPanelWidth}`}>
+              {catHasContent ? (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_16rem]">
+                  <div>
+                    <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-secondary">
+                      {t("megaMenu.productsTrigger")}
+                    </h3>
+                    <ul
+                      className={`${catListClass} max-h-[min(24rem,70vh)] overflow-y-auto`}
+                    >
+                      {categories.map((c) => (
+                        <li key={c.id}>
+                          <NavigationMenu.Link
+                            href={`/${locale}/products?${new URLSearchParams({ category: c.id }).toString()}`}
+                            className={panelLinkClassName}
+                          >
+                            {c.name}
+                          </NavigationMenu.Link>
+                        </li>
+                      ))}
+                    </ul>
+                    <NavigationMenu.Link
+                      href={productsHref}
+                      className={footerLinkClassName}
+                    >
+                      {t("megaMenu.viewAllProducts")}
+                      <ChevronRight className="size-3.5 rtl:rotate-180" />
+                    </NavigationMenu.Link>
+                  </div>
+
+                  {/* Promo feature pane */}
+                  <NavigationMenu.Link
+                    href={promoHref}
+                    className="group/promo relative flex h-full min-h-[14rem] flex-col justify-between overflow-hidden rounded-xl bg-brand p-5 text-text-inverse transition-colors hover:bg-brand-hover"
+                  >
+                    <span className="self-start rounded-full border border-text-inverse/25 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider">
+                      {tPromo("tag")}
+                    </span>
+                    <div className="mt-auto space-y-1.5">
+                      <h4 className="text-lg font-semibold leading-snug">
+                        {tPromo("title")}
+                      </h4>
+                      <p className="text-sm text-text-inverse/80">
+                        {tPromo("body")}
+                      </p>
+                      <span className="mt-2 inline-flex items-center gap-1 text-sm font-semibold text-text-inverse underline decoration-text-inverse/40 decoration-1 underline-offset-4 transition-colors group-hover/promo:decoration-text-inverse">
+                        {tPromo("cta")}
+                        <ChevronRight className="size-3.5 rtl:rotate-180" />
+                      </span>
+                    </div>
+                  </NavigationMenu.Link>
+                </div>
+              ) : (
                 <div className="flex flex-col items-center justify-center py-6 text-center">
                   <TagIcon className="mb-2 size-5 text-text-secondary" />
                   <p className="text-sm text-text-secondary">
                     {t("megaMenu.emptyCategories")}
                   </p>
+                  <NavigationMenu.Link
+                    href={productsHref}
+                    className={footerLinkClassName}
+                  >
+                    {t("megaMenu.viewAllProducts")}
+                    <ChevronRight className="size-3.5 rtl:rotate-180" />
+                  </NavigationMenu.Link>
                 </div>
-              ) : (
-                <ul
-                  className={`${catGridClass} max-h-[min(24rem,70vh)] overflow-y-auto`}
-                >
-                  {categories.map((c) => (
-                    <li key={c.id}>
-                      <NavigationMenu.Link
-                        href={`/${locale}/products?${new URLSearchParams({ category: c.id }).toString()}`}
-                        className={panelLinkClassName}
-                      >
-                        {c.name}
-                      </NavigationMenu.Link>
-                    </li>
-                  ))}
-                </ul>
               )}
-              <NavigationMenu.Link
-                href={productsHref}
-                className={footerLinkClassName}
-              >
-                {t("megaMenu.viewAllProducts")}
-                <ChevronRight className="size-3.5 rtl:rotate-180" />
-              </NavigationMenu.Link>
             </div>
           </NavigationMenu.Content>
         </NavigationMenu.Item>
@@ -208,7 +247,7 @@ export default function MegaMenu({ categories, collections }: MegaMenuProps) {
       </NavigationMenu.List>
 
       <div className="absolute left-1/2 top-full isolate z-50 flex -translate-x-1/2 justify-center pt-2">
-        <NavigationMenu.Viewport className="relative h-[var(--radix-navigation-menu-viewport-height)] w-full origin-[top_center] overflow-hidden rounded-lg border border-border bg-surface shadow-lg transition-[width,height] duration-300 sm:w-[var(--radix-navigation-menu-viewport-width)]" />
+        <NavigationMenu.Viewport className="relative h-[var(--radix-navigation-menu-viewport-height)] w-full origin-[top_center] overflow-hidden rounded-lg border border-border bg-surface transition-[width,height] duration-300 sm:w-[var(--radix-navigation-menu-viewport-width)]" />
       </div>
     </NavigationMenu.Root>
   );

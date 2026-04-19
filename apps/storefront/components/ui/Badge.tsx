@@ -1,11 +1,12 @@
 import { cn } from "@/lib/cn";
 
+/* Flat refresh (ADR-045): muted background + solid text; no shadow, no outer ring. */
 const variantClasses = {
-  default: "bg-surface-subtle text-text-secondary border border-border",
-  success: "bg-success-muted text-success border border-success/20",
-  warning: "bg-warning-muted text-warning border border-warning/20",
-  error:   "bg-error-muted text-error border border-error/20",
-  info:    "bg-info-muted text-info border border-info/20",
+  default: "bg-surface-subtle text-text-secondary",
+  success: "bg-success-muted text-success",
+  warning: "bg-warning-muted text-warning",
+  error:   "bg-error-muted text-error",
+  info:    "bg-info-muted text-info",
   brand:   "bg-brand text-text-inverse",
   accent:  "bg-accent text-text-inverse",
 } as const;

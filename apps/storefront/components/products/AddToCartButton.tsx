@@ -39,6 +39,7 @@ function CheckIcon() {
 }
 
 function CartIcon() {
+  /* Cleaner Lucide-style shopping-cart — matches the reference vocabulary */
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -46,14 +47,14 @@ function CartIcon() {
       fill="none"
       stroke="currentColor"
       strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
       className="h-5 w-5 shrink-0"
       aria-hidden="true"
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218a1.125 1.125 0 0 0 1.088-.845l1.25-5A1.125 1.125 0 0 0 17.693 7H6.75m0 0v-.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V7m0 0h6.75"
-      />
+      <circle cx="9" cy="20" r="1.5" />
+      <circle cx="18" cy="20" r="1.5" />
+      <path d="M3 4h2.5l2.1 10.5a1.8 1.8 0 0 0 1.8 1.4h8.4a1.8 1.8 0 0 0 1.8-1.4L21 7H6.2" />
     </svg>
   );
 }

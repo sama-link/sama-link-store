@@ -61,17 +61,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
             const { cart: existing } = await retrieveCart(cartId);
             if (!cancelled) setCart(existing);
           } catch {
+            try {
+              const { cart: fresh } = await createCart();
+              if (!cancelled) {
+                setCartId(fresh.id);
+                setCart(fresh);
+              }
+            } catch (err) {
+              /* Backend unreachable / misconfigured — leave cart null. UI must degrade gracefully. */
+              if (process.env.NODE_ENV !== "production") {
+                console.warn("[useCart] createCart failed during bootstrap", err);
+              }
+            }
+          }
+        } else {
+          try {
             const { cart: fresh } = await createCart();
             if (!cancelled) {
               setCartId(fresh.id);
               setCart(fresh);
             }
-          }
-        } else {
-          const { cart: fresh } = await createCart();
-          if (!cancelled) {
-            setCartId(fresh.id);
-            setCart(fresh);
+          } catch (err) {
+            /* Backend unreachable / misconfigured — leave cart null. UI must degrade gracefully. */
+            if (process.env.NODE_ENV !== "production") {
+              console.warn("[useCart] createCart failed during bootstrap", err);
+            }
           }
         }
       } finally {

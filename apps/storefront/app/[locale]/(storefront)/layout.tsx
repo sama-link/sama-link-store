@@ -1,10 +1,13 @@
+import { Suspense } from "react";
 import { CartProvider } from "@/hooks/useCart";
 import { CompareProvider } from "@/hooks/useCompare";
 import { WishlistProvider } from "@/hooks/useWishlist";
 import { CustomerProvider } from "@/hooks/useCustomer";
 import CartDrawer from "@/components/layout/CartDrawer";
+import CartFab from "@/components/layout/CartFab";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import RouteProgress from "@/components/layout/RouteProgress";
 import { getCurrentCustomerFromCookie } from "@/lib/customer-server";
 
 export default async function StorefrontLayout({
@@ -19,10 +22,14 @@ export default async function StorefrontLayout({
       <CartProvider>
         <WishlistProvider>
           <CompareProvider>
+            <Suspense fallback={null}>
+              <RouteProgress />
+            </Suspense>
             <Header />
             <main className="flex-1">{children}</main>
             <Footer />
             <CartDrawer />
+            <CartFab />
           </CompareProvider>
         </WishlistProvider>
       </CartProvider>

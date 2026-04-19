@@ -12,6 +12,7 @@ import {
 import { useLocale, useTranslations } from "next-intl";
 import { formatCatalogPrice } from "@/lib/format-price";
 import type { ListProduct } from "@/hooks/useWishlist";
+import { localizeTitle, localizeDescription } from "@/lib/product-i18n";
 import AddToCartButton from "@/components/products/AddToCartButton";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
@@ -62,7 +63,10 @@ export default function QuickViewModal({
       locale,
     ) || null;
 
-  const plainDesc = stripDescription(product.description ?? "");
+  /* ADR-047 · Prefer metadata.translations.ar.{title,description} on ar locale. */
+  const displayTitle = localizeTitle(product, locale);
+  const displayDescription = localizeDescription(product, locale);
+  const plainDesc = stripDescription(displayDescription ?? "");
 
   useEffect(() => {
     const el = dialogRef.current;
@@ -140,7 +144,7 @@ export default function QuickViewModal({
           {product.thumbnail ? (
             <Image
               src={product.thumbnail}
-              alt={product.title ?? ""}
+              alt={displayTitle}
               fill
               sizes="(min-width: 640px) 28rem, 100vw"
               className="object-cover"
@@ -148,9 +152,9 @@ export default function QuickViewModal({
           ) : null}
         </div>
 
-        {product.title ? (
+        {displayTitle ? (
           <p className="text-base font-semibold text-text-primary">
-            {product.title}
+            {displayTitle}
           </p>
         ) : null}
 

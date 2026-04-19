@@ -2,55 +2,73 @@
 
 import { useTranslations } from "next-intl";
 import { useTheme } from "./ThemeProvider";
+import { cn } from "@/lib/cn";
 
-/**
- * Minimal theme control.
- */
-export default function ThemeToggle() {
+interface ThemeToggleProps {
+  /** Borderless style — used when nested inside a shared border group (e.g. Header prefs pill). */
+  bare?: boolean;
+}
+
+/* Theme toggle — rounded-full icon button with a smooth sun/moon crossfade + rotate. */
+export default function ThemeToggle({ bare = false }: ThemeToggleProps) {
   const { theme, toggle } = useTheme();
   const t = useTranslations("nav");
+  const isDark = theme === "dark";
 
   return (
     <button
       type="button"
       onClick={toggle}
-      aria-label={theme === "light" ? t("switchToDark") : t("switchToLight")}
-      aria-pressed={theme === "dark"}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-border bg-surface text-text-secondary shadow-sm hover:bg-surface-subtle hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
-    >
-      {theme === "light" ? (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.75}
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z"
-          />
-        </svg>
-      ) : (
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-5 w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-          strokeWidth={1.75}
-          aria-hidden="true"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 3v2.25m6.364.386-1.591 1.591M21 12h-2.25m-.386 6.364-1.591-1.591M12 18.75V21m-4.773-4.227-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0Z"
-          />
-        </svg>
+      aria-label={isDark ? t("switchToLight") : t("switchToDark")}
+      aria-pressed={isDark}
+      className={cn(
+        "group relative inline-flex items-center justify-center overflow-hidden text-text-secondary",
+        "transition-[background-color,border-color,color,transform] duration-200 active:scale-95",
+        bare
+          ? "h-9 w-9 rounded-full hover:text-brand focus-visible:outline-none focus-visible:text-brand"
+          : "h-10 w-10 rounded-full border border-border bg-surface hover:border-brand hover:text-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15",
       )}
+    >
+      {/* Sun */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={cn(
+          "absolute h-4 w-4 transition-[opacity,transform] duration-300 ease-out",
+          isDark
+            ? "scale-50 rotate-90 opacity-0"
+            : "scale-100 rotate-0 opacity-100",
+        )}
+        aria-hidden="true"
+      >
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
+      </svg>
+
+      {/* Moon */}
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.75}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={cn(
+          "absolute h-4 w-4 transition-[opacity,transform] duration-300 ease-out",
+          isDark
+            ? "scale-100 rotate-0 opacity-100"
+            : "scale-50 -rotate-90 opacity-0",
+        )}
+        aria-hidden="true"
+      >
+        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+      </svg>
     </button>
   );
 }

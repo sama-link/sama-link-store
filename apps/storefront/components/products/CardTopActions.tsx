@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { ListProduct } from "@/hooks/useWishlist";
 import { productToWishlistItem } from "@/hooks/useWishlist";
-import Button from "@/components/ui/Button";
 import WishlistButton from "@/components/products/WishlistButton";
 import CompareButton from "@/components/products/CompareButton";
 import QuickViewModal from "@/components/products/QuickViewModal";
@@ -15,6 +14,7 @@ export interface CardTopActionsProps {
 }
 
 function EyeIcon() {
+  /* Minimal open-eye glyph — thin stroke, larger pupil, reads as "preview". */
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -22,19 +22,13 @@ function EyeIcon() {
       fill="none"
       stroke="currentColor"
       strokeWidth={1.75}
-      className="h-5 w-5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-[18px] w-[18px] transition-transform duration-200 group-hover:scale-110"
       aria-hidden="true"
     >
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 5.25 12 5.25c4.638 0 8.573 2.26 9.963 6.096a1.012 1.012 0 0 1 0 .639c-1.39 3.836-5.325 6.096-9.963 6.096-4.638 0-8.573-2.26-9.963-6.096Z"
-      />
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-      />
+      <path d="M2 12c3-6 8-8 10-8s7 2 10 8c-3 6-8 8-10 8s-7-2-10-8z" />
+      <circle cx="12" cy="12" r="3" />
     </svg>
   );
 }
@@ -73,18 +67,15 @@ export default function CardTopActions({ product }: CardTopActionsProps) {
         <div className={cn("flex flex-col gap-1.5", rowGate)}>
           <WishlistButton item={wishCompareItem} />
           <CompareButton item={wishCompareItem} />
-          <Button
+          <button
             type="button"
-            variant="secondary"
-            size="sm"
-            fullWidth={false}
             onClick={openQuick}
-            className="h-10 w-10 shrink-0 px-0"
             aria-label={t("quickView")}
             title={t("quickView")}
+            className="group inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface/90 text-text-secondary backdrop-blur transition-[background-color,border-color,color,transform] duration-200 hover:border-brand hover:bg-surface hover:text-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/20 active:scale-95"
           >
             <EyeIcon />
-          </Button>
+          </button>
         </div>
       </div>
 

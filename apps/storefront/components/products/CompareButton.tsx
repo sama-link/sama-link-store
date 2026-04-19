@@ -7,6 +7,7 @@ import type { CompareItem } from "@/hooks/useCompare";
 import { COMPARE_MAX_ITEMS, useCompare } from "@/hooks/useCompare";
 
 function CompareIcon() {
+  /* Two opposing arrows — reads as "compare side-by-side" cleaner than a 2-rect glyph. */
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -14,11 +15,15 @@ function CompareIcon() {
       fill="none"
       stroke="currentColor"
       strokeWidth={1.75}
-      className="h-5 w-5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-[18px] w-[18px] transition-transform duration-200 group-hover:rotate-[8deg]"
       aria-hidden="true"
     >
-      <rect x="4" y="4" width="6" height="16" rx="1" />
-      <rect x="14" y="4" width="6" height="16" rx="1" />
+      <path d="M3 7h12a4 4 0 0 1 4 4v2" />
+      <polyline points="7 3 3 7 7 11" />
+      <path d="M21 17H9a4 4 0 0 1-4-4v-2" />
+      <polyline points="17 21 21 17 17 13" />
     </svg>
   );
 }
@@ -82,9 +87,9 @@ export default function CompareButton({ item, className }: CompareButtonProps) {
         disabled={!isHydrated}
         onClick={onClick}
         className={cn(
-          "inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-subtle text-text-secondary transition-colors",
-          "hover:border-brand hover:bg-surface-raised hover:text-brand",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
+          "group inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface/90 text-text-secondary backdrop-blur transition-[background-color,border-color,color,transform] duration-200 active:scale-95",
+          "hover:border-brand hover:bg-surface hover:text-brand",
+          "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/20",
           pressed && "border-brand bg-brand/10 text-brand",
         )}
       >

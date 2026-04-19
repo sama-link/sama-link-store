@@ -6,6 +6,7 @@ import {
   getProductByHandle,
   listRelatedProducts,
 } from "@/lib/medusa-client";
+import { localizeProduct } from "@/lib/product-i18n";
 import {
   buildCanonical,
   buildLanguageAlternates,
@@ -45,10 +46,12 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { locale, handle } = await params;
-  const product = await getCachedProductByHandle(handle);
-  if (!product) {
+  const rawProduct = await getCachedProductByHandle(handle);
+  if (!rawProduct) {
     notFound();
   }
+  // ADR-047 · Prefer `metadata.translations.ar` when locale === "ar".
+  const product = localizeProduct(rawProduct, locale);
 
   const canonical = buildCanonical(locale, `/products/${handle}`);
   const description = product.description ?? undefined;
@@ -75,10 +78,14 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { locale, handle } = await params;
-  const product = await getCachedProductByHandle(handle);
-  if (!product) {
+  const rawProduct = await getCachedProductByHandle(handle);
+  if (!rawProduct) {
     notFound();
   }
+  // ADR-047 · The `product` object exposed to the rest of this page already
+  // has `title` / `subtitle` / `description` resolved for the active locale.
+  // Variants, prices, images, options, and tags are passed through as-is.
+  const product = localizeProduct(rawProduct, locale);
 
   const tb = await getTranslations({ locale, namespace: "breadcrumbs" });
   const t = await getTranslations({ locale, namespace: "products.detail" });
@@ -194,12 +201,36 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   // First variant (server-side fallback for sticky bar initial render)
   const firstVariant = panelVariants[0] ?? null;
 
-  const benefits = [
-    t("benefits.authentic"),
-    t("benefits.warranty"),
-    t("benefits.fastDelivery"),
-    t("benefits.cashOnDelivery"),
-  ];
+  /* Brand eyebrow — product.type (manufacturer/brand) first, collection title fallback.
+     No hardcoded placeholder; if both are absent the eyebrow simply won't render. */
+  const brandEyebrow =
+    productType?.value?.trim() ||
+    collection?.title?.trim() ||
+    null;
+
+  /* Pull a plain-text summary from the product description. If it's rich-text with
+     <ul><li> bullets, strip them out for the short description and surface them as
+     separate highlight bullets below. */
+  const extractSummaryAndHighlights = (
+    raw: string | null,
+  ): { summary: string | null; highlights: string[] } => {
+    if (!raw) return { summary: null, highlights: [] };
+    /* Quick bullet extraction — matches <li>...</li> first, then falls back to "- " line items. */
+    const bullets: string[] = [];
+    const liMatches = raw.match(/<li[^>]*>([\s\S]*?)<\/li>/gi);
+    if (liMatches) {
+      for (const m of liMatches) {
+        const txt = m.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+        if (txt) bullets.push(txt);
+      }
+    }
+    /* Plain text summary: strip all HTML, collapse whitespace, first 240 chars. */
+    const plain = raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const summary = plain.length > 240 ? plain.slice(0, 237).trimEnd() + "…" : plain;
+    return { summary, highlights: bullets.slice(0, 5) };
+  };
+  const { summary: shortDescription, highlights: productHighlights } =
+    extractSummaryAndHighlights(description);
 
   // Build specs rows
   const dimensionsLabel =
@@ -263,9 +294,6 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     product.id,
     20,
   );
-
-  // Primary category for under-description display
-  const primaryCategory = categories[0] ?? null;
 
   const galleryWishlistItem: WishlistItem | null =
     firstVariant?.id != null
@@ -334,8 +362,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             />
           </div>
 
-          {/* Purchase column — sticky on desktop. Panel renders title at the
-              correct position in the sequence (Category → SKU → Title → Price → …). */}
+          {/* Purchase column — sticky on desktop. */}
           <div className="lg:col-span-5">
             <div className="lg:sticky lg:top-24">
               <PurchasePanel
@@ -343,20 +370,10 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 variants={panelVariants}
                 ctaSentinelId={CTA_SENTINEL_ID}
                 title={product.title ?? ""}
-                subtitle={subtitle}
-                category={
-                  primaryCategory
-                    ? {
-                        id: primaryCategory.id,
-                        name:
-                          primaryCategory.name ?? primaryCategory.handle ?? "",
-                        href: primaryCategory.handle
-                          ? `/${locale}/products?category=${primaryCategory.id}`
-                          : undefined,
-                      }
-                    : null
-                }
-                benefits={benefits}
+                brand={brandEyebrow}
+                description={shortDescription ?? subtitle ?? null}
+                highlights={productHighlights}
+                wishlistItem={galleryWishlistItem}
               />
             </div>
           </div>

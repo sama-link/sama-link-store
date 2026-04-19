@@ -198,8 +198,11 @@ export async function listProducts(params?: ListProductsParams) {
   const base: ListProductsParams = regionId
     ? {
         region_id: regionId,
+        /* `metadata` carries the ADR-047 product translation overlay
+         * (`metadata.translations.ar.{title,subtitle,description}`) which
+         * `lib/product-i18n.ts` applies when locale === "ar". */
         fields:
-          "id,handle,title,description,thumbnail,variants.calculated_price.*",
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
       }
     : {};
   return sdk.store.product.list({ ...base, ...params });
@@ -209,8 +212,9 @@ export async function getProductByHandle(handle: string) {
   const base: ListProductsParams = regionId
     ? {
         region_id: regionId,
+        /* `metadata` carries the ADR-047 product translation overlay. */
         fields:
-          "id,handle,title,subtitle,description,thumbnail," +
+          "id,handle,title,subtitle,description,thumbnail,metadata," +
           "material,weight,length,width,height,origin_country,hs_code,mid_code," +
           "images.id,images.url,images.rank," +
           "collection.id,collection.title,collection.handle," +
@@ -242,7 +246,7 @@ export async function listRelatedProducts(
     ? {
         region_id: regionId,
         fields:
-          "id,handle,title,description,thumbnail,variants.calculated_price.*",
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
       }
     : {};
 
@@ -318,7 +322,7 @@ export async function listProductsByCollection(
     ? {
         region_id: regionId,
         fields:
-          "id,handle,title,description,thumbnail,variants.calculated_price.*",
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
       }
     : {};
   return sdk.store.product.list({

@@ -5,6 +5,9 @@ const withNextIntl = createNextIntlPlugin('./i18n/request.ts');
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  /* Hide the Next.js/Turbopack dev indicator — showed up in production-looking
+     dev screenshots as a small vertical ▲ ● ▼ cluster. Purely cosmetic. */
+  devIndicators: false,
   images: {
     remotePatterns: [
       {

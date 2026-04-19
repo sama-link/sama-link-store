@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
-import { Inter, Cairo } from 'next/font/google';
+import { Geist, IBM_Plex_Sans_Arabic } from 'next/font/google';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { routing, type Locale } from '@/i18n/routing';
 import { ThemeProvider } from '@/components/ui/ThemeProvider';
+import JsonLd from '@/components/layout/JsonLd';
 import {
   buildCanonical,
   buildLanguageAlternates,
@@ -13,15 +14,17 @@ import {
 } from '@/lib/seo';
 import '../globals.css';
 
-const inter = Inter({
-  variable: '--font-inter',
+/* ADR-045 flat refresh: Geist (Latin) + IBM Plex Sans Arabic (RTL) */
+const geist = Geist({
+  variable: '--font-geist',
   subsets: ['latin'],
   display: 'swap',
 });
 
-const cairo = Cairo({
-  variable: '--font-cairo',
+const plexArabic = IBM_Plex_Sans_Arabic({
+  variable: '--font-plex-arabic',
   subsets: ['arabic'],
+  weight: ['400', '500', '600', '700'],
   display: 'swap',
 });
 
@@ -88,16 +91,11 @@ export default async function LocaleLayout({
     <html
       lang={locale}
       dir={locale === 'ar' ? 'rtl' : 'ltr'}
-      className={`${inter.variable} ${cairo.variable} h-full`}
+      className={`${geist.variable} ${plexArabic.variable} h-full`}
       suppressHydrationWarning
     >
       <body className="flex min-h-full flex-col antialiased">
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{
-            __html: JSON.stringify(organizationJsonLd),
-          }}
-        />
+        <JsonLd data={organizationJsonLd} />
         <ThemeProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>
             {children}
