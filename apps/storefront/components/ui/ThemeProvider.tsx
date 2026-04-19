@@ -37,8 +37,21 @@ function readSystemTheme(): Theme {
     : "light";
 }
 
-function applyDomTheme(theme: Theme): void {
-  document.documentElement.classList.toggle("dark", theme === "dark");
+let transitionResetTimer: ReturnType<typeof setTimeout> | null = null;
+
+function applyDomTheme(theme: Theme, suppressTransitions = false): void {
+  const root = document.documentElement;
+  if (suppressTransitions) {
+    /* Disable transitions on every element for a single paint so the theme flip
+       looks instant instead of cascading element-by-element through the page. */
+    root.setAttribute("data-theme-changing", "true");
+    if (transitionResetTimer) clearTimeout(transitionResetTimer);
+    transitionResetTimer = setTimeout(() => {
+      root.removeAttribute("data-theme-changing");
+      transitionResetTimer = null;
+    }, 120);
+  }
+  root.classList.toggle("dark", theme === "dark");
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
@@ -49,6 +62,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const initial = stored ?? readSystemTheme();
     setThemeState(initial);
     applyDomTheme(initial);
+    /* Signal the CSS gate (body opacity) that the theme is now applied.
+       Runs on the very first paint after hydration — body fades in. */
+    document.documentElement.setAttribute("data-theme-ready", "true");
   }, []);
 
   const setTheme = useCallback((next: Theme) => {
@@ -58,7 +74,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     } catch {
       /* ignore */
     }
-    applyDomTheme(next);
+    applyDomTheme(next, true);
   }, []);
 
   const toggle = useCallback(() => {
@@ -69,7 +85,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       } catch {
         /* ignore */
       }
-      applyDomTheme(next);
+      applyDomTheme(next, true);
       return next;
     });
   }, []);

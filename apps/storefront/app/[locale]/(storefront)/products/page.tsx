@@ -7,11 +7,19 @@ import {
   type ListProductsParams,
 } from "@/lib/medusa-client";
 import { buildCanonical, buildLanguageAlternates } from "@/lib/seo";
-import ProductGrid from "@/components/products/ProductGrid";
 import FilterSidebar, {
   type FilterCategoryOption,
   type FilterCollectionOption,
 } from "@/components/products/FilterSidebar";
+import CatalogToolbar from "@/components/products/CatalogToolbar";
+import {
+  parseCols,
+  parseSort,
+  parseView,
+  sortKeyToOrderParam,
+} from "@/components/products/catalog-toolbar-utils";
+import LoadMoreProducts from "@/components/products/LoadMoreProducts";
+import MobileCatalogFab from "@/components/products/MobileCatalogFab";
 import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
@@ -55,26 +63,6 @@ function filterProductsByPriceSearchParams(
   });
 }
 
-function buildProductsListHref(
-  locale: string,
-  pageNum: number,
-  opts: {
-    collection?: string;
-    category?: string;
-    minPrice?: string;
-    maxPrice?: string;
-  },
-): string {
-  const params = new URLSearchParams();
-  if (opts.collection) params.set("collection", opts.collection);
-  if (opts.category) params.set("category", opts.category);
-  if (opts.minPrice) params.set("minPrice", opts.minPrice);
-  if (opts.maxPrice) params.set("maxPrice", opts.maxPrice);
-  if (pageNum > 1) params.set("page", String(pageNum));
-  const qs = params.toString();
-  return qs ? `/${locale}/products?${qs}` : `/${locale}/products`;
-}
-
 function mapCollectionsForFilters(
   collections: Awaited<ReturnType<typeof listCollections>>["collections"],
 ): FilterCollectionOption[] {
@@ -103,6 +91,12 @@ interface ProductsPageProps {
     category?: string;
     minPrice?: string;
     maxPrice?: string;
+    q?: string;
+    inStock?: string;
+    rating?: string;
+    sort?: string;
+    cols?: string;
+    view?: string;
   }>;
 }
 
@@ -134,26 +128,37 @@ export default async function ProductsPage({
   searchParams,
 }: ProductsPageProps) {
   const { locale } = await params;
-  const { page, collection, category, minPrice, maxPrice } = await searchParams;
+  const {
+    collection,
+    category,
+    minPrice,
+    maxPrice,
+    q,
+    inStock,
+    rating,
+    sort: sortRaw,
+    cols: colsRaw,
+    view: viewRaw,
+  } = await searchParams;
   const t = await getTranslations({ locale, namespace: "products.listing" });
   const tb = await getTranslations({ locale, namespace: "breadcrumbs" });
 
-  const currentPage = Math.max(1, Number(page ?? 1));
-  const offset = (currentPage - 1) * PRODUCTS_PER_PAGE;
+  const activeSort = parseSort(sortRaw);
+  const activeCols = parseCols(colsRaw);
+  const activeView = parseView(viewRaw);
 
   const filterParams: ListProductsParams = {};
-  if (collection) {
-    filterParams.collection_id = [collection];
-  }
-  if (category) {
-    filterParams.category_id = [category];
-  }
-  // TODO CAT-6: wire price filter to Medusa store product list (e.g. price_list) when param confirmed
+  if (collection) filterParams.collection_id = [collection];
+  if (category) filterParams.category_id = [category];
+  if (q && q.trim().length > 0) filterParams.q = q.trim();
+  const order = sortKeyToOrderParam(activeSort);
+  if (order) (filterParams as Record<string, unknown>).order = order;
+  // TODO CAT-6: wire price + in-stock + rating filters to Medusa when params confirmed
 
   const [listResult, collectionsResult, categoriesResult] = await Promise.all([
     listProducts({
       limit: PRODUCTS_PER_PAGE,
-      offset,
+      offset: 0,
       ...filterParams,
     }),
     listCollections(),
@@ -166,20 +171,7 @@ export default async function ProductsPage({
   const count =
     "count" in listResult && typeof listResult.count === "number"
       ? listResult.count
-      : undefined;
-
-  const totalPages =
-    count != null ? Math.ceil(count / PRODUCTS_PER_PAGE) : 1;
-  const showPagination = count != null && totalPages > 1;
-  const hasPrev = currentPage > 1;
-  const hasNext = currentPage < totalPages;
-
-  const paginationBase = {
-    collection,
-    category,
-    minPrice,
-    maxPrice,
-  };
+      : null;
 
   const filterCollections = mapCollectionsForFilters(
     collectionsResult.collections,
@@ -188,10 +180,21 @@ export default async function ProductsPage({
     categoriesResult.product_categories,
   );
 
+  const filtersForClient = {
+    collection,
+    category,
+    q: q && q.trim().length > 0 ? q.trim() : undefined,
+    minPrice,
+    maxPrice,
+    rating,
+    inStock,
+  };
+
   return (
     <Container>
       <div className="flex flex-col gap-8 py-12 lg:flex-row lg:items-start">
-        <aside className="w-full shrink-0 lg:w-64">
+        {/* Desktop filter sidebar — mobile opens the same filters via MobileCatalogFab */}
+        <aside className="hidden w-full shrink-0 lg:block lg:w-64">
           <FilterSidebar
             collections={filterCollections}
             categories={filterCategories}
@@ -199,10 +202,14 @@ export default async function ProductsPage({
             activeCategory={category ?? null}
             activeMinPrice={minPrice ?? null}
             activeMaxPrice={maxPrice ?? null}
+            activeQuery={q && q.trim().length > 0 ? q.trim() : null}
+            activeInStock={inStock === "1"}
+            activeRating={rating ?? null}
             locale={locale}
           />
         </aside>
-        <div className="min-w-0 flex-1 space-y-8">
+
+        <div className="min-w-0 flex-1 space-y-6">
           <Breadcrumbs
             ariaLabel={tb("aria")}
             items={[
@@ -214,52 +221,42 @@ export default async function ProductsPage({
             {t("title")}
           </h1>
 
-          {products.length === 0 ? (
-            <p className="text-text-secondary">{t("empty")}</p>
-          ) : (
-            <ProductGrid products={products} />
-          )}
+          <CatalogToolbar
+            totalCount={count}
+            shownCount={products.length}
+            activeSort={activeSort}
+            activeCols={activeCols}
+            activeView={activeView}
+          />
 
-          {showPagination ? (
-            <nav
-              aria-label={t("paginationLabel")}
-              className="flex items-center justify-between pt-4"
-            >
-              {hasPrev ? (
-                <a
-                  href={buildProductsListHref(
-                    locale,
-                    currentPage - 1,
-                    paginationBase,
-                  )}
-                  className="text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
-                >
-                  {t("previous")}
-                </a>
-              ) : (
-                <span />
-              )}
-              <span className="text-sm text-text-secondary">
-                {t("pageOf", { current: currentPage, total: totalPages })}
-              </span>
-              {hasNext ? (
-                <a
-                  href={buildProductsListHref(
-                    locale,
-                    currentPage + 1,
-                    paginationBase,
-                  )}
-                  className="text-sm font-medium text-text-secondary transition-colors hover:text-text-primary"
-                >
-                  {t("next")}
-                </a>
-              ) : (
-                <span />
-              )}
-            </nav>
-          ) : null}
+          <LoadMoreProducts
+            initialProducts={products}
+            totalCount={count}
+            pageSize={PRODUCTS_PER_PAGE}
+            cols={activeCols}
+            sort={activeSort}
+            view={activeView}
+            filters={filtersForClient}
+          />
         </div>
       </div>
+
+      {/* Mobile-only floating Filter/View controls */}
+      <MobileCatalogFab
+        collections={filterCollections}
+        categories={filterCategories}
+        activeCollection={collection ?? null}
+        activeCategory={category ?? null}
+        activeMinPrice={minPrice ?? null}
+        activeMaxPrice={maxPrice ?? null}
+        activeQuery={q && q.trim().length > 0 ? q.trim() : null}
+        activeInStock={inStock === "1"}
+        activeRating={rating ?? null}
+        activeSort={activeSort}
+        activeCols={activeCols}
+        activeView={activeView}
+        locale={locale}
+      />
     </Container>
   );
 }

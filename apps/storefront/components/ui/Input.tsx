@@ -58,18 +58,18 @@ export default function Input({
           undefined
         }
         className={cn(
-          /* Base */
-          "block w-full rounded-md border px-3 py-2 text-sm",
+          /* Base — flat refresh: 10px radius, 42px height equivalent */
+          "block h-10 w-full rounded-lg border px-3.5 text-sm",
           "bg-surface text-text-primary placeholder:text-text-muted",
           "transition-colors duration-150",
           /* Focus */
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-0",
+          "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-offset-0",
           /* Default border */
           !hasError &&
-            "border-border focus-visible:border-brand focus-visible:ring-brand/20",
+            "border-border focus-visible:border-brand focus-visible:ring-brand/15",
           /* Error border */
           hasError &&
-            "border-error focus-visible:border-error focus-visible:ring-error/20",
+            "border-error focus-visible:border-error focus-visible:ring-error/15",
           /* Disabled */
           disabled && "cursor-not-allowed bg-surface-subtle opacity-60",
           className
