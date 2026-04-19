@@ -15,6 +15,9 @@ COPY --from=builder /app/.medusa/server ./
 # medusa build excludes src/scripts/ from the compiled output; bake it in
 # so one-off tasks (seed, custom exec scripts) can run against this image.
 COPY --from=builder /app/src/scripts ./src/scripts
+# tsconfig.json is required by ts-node/swc to transpile TS scripts at runtime
+# (activates { "ts-node": { "swc": true } } — type-check-free transpile).
+COPY --from=builder /app/tsconfig.json ./tsconfig.json
 # Keep dev deps: medusa exec ./src/scripts/*.ts relies on TypeScript/ts-node
 # at runtime to transpile raw TS. Stripping them breaks one-off exec scripts.
 RUN npm install --no-audit --no-fund
