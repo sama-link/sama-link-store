@@ -1,0 +1,76 @@
+name: Seed Backend Database
+
+# Manually-triggered workflow that runs the Medusa seed script against
+# the Cloud Run-deployed Neon database. Uses the same backend image
+# already in Artifact Registry; injects secrets the same way as the
+# deploy workflow.
+#
+# Seed output contains the publishable API key and Egypt region ID,
+# both required by the storefront.
+
+on:
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: linear-reason-460715-n1
+  REGION: us-east1
+  REGISTRY: us-east1-docker.pkg.dev
+  REPO: sama-link
+  JOB: sama-seed
+  IMAGE: us-east1-docker.pkg.dev/linear-reason-460715-n1/sama-link/backend:latest
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Create or update seed job
+        run: |
+          # Delete existing job if present (idempotent)
+          gcloud run jobs delete ${{ env.JOB }} \
+            --region=${{ env.REGION }} \
+            --quiet 2>/dev/null || true
+
+          gcloud run jobs create ${{ env.JOB }} \
+            --image="${{ env.IMAGE }}" \
+            --region=${{ env.REGION }} \
+            --task-timeout=600 \
+            --memory=1Gi \
+            --cpu=1 \
+            --max-retries=0 \
+            --parallelism=1 \
+            --tasks=1 \
+            --command="sh" \
+            --args="-c,npx medusa exec ./src/scripts/seed.ts" \
+            --set-env-vars="NODE_ENV=production" \
+            --set-env-vars="DATABASE_URL=${{ secrets.NEON_DATABASE_URL }}" \
+            --set-env-vars="JWT_SECRET=${{ secrets.JWT_SECRET }}" \
+            --set-env-vars="COOKIE_SECRET=${{ secrets.COOKIE_SECRET }}" \
+            --set-env-vars="MEDUSA_ADMIN_EMAIL=${{ secrets.MEDUSA_ADMIN_EMAIL }}" \
+            --set-env-vars="MEDUSA_ADMIN_PASSWORD=${{ secrets.MEDUSA_ADMIN_PASSWORD }}"
+
+      - name: Execute seed job and wait
+        run: |
+          gcloud run jobs execute ${{ env.JOB }} \
+            --region=${{ env.REGION }} \
+            --wait
+
+      - name: Print seed execution logs
+        # These logs will contain the publishable API key and region ID
+        run: |
+          EXECUTION=$(gcloud run jobs executions list --job=${{ env.JOB }} --region=${{ env.REGION }} --limit=1 --format="value(metadata.name)")
+          echo "=== Seed execution: $EXECUTION ==="
+          gcloud logging read "resource.type=\"cloud_run_job\" AND resource.labels.job_name=\"${{ env.JOB }}\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXECUTION\"" \
+            --project=${{ env.PROJECT_ID }} \
+            --limit=500 \
+            --order=asc \
+            --format="value(timestamp,textPayload,jsonPayload.message)"
