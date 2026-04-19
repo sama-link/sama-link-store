@@ -10,7 +10,9 @@ const isLocalEnv =
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
-    databaseDriverOptions: isLocalEnv ? { connection: { ssl: false } } : {},
+    databaseDriverOptions: isLocalEnv
+      ? { connection: { ssl: false } }
+      : { connection: { ssl: { rejectUnauthorized: false } } },
     // In local Docker dev we run the admin over plain HTTP on localhost.
     // Medusa defaults admin session cookies to `Secure; SameSite=None`
     // when NODE_ENV=production, which the browser silently rejects over
