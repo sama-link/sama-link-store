@@ -1,0 +1,67 @@
+name: Deploy Backend to Cloud Run
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'apps/backend/**'
+      - '.github/workflows/deploy-backend.yml'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: linear-reason-460715-n1
+  REGION: us-east1
+  REGISTRY: us-east1-docker.pkg.dev
+  REPO: sama-link
+  SERVICE: sama-backend
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # required for Workload Identity Federation
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+
+      - name: Build and push image
+        working-directory: apps/backend
+        run: |
+          IMAGE=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:${{ github.sha }}
+          LATEST=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/backend:latest
+          docker build -t "$IMAGE" -t "$LATEST" .
+          docker push "$IMAGE"
+          docker push "$LATEST"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image "${{ env.IMAGE }}" \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --port 9000 \
+            --min-instances 1 \
+            --memory 1Gi \
+            --cpu 1 \
+            --set-env-vars "NODE_ENV=production,MEDUSA_ADMIN_ONBOARDING_TYPE=default" \
+            --set-env-vars "DATABASE_URL=${{ secrets.NEON_DATABASE_URL }}" \
+            --set-env-vars "JWT_SECRET=${{ secrets.JWT_SECRET }}" \
+            --set-env-vars "COOKIE_SECRET=${{ secrets.COOKIE_SECRET }}" \
+            --set-env-vars "MEDUSA_ADMIN_EMAIL=${{ secrets.MEDUSA_ADMIN_EMAIL }}" \
+            --set-env-vars "MEDUSA_ADMIN_PASSWORD=${{ secrets.MEDUSA_ADMIN_PASSWORD }}" \
+            --set-env-vars "STORE_CORS=${{ secrets.STORE_CORS }}" \
+            --set-env-vars "ADMIN_CORS=${{ secrets.ADMIN_CORS }}" \
+            --set-env-vars "AUTH_CORS=${{ secrets.AUTH_CORS }}"
