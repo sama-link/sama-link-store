@@ -82,9 +82,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
               setCart(fresh);
             }
           } catch (err) {
-            /* Backend unreachable / misconfigured — leave cart null. UI must degrade gracefully. */
-            if (process.env.NODE_ENV !== "production") {
-              console.warn("[useCart] createCart failed during bootstrap", err);
+            console.error("[useCart] createCart failed during bootstrap", err);
+            if (typeof window !== "undefined") {
+              (window as unknown as { __cartBootstrapError?: unknown }).__cartBootstrapError = {
+                message: (err as Error)?.message,
+                name: (err as Error)?.name,
+                stack: (err as Error)?.stack,
+                status: (err as { status?: number })?.status,
+                statusText: (err as { statusText?: string })?.statusText,
+              };
+              document.title = `[CART ERR] ${(err as Error)?.message ?? "unknown"}`;
             }
           }
         }
