@@ -1,6 +1,6 @@
 // Nested admin route — requires image rebuild after any change:
 // docker compose -f docker-compose.dev.yml up -d --build backend
-// Route URL: /product-bulk  (sidebar placement: Products, via nested: "/products")
+// Route URL: /products-bulk  (sidebar placement: Products, via nested: "/products")
 
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { useCallback, useEffect, useMemo, useState } from "react"
