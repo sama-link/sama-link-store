@@ -19,6 +19,7 @@ export async function generateMetadata({
     locale,
     namespace: "meta.checkout.payment",
   });
+
   return {
     title: t("title"),
     description: tMeta("description"),
@@ -32,12 +33,14 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
   const regionId = process.env.NEXT_PUBLIC_MEDUSA_REGION_ID ?? "";
 
   let providers: PaymentProvider[] = [];
+
   if (regionId) {
     try {
       const { payment_providers } = await listPaymentProviders(regionId);
-      providers = payment_providers.providers = payment_providers.map((p) => {
- {
+
+      providers = payment_providers.map((p: unknown) => {
         const row = p as { id: string; is_enabled?: boolean };
+
         return {
           id: row.id,
           is_enabled: row.is_enabled ?? true,
