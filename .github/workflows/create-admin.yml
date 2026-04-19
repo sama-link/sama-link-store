@@ -1,0 +1,71 @@
+name: Create Admin User
+
+# One-shot workflow: runs `medusa user -e ... -p ...` as a Cloud Run Job
+# against the deployed backend image. Idempotent from user perspective:
+#   - If no admin user exists → creates one
+#   - If admin already exists → command errors, job exits non-zero, log tells us
+# Either way, the captured logs diagnose the admin state in the DB.
+
+on:
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: linear-reason-460715-n1
+  REGION: us-east1
+  JOB: sama-create-admin
+  IMAGE: us-east1-docker.pkg.dev/linear-reason-460715-n1/sama-link/backend:latest
+
+jobs:
+  create-admin:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Create or update admin job
+        run: |
+          gcloud run jobs delete ${{ env.JOB }} \
+            --region=${{ env.REGION }} \
+            --quiet 2>/dev/null || true
+
+          gcloud run jobs create ${{ env.JOB }} \
+            --image="${{ env.IMAGE }}" \
+            --region=${{ env.REGION }} \
+            --task-timeout=300 \
+            --memory=1Gi \
+            --cpu=1 \
+            --max-retries=0 \
+            --parallelism=1 \
+            --tasks=1 \
+            --command="sh" \
+            --args="-c,npx medusa user -e \$MEDUSA_ADMIN_EMAIL -p \$MEDUSA_ADMIN_PASSWORD" \
+            --set-env-vars="NODE_ENV=production" \
+            --set-env-vars="DATABASE_URL=${{ secrets.NEON_DATABASE_URL }}" \
+            --set-env-vars="JWT_SECRET=${{ secrets.JWT_SECRET }}" \
+            --set-env-vars="COOKIE_SECRET=${{ secrets.COOKIE_SECRET }}" \
+            --set-env-vars="MEDUSA_ADMIN_EMAIL=${{ secrets.MEDUSA_ADMIN_EMAIL }}" \
+            --set-env-vars="MEDUSA_ADMIN_PASSWORD=${{ secrets.MEDUSA_ADMIN_PASSWORD }}"
+
+      - name: Execute admin job (may fail if user already exists — that's diagnostic)
+        continue-on-error: true
+        run: |
+          gcloud run jobs execute ${{ env.JOB }} \
+            --region=${{ env.REGION }} \
+            --wait
+
+      - name: Report execution logs
+        run: |
+          EXECUTION=$(gcloud run jobs executions list --job=${{ env.JOB }} --region=${{ env.REGION }} --limit=1 --format="value(metadata.name)")
+          echo "=== Execution: $EXECUTION ==="
+          gcloud logging read "resource.type=\"cloud_run_job\" AND resource.labels.job_name=\"${{ env.JOB }}\" AND labels.\"run.googleapis.com/execution_name\"=\"$EXECUTION\"" \
+            --project=${{ env.PROJECT_ID }} \
+            --limit=200 \
+            --order=asc \
+            --format="value(timestamp,severity,textPayload,jsonPayload.message)"
