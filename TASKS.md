@@ -166,13 +166,12 @@ Implementation rule (all Phase 6 tasks): **No hardcoded user-facing strings.** A
 
 - [x] **AUTH-1**: Customer authentication server-side foundation — httpOnly JWT cookie, server-resolved customer, Medusa emailpass via SDK in `jwt` mode, login/register/logout routes, header affordance — branch `feature/auth-1-customer-foundation` (cut from `develop` 2026-04-18, back-merged to `develop` as merge commit `382e1ab` on 2026-04-18) — target Advanced Executor — done 2026-04-18 (ADR-046)
 - [x] **CART-MERGE**: Cart-auth seam — transfer guest cart to customer on login/register via `sdk.store.cart.transferCart`; clear cart cookie on logout; silent best-effort failures (TEMPORARY operational compromise pending a future logging utility) — branch `feature/cart-merge-auth-seam` (cut from `develop` 2026-04-18, post-AUTH-1 back-merge) — target Advanced Executor — done 2026-04-18 (all 14 ACs verified; live 6a–6g matrix PASS on /en + /ar; `clearCartIdCookie` sameSite alignment fix applied by Tech Lead; follow-ups recorded: LOG-1, TEST-1, AUTH-1a — see task report.txt)
-- [ ] **TEST-0**: Storefront test harness bootstrap — install Vitest + jsdom in `apps/storefront`, add `vitest.config.ts`, add `test` script + turbo pipeline entry, ship one passing smoke test on `medusa-client.ts::getErrorStatusCode`. Strictly infra only — no seam coverage (that is TEST-1). Branch `feature/test-0-vitest-harness` (cut from `develop` 2026-04-19, post-AUTH-1a merge `561da65`). Target Literal Executor. Full brief below.
+- [x] **TEST-0**: Storefront test harness bootstrap — install Vitest + jsdom in `apps/storefront`, add `vitest.config.ts`, add `test` script + turbo pipeline entry, ship one passing smoke test on `medusa-client.ts::getErrorStatusCode`. Strictly infra only — no seam coverage (that is TEST-1). Branch `feature/test-0-vitest-harness` (cut from `develop` 2026-04-19, post-AUTH-1a merge `561da65`). Target Literal Executor — done 2026-04-19 (PR #4 → merge commit `98e0dd5`; one documented deviation: `vitest.config.ts` preamble sets `NEXT_PUBLIC_MEDUSA_BACKEND_URL` default — accepted in review).
+- [ ] **TEST-1**: Automated coverage for the auth/cart seam — server-action tests for `loginAction` / `registerAction` / `logoutAction`, plus a contract-level test for `transferCartToCustomer` exercising the three guard paths (no cart / valid cart / bogus cart), plus cookie-pair attribute parity tests for both `setAuthCookie`/`clearAuthCookie` and `setCartId`/`clearCartIdCookie`. Branch `feature/test-1-auth-cart-seam` (cut from `develop` 2026-04-19, post-TEST-0 merge `98e0dd5`). Target Advanced Executor. **Guardrail (Tech Lead, 2026-04-19):** if production source under `apps/storefront/**` would need to change for testability, STOP and escalate — do NOT refactor production code inside TEST-1. Full brief below.
 
 ### Follow-ups (deferred — full briefs pending)
 
 - [ ] **LOG-1**: Adopt a project logging utility — single logger surface (server + client) to replace silent-swallow patterns in `loginAction`/`registerAction` transfer catch blocks with structured warn-level logs. Once landed, revise the `void transferError` compromise from CART-MERGE. Triggered by: CART-MERGE.
-
-- [ ] **TEST-1**: Automated coverage for the auth/cart seam — server-action tests for `loginAction` / `registerAction` / `logoutAction`, plus a contract-level test for `transferCartToCustomer` exercising the three guard paths (no cart / valid cart / bogus cart), plus cookie-pair attribute parity tests for both `setAuthCookie`/`clearAuthCookie` and `setCartId`/`clearCartIdCookie`. Blocked on TEST-0 (harness). Target Advanced Executor. **Guardrail (Tech Lead, 2026-04-19):** if production source under `apps/storefront/**` would need to change for testability, STOP and escalate — do NOT refactor production code inside TEST-1. Triggered by: AUTH-1 + CART-MERGE + AUTH-1a code review pattern.
 
 - [x] **AUTH-1a**: Align `clearAuthCookie` attributes with its setter — mirror the fix applied in CART-MERGE for `clearCartIdCookie`. One-file change to `apps/storefront/lib/auth-cookie.ts` adding `sameSite: "strict"`, `secure: true`, `httpOnly: true` on clear. No new ADR. Triggered by: CART-MERGE review — done 2026-04-19 (PR #3 → merge commit `561da65`).
 
@@ -1218,4 +1217,290 @@ Completion Report (mandatory)
     - Exact `npx turbo run build --filter=storefront` output
     - `git status` showing only Files Allowed modified
     - `git diff --stat` for the full branch
+```
+
+---
+
+### TEST-1 — canonical brief
+
+```
+================================================================
+Task ID:           TEST-1
+Phase:             Phase 6 — Customer Accounts
+Target Executor:   Advanced Executor
+Branch:            feature/test-1-auth-cart-seam
+                   (cut from develop 2026-04-19, post-TEST-0 merge 98e0dd5)
+Depends on:        TEST-0 merged into develop (done — PR #4, commit 98e0dd5)
+                   AUTH-1, CART-MERGE, AUTH-1a (all done on develop)
+Governs:           ADR-018 (native first), ADR-036 (no middleware),
+                   ADR-046 (Phase 6 auth), ADR-046-sup-1 (logout clears both)
+================================================================
+
+REQUIRED READING (ADR-033 — blocking; all five layers)
+  [1] Project Context
+      - Notion Project Definition
+      - Notion Implementation Canon — § Cart model, § Customer model,
+        § Medusa auth surface
+  [2] Task State
+      - TASKS.md (repo) — this section; confirm TEST-0 is [x] on develop
+      - Notion Hub active-phase callout — confirm "Phase 6 active"
+  [3] Role Contract
+      - .agents/20-contracts.mdc — Advanced Executor section
+  [4] Governing Rules & ADRs
+      - .agents/00-core.mdc (whole file — §2 architecture boundaries
+        and §2 "no console.log" apply; §3 auth/session cookie attributes
+        are load-bearing for the parity tests)
+      - .agents/10-skills.mdc — Skill 1 + Skill 2
+      - Notion ADR-046 and ADR-046-sup-1
+  [5] This Brief
+
+Self-alignment check: If any of [1]–[4] is unavailable, STOP and report.
+
+----------------------------------------------------------------
+HARD GUARDRAIL (Tech Lead, 2026-04-19)
+  If any production source file under apps/storefront/** would need to
+  change to make the code testable — STOP and escalate to Tech Lead
+  BEFORE editing. Do NOT refactor production code inside TEST-1.
+  Acceptable responses on hitting a testability wall:
+    - Use Vitest module mocks (vi.mock) at the test-file boundary.
+    - Spy on call sites rather than restructuring production code.
+    - If neither works, report the specific wall and wait for a
+      revised brief or a companion refactor task.
+  Unacceptable: silently changing production code to make tests pass.
+
+----------------------------------------------------------------
+Goal
+  Lock the current behavior of the auth/cart/cookie seam with focused
+  Vitest coverage, so future edits to loginAction / registerAction /
+  logoutAction / transferCartToCustomer / the four cookie helpers
+  cannot silently regress the fixes from AUTH-1, CART-MERGE, AUTH-1a
+  (and their attribute-parity invariants).
+
+Context
+  Three review-discovered fixes landed on this seam in quick succession
+  during Phase 6. This task adds automated guardrails at the lightest
+  defensible layer (Vitest Node env with module-boundary mocks) — no
+  running Medusa, no browser, no E2E. Scope is strictly the seam;
+  anything broader is out.
+
+  Test-infra assumptions (from TEST-0, landed at 98e0dd5):
+    - Vitest + jsdom installed in apps/storefront
+    - `npm test` runs `vitest run`
+    - Default env is Node; use `// @vitest-environment jsdom` at file
+      head for client-side document.cookie tests
+    - Path alias `@` → apps/storefront
+    - vitest.config.ts includes a NEXT_PUBLIC_MEDUSA_BACKEND_URL
+      default; leave it untouched
+
+----------------------------------------------------------------
+Files Allowed (test files only — all NEW)
+  - apps/storefront/app/[locale]/(storefront)/account/actions.test.ts
+  - apps/storefront/lib/medusa-client.test.ts
+        (distinct from TEST-0's medusa-client.smoke.test.ts — do NOT
+         modify or delete the smoke file; create a sibling.)
+  - apps/storefront/lib/auth-cookie.test.ts
+  - apps/storefront/lib/cart-cookie.test.ts
+        (header directive required: // @vitest-environment jsdom)
+  - apps/storefront/lib/cart-cookie-server.test.ts
+
+Files Forbidden (STRICT — read-only)
+  - CLAUDE.md, TASKS.md, docs/**, .agents/**
+  - ALL production source — these are read-only references; the test
+    files assert their current behavior, not modify it:
+      apps/storefront/app/[locale]/(storefront)/account/actions.ts
+      apps/storefront/lib/auth-cookie.ts
+      apps/storefront/lib/cart-cookie.ts
+      apps/storefront/lib/cart-cookie-server.ts
+      apps/storefront/lib/medusa-client.ts
+  - Test-infra files from TEST-0 (locked): vitest.config.ts, turbo.json,
+    apps/storefront/package.json, package-lock.json. If TEST-0 missed a
+    dependency, STOP and escalate — do NOT add deps in this task.
+  - Any other file in the repo.
+
+----------------------------------------------------------------
+Implementation Steps
+
+  Part A — Server-action tests (actions.test.ts)
+
+  1. File header mocks (all module-level, before the describe blocks):
+        vi.mock("next/headers");       // cookies() request scope
+        vi.mock("next/navigation");    // redirect throws — mock to no-op
+        vi.mock("next-intl/server");   // getLocale, getTranslations
+        vi.mock("@/lib/medusa-client");
+        vi.mock("@/lib/auth-cookie");
+        vi.mock("@/lib/cart-cookie-server");
+
+  2. In beforeEach, reset all mocks and set default behaviors:
+        - getLocale → "en"
+        - getTranslations → (key) => key (identity)
+        - getAuthToken → null by default
+        - getCartIdFromCookie → null by default
+        - all medusa-client helpers → resolved Promises with plausible values
+
+  3. loginAction tests (using formData fixtures):
+        a. valid credentials + no cart cookie
+              → emailpassLogin called once
+              → setAuthCookie called with returned token
+              → transferCartToCustomer NOT called
+              → redirect("/en/account") called
+        b. valid credentials + cart cookie present
+              → transferCartToCustomer called once with (cartId, token)
+              → redirect("/en/account") called
+        c. valid credentials + cart cookie present + transfer throws
+              → transferCartToCustomer threw, but:
+                setAuthCookie still called
+                redirect("/en/account") still called
+                NO error surfaced to the caller
+        d. missing email or password
+              → returns { error: "genericError" }
+              → emailpassLogin NOT called
+              → redirect NOT called
+        e. emailpassLogin throws generic error
+              → returns { error: "genericError" }
+              → setAuthCookie NOT called
+        f. emailpassLogin throws AuthProviderUnavailableError
+              → rethrows (no wrapping)
+              → setAuthCookie NOT called
+
+  4. registerAction tests (mirror loginAction shape):
+        a. valid fields + no cart cookie
+              → emailpassRegister → createCustomer → refreshAuthToken
+                → setAuthCookie → redirect, in that order
+        b. valid fields + cart cookie present
+              → transferCartToCustomer called with (cartId, sessionToken)
+                where sessionToken is the refreshed token
+        c. valid fields + cart cookie present + transfer throws
+              → registration still succeeds, redirect still fires
+        d. missing any required field → returns { error: "registerError" }
+        e. emailpassRegister throws AuthProviderUnavailableError → rethrows
+
+  5. logoutAction tests:
+        a. token present
+              → logoutSession called with the token
+              → clearAuthCookie called
+              → clearCartIdCookie called
+              → redirect("/en") called
+              → clearAuthCookie runs BEFORE clearCartIdCookie (order matters
+                per ADR-046-sup-1)
+        b. token present + logoutSession throws
+              → clearAuthCookie still called
+              → clearCartIdCookie still called
+              → redirect still called
+              → NO error surfaced
+        c. no token present
+              → logoutSession NOT called
+              → clearAuthCookie still called
+              → clearCartIdCookie still called
+              → redirect("/en") called
+        d. locale from getLocale changes redirect target
+              → when getLocale returns "ar", redirect("/ar")
+
+  Part B — transferCartToCustomer contract test (medusa-client.test.ts)
+
+  6. Mock `sdk.store.cart.transferCart` on the imported `sdk` object.
+  7. Call transferCartToCustomer("cart_123", "token_abc"). Assert:
+        - sdk.store.cart.transferCart called exactly once
+        - first arg: "cart_123"
+        - second arg: {} (empty body)
+        - third arg: { Authorization: "Bearer token_abc" }
+  8. Assert the function resolves to undefined (return type is Promise<void>).
+
+  Part C — Cookie-pair parity tests
+
+  9. auth-cookie.test.ts (Node env):
+        - vi.mock("next/headers"); capture all cookies().set calls.
+        - Call setAuthCookie("tok") and clearAuthCookie().
+        - Extract the two options objects.
+        - Assert: both have `httpOnly: true`, `secure: true`,
+                  `sameSite: "strict"`, `path: "/"`.
+        - Assert: setAuthCookie's maxAge is AUTH_COOKIE_MAX_AGE; clear's
+                  maxAge is 0. (Divergence is intentional.)
+        - Parity assertion: `{ ...setOpts, maxAge: undefined }` deep-equals
+          `{ ...clearOpts, maxAge: undefined }`.
+
+  10. cart-cookie-server.test.ts (Node env):
+        - vi.mock("next/headers"); capture cookies().set calls.
+        - Call clearCartIdCookie().
+        - Assert: `{ maxAge: 0, path: "/", sameSite: "lax" }`. (No httpOnly,
+          no secure — intentional; cart cookie is NOT httpOnly per ADR-036
+          so it must stay client-readable.)
+
+  11. cart-cookie.test.ts (jsdom env — required header directive):
+        // @vitest-environment jsdom
+        - Before each test, reset document.cookie to "".
+        - setCartId("cart_xyz"): assert document.cookie contains
+          "medusa_cart_id=cart_xyz"; attributes path=/, SameSite=Lax,
+          max-age=<positive>.
+        - clearCartId(): after calling, assert document.cookie no longer
+          contains "medusa_cart_id=cart_xyz" as a non-empty value; the
+          emitted string must include path=/, SameSite=Lax, max-age=0.
+        - Parity: the two emissions must agree on path and SameSite
+          (ignoring max-age and value).
+
+  Part D — Verification
+
+  12. Run `npm test` from apps/storefront. All new tests must pass
+      alongside the TEST-0 smoke test. No test flakes.
+  13. Run `npx tsc --noEmit -p apps/storefront`. Must pass.
+      (Turbo `typecheck` is a no-op for storefront; use tsc directly,
+       same pattern accepted in TEST-0 review.)
+  14. Run `npx turbo run build --filter=storefront`. Must pass.
+  15. Confirm NO production source under apps/storefront/** was modified.
+
+----------------------------------------------------------------
+Acceptance Criteria
+  [ ] All test files listed in Files Allowed exist; no other new files.
+  [ ] No production source file (auth-cookie.ts, cart-cookie.ts,
+      cart-cookie-server.ts, medusa-client.ts, actions.ts) was modified.
+  [ ] No TEST-0 infra file (vitest.config.ts, turbo.json, package.json,
+      package-lock.json) was modified.
+  [ ] actions.test.ts covers every sub-case listed in Steps 3, 4, 5
+      (each sub-case = at least one `it` block).
+  [ ] medusa-client.test.ts includes the four transferCartToCustomer
+      contract assertions from Step 7.
+  [ ] auth-cookie.test.ts includes the parity assertion described in
+      Step 9.
+  [ ] cart-cookie-server.test.ts asserts the exact clear-options shape
+      from Step 10.
+  [ ] cart-cookie.test.ts starts with `// @vitest-environment jsdom`
+      and covers setCartId / clearCartId as described in Step 11.
+  [ ] `npm test` → all tests pass, 0 failed, 0 skipped.
+  [ ] `npx tsc --noEmit -p apps/storefront` → exit 0.
+  [ ] `npx turbo run build --filter=storefront` → passes.
+  [ ] No `any` introduced without a /* justification */ inline comment.
+  [ ] No `console.log` in any test file.
+
+----------------------------------------------------------------
+Out of Scope (hard)
+  - Password reset, account page, addresses, wishlist, compare — any
+    non-seam auth/account surface.
+  - Integration tests against a running Medusa backend.
+  - Playwright / E2E / browser automation.
+  - React component tests (LoginForm, RegisterForm, header affordance).
+  - Coverage thresholds or coverage reporting.
+  - CI wiring.
+  - Changes to production source under any circumstance. If a test
+    surfaces an apparent bug, STOP and report it — do NOT fix it here.
+  - Changes to vitest.config.ts or adding deps — if test-infra is
+    insufficient, escalate to a TEST-0.1 task.
+  - Any refactor of production source to "improve testability" — see
+    HARD GUARDRAIL above.
+
+----------------------------------------------------------------
+Completion Report (mandatory)
+  Overwrite `task report.txt` at repo root per Shared Rules
+  (.agents/20-contracts.mdc — do not append). Include:
+    1. Full `npm test` output (all suites, all cases)
+    2. Full `npx tsc --noEmit -p apps/storefront` output
+    3. Full `npx turbo run build --filter=storefront` output
+    4. `git status` showing only Files Allowed added/modified
+    5. `git diff --stat` for the full branch
+    6. Summary: what was covered, what was intentionally out of scope,
+       any remaining gaps worth a follow-up TEST-* task
+    7. Explicit statement: "No production source under apps/storefront/**
+       was modified." (Include `git diff --stat apps/storefront/lib
+       apps/storefront/app` output to prove this.)
+    8. Explicit statement on whether the Hard Guardrail was hit at any
+       point during implementation. If yes, describe what the wall was
+       and what the alternative path (mocks/spies) looked like.
 ```
