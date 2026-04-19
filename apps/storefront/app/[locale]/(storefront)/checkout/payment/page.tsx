@@ -35,7 +35,7 @@ export default async function PaymentPage({ params }: PaymentPageProps) {
   if (regionId) {
     try {
       const { payment_providers } = await listPaymentProviders(regionId);
-      providers = payment_providers.map((p) => {
+      providers = payment_providers.map((p: unknown) => {
         const row = p as { id: string; is_enabled?: boolean };
         return {
           id: row.id,
