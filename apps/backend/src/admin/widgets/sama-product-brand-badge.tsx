@@ -17,8 +17,8 @@
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import type { DetailWidgetProps, AdminProduct } from "@medusajs/framework/types"
 import { useEffect, useMemo, useState } from "react"
-import { Link } from "react-router-dom"
 import { adminFetch } from "../lib/admin-api"
+import { Link } from "../lib/router-link"
 
 type Brand = {
   id: string

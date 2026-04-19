@@ -5,7 +5,6 @@
 
 import { defineRouteConfig } from "@medusajs/admin-sdk"
 import { useCallback, useEffect, useMemo, useState } from "react"
-import { Link } from "react-router-dom"
 import {
   BrandShell,
   PageHeader,
@@ -15,6 +14,7 @@ import {
 } from "../../components"
 import { adminFetch } from "../../lib/admin-api"
 import { formatInt, truncate } from "../../lib/format"
+import { Link } from "../../lib/router-link"
 
 type Brand = {
   id: string

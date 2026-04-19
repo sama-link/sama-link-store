@@ -516,11 +516,11 @@ const ReportIcon = () => (
 export const config = defineRouteConfig({
   label: "Sama Reports",
   icon: ReportIcon,
-  // Nest under the Sama Dashboard so the sidebar reads
-  //   Sama Dashboard
-  //     └─ Sama Reports
-  // keeping all operator analytics under one top-level entry.
-  nested: "/sama-dashboard",
+  // Ideally this would nest under "Sama Dashboard" to group operator
+  // analytics, but Medusa's NestedRoutePosition is a closed set of built-in
+  // routes (/orders, /products, /customers, /inventory, /promotions,
+  // /price-lists) — custom routes cannot be nesting targets. Reports is
+  // rendered as a sibling top-level entry next to Sama Dashboard instead.
 })
 
 export default SamaReportsPage
