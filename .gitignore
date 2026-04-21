@@ -40,6 +40,11 @@ desktop.ini
 .vscode/settings.json
 .idea/
 
+# Governance / agent-operating material — local only, never push
+.agents/
+CLAUDE.md
+TASKS.md
+
 # Agent instruction folders — local to each developer's tooling, never push
 .cursor/
 .copilot/
