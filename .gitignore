@@ -80,6 +80,9 @@ temp/
 # Executor task reports — local review only, never push
 task report.txt
 
+# Translation audit log — local operator trail, never push
+translations/.edit-log.jsonl
+
 # Brand source assets — raw/unprocessed exports from designer
 # Production-ready outputs go in public/brand/ following docs/media-intake-protocol.md
 sama-link_brand-assets_FULL/
