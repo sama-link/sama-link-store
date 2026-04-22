@@ -8,8 +8,7 @@
  * Always client-rendered so it composes cleanly inside LoadMoreProducts.
  *
  * Desktop: overlay actions (Wishlist, Compare, Quick View) on hover/focus.
- * Mobile: Quick View overlay only; Wishlist + Compare flank the AddToCart
- * button in the card footer.
+ * Mobile: Quick View overlay only (Wishlist + Compare live on the PDP).
  */
 
 import Image from "next/image";
@@ -18,12 +17,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
 import type { listProducts } from "@/lib/medusa-client";
 import type { ListProduct } from "@/hooks/useWishlist";
-import { productToWishlistItem } from "@/hooks/useWishlist";
 import { localizeTitle } from "@/lib/product-i18n";
 import AddToCartButton from "@/components/products/AddToCartButton";
 import CardTopActions from "@/components/products/CardTopActions";
-import CompareButton from "@/components/products/CompareButton";
-import WishlistButton from "@/components/products/WishlistButton";
 import Price from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
 
@@ -62,10 +58,6 @@ export default function ProductCard({
   const priceCurrency = calcPrice?.currency_code ?? null;
 
   const firstVariantId = firstVariant?.id ?? null;
-  const wishCompareItem = productToWishlistItem(
-    product as unknown as ListProduct,
-    firstVariantId,
-  );
 
   const imageInner = product.thumbnail ? (
     <Image
@@ -157,8 +149,7 @@ export default function ProductCard({
             displayTitle
           )}
         </h3>
-        {/* Price row */}
-        <div className="mt-auto pt-1">
+        <div className="mt-auto flex items-center justify-between gap-2 pt-1">
           {priceAmount != null ? (
             <Price
               amount={priceAmount}
@@ -169,28 +160,19 @@ export default function ProductCard({
           ) : (
             <span />
           )}
+          {firstVariantId ? (
+            <div className="relative z-[2]">
+              <AddToCartButton
+                variantId={firstVariantId}
+                variant="primary"
+                size="md"
+                fullWidth={false}
+                iconOnly
+                iconAriaLabel={t("addToCartAria")}
+              />
+            </div>
+          ) : null}
         </div>
-
-        {/* Action row — mobile: [Wishlist] [AddToCart] [Compare] centered.
-            Desktop: AddToCart icon aligned end (Wishlist/Compare are in overlay). */}
-        {firstVariantId ? (
-          <div className="relative z-[2] mt-1.5 flex items-center gap-2 sm:justify-end">
-            <span className="sm:hidden">
-              <WishlistButton item={wishCompareItem} size="sm" />
-            </span>
-            <AddToCartButton
-              variantId={firstVariantId}
-              variant="primary"
-              size="md"
-              fullWidth={false}
-              iconOnly
-              iconAriaLabel={t("addToCartAria")}
-            />
-            <span className="sm:hidden">
-              <CompareButton item={wishCompareItem} size="sm" />
-            </span>
-          </div>
-        ) : null}
       </div>
     </div>
   );

@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import AddToCartButton from "@/components/products/AddToCartButton";
 import Button from "@/components/ui/Button";
+import CompareButton from "@/components/products/CompareButton";
 import WishlistButton from "@/components/products/WishlistButton";
 import Price from "@/components/ui/Price";
 import { useCart } from "@/hooks/useCart";
 import type { WishlistItem } from "@/hooks/useWishlist";
+import type { CompareItem } from "@/hooks/useCompare";
 import { cn } from "@/lib/cn";
 
 export interface PanelOptionValue {
@@ -44,8 +46,10 @@ interface PurchasePanelProps {
   description?: string | null;
   /** Optional bullet highlights — extracted list rendered under the description. */
   highlights?: string[];
-  /** WishlistItem for the heart icon that lives next to Add-to-Cart. */
+  /** WishlistItem for the heart icon next to Buy Now. */
   wishlistItem?: WishlistItem | null;
+  /** CompareItem for the compare icon next to Buy Now. */
+  compareItem?: CompareItem | null;
 }
 
 /**
@@ -69,6 +73,7 @@ export default function PurchasePanel({
   description,
   highlights,
   wishlistItem,
+  compareItem,
 }: PurchasePanelProps) {
   const t = useTranslations("products.detail");
   const locale = useLocale();
@@ -348,29 +353,30 @@ export default function PurchasePanel({
               size="lg"
               fullWidth
             />
-
-            {/* Wishlist heart — same row, matches reference */}
-            {wishlistItem ? <WishlistButton item={wishlistItem} className="shrink-0" /> : null}
           </div>
 
-          {/* 12. Buy Now */}
-          <Button
-            type="button"
-            variant="outline"
-            size="lg"
-            fullWidth
-            loading={buyBusy}
-            disabled={!cart || cartLoading || buyBusy}
-            onClick={() => {
-              void buyNow();
-            }}
-            className="cta-glow"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
-              <path d="M13 2 3 14h9l-1 8 10-12h-9z" />
-            </svg>
-            <span>{t("buyNow")}</span>
-          </Button>
+          {/* 12. Buy Now — flanked by Wishlist (start) and Compare (end) */}
+          <div className="flex items-stretch gap-2">
+            {wishlistItem ? <WishlistButton item={wishlistItem} className="shrink-0" /> : null}
+            <Button
+              type="button"
+              variant="outline"
+              size="lg"
+              fullWidth
+              loading={buyBusy}
+              disabled={!cart || cartLoading || buyBusy}
+              onClick={() => {
+                void buyNow();
+              }}
+              className="cta-glow"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+                <path d="M13 2 3 14h9l-1 8 10-12h-9z" />
+              </svg>
+              <span>{t("buyNow")}</span>
+            </Button>
+            {compareItem ? <CompareButton item={compareItem} className="shrink-0" /> : null}
+          </div>
 
           {/* 13. Trust grid */}
           <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border bg-surface-subtle p-4">

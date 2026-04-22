@@ -374,6 +374,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 description={shortDescription ?? subtitle ?? null}
                 highlights={productHighlights}
                 wishlistItem={galleryWishlistItem}
+                compareItem={galleryWishlistItem}
               />
             </div>
           </div>
