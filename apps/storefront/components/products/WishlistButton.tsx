@@ -69,11 +69,11 @@ export default function WishlistButton({ item, className, size = "md" }: Wishlis
         disabled={!isHydrated}
         onClick={onClick}
         className={cn(
-          "group inline-flex shrink-0 items-center justify-center rounded-full border border-border bg-surface/90 text-text-secondary backdrop-blur transition-[background-color,border-color,color,transform] duration-200 active:scale-95",
+          "group inline-flex shrink-0 items-center justify-center text-text-secondary transition-[color,transform] duration-200 active:scale-90",
           size === "sm" ? "h-8 w-8" : "h-10 w-10",
-          "hover:border-error hover:bg-surface hover:text-error",
+          "hover:text-error",
           "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-error/20",
-          pressed && "border-error bg-error/10 text-error",
+          pressed && "text-error",
         )}
       >
         <HeartIcon filled={pressed} />

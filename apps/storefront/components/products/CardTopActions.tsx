@@ -76,7 +76,7 @@ export default function CardTopActions({ product }: CardTopActionsProps) {
             onClick={openQuick}
             aria-label={t("quickView")}
             title={t("quickView")}
-            className="group inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-border bg-surface/90 text-text-secondary backdrop-blur transition-[background-color,border-color,color,transform] duration-200 hover:border-brand hover:bg-surface hover:text-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/20 active:scale-95"
+            className="group inline-flex h-8 w-8 shrink-0 items-center justify-center text-text-secondary transition-[color,transform] duration-200 hover:text-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/20 active:scale-90"
           >
             <EyeIcon />
           </button>

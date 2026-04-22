@@ -355,28 +355,24 @@ export default function PurchasePanel({
             />
           </div>
 
-          {/* 12. Buy Now — flanked by Wishlist (start) and Compare (end) */}
-          <div className="flex items-stretch gap-2">
-            {wishlistItem ? <WishlistButton item={wishlistItem} className="shrink-0" /> : null}
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              fullWidth
-              loading={buyBusy}
-              disabled={!cart || cartLoading || buyBusy}
-              onClick={() => {
-                void buyNow();
-              }}
-              className="cta-glow"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
-                <path d="M13 2 3 14h9l-1 8 10-12h-9z" />
-              </svg>
-              <span>{t("buyNow")}</span>
-            </Button>
-            {compareItem ? <CompareButton item={compareItem} className="shrink-0" /> : null}
-          </div>
+          {/* 12. Buy Now */}
+          <Button
+            type="button"
+            variant="outline"
+            size="lg"
+            fullWidth
+            loading={buyBusy}
+            disabled={!cart || cartLoading || buyBusy}
+            onClick={() => {
+              void buyNow();
+            }}
+            className="cta-glow"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
+              <path d="M13 2 3 14h9l-1 8 10-12h-9z" />
+            </svg>
+            <span>{t("buyNow")}</span>
+          </Button>
 
           {/* 13. Trust grid */}
           <div className="mt-4 grid grid-cols-2 gap-3 rounded-xl border border-border bg-surface-subtle p-4">
@@ -426,6 +422,14 @@ export default function PurchasePanel({
               }
             />
           </div>
+
+          {/* 14. Wishlist + Compare — centered below trust grid */}
+          {wishlistItem || compareItem ? (
+            <div className="flex items-center justify-center gap-4 pt-2">
+              {wishlistItem ? <WishlistButton item={wishlistItem} /> : null}
+              {compareItem ? <CompareButton item={compareItem} /> : null}
+            </div>
+          ) : null}
         </div>
       ) : null}
     </div>

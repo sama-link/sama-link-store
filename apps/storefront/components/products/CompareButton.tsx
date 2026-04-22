@@ -89,11 +89,11 @@ export default function CompareButton({ item, className, size = "md" }: CompareB
         disabled={!isHydrated}
         onClick={onClick}
         className={cn(
-          "group inline-flex shrink-0 items-center justify-center rounded-full border border-border bg-surface/90 text-text-secondary backdrop-blur transition-[background-color,border-color,color,transform] duration-200 active:scale-95",
+          "group inline-flex shrink-0 items-center justify-center text-text-secondary transition-[color,transform] duration-200 active:scale-90",
           size === "sm" ? "h-8 w-8" : "h-10 w-10",
-          "hover:border-brand hover:bg-surface hover:text-brand",
+          "hover:text-brand",
           "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/20",
-          pressed && "border-brand bg-brand/10 text-brand",
+          pressed && "text-brand",
         )}
       >
         <CompareIcon />
