@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { WishlistItem } from "@/hooks/useWishlist";
-import GalleryActionsOverlay from "@/components/products/GalleryActionsOverlay";
 import { cn } from "@/lib/cn";
 
 export interface ProductImage {
@@ -108,7 +107,7 @@ export default function ProductGallery({
       <div className="group relative">
         <div
           ref={trackRef}
-          className="flex snap-x snap-mandatory overflow-x-auto rounded-2xl scroll-smooth [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto rounded-2xl scroll-smooth"
           aria-roledescription="carousel"
           aria-label={alt}
         >
@@ -173,9 +172,9 @@ export default function ProductGallery({
           </>
         ) : null}
 
-        {galleryWishlistItem ? (
-          <GalleryActionsOverlay item={galleryWishlistItem} />
-        ) : null}
+        {/* Wishlist / Compare overlay removed per product direction —
+            both actions remain accessible via the header popovers and the
+            PurchasePanel (heart beside Add-to-Cart). */}
       </div>
 
       {/* Thumbnail strip */}

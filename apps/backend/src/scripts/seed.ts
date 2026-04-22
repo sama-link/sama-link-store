@@ -1,9 +1,11 @@
 import type {
   CreateProductDTO,
   ExecArgs,
+  IApiKeyModuleService,
   IProductModuleService,
   IRegionModuleService,
   IPricingModuleService,
+  ISalesChannelModuleService,
   ProductCategoryDTO,
   RegionDTO,
 } from "@medusajs/framework/types"
@@ -399,5 +401,62 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
     await ensureProductThumbnail(productModuleService, product.handle)
   }
 
+  const apiKeyModuleService = container.resolve<IApiKeyModuleService>(
+    Modules.API_KEY
+  )
+  const salesChannelModuleService = container.resolve<ISalesChannelModuleService>(
+    Modules.SALES_CHANNEL
+  )
+  await ensureStorefrontPublishableKey(
+    apiKeyModuleService,
+    salesChannelModuleService,
+    remoteLink
+  )
+
   console.log("[seed] BACK-3 / BACK-3b seed completed successfully")
+}
+
+const STOREFRONT_KEY_TITLE = "Storefront Default"
+
+async function ensureStorefrontPublishableKey(
+  apiKeyModuleService: IApiKeyModuleService,
+  salesChannelModuleService: ISalesChannelModuleService,
+  remoteLink: Link
+): Promise<void> {
+  const existing = await apiKeyModuleService.listApiKeys({
+    title: STOREFRONT_KEY_TITLE,
+    type: "publishable",
+  })
+
+  let key = existing[0]
+  if (key) {
+    console.log(
+      `[seed] Part D: publishable key '${STOREFRONT_KEY_TITLE}' already exists -> ${key.token}`
+    )
+  } else {
+    const created = await apiKeyModuleService.createApiKeys({
+      title: STOREFRONT_KEY_TITLE,
+      type: "publishable",
+      created_by: "seed",
+    })
+    key = Array.isArray(created) ? created[0]! : created
+    console.log(
+      `[seed] Part D: created publishable key '${STOREFRONT_KEY_TITLE}' -> ${key.token}`
+    )
+  }
+
+  const channels = await salesChannelModuleService.listSalesChannels({}, { take: 1 })
+  const channel = channels[0]
+  if (!channel) {
+    console.log(`[seed] Part D: no sales channel found; skipping link`)
+    return
+  }
+
+  await remoteLink.create({
+    [Modules.API_KEY]: { publishable_key_id: key.id },
+    [Modules.SALES_CHANNEL]: { sales_channel_id: channel.id },
+  })
+  console.log(
+    `[seed] Part D: linked publishable key ${key.id} <-> sales channel ${channel.id}`
+  )
 }

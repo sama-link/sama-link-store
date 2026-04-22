@@ -10,7 +10,18 @@ const isLocalEnv =
 module.exports = defineConfig({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
-    databaseDriverOptions: isLocalEnv ? { connection: { ssl: false } } : {},
+    databaseDriverOptions: isLocalEnv
+      ? { connection: { ssl: false } }
+      : { connection: { ssl: { rejectUnauthorized: false } } },
+    // In local Docker dev we run the admin over plain HTTP on localhost.
+    // Medusa defaults admin session cookies to `Secure; SameSite=None`
+    // when NODE_ENV=production, which the browser silently rejects over
+    // HTTP — the admin sign-in loop returns to /app/login with no
+    // connect.sid cookie ever being accepted. Relaxing these two flags
+    // only when `isLocalEnv` keeps production behaviour intact.
+    cookieOptions: isLocalEnv
+      ? { secure: false, sameSite: "lax" as const }
+      : undefined,
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
@@ -19,4 +30,13 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET!,
     },
   },
+  // Sama Link custom modules — ADR-047.
+  //   brand: first-class brand catalog surfaced as a native admin resource
+  //          with CRUD pages at /app/brands and a picker widget on product
+  //          details. Replaces the old string-in-metadata approach.
+  modules: [
+    {
+      resolve: "./src/modules/brand",
+    },
+  ],
 });

@@ -93,6 +93,10 @@
     "checkout": "إتمام الشراء",
     "aria": "مسار التنقل"
   },
+  "topbar": {
+    "announcement": "شحن مجاني على الطلبات فوق 1,500 ج.م",
+    "announcementCta": "تسوق الآن"
+  },
   "nav": {
     "home": "الرئيسية",
     "products": "المنتجات",
@@ -116,14 +120,47 @@
     "compare": "المقارنة",
     "wishlistAria": "المفضلة ({count} عناصر)",
     "compareAria": "المقارنة ({count} عناصر)",
+    "catbarLabel": "اختصارات الفئات",
+    "searchLabel": "بحث",
+    "searchPlaceholder": "ابحث عن منتجات، علامات، فئات…",
+    "searchSubmit": "بحث",
+    "search": "البحث",
+    "theme": "المظهر",
     "megaMenu": {
       "productsTrigger": "المنتجات",
       "collectionsTrigger": "المجموعات",
       "viewAllProducts": "عرض كل المنتجات",
       "viewAllCollections": "عرض كل المجموعات",
       "emptyCategories": "لا توجد تصنيفات بعد.",
-      "emptyCollections": "لا توجد مجموعات بعد."
+      "emptyCollections": "لا توجد مجموعات بعد.",
+      "promo": {
+        "tag": "عرض محدود",
+        "title": "خصم حتى 30٪ على أنظمة Wi-Fi 6",
+        "body": "شحن مجاني · ضمان معتمد",
+        "cta": "تسوق العروض"
+      }
     }
+  },
+  "account": {
+    "title": "",
+    "signIn": "",
+    "signUp": "",
+    "signOut": "",
+    "emailLabel": "",
+    "passwordLabel": "",
+    "firstNameLabel": "",
+    "lastNameLabel": "",
+    "loginCta": "",
+    "registerCta": "",
+    "loginHeading": "",
+    "registerHeading": "",
+    "noAccountPrompt": "",
+    "hasAccountPrompt": "",
+    "genericError": "",
+    "registerError": "",
+    "welcomeBack": "",
+    "placeholderDashboard": "",
+    "greetingSignedOut": ""
   },
   "home": {
     "headline": "متجر سما لينك",
@@ -131,7 +168,110 @@
     "ctaLabel": "تصفح المنتجات",
     "comingSoon": "سيُتاح لاحقًا كتالوج المنتجات الكامل والبحث وإتمام الشراء. هذه الصفحة التجريبية تؤكد التوجيه والتخطيط ودعم تعدد اللغات.",
     "metaTitle": "متجر سما لينك — منتجات عالية الجودة",
-    "metaDescription": "اكتشف منتجات عالية الجودة في متجر سما لينك. مجموعات مختارة تُوصَّل إلى باب منزلك."
+    "metaDescription": "اكتشف منتجات عالية الجودة في متجر سما لينك. مجموعات مختارة تُوصَّل إلى باب منزلك.",
+    "viewAll": "عرض الكل",
+    "noProductsFallback": "كتالوج المنتجات في طريقه. عاود الاطلاع بعد لحظات.",
+    "hero": {
+      "eyebrow": "سرعة الحياة",
+      "titleLead": "اتصال احترافي",
+      "titleAccent": "لكل مساحة،",
+      "titleCoda": "بلا حدود.",
+      "sub": "معدات شبكات ومراقبة ومنازل ذكية — أصلية، بضمان، تصل إلى باب منزلك خلال 48 ساعة.",
+      "ctaBrowse": "تصفح المنتجات",
+      "ctaCollections": "عرض المجموعات",
+      "trust": {
+        "authentic": {
+          "title": "منتجات أصلية فقط",
+          "body": "بضمان الشركة المصنّعة"
+        },
+        "delivery": {
+          "title": "توصيل خلال 48 ساعة",
+          "body": "شحن سريع لكل أنحاء مصر"
+        },
+        "cod": {
+          "title": "دفع عند الاستلام",
+          "body": "ادفع عند وصول طلبك"
+        }
+      },
+      "cards": {
+        "networking": {
+          "eyebrow": "شبكات",
+          "sub": "4,299 ج.م"
+        },
+        "surveillance": {
+          "eyebrow": "مراقبة",
+          "sub": "IP67 · رؤية ليلية"
+        },
+        "power": {
+          "eyebrow": "طاقة",
+          "sub": "حماية"
+        },
+        "smart": {
+          "eyebrow": "منزل ذكي",
+          "sub": "240 ج.م"
+        }
+      }
+    },
+    "sections": {
+      "categories": {
+        "eyebrow": "تسوق حسب الفئة",
+        "title": "كل ما يبقيك متصلاً",
+        "items": "{count, plural, zero {# منتج} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}}"
+      },
+      "featured": {
+        "eyebrow": "منتجات مميزة",
+        "title": "الأكثر طلبًا هذا الأسبوع"
+      },
+      "trending": {
+        "eyebrow": "رائج الآن",
+        "title": "الأكثر مبيعًا هذا الأسبوع"
+      },
+      "why": {
+        "eyebrow": "لماذا سما لينك",
+        "title": "معايير نفخر بها"
+      },
+      "newsletter": {
+        "eyebrow": "ابقَ على اطلاع",
+        "title": "انضم إلى برنامج الولاء",
+        "body": "عروض حصرية وشحن مجاني على أول طلب.",
+        "placeholder": "your@email.com",
+        "emailLabel": "البريد الإلكتروني",
+        "subscribe": "اشترك",
+        "privacy": "لن نشارك بريدك مع أي طرف ثالث.",
+        "success": {
+          "title": "شكرًا على اشتراكك",
+          "body": "تفقّد بريدك لرسالة الترحيب."
+        }
+      }
+    },
+    "banners": {
+      "largeEyebrow": "عرض حصري",
+      "largeTitle": "وفّر حتى 30٪ على حلول المراقبة",
+      "largeBody": "أطقم NVR + PoE جاهزة للتركيب.",
+      "largeCta": "تسوق العروض",
+      "smallEyebrow": "شحن مجاني",
+      "smallTitle": "للطلبات فوق 1,500 ج.م",
+      "smallBody": "باب لباب خلال 48 ساعة.",
+      "smallCta": "اعرف المزيد"
+    },
+    "why": {
+      "delivery": {
+        "title": "توصيل سريع",
+        "body": "48 ساعة. كل محافظات مصر."
+      },
+      "authentic": {
+        "title": "منتجات أصلية 100٪",
+        "body": "بضمان الشركة المصنّعة."
+      },
+      "support": {
+        "title": "دعم حقيقي",
+        "body": "فريق ثنائي اللغة، قبل و بعد الشراء."
+      },
+      "payment": {
+        "title": "دفع مرن",
+        "body": "كاش · بطاقة · أقساط."
+      }
+    }
   },
   "products": {
     "featuredTitle": "منتجات مميزة",
@@ -143,8 +283,34 @@
       "paginationLabel": "ترقيم الصفحات",
       "previous": "← السابق",
       "next": "التالي →",
-      "pageOf": "{current} / {total}"
+      "pageOf": "{current} / {total}",
+      "loadMore": "عرض المزيد",
+      "loading": "جارٍ التحميل…",
+      "loadMoreEnd": "شفت كل اللي عندنا.",
+      "loadMoreError": "تعذّر تحميل المزيد. حاول مرة أخرى."
     },
+    "toolbar": {
+      "sortBy": "ترتيب حسب",
+      "density": "الأعمدة",
+      "view": "عرض",
+      "viewMode": "طريقة العرض",
+      "densityCols": "{count} أعمدة",
+      "showing": "يظهر {shown}",
+      "showingOf": "يظهر {shown} من {total}",
+      "close": "إغلاق",
+      "sort": {
+        "newest": "الأحدث",
+        "price-asc": "السعر: من الأقل للأعلى",
+        "price-desc": "السعر: من الأعلى للأقل",
+        "title": "الاسم (أ–ي)"
+      },
+      "viewModes": {
+        "grid": "شبكة",
+        "list": "قائمة"
+      },
+      "applyView": "تطبيق العرض"
+    },
+    "filtersAndViewAria": "التصفية وطرق العرض",
     "filters": {
       "heading": "الفلاتر",
       "collections": "المجموعات",
@@ -153,6 +319,15 @@
       "allCollections": "الكل",
       "priceRange": "نطاق السعر",
       "clearAll": "مسح الفلاتر",
+      "minPlaceholder": "من",
+      "maxPlaceholder": "إلى",
+      "rating": "التقييم",
+      "ratingAndUp": "فأكثر",
+      "availability": "التوفر",
+      "inStock": "متوفر الآن",
+      "searchChipLabel": "يبحث عن:",
+      "clearSearch": "مسح البحث",
+      "apply": "تطبيق الفلتر",
       "priceBuckets": {
         "under100": "أقل من 100",
         "100to500": "100 – 500",
@@ -202,7 +377,30 @@
       "relatedTitle": "منتجات ذات صلة",
       "relatedSubtitle": "المزيد من هذه المجموعة",
       "suggestedTitle": "قد يعجبك أيضًا",
-      "suggestedSubtitle": "اكتشف منتجات أخرى يحبها العملاء"
+      "suggestedSubtitle": "اكتشف منتجات أخرى يحبها العملاء",
+      "save": "وفّر {percent}٪",
+      "inclVat": "شامل الضريبة",
+      "inStockShipsIn": "متوفر — يُشحن خلال 48 ساعة",
+      "qtyDecrease": "إنقاص الكمية",
+      "qtyIncrease": "زيادة الكمية",
+      "trustGrid": {
+        "delivery": {
+          "title": "توصيل خلال 48 ساعة",
+          "body": "إلى كل المحافظات"
+        },
+        "warranty": {
+          "title": "ضمان سنتين",
+          "body": "من الشركة المصنّعة"
+        },
+        "returns": {
+          "title": "إرجاع 14 يومًا",
+          "body": "بدون أسئلة"
+        },
+        "cod": {
+          "title": "دفع عند الاستلام",
+          "body": "أو بالبطاقة"
+        }
+      }
     },
     "card": {
       "quickView": "معاينة سريعة",
@@ -226,7 +424,8 @@
     "remove": "إزالة من المفضلة",
     "addedAria": "تمت الإضافة إلى المفضلة",
     "removedAria": "تمت الإزالة من المفضلة",
-    "removeItem": "إزالة"
+    "removeItem": "إزالة",
+    "viewFullPage": "فتح صفحة المفضلة كاملة"
   },
   "compare": {
     "pageTitle": "المقارنة",
@@ -239,6 +438,7 @@
     "addedAria": "تمت الإضافة إلى المقارنة",
     "removedAria": "تمت الإزالة من المقارنة",
     "removeColumn": "إزالة من المقارنة",
+    "viewFullPage": "فتح صفحة المقارنة كاملة",
     "headers": {
       "image": "الصورة",
       "title": "الاسم",
@@ -308,7 +508,7 @@
         "description": ""
       },
       "confirmed": {
-        "description": ""
+        "description": "تم تاكيد طلبك"
       }
     },
     "trackOrder": {
@@ -353,6 +553,21 @@
     "about": "من نحن",
     "tagline": "منتجات عالية الجودة تصل إلى باب منزلك.",
     "builtWithCare": "صُنع بعناية في العالم العربي.",
-    "copyrightLine": "© {year} {storeName}. {rights}"
+    "copyrightLine": "© {year} {storeName}. {rights}",
+    "paymentsLabel": "طرق الدفع المقبولة",
+    "socials": {
+      "facebook": "فيسبوك",
+      "instagram": "إنستغرام",
+      "twitter": "X (تويتر)",
+      "youtube": "يوتيوب",
+      "whatsapp": "واتساب"
+    },
+    "payments": {
+      "visa": "VISA",
+      "mastercard": "MASTERCARD",
+      "meeza": "MEEZA",
+      "valu": "VALU",
+      "cod": "كاش"
+    }
   }
 }

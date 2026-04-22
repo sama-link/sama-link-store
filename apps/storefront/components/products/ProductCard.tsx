@@ -1,102 +1,179 @@
+"use client";
+
 /**
- * Server-rendered product summary for catalog grids.
- * Presentation only — data is supplied by the parent page (no API calls here).
+ * Product summary card — simplified per product direction.
+ * Two layouts:
+ *   - "grid" (default): vertical card — image → title → price + add-to-cart icon
+ *   - "list": horizontal row — image → title + price → add-to-cart
+ * Always client-rendered so it composes cleanly inside LoadMoreProducts.
  *
- * Click model (MVP-2a):
- *   - Single Next.js <Link> wraps the title; its ::before pseudo stretches to
- *     cover the whole card, so any non-button click navigates to the PDP.
- *   - CardActions provides two action surfaces:
- *       · Top-end icons over the image (Wishlist/Compare/QuickView).
- *       · Fixed bottom purchase row (Buy Now + Add-to-Cart icon) inside the
- *         text block at z-[2], sitting above the stretched link.
+ * Desktop: overlay actions (Wishlist, Compare, Quick View) on hover/focus.
+ * Mobile: Quick View overlay only (Wishlist + Compare live on the PDP).
  */
 
 import Image from "next/image";
 import Link from "next/link";
-import { getLocale } from "next-intl/server";
+import { useLocale, useTranslations } from "next-intl";
+import { useMemo } from "react";
 import type { listProducts } from "@/lib/medusa-client";
-import { formatCatalogPrice } from "@/lib/format-price";
+import type { ListProduct } from "@/hooks/useWishlist";
+import { localizeTitle } from "@/lib/product-i18n";
+import AddToCartButton from "@/components/products/AddToCartButton";
 import CardTopActions from "@/components/products/CardTopActions";
-import CardPurchaseRow from "@/components/products/CardPurchaseRow";
+import Price from "@/components/ui/Price";
+import { cn } from "@/lib/cn";
 
-export type Product = Awaited<ReturnType<typeof listProducts>>["products"][number];
+export type Product = Awaited<
+  ReturnType<typeof listProducts>
+>["products"][number];
 
 export interface ProductCardProps {
   product: Product;
+  /** Card layout: grid (default) or list (horizontal row). */
+  layout?: "grid" | "list";
 }
 
-export default async function ProductCard({ product }: ProductCardProps) {
-  const locale = await getLocale();
-  const description = product.description ?? "";
+export default function ProductCard({
+  product,
+  layout = "grid",
+}: ProductCardProps) {
+  const locale = useLocale();
+  const t = useTranslations("products.card");
+
+  /* ADR-047 · Catalog title overlay — prefer metadata.translations.ar.title
+   * when locale === "ar"; fall back to English. Memoised to avoid recomputing
+   * on every re-render (wishlist / cart state changes shouldn't retrigger
+   * the metadata walk). */
+  const displayTitle = useMemo(
+    () => localizeTitle(product, locale),
+    [product, locale],
+  );
 
   const firstVariant = product.variants?.[0];
   const calcPrice = firstVariant?.calculated_price;
-  const priceLabel =
-    formatCatalogPrice(
-      calcPrice?.calculated_amount != null
-        ? Number(calcPrice.calculated_amount)
-        : null,
-      calcPrice?.currency_code,
-      locale,
-    ) || null;
+  const priceAmount =
+    calcPrice?.calculated_amount != null
+      ? Number(calcPrice.calculated_amount)
+      : null;
+  const priceCurrency = calcPrice?.currency_code ?? null;
+
+  const firstVariantId = firstVariant?.id ?? null;
 
   const imageInner = product.thumbnail ? (
     <Image
       src={product.thumbnail}
-      alt={product.title ?? ""}
+      alt={displayTitle}
       fill
-      sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+      sizes={
+        layout === "list"
+          ? "(min-width: 640px) 20vw, 40vw"
+          : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
+      }
       className="object-cover"
     />
   ) : null;
 
-  if (product.handle) {
-    const href = `/${locale}/products/${product.handle}`;
+  const href = product.handle
+    ? `/${locale}/products/${product.handle}`
+    : null;
+
+  /* ─── List layout (horizontal row) ─── */
+  if (layout === "list") {
     return (
-      <div className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm transition-shadow duration-150 hover:shadow-md focus-within:ring-2 focus-within:ring-brand focus-within:ring-offset-2">
-        <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-surface-subtle">
+      <div className="group relative flex overflow-hidden rounded-xl border border-border bg-surface transition-colors duration-150 hover:border-brand">
+        <div className="relative aspect-square w-32 shrink-0 overflow-hidden bg-surface-subtle sm:w-40">
           {imageInner}
-          <CardTopActions product={product} />
         </div>
-        <div className="flex flex-1 flex-col gap-2 p-4">
-          <h3 className="line-clamp-2 text-base font-semibold text-text-primary">
-            <Link
-              href={href}
-              className="outline-none before:absolute before:inset-0 before:z-[1] before:content-[''] focus-visible:text-brand"
-            >
-              {product.title}
-            </Link>
-          </h3>
-          <p className="line-clamp-2 text-sm leading-relaxed text-text-secondary">
-            {description}
-          </p>
-          <div className="flex-1" />
-          {priceLabel ? (
-            <p className="text-xl font-bold text-brand">{priceLabel}</p>
+        <div className="flex min-w-0 flex-1 items-center gap-3 p-3 sm:p-4">
+          <div className="min-w-0 flex-1">
+            <h3 className="line-clamp-2 text-sm font-semibold text-text-primary sm:text-base">
+              {href ? (
+                <Link
+                  href={href}
+                  className="outline-none before:absolute before:inset-0 before:z-[1] before:content-[''] focus-visible:text-brand"
+                >
+                  {displayTitle}
+                </Link>
+              ) : (
+                displayTitle
+              )}
+            </h3>
+            {priceAmount != null ? (
+              <Price
+                amount={priceAmount}
+                currencyCode={priceCurrency}
+                size="lg"
+                className="mt-1.5 text-brand"
+              />
+            ) : null}
+          </div>
+          {firstVariantId ? (
+            <div className="relative z-[2] shrink-0">
+              <AddToCartButton
+                variantId={firstVariantId}
+                variant="primary"
+                size="md"
+                fullWidth={false}
+                iconOnly
+                iconAriaLabel={t("addToCartAria")}
+              />
+            </div>
           ) : null}
-          <CardPurchaseRow product={product} />
         </div>
       </div>
     );
   }
 
+  /* ─── Grid layout (default vertical card) ─── */
   return (
-    <article className="flex h-full flex-col overflow-hidden rounded-lg border border-border bg-surface shadow-sm">
+    <div
+      className={cn(
+        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface transition-colors duration-150 hover:border-brand",
+        "focus-within:ring-[3px] focus-within:ring-brand/15",
+      )}
+    >
       <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-surface-subtle">
         {imageInner}
+        <CardTopActions product={product as unknown as ListProduct} />
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-2 text-base font-semibold text-text-primary">
-          {product.title}
+      <div className="flex flex-1 flex-col gap-1.5 p-3 sm:p-4">
+        <h3 className="line-clamp-2 min-h-[2.4em] text-sm font-semibold text-text-primary sm:text-base">
+          {href ? (
+            <Link
+              href={href}
+              className="outline-none before:absolute before:inset-0 before:z-[1] before:content-[''] focus-visible:text-brand"
+            >
+              {displayTitle}
+            </Link>
+          ) : (
+            displayTitle
+          )}
         </h3>
-        <p className="line-clamp-2 text-sm leading-relaxed text-text-secondary">
-          {description}
-        </p>
-        <div className="flex-1" />
-        {priceLabel ? (
-          <p className="text-xl font-bold text-brand">{priceLabel}</p>
-        ) : null}
+        <div className="mt-auto flex items-center justify-between gap-2 pt-1">
+          {priceAmount != null ? (
+            <Price
+              amount={priceAmount}
+              currencyCode={priceCurrency}
+              size="md"
+              className="text-brand sm:text-lg"
+            />
+          ) : (
+            <span />
+          )}
+          {firstVariantId ? (
+            <div className="relative z-[2]">
+              <AddToCartButton
+                variantId={firstVariantId}
+                variant="primary"
+                size="md"
+                fullWidth={false}
+                iconOnly
+                iconAriaLabel={t("addToCartAria")}
+              />
+            </div>
+          ) : null}
+        </div>
       </div>
-    </article>
+    </div>
   );
 }

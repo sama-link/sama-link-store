@@ -23,7 +23,7 @@ checkout.address.title,Shipping Address,عنوان الشحن,
 checkout.address.firstName,First Name,الاسم الأول,
 checkout.address.lastName,Last Name,اسم العائلة,
 checkout.address.address1,Address,العنوان,
-checkout.address.address2,"Apartment, suite, etc. (optional)","شقة، جناح، إلخ. (اختياري)",
+checkout.address.address2,"Apartment, suite, etc. (optional)",شقة، جناح، إلخ. (اختياري),
 checkout.address.city,City,المدينة,
 checkout.address.country,Country,الدولة,
 checkout.address.selectCountry,Select a country,اختر دولة,
@@ -93,7 +93,7 @@ nav.switchToLight,Switch to light mode,التبديل إلى الوضع الفا
 home.headline,Sama Link Store,متجر سما لينك,hero headline
 home.subheadline,Discover our curated products,اكتشف منتجاتنا المميزة,hero subheadline
 home.ctaLabel,Browse products,تصفح المنتجات,hero CTA button
-home.comingSoon,"The full product catalog, search, and checkout will arrive in upcoming phases. This storefront skeleton confirms routing, layout, and i18n.","سيُتاح لاحقًا كتالوج المنتجات الكامل والبحث وإتمام الشراء. هذه الصفحة التجريبية تؤكد التوجيه والتخطيط ودعم تعدد اللغات.",placeholder — remove when catalog is live
+home.comingSoon,"The full product catalog, search, and checkout will arrive in upcoming phases. This storefront skeleton confirms routing, layout, and i18n.",سيُتاح لاحقًا كتالوج المنتجات الكامل والبحث وإتمام الشراء. هذه الصفحة التجريبية تؤكد التوجيه والتخطيط ودعم تعدد اللغات.,placeholder — remove when catalog is live
 home.metaTitle,Sama Link Store — Quality Products Online,متجر سما لينك — منتجات عالية الجودة,SEO <title>
 home.metaDescription,Discover quality products at Sama Link Store. Curated collections delivered to your door.,اكتشف منتجات عالية الجودة في متجر سما لينك. مجموعات مختارة تُوصَّل إلى باب منزلك.,SEO <meta description>
 products.featuredTitle,Featured Products,منتجات مميزة,
@@ -237,7 +237,7 @@ meta.checkout.address.description,Enter your shipping address to continue checko
 meta.checkout.shipping.description,Choose a shipping method for your order.,,MVP-10 SEO — noindex route
 meta.checkout.payment.description,Select your preferred payment method.,,MVP-10 SEO — noindex route
 meta.checkout.review.description,Review your order before placing it.,,MVP-10 SEO — noindex route
-meta.checkout.confirmed.description,Your order has been confirmed.,,MVP-10 SEO — noindex route
+meta.checkout.confirmed.description,Your order has been confirmed.,تم تاكيد طلبك,MVP-10 SEO — noindex route
 meta.trackOrder.description,Track the status of your order.,,MVP-10 SEO — noindex route
 meta.pages.about.description,Learn about Sama Link Store — our story and values.,,MVP-10 SEO — info page description
 meta.pages.faq.description,Frequently asked questions about Sama Link Store orders and services.,,MVP-10 SEO — info page description
@@ -245,3 +245,146 @@ meta.pages.contact.description,Get in touch with Sama Link Store customer suppor
 meta.pages.shippingReturns.description,Shipping and returns information for Sama Link Store orders.,,MVP-10 SEO — info page description
 meta.pages.privacy.description,Sama Link Store privacy policy — how we collect and handle your data.,,MVP-10 SEO — info page description
 meta.pages.terms.description,Sama Link Store terms and conditions of use.,,MVP-10 SEO — info page description
+account.title,Account,,
+account.signIn,Sign in,,
+account.signUp,Create account,,
+account.signOut,Sign out,,
+account.emailLabel,Email,,
+account.passwordLabel,Password,,
+account.firstNameLabel,First name,,
+account.lastNameLabel,Last name,,
+account.loginCta,Sign in,,
+account.registerCta,Create account,,
+account.loginHeading,Welcome back,,
+account.registerHeading,Create your account,,
+account.noAccountPrompt,Don't have an account?,,
+account.hasAccountPrompt,Already have an account?,,
+account.genericError,We couldn't sign you in. Check your details and try again.,,
+account.registerError,We couldn't create your account. Try again.,,
+account.welcomeBack,"Welcome back, {name}",,
+account.placeholderDashboard,Your account area - more features coming soon.,,
+account.greetingSignedOut,"Hello, guest",,
+topbar.announcement,"Free shipping on orders over EGP 1,500","شحن مجاني على الطلبات فوق 1,500 ج.م",ADR-045 flat refresh — AR proposed pending CONTENT-1 review
+topbar.announcementCta,Shop now,تسوق الآن,ADR-045 flat refresh — AR proposed pending CONTENT-1 review
+nav.catbarLabel,Category shortcuts,اختصارات الفئات,ADR-045 flat refresh — aria-label for category strip — AR proposed
+nav.megaMenu.promo.tag,Limited offer,عرض محدود,ADR-045 flat refresh — mega menu feature card — AR proposed
+nav.megaMenu.promo.title,Up to 30% off Wi-Fi 6 systems,خصم حتى 30٪ على أنظمة Wi-Fi 6,ADR-045 flat refresh — mega menu feature card — AR proposed
+nav.megaMenu.promo.body,Free shipping · certified warranty,شحن مجاني · ضمان معتمد,ADR-045 flat refresh — mega menu feature card — AR proposed
+nav.megaMenu.promo.cta,Shop deals,تسوق العروض,ADR-045 flat refresh — mega menu feature card — AR proposed
+home.viewAll,View all,عرض الكل,ADR-045 flat refresh — AR proposed pending CONTENT-1 review
+home.noProductsFallback,Our catalog is coming online. Check back in a moment.,كتالوج المنتجات في طريقه. عاود الاطلاع بعد لحظات.,ADR-045 flat refresh — AR proposed pending CONTENT-1 review
+home.hero.eyebrow,Speed of Life,سرعة الحياة,ADR-045 flat refresh — brand tagline — AR proposed
+home.hero.titleLead,Professional,اتصال احترافي,ADR-045 flat refresh — hero title part 1 — AR proposed
+home.hero.titleAccent,connectivity,لكل مساحة،,ADR-045 flat refresh — hero title accented — AR proposed
+home.hero.titleCoda,for every space.,بلا حدود.,ADR-045 flat refresh — hero title coda — AR proposed
+home.hero.sub,"Networking, surveillance, and smart home gear — authentic, warrantied, delivered across Egypt in 48 hours.",معدات شبكات ومراقبة ومنازل ذكية — أصلية، بضمان، تصل إلى باب منزلك خلال 48 ساعة.,ADR-045 flat refresh — hero sub — AR proposed
+home.hero.ctaBrowse,Browse products,تصفح المنتجات,ADR-045 flat refresh — AR proposed
+home.hero.ctaCollections,View collections,عرض المجموعات,ADR-045 flat refresh — AR proposed
+home.hero.trust.authentic.title,Authentic only,منتجات أصلية فقط,ADR-045 flat refresh — hero trust strip — AR proposed
+home.hero.trust.authentic.body,Manufacturer-backed warranty,بضمان الشركة المصنّعة,ADR-045 flat refresh — hero trust strip — AR proposed
+home.hero.trust.delivery.title,48h delivery,توصيل خلال 48 ساعة,ADR-045 flat refresh — hero trust strip — AR proposed
+home.hero.trust.delivery.body,Fast shipping across Egypt,شحن سريع لكل أنحاء مصر,ADR-045 flat refresh — hero trust strip — AR proposed
+home.hero.trust.cod.title,Cash on delivery,دفع عند الاستلام,ADR-045 flat refresh — hero trust strip — AR proposed
+home.hero.trust.cod.body,Pay when you receive,ادفع عند وصول طلبك,ADR-045 flat refresh — hero trust strip — AR proposed
+home.hero.cards.networking.eyebrow,Networking,شبكات,ADR-045 flat refresh — hero card stack — AR proposed
+home.hero.cards.networking.sub,"EGP 4,299","4,299 ج.م",ADR-045 flat refresh — illustrative pricing — AR proposed
+home.hero.cards.surveillance.eyebrow,Surveillance,مراقبة,ADR-045 flat refresh — hero card stack — AR proposed
+home.hero.cards.surveillance.sub,IP67 · Night Vision,IP67 · رؤية ليلية,ADR-045 flat refresh — hero card stack — AR proposed
+home.hero.cards.power.eyebrow,Power,طاقة,ADR-045 flat refresh — hero card stack — AR proposed
+home.hero.cards.power.sub,Protection,حماية,ADR-045 flat refresh — hero card stack — AR proposed
+home.hero.cards.smart.eyebrow,Smart,منزل ذكي,ADR-045 flat refresh — hero card stack — AR proposed
+home.hero.cards.smart.sub,EGP 240,240 ج.م,ADR-045 flat refresh — illustrative pricing — AR proposed
+home.sections.categories.eyebrow,Shop by category,تسوق حسب الفئة,ADR-045 flat refresh — section eyebrow — AR proposed
+home.sections.categories.title,Everything that keeps you connected,كل ما يبقيك متصلاً,ADR-045 flat refresh — section title — AR proposed
+home.sections.categories.items,"{count, plural, one {1 item} other {# items}}","{count, plural, zero {# منتج} one {منتج واحد} two {منتجان} few {# منتجات} many {# منتجًا} other {# منتج}}",ADR-045 flat refresh — plural-aware item count — AR proposed
+home.sections.featured.eyebrow,Featured products,منتجات مميزة,ADR-045 flat refresh — AR proposed
+home.sections.featured.title,Trending this week,الأكثر طلبًا هذا الأسبوع,ADR-045 flat refresh — AR proposed
+home.sections.trending.eyebrow,Trending now,رائج الآن,ADR-045 flat refresh — AR proposed
+home.sections.trending.title,Best sellers this week,الأكثر مبيعًا هذا الأسبوع,ADR-045 flat refresh — AR proposed
+home.sections.why.eyebrow,Why Sama Link,لماذا سما لينك,ADR-045 flat refresh — AR proposed
+home.sections.why.title,Standards we stand behind,معايير نفخر بها,ADR-045 flat refresh — AR proposed
+home.sections.newsletter.eyebrow,Stay in the loop,ابقَ على اطلاع,ADR-045 flat refresh — AR proposed
+home.sections.newsletter.title,Join the loyalty program,انضم إلى برنامج الولاء,ADR-045 flat refresh — AR proposed
+home.sections.newsletter.body,Exclusive offers and free shipping on your first order.,عروض حصرية وشحن مجاني على أول طلب.,ADR-045 flat refresh — AR proposed
+home.sections.newsletter.placeholder,your@email.com,your@email.com,email placeholder same in both locales
+home.sections.newsletter.emailLabel,Email address,البريد الإلكتروني,ADR-045 flat refresh — sr-only newsletter label — AR proposed
+home.sections.newsletter.subscribe,Subscribe,اشترك,ADR-045 flat refresh — AR proposed
+home.sections.newsletter.privacy,We'll never share your email.,لن نشارك بريدك مع أي طرف ثالث.,ADR-045 flat refresh — AR proposed
+home.sections.newsletter.success.title,Thanks for subscribing,شكرًا على اشتراكك,ADR-045 flat refresh — newsletter stub success — AR proposed
+home.sections.newsletter.success.body,Check your inbox for a welcome note.,تفقّد بريدك لرسالة الترحيب.,ADR-045 flat refresh — newsletter stub success — AR proposed
+home.banners.largeEyebrow,Exclusive offer,عرض حصري,ADR-045 flat refresh — AR proposed
+home.banners.largeTitle,Save up to 30% on surveillance kits,وفّر حتى 30٪ على حلول المراقبة,ADR-045 flat refresh — AR proposed
+home.banners.largeBody,"Complete camera kits with NVR and PoE switches, ready to install.",أطقم كاميرات كاملة مع NVR ومحولات PoE جاهزة للتركيب.,ADR-045 flat refresh — AR proposed
+home.banners.largeCta,Shop deals,تسوق العروض,ADR-045 flat refresh — AR proposed
+home.banners.smallEyebrow,Free shipping,شحن مجاني,ADR-045 flat refresh — AR proposed
+home.banners.smallTitle,"On all orders over EGP 1,500","لجميع الطلبات فوق 1,500 ج.م",ADR-045 flat refresh — AR proposed
+home.banners.smallBody,Door-to-door delivery across Egypt in 48 hours.,خدمة توصيل سريعة إلى باب منزلك خلال 48 ساعة.,ADR-045 flat refresh — AR proposed
+home.banners.smallCta,Learn more,اعرف المزيد,ADR-045 flat refresh — AR proposed
+home.why.delivery.title,Fast delivery,توصيل سريع,ADR-045 flat refresh — AR proposed
+home.why.delivery.body,Ships within 48 hours across every Egyptian governorate.,شحن خلال 48 ساعة لكل محافظات مصر.,ADR-045 flat refresh — AR proposed
+home.why.authentic.title,100% authentic,منتجات أصلية 100٪,ADR-045 flat refresh — AR proposed
+home.why.authentic.body,Manufacturer-backed warranty on every single product.,ضمان الشركة المصنّعة على كل منتج.,ADR-045 flat refresh — AR proposed
+home.why.support.title,Real technical support,دعم فني حقيقي,ADR-045 flat refresh — AR proposed
+home.why.support.body,"Bilingual technical team on-call, before and after you buy.",فريق تقني ثنائي اللغة يساعدك قبل وبعد الشراء.,ADR-045 flat refresh — AR proposed
+home.why.payment.title,Flexible payment,دفع مرن,ADR-045 flat refresh — AR proposed
+home.why.payment.body,"Cash on delivery, card, or installments via valU.",نقدًا عند الاستلام، بطاقة، أو قسّط عبر فاليو.,ADR-045 flat refresh — AR proposed
+footer.paymentsLabel,Payment methods accepted,طرق الدفع المقبولة,ADR-045 flat refresh — aria-label — AR proposed
+footer.socials.facebook,Facebook,فيسبوك,ADR-045 flat refresh — aria-label — AR proposed
+footer.socials.instagram,Instagram,إنستغرام,ADR-045 flat refresh — aria-label — AR proposed
+footer.socials.twitter,X (Twitter),X (تويتر),ADR-045 flat refresh — aria-label — AR proposed
+footer.socials.youtube,YouTube,يوتيوب,ADR-045 flat refresh — aria-label — AR proposed
+footer.socials.whatsapp,WhatsApp,واتساب,ADR-045 flat refresh — aria-label — AR proposed
+footer.payments.visa,VISA,VISA,brand name constant
+footer.payments.mastercard,MASTERCARD,MASTERCARD,brand name constant
+footer.payments.meeza,MEEZA,MEEZA,brand name constant
+footer.payments.valu,VALU,VALU,brand name constant
+footer.payments.cod,COD,كاش,ADR-045 flat refresh — AR uses the local term — AR proposed
+nav.searchLabel,Search,بحث,ADR-045 flat refresh — sr-only header search label — AR proposed
+nav.searchPlaceholder,"Search products, brands, categories…",ابحث عن منتجات، علامات، فئات…,ADR-045 flat refresh — header search placeholder — AR proposed
+nav.searchSubmit,Search,بحث,ADR-045 flat refresh — AR proposed
+nav.search,Search,البحث,ADR-045 flat refresh — menu label — AR proposed
+nav.theme,Theme,المظهر,ADR-045 flat refresh — menu label — AR proposed
+products.filters.minPlaceholder,Min,من,ADR-045 flat refresh — filter price input — AR proposed
+products.filters.maxPlaceholder,Max,إلى,ADR-045 flat refresh — filter price input — AR proposed
+products.filters.rating,Rating,التقييم,ADR-045 flat refresh — filter heading — AR proposed
+products.filters.ratingAndUp,& up,فأكثر,ADR-045 flat refresh — filter label — AR proposed
+products.filters.availability,Availability,التوفر,ADR-045 flat refresh — filter heading — AR proposed
+products.filters.inStock,In stock,متوفر الآن,ADR-045 flat refresh — filter label — AR proposed
+products.filters.searchChipLabel,Searching:,يبحث عن:,ADR-045 flat refresh — filter chip label — AR proposed
+products.filters.clearSearch,Clear search,مسح البحث,ADR-045 flat refresh — aria-label — AR proposed
+products.detail.save,Save {percent}%,وفّر {percent}٪,ADR-045 flat refresh — PDP save chip — AR proposed
+products.detail.inclVat,Incl. VAT,شامل الضريبة,ADR-045 flat refresh — PDP price row — AR proposed
+products.detail.inStockShipsIn,In stock — Ships within 48 hours,متوفر — يُشحن خلال 48 ساعة,ADR-045 flat refresh — PDP stock line — AR proposed
+products.detail.qtyDecrease,Decrease quantity,إنقاص الكمية,ADR-045 flat refresh — aria-label — AR proposed
+products.detail.qtyIncrease,Increase quantity,زيادة الكمية,ADR-045 flat refresh — aria-label — AR proposed
+products.listing.loadMore,Load more,عرض المزيد,ADR-045 flat refresh — AR proposed
+products.listing.loading,Loading…,جارٍ التحميل…,ADR-045 flat refresh — AR proposed
+products.listing.loadMoreEnd,You've seen everything.,شفت كل اللي عندنا.,ADR-045 flat refresh — AR proposed
+products.listing.loadMoreError,Couldn't load more products. Please try again.,تعذّر تحميل المزيد. حاول مرة أخرى.,ADR-045 flat refresh — AR proposed
+products.toolbar.sortBy,Sort by,ترتيب حسب,ADR-045 flat refresh — catalog toolbar — AR proposed
+products.toolbar.density,View,طريقة العرض,ADR-045 flat refresh — catalog toolbar — AR proposed
+products.toolbar.view,View,عرض,ADR-045 flat refresh — catalog toolbar — AR proposed
+products.toolbar.densityCols,{count} columns,{count} أعمدة,ADR-045 flat refresh — catalog toolbar — AR proposed
+products.toolbar.showing,Showing {shown},يظهر {shown},ADR-045 flat refresh — catalog toolbar — AR proposed
+products.toolbar.showingOf,Showing {shown} of {total},يظهر {shown} من {total},ADR-045 flat refresh — catalog toolbar — AR proposed
+products.toolbar.close,Close,إغلاق,ADR-045 flat refresh — catalog toolbar — AR proposed
+products.toolbar.sort.newest,Newest,الأحدث,ADR-045 flat refresh — catalog toolbar — AR proposed
+products.toolbar.sort.price-asc,Price: low to high,السعر: من الأقل للأعلى,ADR-045 flat refresh — catalog toolbar — AR proposed
+products.toolbar.sort.price-desc,Price: high to low,السعر: من الأعلى للأقل,ADR-045 flat refresh — catalog toolbar — AR proposed
+products.toolbar.sort.title,Name (A–Z),الاسم (أ–ي),ADR-045 flat refresh — catalog toolbar — AR proposed
+products.filtersAndViewAria,Filters and view controls,التصفية وطرق العرض,ADR-045 flat refresh — aria-label — AR proposed
+wishlist.viewFullPage,Open full wishlist,فتح صفحة المفضلة كاملة,ADR-045 flat refresh — popover footer CTA — AR proposed
+compare.viewFullPage,Open full compare,فتح صفحة المقارنة كاملة,ADR-045 flat refresh — popover footer CTA — AR proposed
+products.toolbar.viewMode,Layout,طريقة العرض,ADR-045 flat refresh — catalog toolbar view toggle — AR proposed
+products.toolbar.viewModes.grid,Grid,شبكة,ADR-045 flat refresh — catalog toolbar view mode — AR proposed
+products.toolbar.viewModes.list,List,قائمة,ADR-045 flat refresh — catalog toolbar view mode — AR proposed
+products.filters.apply,Apply filters,تطبيق الفلتر,ADR-045 flat refresh — filter commit button — AR proposed
+products.toolbar.applyView,Apply view,تطبيق العرض,ADR-045 flat refresh — mobile view tab commit button — AR proposed
+products.detail.trustGrid.delivery.title,48h delivery,توصيل خلال 48 ساعة,ADR-045 flat refresh — PDP trust — AR proposed
+products.detail.trustGrid.delivery.body,Across every governorate,إلى كل المحافظات,ADR-045 flat refresh — PDP trust — AR proposed
+products.detail.trustGrid.warranty.title,2-year warranty,ضمان سنتين,ADR-045 flat refresh — PDP trust — AR proposed
+products.detail.trustGrid.warranty.body,Manufacturer-backed,من الشركة المصنّعة,ADR-045 flat refresh — PDP trust — AR proposed
+products.detail.trustGrid.returns.title,14-day returns,إرجاع 14 يومًا,ADR-045 flat refresh — PDP trust — AR proposed
+products.detail.trustGrid.returns.body,No questions asked,بدون أسئلة,ADR-045 flat refresh — PDP trust — AR proposed
+products.detail.trustGrid.cod.title,Cash on delivery,دفع عند الاستلام,ADR-045 flat refresh — PDP trust — AR proposed
+products.detail.trustGrid.cod.body,or pay by card,أو بالبطاقة,ADR-045 flat refresh — PDP trust — AR proposed

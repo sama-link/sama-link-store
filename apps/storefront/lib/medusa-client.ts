@@ -21,7 +21,174 @@ const regionId = process.env.NEXT_PUBLIC_MEDUSA_REGION_ID || undefined;
 export const sdk = new Medusa({
   baseUrl,
   publishableKey,
+  auth: { type: "jwt" },
 });
+
+export class AuthProviderUnavailableError extends Error {
+  constructor(message = "Customer email/password auth provider is unavailable.") {
+    super(message);
+    this.name = "AuthProviderUnavailableError";
+  }
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (!error || typeof error !== "object") return "";
+  const record = error as Record<string, unknown>;
+  if (typeof record.message === "string") return record.message;
+  const response = record.response;
+  if (response && typeof response === "object") {
+    const responseRecord = response as Record<string, unknown>;
+    if (typeof responseRecord.message === "string") return responseRecord.message;
+    const data = responseRecord.data;
+    if (data && typeof data === "object") {
+      const dataRecord = data as Record<string, unknown>;
+      if (typeof dataRecord.message === "string") return dataRecord.message;
+    }
+  }
+  return "";
+}
+
+export function getErrorStatusCode(error: unknown): number | null {
+  if (!error || typeof error !== "object") return null;
+  const record = error as Record<string, unknown>;
+  const status = record.status;
+  if (typeof status === "number") return status;
+  const statusCode = record.statusCode;
+  if (typeof statusCode === "number") return statusCode;
+  const response = record.response;
+  if (response && typeof response === "object") {
+    const responseRecord = response as Record<string, unknown>;
+    if (typeof responseRecord.status === "number") return responseRecord.status;
+    if (typeof responseRecord.statusCode === "number") {
+      return responseRecord.statusCode;
+    }
+  }
+  return null;
+}
+
+function isEmailpassProviderUnavailable(error: unknown): boolean {
+  const status = getErrorStatusCode(error);
+  const message = getErrorMessage(error).toLowerCase();
+  const mentionsProvider =
+    message.includes("emailpass") || message.includes("provider");
+  return (
+    mentionsProvider &&
+    (status === null || status === 400 || status === 404 || status === 422)
+  );
+}
+
+function authHeader(token: string): { Authorization: string } {
+  return { Authorization: `Bearer ${token}` };
+}
+
+type StoreCustomerResponse = Awaited<
+  ReturnType<(typeof sdk.store.customer)["retrieve"]>
+>;
+export type StoreCustomer = StoreCustomerResponse extends {
+  customer: infer Customer;
+}
+  ? Customer
+  : never;
+
+export type CreateCustomerPayload = Parameters<
+  (typeof sdk.store.customer)["create"]
+>[0];
+
+export async function emailpassLogin(email: string, password: string) {
+  try {
+    const token = await sdk.auth.login("customer", "emailpass", {
+      email,
+      password,
+    });
+    if (typeof token !== "string" || token.length === 0) {
+      throw new Error("Medusa login did not return a JWT token.");
+    }
+    return { token };
+  } catch (error) {
+    if (isEmailpassProviderUnavailable(error)) {
+      throw new AuthProviderUnavailableError();
+    }
+    throw error;
+  }
+}
+
+export async function emailpassRegister(email: string, password: string) {
+  try {
+    const token = await sdk.auth.register("customer", "emailpass", {
+      email,
+      password,
+    });
+    if (typeof token !== "string" || token.length === 0) {
+      throw new Error("Medusa register did not return a JWT token.");
+    }
+    return { token };
+  } catch (error) {
+    if (isEmailpassProviderUnavailable(error)) {
+      throw new AuthProviderUnavailableError();
+    }
+    throw error;
+  }
+}
+
+export async function refreshAuthToken(token: string): Promise<string> {
+  const response = await fetch(`${baseUrl}/auth/token/refresh`, {
+    method: "POST",
+    headers: authHeader(token),
+  });
+  if (!response.ok) {
+    throw new Error(
+      `Failed to refresh customer session token (HTTP ${response.status})`,
+    );
+  }
+  const data = (await response.json()) as { token?: unknown };
+  if (typeof data.token !== "string" || data.token.length === 0) {
+    throw new Error("Refresh response did not contain a token.");
+  }
+  return data.token;
+}
+
+export async function createCustomer(
+  payload: CreateCustomerPayload,
+  token: string,
+): Promise<StoreCustomer> {
+  const response = await sdk.store.customer.create(payload, {}, authHeader(token));
+  return response.customer;
+}
+
+export async function getCurrentCustomer(
+  token: string,
+): Promise<StoreCustomer | null> {
+  const response = await sdk.store.customer.retrieve({}, authHeader(token));
+  return response.customer ?? null;
+}
+
+export async function logoutSession(token: string): Promise<void> {
+  const auth = sdk.auth as typeof sdk.auth & {
+    logout?: () => Promise<unknown>;
+  };
+  if (typeof auth.logout === "function") {
+    await auth.logout();
+    return;
+  }
+
+  const attemptDelete = await fetch(`${baseUrl}/auth/session`, {
+    method: "DELETE",
+    headers: authHeader(token),
+  });
+  if (attemptDelete.ok) return;
+  if (attemptDelete.status !== 404 && attemptDelete.status !== 405) {
+    throw new Error("Failed to close customer auth session.");
+  }
+
+  const attemptPost = await fetch(`${baseUrl}/auth/session`, {
+    method: "POST",
+    headers: authHeader(token),
+  });
+  if (!attemptPost.ok && attemptPost.status !== 404 && attemptPost.status !== 405) {
+    throw new Error("Failed to close customer auth session.");
+  }
+}
 
 export type ListProductsParams = NonNullable<
   Parameters<(typeof sdk)["store"]["product"]["list"]>[0]
@@ -31,8 +198,11 @@ export async function listProducts(params?: ListProductsParams) {
   const base: ListProductsParams = regionId
     ? {
         region_id: regionId,
+        /* `metadata` carries the ADR-047 product translation overlay
+         * (`metadata.translations.ar.{title,subtitle,description}`) which
+         * `lib/product-i18n.ts` applies when locale === "ar". */
         fields:
-          "id,handle,title,description,thumbnail,variants.calculated_price.*",
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
       }
     : {};
   return sdk.store.product.list({ ...base, ...params });
@@ -42,8 +212,9 @@ export async function getProductByHandle(handle: string) {
   const base: ListProductsParams = regionId
     ? {
         region_id: regionId,
+        /* `metadata` carries the ADR-047 product translation overlay. */
         fields:
-          "id,handle,title,subtitle,description,thumbnail," +
+          "id,handle,title,subtitle,description,thumbnail,metadata," +
           "material,weight,length,width,height,origin_country,hs_code,mid_code," +
           "images.id,images.url,images.rank," +
           "collection.id,collection.title,collection.handle," +
@@ -75,7 +246,7 @@ export async function listRelatedProducts(
     ? {
         region_id: regionId,
         fields:
-          "id,handle,title,description,thumbnail,variants.calculated_price.*",
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
       }
     : {};
 
@@ -151,7 +322,7 @@ export async function listProductsByCollection(
     ? {
         region_id: regionId,
         fields:
-          "id,handle,title,description,thumbnail,variants.calculated_price.*",
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
       }
     : {};
   return sdk.store.product.list({
@@ -286,6 +457,13 @@ export async function addShippingMethodToCart(
 
 export async function completeCart(cartId: string) {
   return sdk.store.cart.complete(cartId);
+}
+
+export async function transferCartToCustomer(
+  cartId: string,
+  token: string,
+): Promise<void> {
+  await sdk.store.cart.transferCart(cartId, {}, authHeader(token));
 }
 
 /**

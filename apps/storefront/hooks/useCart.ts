@@ -61,17 +61,25 @@ export function CartProvider({ children }: { children: ReactNode }) {
             const { cart: existing } = await retrieveCart(cartId);
             if (!cancelled) setCart(existing);
           } catch {
+            try {
+              const { cart: fresh } = await createCart();
+              if (!cancelled) {
+                setCartId(fresh.id);
+                setCart(fresh);
+              }
+            } catch (err) {
+              console.error("[useCart] createCart failed during bootstrap", err);
+            }
+          }
+        } else {
+          try {
             const { cart: fresh } = await createCart();
             if (!cancelled) {
               setCartId(fresh.id);
               setCart(fresh);
             }
-          }
-        } else {
-          const { cart: fresh } = await createCart();
-          if (!cancelled) {
-            setCartId(fresh.id);
-            setCart(fresh);
+          } catch (err) {
+            console.error("[useCart] createCart failed during bootstrap", err);
           }
         }
       } finally {

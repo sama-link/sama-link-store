@@ -1,0 +1,64 @@
+name: Deploy Storefront to Cloud Run
+
+on:
+  push:
+    branches: [develop]
+    paths:
+      - 'apps/storefront/**'
+      - '.github/workflows/deploy-storefront.yml'
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: linear-reason-460715-n1
+  REGION: us-east1
+  REGISTRY: us-east1-docker.pkg.dev
+  REPO: sama-link
+  SERVICE: sama-storefront
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write   # required for Workload Identity Federation
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+          service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker ${{ env.REGISTRY }} --quiet
+
+      - name: Build and push image
+        # NEXT_PUBLIC_* vars must be passed at build time — they are baked into the JS bundle
+        working-directory: apps/storefront
+        run: |
+          IMAGE=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/storefront:${{ github.sha }}
+          LATEST=${{ env.REGISTRY }}/${{ env.PROJECT_ID }}/${{ env.REPO }}/storefront:latest
+          docker build \
+            --build-arg NEXT_PUBLIC_MEDUSA_BACKEND_URL="${{ secrets.NEXT_PUBLIC_MEDUSA_BACKEND_URL }}" \
+            --build-arg NEXT_PUBLIC_BASE_URL="${{ secrets.NEXT_PUBLIC_BASE_URL }}" \
+            --build-arg NEXT_PUBLIC_DEFAULT_LOCALE="${{ secrets.NEXT_PUBLIC_DEFAULT_LOCALE }}" \
+            --build-arg NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY="${{ secrets.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY }}" \
+            --build-arg NEXT_PUBLIC_MEDUSA_REGION_ID="${{ secrets.NEXT_PUBLIC_MEDUSA_REGION_ID }}" \
+            -t "$IMAGE" -t "$LATEST" .
+          docker push "$IMAGE"
+          docker push "$LATEST"
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run deploy ${{ env.SERVICE }} \
+            --image "${{ env.IMAGE }}" \
+            --region ${{ env.REGION }} \
+            --platform managed \
+            --allow-unauthenticated \
+            --min-instances 0 \
+            --memory 512Mi \
+            --cpu 1

@@ -40,6 +40,11 @@ desktop.ini
 .vscode/settings.json
 .idea/
 
+# Governance / agent-operating material — local only, never push
+.agents/
+CLAUDE.md
+TASKS.md
+
 # Agent instruction folders — local to each developer's tooling, never push
 .cursor/
 .copilot/
@@ -71,6 +76,12 @@ medusa-config.js.bak
 tmp/
 temp/
 *.local
+
+# Executor task reports — local review only, never push
+task report.txt
+
+# Translation audit log — local operator trail, never push
+translations/.edit-log.jsonl
 
 # Brand source assets — raw/unprocessed exports from designer
 # Production-ready outputs go in public/brand/ following docs/media-intake-protocol.md
