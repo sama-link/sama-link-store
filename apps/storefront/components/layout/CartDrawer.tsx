@@ -115,14 +115,17 @@ export default function CartDrawer() {
   }, [isCartOpen, closeCart, cart?.items, loading, panelIn]);
 
   /* Close the mobile popup on route navigation so the user sees the new page
-     cleanly. Desktop side-drawer stays open (user explicitly opened it). */
+     cleanly. Desktop side-drawer stays open (user explicitly opened it).
+     Uses a ref to skip the initial mount and only react to actual changes. */
   const pathname = usePathname();
+  const prevPathRef = useRef(pathname);
   useEffect(() => {
+    if (prevPathRef.current === pathname) return;
+    prevPathRef.current = pathname;
     if (!isCartOpen) return;
     if (typeof window === "undefined" || window.innerWidth >= 640) return;
     closeCart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
+  }, [pathname, isCartOpen, closeCart]);
 
   if (!isCartOpen) return null;
 
@@ -157,8 +160,9 @@ export default function CartDrawer() {
         /* Dynamic top offset keeps panel below the sticky header on all sizes. */
         style={{ top: `${headerBottom}px` }}
         className={cn(
-          /* Mobile floating popup — emerges directly above the cart FAB. */
-          "pointer-events-auto fixed bottom-24 end-4 z-[45] flex max-h-[72vh] w-[calc(100vw-2rem)] max-w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-surface",
+          /* Mobile floating popup — emerges directly above the cart FAB.
+             bottom-[72px] = FAB bottom-5 (20px) + FAB h-12 (48px) + 4px gap. */
+          "pointer-events-auto fixed bottom-[72px] end-4 z-[45] flex w-[calc(100vw-2rem)] max-w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-surface",
           "transition-[transform,opacity] duration-250 ease-out",
           panelIn
             ? "translate-y-0 opacity-100"

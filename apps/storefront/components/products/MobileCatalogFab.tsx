@@ -235,8 +235,8 @@ export default function MobileCatalogFab(props: Props) {
                 onApply={() => setOpen(false)}
               />
             ) : (
-              <div className="flex flex-col">
-                <div className="space-y-5">
+              <div className="flex max-h-full flex-col">
+                <div className="flex-1 space-y-5 overflow-y-auto">
                   {/* View mode */}
                   <section className="space-y-2">
                     <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
@@ -342,7 +342,7 @@ export default function MobileCatalogFab(props: Props) {
                 </div>
 
                 {/* Apply View — stages in-tab; commits only here. */}
-                <div className="sticky bottom-0 z-[1] mt-5 -mx-4 -mb-4 border-t border-border bg-surface-subtle p-3">
+                <div className="shrink-0 border-t border-border bg-surface-subtle p-3">
                   <button
                     type="button"
                     onClick={applyView}
