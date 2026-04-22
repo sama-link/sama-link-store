@@ -200,7 +200,7 @@ export default function MobileCatalogFab(props: Props) {
       {/* Floating panel — emerges from the FAB. Positioned above the FAB rail. */}
       <div
         className={cn(
-          "fixed bottom-[152px] end-4 z-40 w-[calc(100vw-2rem)] max-w-[360px] transition-[transform,opacity] duration-250 ease-out sm:hidden",
+          "fixed bottom-[152px] end-4 top-[100px] z-40 flex w-[calc(100vw-2rem)] max-w-[360px] flex-col justify-end transition-[transform,opacity] duration-250 ease-out sm:hidden",
           open
             ? "pointer-events-auto translate-y-0 opacity-100"
             : "pointer-events-none translate-y-4 opacity-0",
@@ -212,7 +212,7 @@ export default function MobileCatalogFab(props: Props) {
           role="dialog"
           aria-modal="true"
           aria-label={t("filtersAndViewAria")}
-          className="flex max-h-[60vh] flex-col overflow-hidden rounded-2xl border border-border bg-surface"
+          className="flex max-h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface"
           style={{
             boxShadow:
               "0 1px 2px rgba(10,19,36,0.12), 0 12px 28px -8px rgba(10,19,36,0.24)",

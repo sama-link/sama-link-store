@@ -63,7 +63,7 @@ export default function CartDrawer() {
     };
   }, [isCartOpen]);
 
-  /* Measure header bottom for the desktop side-drawer offset. */
+  /* Measure header bottom so both mobile popup and desktop drawer clear it. */
   useEffect(() => {
     if (!isCartOpen) return;
     const measure = () => {
@@ -154,20 +154,18 @@ export default function CartDrawer() {
       {/* Panel */}
       <div
         ref={panelRef}
-        /* Desktop: inline top offset positions panel below the sticky header.
-           Mobile: top-20 class provides the ceiling constraint. */
-        style={{ ["--cart-header-bottom" as string]: `${headerBottom}px` }}
+        /* Dynamic top offset keeps panel below the sticky header on all sizes. */
+        style={{ top: `${headerBottom}px` }}
         className={cn(
-          /* Mobile floating popup — emerges directly above the cart FAB.
-             top-20 keeps it below the header. */
-          "pointer-events-auto fixed bottom-24 end-4 top-20 z-[45] flex max-h-[72vh] w-[calc(100vw-2rem)] max-w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-surface",
+          /* Mobile floating popup — emerges directly above the cart FAB. */
+          "pointer-events-auto fixed bottom-24 end-4 z-[45] flex max-h-[72vh] w-[calc(100vw-2rem)] max-w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-surface",
           "transition-[transform,opacity] duration-250 ease-out",
           panelIn
             ? "translate-y-0 opacity-100"
             : "translate-y-4 opacity-0",
           /* Desktop side drawer — overrides mobile positioning.
              Full height below the header, 420 px wide, flush with end edge. */
-          "sm:bottom-0 sm:end-0 sm:top-[var(--cart-header-bottom)] sm:max-h-none sm:w-full sm:max-w-[420px] sm:rounded-none sm:border-0 sm:border-s sm:border-border sm:opacity-100",
+          "sm:bottom-0 sm:end-0 sm:max-h-none sm:w-full sm:max-w-[420px] sm:rounded-none sm:border-0 sm:border-s sm:border-border sm:opacity-100",
           panelIn
             ? "sm:translate-x-0"
             : "ltr:sm:translate-x-full rtl:sm:-translate-x-full",
