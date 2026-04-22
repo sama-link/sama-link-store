@@ -13,10 +13,6 @@ const nextConfig: NextConfig = {
   /* Hide the Next.js/Turbopack dev indicator — showed up in production-looking
      dev screenshots as a small vertical ▲ ● ▼ cluster. Purely cosmetic. */
   devIndicators: false,
-  /* Shared-dev deployment unblocker: Next 16 can run a full tsc pass at
-     `next build` time. Types are still enforced in the IDE and tsconfig
-     keeps strict: true — this only relaxes the Docker/CI build. */
-  typescript: { ignoreBuildErrors: true },
   images: {
     remotePatterns: [
       {
