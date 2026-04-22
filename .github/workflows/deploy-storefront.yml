@@ -2,7 +2,7 @@ name: Deploy Storefront to Cloud Run
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
     paths:
       - 'apps/storefront/**'
       - '.github/workflows/deploy-storefront.yml'
