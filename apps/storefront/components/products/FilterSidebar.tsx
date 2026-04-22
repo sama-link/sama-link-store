@@ -180,7 +180,7 @@ export default function FilterSidebar({
   };
 
   return (
-    <div className="flex flex-col rounded-xl border border-border bg-surface">
+    <div className="flex max-h-full flex-col rounded-xl border border-border bg-surface">
       <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-3">
         <h2 className="text-sm font-semibold text-text-primary">
           {t("heading")}
@@ -196,7 +196,7 @@ export default function FilterSidebar({
         ) : null}
       </div>
 
-      <div className="space-y-6 px-5 py-5">
+      <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
         {/* Active search query chip */}
         {staged.q ? (
           <div className="flex items-center gap-2 rounded-lg bg-accent-muted px-3 py-2 text-xs">
@@ -370,8 +370,8 @@ export default function FilterSidebar({
         </section>
       </div>
 
-      {/* Apply button — sticky at the bottom of the panel */}
-      <div className="sticky bottom-0 z-[1] border-t border-border bg-surface-subtle p-3">
+      {/* Apply button — pinned below the scroll area as a flex sibling */}
+      <div className="shrink-0 border-t border-border bg-surface-subtle p-3">
         <button
           type="button"
           onClick={applyStaged}

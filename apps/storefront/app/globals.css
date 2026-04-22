@@ -133,7 +133,6 @@ html.dark {
    BASE RESET & GLOBAL STYLES
    ───────────────────────────────────────────────────────────── */
 html {
-  scroll-behavior: smooth;
   height: 100%;
   font-family: var(--font-arabic), system-ui, "Tahoma", sans-serif; /* default: Arabic */
   /* Reserve gutter so body-scroll-lock during drawer open doesn't shift the
@@ -285,13 +284,10 @@ html[data-theme-ready] body {
    plays on each arrival. Short + subtle so it feels soft, not sluggish. */
 @keyframes page-enter {
   from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: none; }
 }
 .page-enter {
-  animation: page-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  /* Hint to the browser that opacity + transform will change, so the
-     paint/composite can be optimised. Removed after the animation ends. */
-  will-change: opacity, transform;
+  animation: page-enter 420ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 @media (prefers-reduced-motion: reduce) {
   .page-enter { animation: none; }

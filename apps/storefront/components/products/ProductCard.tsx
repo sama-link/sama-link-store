@@ -7,9 +7,8 @@
  *   - "list": horizontal row — image → title + price → add-to-cart
  * Always client-rendered so it composes cleanly inside LoadMoreProducts.
  *
- * Wishlist is the only overlay icon; Compare + QuickView were removed to
- * reduce visual noise per user direction (the header popovers keep those
- * surfaces accessible anywhere in the app).
+ * Overlay actions (Wishlist, Compare, Quick View) show on hover/focus on
+ * desktop; always visible on mobile via CardTopActions.
  */
 
 import Image from "next/image";
@@ -18,10 +17,9 @@ import { useLocale, useTranslations } from "next-intl";
 import { useMemo } from "react";
 import type { listProducts } from "@/lib/medusa-client";
 import type { ListProduct } from "@/hooks/useWishlist";
-import { productToWishlistItem } from "@/hooks/useWishlist";
 import { localizeTitle } from "@/lib/product-i18n";
 import AddToCartButton from "@/components/products/AddToCartButton";
-import WishlistButton from "@/components/products/WishlistButton";
+import CardTopActions from "@/components/products/CardTopActions";
 import Price from "@/components/ui/Price";
 import { cn } from "@/lib/cn";
 
@@ -60,10 +58,6 @@ export default function ProductCard({
   const priceCurrency = calcPrice?.currency_code ?? null;
 
   const firstVariantId = firstVariant?.id ?? null;
-  const wishItem = productToWishlistItem(
-    product as unknown as ListProduct,
-    firstVariantId,
-  );
 
   const imageInner = product.thumbnail ? (
     <Image
@@ -140,10 +134,7 @@ export default function ProductCard({
     >
       <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-surface-subtle">
         {imageInner}
-        {/* Single overlay action: wishlist heart (top-end). */}
-        <div className="absolute end-2 top-2 z-[2]">
-          <WishlistButton item={wishItem} />
-        </div>
+        <CardTopActions product={product as unknown as ListProduct} />
       </div>
       <div className="flex flex-1 flex-col gap-1.5 p-3 sm:p-4">
         <h3 className="line-clamp-2 min-h-[2.4em] text-sm font-semibold text-text-primary sm:text-base">

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { useCart } from "@/hooks/useCart";
 import { cn } from "@/lib/cn";
@@ -113,6 +114,16 @@ export default function CartDrawer() {
     return () => document.removeEventListener("keydown", onKeyDown);
   }, [isCartOpen, closeCart, cart?.items, loading, panelIn]);
 
+  /* Close the mobile popup on route navigation so the user sees the new page
+     cleanly. Desktop side-drawer stays open (user explicitly opened it). */
+  const pathname = usePathname();
+  useEffect(() => {
+    if (!isCartOpen) return;
+    if (typeof window === "undefined" || window.innerWidth >= 640) return;
+    closeCart();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
   if (!isCartOpen) return null;
 
   const currencyCode = cart?.currency_code ?? "EGP";
@@ -143,25 +154,20 @@ export default function CartDrawer() {
       {/* Panel */}
       <div
         ref={panelRef}
-        /* Inline top offset only kicks in for the desktop side-drawer variant. */
-        style={
-          typeof window !== "undefined" && window.innerWidth >= 640
-            ? { top: `${headerBottom}px` }
-            : undefined
-        }
+        /* Desktop: inline top offset positions panel below the sticky header.
+           Mobile: top-20 class provides the ceiling constraint. */
+        style={{ ["--cart-header-bottom" as string]: `${headerBottom}px` }}
         className={cn(
           /* Mobile floating popup — emerges directly above the cart FAB.
-             z-[45] sits above the filter FAB (z-[41]) so the panel cleanly
-             covers it while the cart is open (mutual exclusion already
-             closes the filter when cart opens). */
-          "pointer-events-auto fixed bottom-24 end-4 z-[45] flex max-h-[72vh] w-[calc(100vw-2rem)] max-w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-surface",
+             top-20 keeps it below the header. */
+          "pointer-events-auto fixed bottom-24 end-4 top-20 z-[45] flex max-h-[72vh] w-[calc(100vw-2rem)] max-w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-surface",
           "transition-[transform,opacity] duration-250 ease-out",
           panelIn
             ? "translate-y-0 opacity-100"
             : "translate-y-4 opacity-0",
-          /* Desktop side drawer — overrides mobile positioning on sm+.
+          /* Desktop side drawer — overrides mobile positioning.
              Full height below the header, 420 px wide, flush with end edge. */
-          "sm:bottom-0 sm:end-0 sm:max-h-none sm:w-full sm:max-w-[420px] sm:rounded-none sm:border-0 sm:border-s sm:border-border sm:opacity-100",
+          "sm:bottom-0 sm:end-0 sm:top-[var(--cart-header-bottom)] sm:max-h-none sm:w-full sm:max-w-[420px] sm:rounded-none sm:border-0 sm:border-s sm:border-border sm:opacity-100",
           panelIn
             ? "sm:translate-x-0"
             : "ltr:sm:translate-x-full rtl:sm:-translate-x-full",
