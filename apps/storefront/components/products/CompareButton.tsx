@@ -17,7 +17,7 @@ function CompareIcon() {
       strokeWidth={1.75}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-[18px] w-[18px] transition-transform duration-200 group-hover:rotate-[8deg]"
+      className="h-4 w-4 transition-transform duration-200 group-hover:rotate-[8deg]"
       aria-hidden="true"
     >
       <path d="M3 7h12a4 4 0 0 1 4 4v2" />
@@ -31,9 +31,11 @@ function CompareIcon() {
 export interface CompareButtonProps {
   item: CompareItem;
   className?: string;
+  /** Button size — default "md" (40px), "sm" (32px) for dense card contexts. */
+  size?: "sm" | "md";
 }
 
-export default function CompareButton({ item, className }: CompareButtonProps) {
+export default function CompareButton({ item, className, size = "md" }: CompareButtonProps) {
   const t = useTranslations("compare");
   const { has, toggle, isHydrated } = useCompare();
   const [liveMsg, setLiveMsg] = useState("");
@@ -87,7 +89,8 @@ export default function CompareButton({ item, className }: CompareButtonProps) {
         disabled={!isHydrated}
         onClick={onClick}
         className={cn(
-          "group inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-border bg-surface/90 text-text-secondary backdrop-blur transition-[background-color,border-color,color,transform] duration-200 active:scale-95",
+          "group inline-flex shrink-0 items-center justify-center rounded-full border border-border bg-surface/90 text-text-secondary backdrop-blur transition-[background-color,border-color,color,transform] duration-200 active:scale-95",
+          size === "sm" ? "h-8 w-8" : "h-10 w-10",
           "hover:border-brand hover:bg-surface hover:text-brand",
           "focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/20",
           pressed && "border-brand bg-brand/10 text-brand",
