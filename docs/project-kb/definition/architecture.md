@@ -1,8 +1,10 @@
 # Architecture — Sama Link Store
 
+> **ARCHIVED MIRROR** — This file is an archived mirror. The repository is the canonical source of truth. For the living reference, see the Notion Implementation Canon. Last synced: 2026-04-23.
+
 **Layer:** Definition
 **Source of truth for:** System boundaries, application structure, data flow, integration specs.
-**Updated when:** Architecture decisions change (record in `DECISIONS.md` first; requires ADR).
+**Updated when:** Architecture decisions change (record in Notion Decision Log first; requires ADR).
 
 ---
 
@@ -75,15 +77,13 @@ apps/storefront/
 └── public/            # Static assets
 ```
 
-### `apps/admin`
+### Admin (current: `apps/backend/src/admin/`)
 
 **Role:** Merchant-facing dashboard for managing the store.
 
-- Phase 6+ — placeholder until then
-- Options: Medusa's built-in Admin UI (fastest), or custom Next.js admin (more control)
-- **Decision deferred to Phase 6** — documented in `DECISIONS.md` ADR-006
-- Must support role-based access control
-- Should be separately deployed (not bundled with storefront)
+- **Current implementation:** Backend-embedded Medusa Admin extensions — widgets, custom routes, i18n at `apps/backend/src/admin/`. ADR-006 resolved: Medusa Admin UI adopted with custom surfaces (ADR-047).
+- `apps/admin/` directory exists as an empty placeholder; standalone admin app is a post-MVP possibility subject to evaluation.
+- Custom surfaces: sama-content (content library), sama-dashboard (operational dashboard), sama-reports (analytics), plus branding widgets (sama-global-theme, sama-product-kpi, sama-product-translation, sama-product-brand-badge, etc.)
 
 ### `apps/backend`
 

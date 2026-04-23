@@ -107,9 +107,8 @@ Identify the next task in sequence and produce its brief.
 Architectural drift = code that diverges from the intended design without being caught.
 
 ### Prevention (Claude's responsibility)
-- Keep `ARCHITECTURE.md` updated as the authoritative diagram
-- Keep `DEVELOPMENT_RULES.md` enforced via Cursor rules files
-- Keep `.cursor/rules/` files current — they are Cursor's operating instructions
+- Keep the Notion Implementation Canon updated as the authoritative reference
+- Keep `.agents/*.mdc` files current — they are the executor operating instructions
 - Review the full diff, not just the summary
 
 ### Detection (both agents)
@@ -127,7 +126,7 @@ When drift is detected:
 1. Do not merge the changes
 2. Identify the specific violation
 3. Write a corrected brief that includes "revert X and replace with Y"
-4. Record the corrected pattern in the relevant `.cursor/rules/` file to prevent recurrence
+4. Record the corrected pattern in the relevant `.agents/*.mdc` file to prevent recurrence
 
 ---
 
@@ -165,15 +164,12 @@ Refactors are changes that improve structure without changing behavior.
 | File | Owned by | Updated when |
 |---|---|---|
 | `TASKS.md` | Claude | After each task review |
-| `DECISIONS.md` | Claude | When any non-obvious decision is made |
-| `ROADMAP.md` | Claude | When a phase milestone is reached |
-| `ARCHITECTURE.md` | Claude | When system structure changes |
-| `DEVELOPMENT_RULES.md` | Claude | When a new rule is established |
-| `.cursor/rules/` | Claude | When a recurring pattern needs enforcement |
-| `SESSION_GUIDE.md` | Claude | When the project state changes significantly |
+| Notion Decision Log | Claude | When any non-obvious decision is made |
+| Notion Phase Progress | Claude | When a phase milestone is reached |
+| Notion Implementation Canon | Claude | When system structure changes |
+| `.agents/*.mdc` | Claude | When a recurring pattern needs enforcement |
 | `CLAUDE.md` | Claude | When Claude's role or project state changes |
-| `README.md` | Claude | When the stack or setup process changes |
-| `AGENTS.md` | Claude | When the agent model changes |
+| `TASKS.md` | Claude | When task queue changes |
 | Code comments | Cursor | During implementation (task scope) |
 | `.env.example` | Cursor (Claude reviews) | When a new env var is introduced |
 

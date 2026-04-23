@@ -72,8 +72,8 @@ These never need to be in Notion — they are code, config, or execution context
 - `turbo.json`, `package.json`
 - `tsconfig.json`
 - Source code
-- `.cursor/rules/` files
-- `CLAUDE.md`, `AGENTS.md`, `DEVELOPMENT_RULES.md` — governance docs for repo-oriented agents, not human-facing management surfaces
+- `.agents/*.mdc` files (Claude Code worktree)
+- `CLAUDE.md`, `TASKS.md` — execution surfaces in the Claude Code worktree, not human-facing management surfaces
 
 ---
 

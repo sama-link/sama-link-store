@@ -1,5 +1,7 @@
 # Project Definition — Sama Link Store
 
+> **ARCHIVED MIRROR** — This file is an archived mirror. The repository is the canonical source of truth. For the living reference, see the Notion Project Definition. Last synced: 2026-04-23.
+
 **Layer:** Definition
 **Source of truth for:** What this project is, why it exists, what success means, and what the platform scope is.
 **Updated when:** Business goals or MVP scope change (requires Human decision).
@@ -116,7 +118,7 @@ The platform succeeds when these outcomes hold true across the system — not ju
 1. Primary market: Arabic-speaking region; Arabic is the primary language, English is secondary
 2. Currency: Single currency at MVP, multi-currency planned post-MVP
 3. Payments: Stripe as primary payment gateway at MVP
-4. Hosting: Vercel for storefront, Node/VPS for backend
+4. Hosting: GCP Cloud Run for both storefront and backend (Vercel preview also available)
 5. Authentication: Medusa's built-in auth for customers; custom or Medusa Admin for merchants
 6. Image storage: S3-compatible object storage (AWS S3 or Cloudflare R2)
 

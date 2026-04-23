@@ -2,7 +2,7 @@
 
 A production-grade, multilingual, SEO-friendly e-commerce platform built on a composable commerce stack.
 
-**Stack:** Next.js 15 App Router · TypeScript strict · Tailwind v4 · Medusa v2 · PostgreSQL · Turborepo
+**Stack:** Next.js 16 App Router · TypeScript strict · Tailwind v4 · Medusa v2 · PostgreSQL · Turborepo
 
 ---
 

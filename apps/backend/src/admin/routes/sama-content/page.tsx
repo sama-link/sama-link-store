@@ -1024,6 +1024,7 @@ const EditableCell = ({
         textAlign: isRtl ? "right" : "left",
         whiteSpace: "pre-wrap",
         wordBreak: "break-word",
+        color: "inherit",
         ...cellStyle,
       }}
       onMouseEnter={(e) => {

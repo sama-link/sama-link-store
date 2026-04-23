@@ -1,5 +1,14 @@
 # UI Principles — Sama Link Store
 
+> **ARCHIVED MIRROR** — This file is an archived mirror. The repository is the canonical source of truth. For the living reference, see the Notion Implementation Canon §9. Last synced: 2026-04-23.
+
+## Typography
+
+- **Latin:** Geist (via `next/font/google`)
+- **Arabic:** IBM Plex Sans Arabic (via `next/font/google`)
+- Set in `apps/storefront/app/[locale]/layout.tsx` — ADR-045 flat refresh
+- Previously Cairo + Inter (retired)
+
 ## Design Philosophy
 
 - **Customer-first:** Every UI decision should make the shopping experience clearer, faster, and more trustworthy.
