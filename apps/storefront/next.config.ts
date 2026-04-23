@@ -41,9 +41,12 @@ const nextConfig: NextConfig = {
         hostname: "static.tp-link.com",
       },
       {
-        // Product catalog images — Next.js image optimization acts as
-        // caching proxy: browsers load from /_next/image on our Cloud Run,
-        // not directly from sama-link.com. Origin is only hit on cache miss.
+        // Product catalog images — self-hosted on GCS bucket
+        protocol: "https",
+        hostname: "storage.googleapis.com",
+      },
+      {
+        // Legacy: some product images may still reference sama-link.com
         protocol: "https",
         hostname: "sama-link.com",
       },
