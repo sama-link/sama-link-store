@@ -53,7 +53,7 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
     redirect(`/${locale}/checkout/shipping`);
   }
 
-  const items: ReviewLineItem[] = (cart.items ?? []).map((item) => {
+  const items: ReviewLineItem[] = (cart.items ?? []).map((item: any) => {
     const variant =
       item.variant && typeof item.variant === "object" ? item.variant : null;
     const variantTitle =
