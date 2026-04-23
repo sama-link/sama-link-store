@@ -52,7 +52,7 @@ export default function QuickViewModal({
   }, [product.id, variants]);
 
   const selectedVariant =
-    variants.find((v) => v.id === selectedVariantId) ?? variants[0];
+    variants.find((v: any) => v.id === selectedVariantId) ?? variants[0];
   const calc = selectedVariant?.calculated_price;
   const priceLabel =
     formatCatalogPrice(
