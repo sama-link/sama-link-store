@@ -1,22 +1,13 @@
-// Sama Link · scan endpoint — ADR-047 (BACK-14).
+// Sama Link · scan endpoint — DB-backed (replaces CSV-on-disk model).
 //
 // POST /admin/sama-content/translations/scan
 //   Body: { file: "storefront" | "admin" }
 //
-// Walks the runtime i18n sources for the requested file and appends any
-// keys missing from the CSV:
+// Walks the runtime i18n sources for the requested catalog and inserts
+// any keys missing from the database:
 //
 //   storefront → apps/storefront/messages/{en,ar}.json
-//                (mounted at SAMA_STOREFRONT_MESSAGES_DIR)
 //   admin      → @medusajs/dashboard/src/i18n/translations/{en,ar}.json
-//                (ships with the Medusa package — 2130 EN keys, ~238
-//                still missing from AR out of the box)
-//
-// New rows land in the CSV pre-filled with the runtime values: the EN
-// column gets Medusa's / the storefront's English, the AR column gets
-// whatever AR translation Medusa ships (often empty for admin). The
-// operator then fills the gaps via the inline table editor, the
-// export/import round trip, or a manual CSV edit on disk.
 
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { promises as fs } from "fs"
@@ -24,14 +15,12 @@ import path from "path"
 import {
   FILE_MAP,
   flattenJsonLeaves,
-  loadCsvHandle,
   resolveAdminMessagesDir,
   resolveStorefrontMessagesDir,
-  resolveTranslationsDir,
-  writeCsvHandle,
-  appendAuditEntries,
   type FileKey,
 } from "../../../../../lib/sama-translations-shared"
+import { TRANSLATION_MODULE } from "../../../../../modules/translation"
+import type TranslationModuleService from "../../../../../modules/translation/service"
 
 type Body = {
   file?: unknown
@@ -49,13 +38,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     const file: FileKey =
       body.file === "admin" ? "admin" : "storefront"
 
-    const dir = await resolveTranslationsDir()
-    if (!dir) {
-      res.status(500).json({
-        error: "Translations folder not resolvable.",
-      })
-      return
-    }
+    const service = req.scope.resolve<TranslationModuleService>(TRANSLATION_MODULE)
+
     const messagesDir = await resolveMessagesDirFor(file)
     if (!messagesDir) {
       const envVar =
@@ -80,27 +64,21 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     const arTree = JSON.parse(arRaw || "{}")
     const enFlat = flattenJsonLeaves(enTree)
     const arFlat = flattenJsonLeaves(arTree)
-    // Medusa's JSON has a `$schema` sentinel at the root — strip it so
-    // it doesn't land in the CSV as a bogus row.
     enFlat.delete("$schema")
     arFlat.delete("$schema")
 
-    /* ── Load CSV + existing-key lookup ─────────────────────── */
+    /* ── Load existing keys from DB ────────────────────────── */
 
-    const h = await loadCsvHandle(dir, file)
-    if (h.keyIdx < 0) {
-      res.status(422).json({
-        error: `${FILE_MAP[file]} header must include a "key" column.`,
-      })
-      return
-    }
+    const existingRows = await service.listTranslations(
+      { catalog: file },
+      { select: ["key"], take: 20000 }
+    ) as Array<{ key: string }>
 
     const existing = new Set<string>()
-    for (let i = 1; i < h.rows.length; i++) {
-      const k = (h.rows[i]?.[h.keyIdx] ?? "").trim()
-      if (k) existing.add(k)
+    for (const r of existingRows) {
+      if (r.key) existing.add(r.key)
     }
-    const csvKeysBefore = existing.size
+    const dbKeysBefore = existing.size
 
     /* ── Union of message JSON keys ─────────────────────────── */
 
@@ -121,34 +99,24 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       })
     }
 
-    /* ── Append to CSV if we found anything ─────────────────── */
+    /* ── Insert into DB if we found anything ────────────────── */
 
     if (added.length > 0) {
-      // Ensure rows follow the existing header column order.
-      const headerLen = h.header.length
-      for (const row of added) {
-        const csvRow = new Array(headerLen).fill("")
-        if (h.keyIdx >= 0) csvRow[h.keyIdx] = row.key
-        if (h.enIdx >= 0) csvRow[h.enIdx] = row.en
-        if (h.arIdx >= 0) csvRow[h.arIdx] = row.ar
-        if (h.notesIdx >= 0) csvRow[h.notesIdx] = row.notes
-        h.rows.push(csvRow)
+      const toCreate = added.map((r) => ({
+        catalog: file,
+        key: r.key,
+        en: r.en || null,
+        ar: r.ar || null,
+        notes: null,
+      }))
+      // Batch in groups of 500.
+      const BATCH = 500
+      for (let i = 0; i < toCreate.length; i += BATCH) {
+        await service.createTranslations(toCreate.slice(i, i + BATCH))
       }
-      await writeCsvHandle(h)
-      await appendAuditEntries(
-        dir,
-        added.map((r) => ({
-          file: FILE_MAP[file],
-          key: r.key,
-          column: "en", // scan surfaces the key; we record the EN backfill
-          before: "",
-          after: r.en,
-          source: "scan",
-        }))
-      )
     }
 
-    const csvKeysAfter = csvKeysBefore + added.length
+    const dbKeysAfter = dbKeysBefore + added.length
 
     res.json({
       file: FILE_MAP[file],
@@ -157,8 +125,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       scanned: {
         en_keys: enFlat.size,
         ar_keys: arFlat.size,
-        csv_keys_before: csvKeysBefore,
-        csv_keys_after: csvKeysAfter,
+        csv_keys_before: dbKeysBefore,
+        csv_keys_after: dbKeysAfter,
       },
       audit_lines: added.length,
     })

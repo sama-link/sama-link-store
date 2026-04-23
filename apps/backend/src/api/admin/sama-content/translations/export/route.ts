@@ -1,28 +1,21 @@
-// Sama Link · export endpoint — ADR-047 (BACK-14).
+// Sama Link · export endpoint — DB-backed (replaces CSV-on-disk model).
 //
 // GET /admin/sama-content/translations/export?file=storefront&filter=missing_ar
 //
-// Streams a CSV download containing the requested rows. The default
-// is every row where AR is missing — the common "give me what I need
-// to translate" workflow. The UI wires a button that triggers the
-// download by hitting this URL with `credentials: "include"`.
+// Streams a CSV download containing the requested rows from the database.
 //
 // Query params:
 //   file   = "storefront" | "admin"          (default "storefront")
 //   filter = "all" | "missing_ar" | "missing_en" | "missing_any"
 //            (default "missing_ar")
-//
-// Response headers:
-//   Content-Type: text/csv; charset=utf-8
-//   Content-Disposition: attachment; filename="..."
 
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import {
   FILE_MAP,
-  loadCsvHandle,
-  resolveTranslationsDir,
   serializeCsv,
 } from "../../../../../lib/sama-translations-shared"
+import { TRANSLATION_MODULE } from "../../../../../modules/translation"
+import type TranslationModuleService from "../../../../../modules/translation/service"
 
 type Filter = "all" | "missing_ar" | "missing_en" | "missing_any"
 
@@ -44,30 +37,19 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
       req.query.file === "admin" ? "admin" : "storefront"
     const filter = parseFilter(req.query.filter)
 
-    const dir = await resolveTranslationsDir()
-    if (!dir) {
-      res.status(500).json({
-        error: "Translations folder not resolvable.",
-      })
-      return
-    }
+    const service = req.scope.resolve<TranslationModuleService>(TRANSLATION_MODULE)
 
-    const h = await loadCsvHandle(dir, file)
-    if (h.keyIdx < 0) {
-      res.status(422).json({
-        error: `${FILE_MAP[file]} header must include a "key" column.`,
-      })
-      return
-    }
+    const rows = await service.listTranslations(
+      { catalog: file },
+      { select: ["key", "en", "ar", "notes"], order: { key: "ASC" }, take: 20000 }
+    ) as Array<{ key: string; en: string | null; ar: string | null; notes: string | null }>
 
-    const outRows: string[][] = [h.header]
-    for (let i = 1; i < h.rows.length; i++) {
-      const row = h.rows[i] ?? []
-      if (row.every((c) => !c || !c.trim())) continue
-      const key = (row[h.keyIdx] ?? "").trim()
-      if (!key) continue
-      const en = (h.enIdx >= 0 ? row[h.enIdx] ?? "" : "").trim()
-      const ar = (h.arIdx >= 0 ? row[h.arIdx] ?? "" : "").trim()
+    const header = ["key", "en", "ar", "notes"]
+    const outRows: string[][] = [header]
+
+    for (const r of rows) {
+      const en = (r.en ?? "").trim()
+      const ar = (r.ar ?? "").trim()
       let keep = false
       switch (filter) {
         case "all":
@@ -83,14 +65,15 @@ export async function GET(req: MedusaRequest, res: MedusaResponse) {
           keep = !ar || !en
           break
       }
-      if (keep) outRows.push(row)
+      if (keep) {
+        outRows.push([r.key, en, ar, (r.notes ?? "").trim()])
+      }
     }
 
     const csv = serializeCsv(outRows)
     const stamp = new Date().toISOString().slice(0, 10)
     const filename = `${file}-${filter.replace("_", "-")}-${stamp}.csv`
-    // UTF-8 BOM so Excel opens Arabic cells correctly on Windows —
-    // the operator almost certainly edits these in Excel/Numbers.
+    // UTF-8 BOM so Excel opens Arabic cells correctly on Windows.
     const BOM = "\uFEFF"
     res.setHeader("Content-Type", "text/csv; charset=utf-8")
     res.setHeader(

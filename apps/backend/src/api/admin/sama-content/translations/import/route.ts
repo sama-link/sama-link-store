@@ -1,52 +1,32 @@
-// Sama Link · import endpoint — ADR-047 (BACK-14).
+// Sama Link · import endpoint — DB-backed (replaces CSV-on-disk model).
 //
 // POST /admin/sama-content/translations/import
 //
 // Body (JSON):
 //   {
-//     file: "storefront" | "admin",   // required
+//     file: "storefront" | "admin",
 //     csv: string,                     // raw CSV text (header + rows)
 //     mode?: "update_only" | "upsert"  // default "upsert"
 //   }
 //
-// "upsert" (default) inserts unknown keys as new CSV rows. "update_only"
-// refuses unknown keys and lists them under `skipped` so operators can
-// spot typos / key drift.
+// "upsert" (default) inserts unknown keys as new DB rows. "update_only"
+// refuses unknown keys and lists them under `skipped`.
 //
 // The CSV must have a header row that includes `key` plus at least one
 // of `en`, `ar`, `notes`. Missing cells in a row are treated as "no
-// change" for that column — only non-empty values overwrite. An empty
-// cell does NOT wipe an existing value (avoids accidental deletion
-// when an operator's edit left some rows blank).
-//
-// Each effective change mirrors into `messages/{en,ar}.json` and
-// appends one audit line with `source: "import"`.
-//
-// Response:
-//   {
-//     file,
-//     added:     { key, en, ar, notes }[],
-//     updated:   { key, column, before, after }[],
-//     unchanged: number,
-//     skipped:   { key, reason }[],
-//     messages_synced: boolean,
-//     audit_lines: number
-//   }
+// change" for that column — only non-empty values overwrite.
 
 import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import {
   FILE_MAP,
   headerIndex,
-  loadCsvHandle,
   mirrorStorefrontJson,
   parseCsv,
-  resolveTranslationsDir,
-  writeCsvHandle,
-  appendAuditEntries,
-  type AuditEntry,
   type FileKey,
   type Locale,
 } from "../../../../../lib/sama-translations-shared"
+import { TRANSLATION_MODULE } from "../../../../../modules/translation"
+import type TranslationModuleService from "../../../../../modules/translation/service"
 
 type Body = {
   file?: unknown
@@ -84,6 +64,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     const mode: "update_only" | "upsert" =
       body.mode === "update_only" ? "update_only" : "upsert"
 
+    const service = req.scope.resolve<TranslationModuleService>(TRANSLATION_MODULE)
+
     /* ── Parse the uploaded CSV ─────────────────────────────── */
 
     const incoming = parseCsv(csvText)
@@ -110,25 +92,16 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       return
     }
 
-    /* ── Load existing CSV state ────────────────────────────── */
+    /* ── Load existing DB rows for this catalog ────────────── */
 
-    const dir = await resolveTranslationsDir()
-    if (!dir) {
-      res.status(500).json({ error: "Translations folder not resolvable." })
-      return
-    }
-    const h = await loadCsvHandle(dir, file)
-    if (h.keyIdx < 0) {
-      res.status(422).json({
-        error: `${FILE_MAP[file]} header must include a "key" column.`,
-      })
-      return
-    }
-    // key → row index in CSV
-    const rowByKey = new Map<string, number>()
-    for (let i = 1; i < h.rows.length; i++) {
-      const k = (h.rows[i]?.[h.keyIdx] ?? "").trim()
-      if (k) rowByKey.set(k, i)
+    const existingRows = await service.listTranslations(
+      { catalog: file },
+      { select: ["id", "key", "en", "ar", "notes"], take: 20000 }
+    ) as Array<{ id: string; key: string; en: string | null; ar: string | null; notes: string | null }>
+
+    const rowByKey = new Map<string, typeof existingRows[number]>()
+    for (const r of existingRows) {
+      rowByKey.set(r.key, r)
     }
 
     /* ── Walk incoming rows, build change lists ─────────────── */
@@ -139,38 +112,8 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
     let unchanged = 0
     const mirrorEn: Array<{ key: string; value: string }> = []
     const mirrorAr: Array<{ key: string; value: string }> = []
-    const audit: AuditEntry[] = []
-
-    const applyCellChange = (
-      existingRow: string[],
-      column: "en" | "ar" | "notes",
-      colIdx: number,
-      incomingRaw: string | undefined,
-      key: string
-    ) => {
-      if (incomingRaw === undefined) return
-      const incoming = incomingRaw.trim()
-      // Missing / empty in the uploaded row → "no change" for this column.
-      if (!incoming) return
-      while (existingRow.length <= colIdx) existingRow.push("")
-      const before = (existingRow[colIdx] ?? "").trim()
-      if (before === incoming) {
-        unchanged++
-        return
-      }
-      existingRow[colIdx] = incoming
-      updated.push({ key, column, before, after: incoming })
-      audit.push({
-        file: FILE_MAP[file],
-        key,
-        column,
-        before,
-        after: incoming,
-        source: "import",
-      })
-      if (column === "en") mirrorEn.push({ key, value: incoming })
-      if (column === "ar") mirrorAr.push({ key, value: incoming })
-    }
+    const toCreate: Array<{ catalog: FileKey; key: string; en: string | null; ar: string | null; notes: string | null }> = []
+    const toUpdate: Array<{ id: string; en?: string | null; ar?: string | null; notes?: string | null }> = []
 
     for (let i = 1; i < incoming.length; i++) {
       const row = incoming[i] ?? []
@@ -184,60 +127,72 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         continue
       }
 
-      const incomingEn = inEnIdx >= 0 ? row[inEnIdx] : undefined
-      const incomingAr = inArIdx >= 0 ? row[inArIdx] : undefined
-      const incomingNotes = inNotesIdx >= 0 ? row[inNotesIdx] : undefined
+      const incomingEn = inEnIdx >= 0 ? (row[inEnIdx] ?? "").trim() : ""
+      const incomingAr = inArIdx >= 0 ? (row[inArIdx] ?? "").trim() : ""
+      const incomingNotes = inNotesIdx >= 0 ? (row[inNotesIdx] ?? "").trim() : ""
 
-      const existingIdx = rowByKey.get(key)
+      const existingRow = rowByKey.get(key)
 
-      if (existingIdx === undefined) {
+      if (!existingRow) {
         if (mode === "update_only") {
           skipped.push({
             key,
-            reason:
-              'Key not found in the target CSV and mode is "update_only".',
+            reason: 'Key not found in the database and mode is "update_only".',
           })
           continue
         }
-        // Upsert: append a new row with whatever columns the uploader
-        // provided. Missing cells stay blank.
-        const headerLen = h.header.length
-        const newRow = new Array(headerLen).fill("")
-        if (h.keyIdx >= 0) newRow[h.keyIdx] = key
-        const en = incomingEn?.trim() ?? ""
-        const ar = incomingAr?.trim() ?? ""
-        const notes = incomingNotes?.trim() ?? ""
-        if (h.enIdx >= 0) newRow[h.enIdx] = en
-        if (h.arIdx >= 0) newRow[h.arIdx] = ar
-        if (h.notesIdx >= 0) newRow[h.notesIdx] = notes
-        h.rows.push(newRow)
-        rowByKey.set(key, h.rows.length - 1)
-        added.push({ key, en, ar, notes })
+        // Upsert: create new row.
+        const en = incomingEn || null
+        const ar = incomingAr || null
+        const notes = incomingNotes || null
+        toCreate.push({ catalog: file, key, en, ar, notes })
+        added.push({ key, en: en ?? "", ar: ar ?? "", notes: notes ?? "" })
         if (en) mirrorEn.push({ key, value: en })
         if (ar) mirrorAr.push({ key, value: ar })
-        audit.push({
-          file: FILE_MAP[file],
-          key,
-          column: "en",
-          before: "",
-          after: en,
-          source: "import-add",
-        })
         continue
       }
 
-      const existingRow = h.rows[existingIdx]!
-      applyCellChange(existingRow, "en", h.enIdx, incomingEn, key)
-      applyCellChange(existingRow, "ar", h.arIdx, incomingAr, key)
-      applyCellChange(existingRow, "notes", h.notesIdx, incomingNotes, key)
+      // Existing row — check each column for changes.
+      const changes: Record<string, string | null> = {}
+      let rowChanged = false
+
+      const checkColumn = (
+        column: "en" | "ar" | "notes",
+        incomingVal: string
+      ) => {
+        if (!incomingVal) return // empty = no change
+        const before = (existingRow[column] ?? "").trim()
+        if (before === incomingVal) {
+          unchanged++
+          return
+        }
+        changes[column] = incomingVal
+        updated.push({ key, column, before, after: incomingVal })
+        rowChanged = true
+        if (column === "en") mirrorEn.push({ key, value: incomingVal })
+        if (column === "ar") mirrorAr.push({ key, value: incomingVal })
+      }
+
+      checkColumn("en", incomingEn)
+      checkColumn("ar", incomingAr)
+      checkColumn("notes", incomingNotes)
+
+      if (rowChanged) {
+        toUpdate.push({ id: existingRow.id, ...changes })
+      }
     }
 
-    /* ── Persist CSV if anything changed ────────────────────── */
+    /* ── Persist DB changes ────────────────────────────────── */
 
-    const cellsChanged = added.length + updated.length
-    if (cellsChanged > 0) {
-      await writeCsvHandle(h)
-      await appendAuditEntries(dir, audit)
+    if (toCreate.length > 0) {
+      const BATCH = 500
+      for (let i = 0; i < toCreate.length; i += BATCH) {
+        await service.createTranslations(toCreate.slice(i, i + BATCH))
+      }
+    }
+
+    if (toUpdate.length > 0) {
+      await service.updateTranslations(toUpdate)
     }
 
     /* ── Mirror into messages JSON (storefront only) ────────── */
@@ -260,7 +215,6 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
         }
       }
     } else {
-      // admin.csv has no runtime JSON yet.
       messagesSynced = false
     }
 
@@ -272,7 +226,7 @@ export async function POST(req: MedusaRequest, res: MedusaResponse) {
       skipped,
       messages_synced: messagesSynced,
       messages_sync_errors: mirrorErrors.length ? mirrorErrors : undefined,
-      audit_lines: audit.length,
+      audit_lines: added.length + updated.length,
     })
   } catch (e) {
     // eslint-disable-next-line no-console

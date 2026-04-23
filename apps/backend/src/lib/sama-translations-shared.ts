@@ -1,10 +1,12 @@
-// Sama Link · shared translation helpers — ADR-047.
+// Sama Link · shared translation helpers.
 //
-// Extracted out of `src/api/admin/sama-content/translations/route.ts`
-// so the sibling scan/export/import endpoints can share the CSV
-// parser, the messages-JSON mirror, path resolution, and the audit
-// log append. Living at `src/lib/` keeps it completely outside the
-// file-based API router's scan path.
+// Provides CSV parse/serialize (for import/export transport), JSON tree
+// manipulation (for messages mirror and scan flattening), and path
+// resolvers (for scan source directories and dev-mode JSON mirror).
+//
+// The DB-backed translation module (`src/modules/translation/`) is now
+// the source of truth. This shared lib retains only the helpers that
+// the import/export/scan endpoints still need.
 
 import { promises as fs } from "fs"
 import path from "path"
@@ -15,31 +17,12 @@ export const FILE_MAP = {
   storefront: "storefront.csv",
   admin: "admin.csv",
 } as const
-export const AUDIT_LOG = ".edit-log.jsonl"
 
 export type FileKey = keyof typeof FILE_MAP
 export type Locale = "en" | "ar"
 export type ColumnKey = Locale | "notes"
 
 /* ── Path resolvers ─────────────────────────────────────────────── */
-
-export async function resolveTranslationsDir(): Promise<string | null> {
-  const envDir = process.env["SAMA_TRANSLATIONS_DIR"]
-  const candidates = [
-    envDir,
-    "/app/translations",
-    path.resolve(process.cwd(), "translations"),
-    path.resolve(process.cwd(), "../../translations"),
-    path.resolve(process.cwd(), "../../../translations"),
-  ].filter((p): p is string => typeof p === "string" && p.length > 0)
-  for (const dir of candidates) {
-    try {
-      const stat = await fs.stat(dir)
-      if (stat.isDirectory()) return dir
-    } catch { /* ignore */ }
-  }
-  return null
-}
 
 export async function resolveStorefrontMessagesDir(): Promise<string | null> {
   const envDir = process.env["SAMA_STOREFRONT_MESSAGES_DIR"]
@@ -63,9 +46,7 @@ export async function resolveStorefrontMessagesDir(): Promise<string | null> {
  *  source JSON inside `@medusajs/dashboard/src/i18n/translations/` — one
  *  file per locale, flat nested object of dotted-key groups.
  *
- *  Used by the scan endpoint to populate `admin.csv` so operators can
- *  see Medusa's own coverage (EN is canonical, AR is partial — ~238
- *  keys missing) alongside any Sama-specific admin copy they add. */
+ *  Used by the scan endpoint to discover admin translation keys. */
 export async function resolveAdminMessagesDir(): Promise<string | null> {
   const envDir = process.env["SAMA_ADMIN_MESSAGES_DIR"]
   const candidates = [
@@ -161,7 +142,7 @@ export function setDottedPath(
 
 /** Walks a nested object and emits `{ dottedKey, value }` for every
  *  leaf (string | number | boolean). Used by the scan endpoint to
- *  flatten `messages/*.json` into CSV-ready keys. */
+ *  flatten `messages/*.json` into flat keys. */
 export function flattenJsonLeaves(
   tree: unknown,
   prefix = "",
@@ -177,8 +158,6 @@ export function flattenJsonLeaves(
     return out
   }
   if (Array.isArray(tree)) {
-    // Arrays flatten to `prefix.0`, `prefix.1`, ... — rare in
-    // next-intl catalogs but handle for resilience.
     tree.forEach((v, i) => {
       const seg = prefix ? `${prefix}.${i}` : String(i)
       flattenJsonLeaves(v, seg, out)
@@ -192,39 +171,6 @@ export function flattenJsonLeaves(
     }
   }
   return out
-}
-
-/* ── Audit log ──────────────────────────────────────────────────── */
-
-export type AuditEntry = {
-  file: string
-  key: string
-  column: ColumnKey
-  before: string
-  after: string
-  source?: string
-}
-
-export async function appendAuditEntries(
-  dir: string,
-  entries: AuditEntry[]
-): Promise<void> {
-  if (entries.length === 0) return
-  const lines =
-    entries
-      .map((e) =>
-        JSON.stringify({
-          ts: new Date().toISOString(),
-          ...e,
-        })
-      )
-      .join("\n") + "\n"
-  try {
-    await fs.appendFile(path.join(dir, AUDIT_LOG), lines, "utf8")
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.warn("[sama-content] audit log append failed:", err)
-  }
 }
 
 /* ── Messages JSON mirror for storefront (BACK-12 rule) ─────────── */
@@ -279,44 +225,4 @@ export async function mirrorStorefrontJson(
     }
   }
   return { synced: true, path: full }
-}
-
-/* ── CSV convenience ────────────────────────────────────────────── */
-
-export type CsvHandle = {
-  path: string
-  rows: string[][]
-  header: string[]
-  keyIdx: number
-  enIdx: number
-  arIdx: number
-  notesIdx: number
-}
-
-export async function loadCsvHandle(
-  dir: string,
-  file: FileKey
-): Promise<CsvHandle> {
-  const full = path.join(dir, FILE_MAP[file])
-  const raw = await fs.readFile(full, "utf8")
-  const rows = parseCsv(raw)
-  if (rows.length === 0) {
-    // Initialise with a header row so downstream writes don't need
-    // to special-case empty files.
-    rows.push(["key", "en", "ar", "notes"])
-  }
-  const header = rows[0]!
-  return {
-    path: full,
-    rows,
-    header,
-    keyIdx: headerIndex(header, "key"),
-    enIdx: headerIndex(header, "en"),
-    arIdx: headerIndex(header, "ar"),
-    notesIdx: headerIndex(header, "notes"),
-  }
-}
-
-export async function writeCsvHandle(h: CsvHandle): Promise<void> {
-  await fs.writeFile(h.path, serializeCsv(h.rows), "utf8")
 }
