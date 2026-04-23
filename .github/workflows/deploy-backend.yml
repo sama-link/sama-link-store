@@ -56,12 +56,4 @@ jobs:
             --min-instances 1 \
             --memory 1Gi \
             --cpu 1 \
-            --set-env-vars "NODE_ENV=production,MEDUSA_ADMIN_ONBOARDING_TYPE=default" \
-            --set-env-vars "DATABASE_URL=${{ secrets.NEON_DATABASE_URL }}" \
-            --set-env-vars "JWT_SECRET=${{ secrets.JWT_SECRET }}" \
-            --set-env-vars "COOKIE_SECRET=${{ secrets.COOKIE_SECRET }}" \
-            --set-env-vars "MEDUSA_ADMIN_EMAIL=${{ secrets.MEDUSA_ADMIN_EMAIL }}" \
-            --set-env-vars "MEDUSA_ADMIN_PASSWORD=${{ secrets.MEDUSA_ADMIN_PASSWORD }}" \
-            --set-env-vars "STORE_CORS=${{ secrets.STORE_CORS }}" \
-            --set-env-vars "ADMIN_CORS=${{ secrets.ADMIN_CORS }}" \
-            --set-env-vars "AUTH_CORS=${{ secrets.AUTH_CORS }}"
+            --update-env-vars "^::^NODE_ENV=production::MEDUSA_ADMIN_ONBOARDING_TYPE=default::DATABASE_URL=${{ secrets.NEON_DATABASE_URL }}::JWT_SECRET=${{ secrets.JWT_SECRET }}::COOKIE_SECRET=${{ secrets.COOKIE_SECRET }}::MEDUSA_ADMIN_EMAIL=${{ secrets.MEDUSA_ADMIN_EMAIL }}::MEDUSA_ADMIN_PASSWORD=${{ secrets.MEDUSA_ADMIN_PASSWORD }}::STORE_CORS=${{ secrets.STORE_CORS }}::ADMIN_CORS=${{ secrets.ADMIN_CORS }}::AUTH_CORS=${{ secrets.AUTH_CORS }}"
