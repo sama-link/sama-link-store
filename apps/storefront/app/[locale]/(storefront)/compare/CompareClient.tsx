@@ -125,7 +125,7 @@ export default function CompareClient() {
           </tr>
         </thead>
         <tbody>
-          {rows.map((row) => (
+          {rows.map((row: any) => (
             <tr key={row.key}>
               <th
                 scope="row"

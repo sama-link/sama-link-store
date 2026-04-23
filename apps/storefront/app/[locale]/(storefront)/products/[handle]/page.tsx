@@ -244,7 +244,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     categories.length > 0
       ? {
           label: "category",
-          pills: categories.map((c) => ({
+          pills: categories.map((c: any) => ({
             label: c.name ?? c.handle ?? "",
             href: c.handle ? `/${locale}/products?category=${c.id}` : undefined,
           })),
@@ -266,7 +266,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     tags.length > 0
       ? {
           label: "tags",
-          pills: tags.map((tg) => ({ label: tg.value ?? "" })),
+          pills: tags.map((tg: any) => ({ label: tg.value ?? "" })),
         }
       : { label: "tags" },
     productType?.value

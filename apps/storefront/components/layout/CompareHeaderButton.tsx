@@ -59,7 +59,7 @@ export default function CompareHeaderButton() {
             />
           ) : (
             <ul className="space-y-2">
-              {preview.map((item) => (
+              {preview.map((item: any) => (
                 <CompareRow
                   key={item.id}
                   item={item}

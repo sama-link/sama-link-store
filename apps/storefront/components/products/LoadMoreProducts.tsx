@@ -123,7 +123,7 @@ export default function LoadMoreProducts({
   return (
     <div className="space-y-6">
       <div className={gridClass}>
-        {sorted.map((p, i) => (
+        {sorted.map((p: any, i: number) => (
           /* Stagger fade-up on mount. Cap at 24 so late items don't feel laggy. */
           <div
             key={p.id}

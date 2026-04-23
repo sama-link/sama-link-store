@@ -58,7 +58,7 @@ export default function WishlistClient() {
     <>
       {heading}
       <ul className="mx-auto grid max-w-7xl list-none grid-cols-1 gap-6 px-4 py-8 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((item) => {
+      {items.map((item: any) => {
         const priceLabel =
           formatCatalogPrice(item.amount, item.currencyCode, locale) || null;
         const href =

@@ -236,7 +236,7 @@ export default async function Header() {
         >
           <Container>
             <nav className="flex items-center gap-4 overflow-x-auto py-2 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {catStripItems.map((c) => (
+              {catStripItems.map((c: any) => (
                 <a
                   key={c.id}
                   href={`${productsHref}?${new URLSearchParams({ category: c.id }).toString()}`}

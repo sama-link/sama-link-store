@@ -82,7 +82,7 @@ export default function PaymentMethodSelector({
 
       <fieldset disabled={disabled} className="space-y-3">
         <legend className="sr-only">{t("title")}</legend>
-        {enabledProviders.map((provider) => {
+        {enabledProviders.map((provider: any) => {
           const isSelected = selectedId === provider.id;
           return (
             <label

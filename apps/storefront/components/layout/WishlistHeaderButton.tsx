@@ -57,7 +57,7 @@ export default function WishlistHeaderButton() {
             />
           ) : (
             <ul className="space-y-2">
-              {preview.map((item) => (
+              {preview.map((item: any) => (
                 <WishlistRow
                   key={item.id}
                   item={item}

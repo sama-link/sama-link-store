@@ -156,7 +156,7 @@ export default function ProductGallery({
 
             {/* Dot indicators (mobile) */}
             <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5 sm:hidden">
-              {images.map((image, idx) => (
+              {images.map((image: any, idx: number) => (
                 <span
                   key={image.id}
                   aria-hidden="true"
@@ -180,7 +180,7 @@ export default function ProductGallery({
       {/* Thumbnail strip */}
       {images.length > 1 ? (
         <div className="grid grid-cols-5 gap-2 sm:grid-cols-6">
-          {images.map((image, idx) => (
+          {images.map((image: any, idx: number) => (
             <button
               key={image.id}
               type="button"

@@ -174,7 +174,7 @@ export default function QuickViewModal({
               {t("chooseVariant")}
             </p>
             <div className="flex flex-wrap gap-2">
-              {variants.map((v, idx) => {
+              {variants.map((v: any, idx: number) => {
                 const id = v.id;
                 if (!id) return null;
                 const active = id === selectedVariantId;
