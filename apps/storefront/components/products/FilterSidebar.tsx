@@ -232,7 +232,7 @@ export default function FilterSidebar({
                 {t("allCategories")}
               </button>
             </li>
-            {categories.map((c) => {
+            {categories.map((c: any) => {
               const isActive = staged.category === c.id;
               return (
                 <li key={c.id}>
@@ -264,7 +264,7 @@ export default function FilterSidebar({
                 {t("allCollections")}
               </button>
             </li>
-            {collections.map((c) => {
+            {collections.map((c: any) => {
               const isActive = staged.collection === c.id;
               return (
                 <li key={c.id}>

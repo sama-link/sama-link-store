@@ -107,7 +107,7 @@ export default function CompareClient() {
               scope="col"
               className="sticky left-0 z-20 min-w-[8rem] border border-border bg-surface p-3 text-xs font-semibold uppercase tracking-wide text-text-muted"
             />
-            {items.map((item) => (
+            {items.map((item: any) => (
               <th
                 key={item.id}
                 scope="col"
@@ -133,7 +133,7 @@ export default function CompareClient() {
               >
                 {row.label}
               </th>
-              {items.map((item) => {
+              {items.map((item: any) => {
                 if (row.key === "image") {
                   const href =
                     item.handle != null && item.handle !== ""

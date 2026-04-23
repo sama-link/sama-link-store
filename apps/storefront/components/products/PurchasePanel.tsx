@@ -266,7 +266,7 @@ export default function PurchasePanel({
       {/* 10. Variant selectors — helper aligned to end */}
       {variants.length > 1 && productOptions.length > 0 ? (
         <div className="space-y-4">
-          {productOptions.map((opt) => {
+          {productOptions.map((opt: any) => {
             const currentValue = selected[opt.title] ?? "";
             return (
               <div key={opt.id}>
@@ -281,7 +281,7 @@ export default function PurchasePanel({
                   ) : null}
                 </div>
                 <div className="flex flex-wrap items-stretch gap-1.5">
-                  {opt.values.map((v) => {
+                  {opt.values.map((v: any) => {
                     const isActive = currentValue === v.value;
                     return (
                       <button

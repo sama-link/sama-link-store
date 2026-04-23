@@ -24,7 +24,7 @@ export default function RelatedProducts({
         ) : null}
       </div>
       <ul className="grid grid-cols-2 gap-4 sm:grid-cols-3 sm:gap-6 lg:grid-cols-4">
-        {products.map((product) => (
+        {products.map((product: any) => (
           <li key={product.id} className="h-full">
             <ProductCard product={product} />
           </li>

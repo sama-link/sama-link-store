@@ -54,7 +54,7 @@ export default async function ProductShowcase({
         </div>
 
         <div className={`grid gap-5 ${gridCols}`}>
-          {products.map((product) => (
+          {products.map((product: any) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

@@ -89,7 +89,7 @@ export default function OrderReview({
             {t("items")}
           </h2>
           <ul className="divide-y divide-border">
-            {items.map((item) => (
+            {items.map((item: any) => (
               <li key={item.id} className="flex gap-3 py-4 first:pt-0 last:pb-0">
                 <div className="relative size-14 shrink-0 overflow-hidden rounded-md bg-surface-subtle">
                   {item.thumbnail ? (

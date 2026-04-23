@@ -90,7 +90,7 @@ export default function LoadMoreProducts({
         setExhausted(true);
       } else {
         setProducts((prev) => {
-          const seen = new Set(prev.map((p) => p.id));
+          const seen = new Set(prev.map((p: any) => p.id));
           const merged = [...prev];
           for (const p of next) {
             if (!seen.has(p.id)) {

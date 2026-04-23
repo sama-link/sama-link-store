@@ -133,7 +133,7 @@ export default function MegaMenu({ categories, collections }: MegaMenuProps) {
                     <ul
                       className={`${catListClass} max-h-[min(24rem,70vh)] overflow-y-auto`}
                     >
-                      {categories.map((c) => (
+                      {categories.map((c: any) => (
                         <li key={c.id}>
                           <NavigationMenu.Link
                             href={`/${locale}/products?${new URLSearchParams({ category: c.id }).toString()}`}
@@ -216,7 +216,7 @@ export default function MegaMenu({ categories, collections }: MegaMenuProps) {
                 <ul
                   className={`${colGridClass} max-h-[min(24rem,70vh)] overflow-y-auto`}
                 >
-                  {collections.map((c) => (
+                  {collections.map((c: any) => (
                     <li key={c.id}>
                       <NavigationMenu.Link
                         href={`/${locale}/collections/${encodeURIComponent(c.handle)}`}

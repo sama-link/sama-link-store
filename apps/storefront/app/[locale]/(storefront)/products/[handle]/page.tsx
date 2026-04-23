@@ -159,13 +159,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
 
   // Build PurchasePanel inputs (variant-driven)
   const panelOptions: PanelProductOption[] = productOptions
-    .filter((opt) => opt.title)
-    .map((opt) => ({
+    .filter((opt: any) => opt.title)
+    .map((opt: any) => ({
       id: opt.id,
       title: opt.title ?? "",
       values: (opt.values ?? [])
-        .filter((v) => v.value)
-        .map((v) => ({ value: v.value ?? "" })),
+        .filter((v: any) => v.value)
+        .map((v: any) => ({ value: v.value ?? "" })),
     }));
 
   const panelVariants: PanelVariant[] = variants.map((v: any) => {

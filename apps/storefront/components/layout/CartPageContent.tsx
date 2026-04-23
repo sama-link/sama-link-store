@@ -38,7 +38,7 @@ export default function CartPageContent({ locale }: CartPageContentProps) {
     <div className="lg:grid lg:grid-cols-3 lg:gap-8">
       <div className="lg:col-span-2">
         <ul className="divide-y divide-border rounded-lg border border-border bg-surface">
-          {cart!.items!.map((item) => (
+          {cart!.items!.map((item: any) => (
             <CartLineItem
               key={item.id}
               variant="page"

@@ -82,7 +82,7 @@ export default function ShippingMethodSelector({
 
       <fieldset disabled={disabled} className="space-y-3">
         <legend className="sr-only">{t("title")}</legend>
-        {options.map((option) => {
+        {options.map((option: any) => {
           const isSelected = selectedId === option.id;
           return (
             <label

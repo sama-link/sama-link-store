@@ -111,7 +111,7 @@ export default function ProductGallery({
           aria-roledescription="carousel"
           aria-label={alt}
         >
-          {images.map((image) => (
+          {images.map((image: any) => (
             <div
               key={image.id}
               className="relative aspect-square w-full shrink-0 snap-center"

@@ -132,7 +132,7 @@ export default function CartDrawer() {
   const currencyCode = cart?.currency_code ?? "EGP";
   const hasItems = Boolean(cart?.items?.length);
   const itemCount =
-    cart?.items?.reduce((sum, it) => sum + (it.quantity ?? 0), 0) ?? 0;
+    cart?.items?.reduce((sum: number, it: any) => sum + (it.quantity ?? 0), 0) ?? 0;
 
   return (
     <div
@@ -262,7 +262,7 @@ export default function CartDrawer() {
             </div>
           ) : (
             <ul className="space-y-4">
-              {cart.items.map((item) => (
+              {cart.items.map((item: any) => (
                 <CartLineItem
                   key={item.id}
                   item={item}
