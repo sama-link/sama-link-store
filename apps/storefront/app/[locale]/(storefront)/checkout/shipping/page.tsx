@@ -38,7 +38,7 @@ export default async function ShippingPage({ params }: ShippingPageProps) {
   if (cartId) {
     try {
       const { shipping_options } = await listCartShippingOptions(cartId);
-      options = shipping_options.map((o) => ({
+      options = shipping_options.map((o: any) => ({
         id: o.id,
         name: o.name,
         amount: o.amount,
