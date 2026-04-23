@@ -129,7 +129,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 
   const itemCount =
-    cart?.items?.reduce((sum, item) => sum + (item.quantity ?? 0), 0) ?? 0;
+    cart?.items?.reduce((sum: number, item: any) => sum + (item.quantity ?? 0), 0) ?? 0;
 
   const value = useMemo<CartContextValue>(
     () => ({

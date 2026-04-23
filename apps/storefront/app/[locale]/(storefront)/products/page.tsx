@@ -66,7 +66,7 @@ function filterProductsByPriceSearchParams(
 function mapCollectionsForFilters(
   collections: Awaited<ReturnType<typeof listCollections>>["collections"],
 ): FilterCollectionOption[] {
-  return collections.map((c) => ({
+  return collections.map((c: any) => ({
     id: c.id,
     title: (c.title && c.title.trim() !== "" ? c.title : c.handle) ?? c.id,
   }));
@@ -77,7 +77,7 @@ function mapCategoriesForFilters(
     ReturnType<typeof listProductCategories>
   >["product_categories"],
 ): FilterCategoryOption[] {
-  return categories.map((c) => ({
+  return categories.map((c: any) => ({
     id: c.id,
     title: (c.name && c.name.trim() !== "" ? c.name : c.handle) ?? c.id,
   }));

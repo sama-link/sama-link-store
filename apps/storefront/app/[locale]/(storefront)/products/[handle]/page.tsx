@@ -168,7 +168,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         .map((v) => ({ value: v.value ?? "" })),
     }));
 
-  const panelVariants: PanelVariant[] = variants.map((v) => {
+  const panelVariants: PanelVariant[] = variants.map((v: any) => {
     const variantRecord = v as unknown as Record<string, unknown>;
     const variantOptions =
       (variantRecord.options as
@@ -403,7 +403,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
             title={t("relatedTitle")}
             subtitle={t("relatedSubtitle")}
           >
-            {recommendations.map((p) => (
+            {recommendations.map((p: any) => (
               <ProductCard key={p.id} product={p} />
             ))}
           </RecommendationsCarousel>

@@ -71,9 +71,9 @@ export default async function HomePage({ params }: HomePageProps) {
   }
 
   const tiles: CategoryTile[] = collections
-    .filter((c) => typeof c.handle === "string" && c.handle.length > 0)
+    .filter((c: any) => typeof c.handle === "string" && c.handle.length > 0)
     .slice(0, 6)
-    .map((c) => ({
+    .map((c: any) => ({
       id: c.id,
       title: c.title ?? c.handle ?? c.id,
       handle: c.handle ?? null,

@@ -127,14 +127,14 @@ export default async function Header() {
       ? collectionsResult.value.collections
       : [];
 
-  const megaCategories = product_categories.map((c) => ({
+  const megaCategories = product_categories.map((c: any) => ({
     id: c.id,
     name: c.name ?? c.handle ?? c.id,
   }));
 
   const megaCollections = collections
-    .filter((c) => typeof c.handle === "string" && c.handle.length > 0)
-    .map((c) => ({
+    .filter((c: any) => typeof c.handle === "string" && c.handle.length > 0)
+    .map((c: any) => ({
       id: c.id,
       title: c.title ?? c.handle ?? c.id,
       handle: c.handle as string,

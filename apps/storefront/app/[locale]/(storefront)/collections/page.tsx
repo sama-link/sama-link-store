@@ -60,7 +60,7 @@ export default async function CollectionsPage({ params }: CollectionsPageProps) 
           <p className="text-text-secondary">{t("empty")}</p>
         ) : (
           <ul className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {collections.map((collection) => (
+            {collections.map((collection: any) => (
               <li key={collection.id}>
                 <Link
                   href={`/${locale}/collections/${collection.handle}`}
