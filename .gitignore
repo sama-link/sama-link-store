@@ -24,6 +24,10 @@ out/
 .dev.storefront.log
 .dev.root.log
 
+# Local-only env file used by the live-export script (apps/backend/src/scripts/
+# export-live-seed-fixture.mjs). Holds the live admin password — NEVER commit.
+apps/backend/src/scripts/.env.export.live
+
 # Logs
 npm-debug.log*
 yarn-debug.log*

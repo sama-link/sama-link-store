@@ -37,35 +37,69 @@ Two steps, in order, both idempotent:
    so the seed step still runs.
 
 2. **Catalog + region + publishable key** — `medusa exec ./src/scripts/seed.ts`.
-   Check-before-create for every entity, so re-runs are no-ops:
+   Loads the sanitized live-derived fixture at
+   `apps/backend/src/scripts/fixtures/live-store-setup.json` and ensures
+   each entity. Check-before-create for every entity, so re-runs are no-ops:
    - Egypt region (`currency_code=egp`, `countries=[eg]`)
-   - `networking` category
-   - 3 deterministic products (gigabit switch, AC1200 router, Cat6 cable)
-     with stable handles + SKUs
-   - One EGP price set per variant at 150 EGP (15000 minor units)
-   - Placeholder thumbnails (only set when missing)
+   - Default Sales Channel (auto-created by Medusa boot; resolved by name)
+   - Stock locations (1: `Sama Link`)
+   - Shipping profiles (1: `Default Shipping Profile`)
+   - 26 product categories (parents-first, deterministic by handle)
+   - 461 product tags (deterministic by `value`)
+   - 917 products from the fixture — **5 skipped** because their only
+     variant has no SKU; SKU is the natural idempotency key for variant
+     pricing on subsequent runs
+   - 1 variant per product (916) + 1 product with 2 variants → 913 priced
+     variants in EGP (amount per fixture)
+   - Real GCS thumbnails + image URLs from the fixture (no migration —
+     URLs are passed through and rendered by the storefront's
+     `images.remotePatterns` for `storage.googleapis.com` and
+     `placehold.co`)
    - Publishable API key titled `Storefront Default`, linked to the
-     default sales channel that Medusa auto-creates on first boot
+     Default Sales Channel
+   - Older hand-rolled demo handles (`gigabit-switch-8-port`,
+     `dual-band-wifi-router-ac1200`, `cat6-ethernet-cable-3m`,
+     `medusa-coffee-mug`, `medusa-sweatpants`, `test`) get drafted on
+     every run if they exist locally — fully reversible from the admin
 
 The seed ends with a `Local development summary` block that prints the
-admin URL, admin email, region ID, publishable token, and the exact
-five `NEXT_PUBLIC_*` lines to paste into `apps/storefront/.env.local`.
+admin URL, admin email, region ID, publishable token, catalog counts,
+and the exact five `NEXT_PUBLIC_*` lines to paste into
+`apps/storefront/.env.local`.
+
+### Skipped with warning
+
+These fixture sections are deliberately not seeded:
+
+| Section | Reason |
+|---|---|
+| `shipping_options` | Live export does not capture service zones, which Medusa v2 requires to attach a shipping option safely. Catalog display is unaffected. |
+| `inventory_levels` | Live admin API returned 404 on `/admin/inventory-items` and the fixture is empty. |
+| `fulfillment_providers` | Registered at boot via `medusa-config`, not via API. The `manual_manual` provider is already present in any local Medusa install. |
+| `payment_providers` | Live admin API returned 404 (provider config differs per Medusa setup). |
+| `collections` | Fixture is empty. |
 
 ## Idempotency guarantees
 
-| Entity                | Re-run behavior                                     |
-|-----------------------|-----------------------------------------------------|
-| Admin user            | `medusa user` errors → `\|\| true` keeps the chain alive |
-| Egypt region          | Looked up by `currency_code=egp`; reused if found   |
-| `networking` category | Looked up by handle; reused                         |
-| Products              | Looked up by handle; reused                         |
-| Variant prices        | Looked up via remote query; only EGP price added if missing |
-| Thumbnails            | Skipped when `product.thumbnail` already set        |
-| Publishable key       | Looked up by title + type; reused                   |
-| Key ↔ channel link    | Created only when the key was just created (avoids a misleading "linked …" log line every re-run) |
+| Entity              | Re-run behavior                                                   |
+|---------------------|-------------------------------------------------------------------|
+| Admin user          | `medusa user` errors → `\|\| true` keeps the chain alive          |
+| Egypt region        | Looked up by `currency_code=egp`; reused if found                 |
+| Sales channel       | Looked up by name (`Default Sales Channel`); never created        |
+| Stock locations     | Looked up by `name`; reused                                       |
+| Shipping profiles   | Looked up by `name`; reused                                       |
+| Categories          | Bulk pre-fetch + per-handle defensive lookup before each create. Both calls pass `select: ["id","handle"]` because Medusa's default DTO omits the handle |
+| Tags                | Bulk pre-fetch with `select: ["id","value"]`; reused              |
+| Products            | Bulk pre-fetch with `select: ["id","handle"]`; reused             |
+| Variants/options    | Created with the parent product (no separate ensure step)         |
+| Variant prices      | Batched `query.graph` lookup; only adds EGP price if missing      |
+| Thumbnails / images | Set at product create time from fixture URLs; not touched on re-runs |
+| Publishable key     | Looked up by title + type; reused                                 |
+| Key ↔ channel link  | Created only when the key was just created                        |
 
-Validated by running the command twice on a fresh DB — second run
-produces only "already exists" / "skip" log lines and zero new rows.
+Validated by running the command twice — second run produces zero new
+rows of any seeded entity. (Total runtime ~6 seconds for the all-skip
+case, ~13 seconds for a fresh DB seed of 912 products.)
 
 ## What this seed does NOT include
 
@@ -83,31 +117,48 @@ safe and the local stack obviously distinct from production:
 If a future feature needs e.g. a sample order for testing, add it as
 an explicit sanitized fixture inside `seed.ts` — never via a DB dump.
 
-## Optional: deriving fixtures from current GCP/dev data
+## Refreshing the fixture from live/GCP
 
-The current product set in `seed.ts` is hand-rolled. If a maintainer
-later wants to enrich the local catalog from current GCP/dev data
-(while it is still development data), the safe procedure is:
+The fixture at `apps/backend/src/scripts/fixtures/live-store-setup.json`
+is a sanitized snapshot of the live/GCP store setup, generated by
+`apps/backend/src/scripts/export-live-seed-fixture.mjs`. To refresh:
 
-1. Manually export ONLY the allow-listed tables from the dev database:
-   `product`, `product_variant`, `product_option`, `product_option_value`,
-   `product_category`, `product_collection`, `region`, `region_country`,
-   `currency`, `sales_channel`. These columns are public catalog data.
+```bash
+# from the repo root, on a feature branch
+export LIVE_MEDUSA_BACKEND_URL='https://sama-backend-XXXXXXXX-XX.a.run.app'
+export LIVE_MEDUSA_ADMIN_EMAIL='you@example.com'
+export LIVE_MEDUSA_ADMIN_PASSWORD='your-live-admin-password'
 
-2. Strip everything else. Specifically NEVER export: `user`,
-   `auth_identity`, `provider_identity`, `customer*`, `cart*`, `order*`,
-   `payment*`, `refund*`, `return*`, `api_key`, `session*`.
+node apps/backend/src/scripts/export-live-seed-fixture.mjs
+```
 
-3. Convert the kept rows into deterministic TS literals inside
-   `seed.ts` (or split into `apps/backend/src/scripts/fixtures/*.json`
-   if it grows past a few products). Use stable handles/SKUs as the
-   primary keys for the check-before-create patterns.
+The script:
 
-4. Re-run `npm run seed:local` twice on a fresh local DB to prove
-   idempotency before committing.
+- Authenticates **once** via `POST /auth/user/emailpass` (the only
+  non-GET in the entire file). Verify with:
+  `grep -nE 'method:\s*"(POST|PUT|PATCH|DELETE)"' apps/backend/src/scripts/export-live-seed-fixture.mjs`
+  → must show exactly one line, the auth POST.
+- Then issues only `GET /admin/{regions,sales-channels,stock-locations,
+  shipping-profiles,fulfillment-providers,payment-providers,
+  shipping-options,product-categories,product-tags,collections,products,
+  inventory-items}`. The 6 setup endpoints are optional — a 404 on any
+  of them is logged and the section becomes `[]`.
+- Strips live IDs and surfaces cross-references via natural keys
+  (handle, sku, value, name, currency_code). Image URLs are passed
+  through only when they look like `http(s)://...`.
+- Hard-excludes every forbidden table and field: customers, orders,
+  carts, payments, refunds, returns, users, auth identities, sessions,
+  password hashes, JWT/cookie/Stripe/webhook secrets.
+- Writes the sanitized result to
+  `apps/backend/src/scripts/fixtures/live-store-setup.json` (overwrites
+  on each run; never persists raw data).
 
-This procedure is intentionally manual — there is no automated
-GCP/dev → local pipeline in this repo.
+After refresh, re-run `npm run seed:local` twice on a fresh local DB to
+prove idempotency, then commit the updated fixture.
+
+The `LIVE_*` env vars belong in your shell only or in a local
+`.env.export.live` file — both are git-ignored. Never commit live
+admin credentials.
 
 ## Storefront env values
 
