@@ -16,9 +16,18 @@
 //     Medusa v2 requires to attach a shipping option safely. Catalog
 //     display does not depend on this.
 //   - inventory levels: fixture count is 0 (live didn't expose
-//     /admin/inventory-items via Admin API).
+//     /admin/inventory-items via Admin API). Local-dev compensation:
+//     `ensureVariantsPurchasableLocally` flips every variant's
+//     manage_inventory to false so the storefront cart can add lines
+//     without an inventory_item / inventory_level chain.
 //   - fulfillment providers: registered at boot via medusa-config, not via
 //     API. Verified present, not seeded.
+//
+// Bootstrap links ensured every run (idempotent — list-before-create):
+//   - Sales Channel ↔ Stock Location: required for Medusa's cart flow to
+//     resolve a stock location for any variant in the channel.
+//   - Publishable API Key ↔ Sales Channel: required by the publishable-key
+//     middleware on every /store/* route.
 //
 // Admin user is NOT created here — that lives in the npm script
 // `seed:local`, which runs `medusa user -e ... -p ...` first. See
@@ -356,6 +365,40 @@ async function ensureStockLocations(
     `[seed] stock locations: ${created} created, ${existing.length} pre-existing`
   )
   return nameToId
+}
+
+// ─── Sales channel ↔ stock location link ────────────────────────────────────
+// Medusa's cart flow requires the sales channel to be linked to at least one
+// stock location for every variant the cart references — otherwise
+// POST /store/carts/:id/line-items errors with
+// "Sales channel <id> is not associated with any stock location for variant".
+// Live store has this link; the live fixture export doesn't capture link
+// rows, so we ensure them here. List-before-create via remoteLink.list,
+// idempotent across re-runs.
+async function ensureSalesChannelStockLocationLinks(
+  remoteLink: Link,
+  defaultSalesChannelId: string,
+  stockLocationIds: string[]
+): Promise<{ created: number; preExisting: number }> {
+  let created = 0
+  let preExisting = 0
+  for (const slId of stockLocationIds) {
+    const linkDef = {
+      [Modules.SALES_CHANNEL]: { sales_channel_id: defaultSalesChannelId },
+      [Modules.STOCK_LOCATION]: { stock_location_id: slId },
+    }
+    const existing = await remoteLink.list(linkDef)
+    if (existing.length > 0) {
+      preExisting++
+      continue
+    }
+    await remoteLink.create(linkDef)
+    created++
+  }
+  console.log(
+    `[seed] sc↔sl: ${created} link(s) created, ${preExisting} pre-existing (channel=${defaultSalesChannelId}, locations=${stockLocationIds.length})`
+  )
+  return { created, preExisting }
 }
 
 // ─── Shipping profile (presence ensure; options themselves are skipped) ─────
@@ -1135,50 +1178,123 @@ async function ensureVariantPricesByGraph(
   return { added, createdSets }
 }
 
-// ─── Publishable key (kept from prior seed; only re-link on first creation) ─
+// ─── Publishable key (always-link, regardless of key creation) ──────────────
+// The link `publishable_api_key_sales_channel` is what Medusa's middleware
+// checks on every /store/* request — a key without it triggers
+// "Publishable key needs to have a sales channel configured" and the
+// storefront cart bootstrap fails. The link can drift out of the key for
+// reasons outside this seed's control (admin actions, soft-deletes during
+// channel rebuilds, prior seed iterations). So: every run we also list the
+// link and create it if absent, not just when the key itself is new.
+//
+// Title resolution: prefer STOREFRONT_KEY_TITLE; fall back to ANY existing
+// publishable key. The fallback handles repos that were seeded before this
+// title was standardised (the live DB had one titled simply "Storefront").
+// We never delete or rename the existing key — operators may have wired it
+// into env files already.
 async function ensureStorefrontPublishableKey(
   apiKeyModuleService: IApiKeyModuleService,
   defaultSalesChannelId: string,
   remoteLink: Link
 ): Promise<string> {
-  const existing = await apiKeyModuleService.listApiKeys({
+  let candidates = await apiKeyModuleService.listApiKeys({
     title: STOREFRONT_KEY_TITLE,
     type: "publishable",
   })
+  let key = candidates[0]
 
-  let key = existing[0]
-  let keyWasCreated = false
-  if (key) {
+  if (!key) {
+    // Fallback: reuse any existing publishable key (legacy title etc.).
+    const fallback = await apiKeyModuleService.listApiKeys({
+      type: "publishable",
+    })
+    key = fallback[0]
+    if (key) {
+      console.log(
+        `[seed] publishable key: reusing existing key (title='${key.title}') -> ${key.token}`
+      )
+    }
+  } else {
     console.log(
       `[seed] publishable key '${STOREFRONT_KEY_TITLE}' already exists -> ${key.token}`
     )
-  } else {
+  }
+
+  if (!key) {
     const created = await apiKeyModuleService.createApiKeys({
       title: STOREFRONT_KEY_TITLE,
       type: "publishable",
       created_by: "seed",
     })
     key = Array.isArray(created) ? created[0]! : created
-    keyWasCreated = true
     console.log(
       `[seed] created publishable key '${STOREFRONT_KEY_TITLE}' -> ${key.token}`
     )
   }
 
-  if (keyWasCreated) {
-    await remoteLink.create({
-      [Modules.API_KEY]: { publishable_key_id: key.id },
-      [Modules.SALES_CHANNEL]: { sales_channel_id: defaultSalesChannelId },
-    })
+  // Always-on link check — survives prior key/channel rebuilds where the
+  // link table got cleared without our seeing it.
+  const linkDef = {
+    [Modules.API_KEY]: { publishable_key_id: key.id },
+    [Modules.SALES_CHANNEL]: { sales_channel_id: defaultSalesChannelId },
+  }
+  const existingLink = await remoteLink.list(linkDef)
+  if (existingLink.length === 0) {
+    await remoteLink.create(linkDef)
     console.log(
       `[seed] linked publishable key ${key.id} <-> sales channel ${defaultSalesChannelId}`
     )
   } else {
     console.log(
-      `[seed] publishable key already linked to sales channel ${defaultSalesChannelId}`
+      `[seed] publishable key ${key.id} already linked to sales channel ${defaultSalesChannelId}`
     )
   }
   return key.token
+}
+
+// ─── Local-dev variants: take out of inventory management ───────────────────
+// The live fixture doesn't capture inventory_items / inventory_levels (the
+// live admin API didn't expose them), so any variant left at the live
+// default (manage_inventory=true) cannot be added to a cart locally —
+// Medusa needs an inventory_level row at a stock location reachable by the
+// sales channel. Production deploys solve this through the admin UI; for
+// the local seed we flip every variant to manage_inventory=false. This is a
+// dev-only convenience and is fully reversible from the admin.
+async function ensureVariantsPurchasableLocally(
+  productModuleService: IProductModuleService
+): Promise<{ updated: number; alreadyOk: number }> {
+  // listProductVariants without an explicit `manage_inventory` filter
+  // because filtering on a boolean across the whole catalog is fast
+  // enough and avoids any module-specific filter-spelling quirks.
+  // Explicit select keeps the response payload small.
+  const allVariants = (await productModuleService.listProductVariants(
+    {},
+    { take: 100000, select: ["id", "manage_inventory"] }
+  )) as Array<{ id: string; manage_inventory: boolean }>
+
+  const toFlip = allVariants
+    .filter((v) => v.manage_inventory)
+    .map((v) => v.id)
+  const alreadyOk = allVariants.length - toFlip.length
+
+  if (toFlip.length === 0) {
+    console.log(
+      `[seed] variants: ${alreadyOk} variants already have manage_inventory=false`
+    )
+    return { updated: 0, alreadyOk }
+  }
+
+  // Use the (selector, data) overload — single SQL UPDATE under the hood,
+  // unlike updateProducts where the array form silently no-ops (see
+  // Medusa-quirks notes in docs/development/local-seed.md).
+  await productModuleService.updateProductVariants(
+    { id: toFlip },
+    { manage_inventory: false }
+  )
+  console.log(
+    `[seed] variants: flipped ${toFlip.length} to manage_inventory=false (${alreadyOk} already ok)`
+  )
+  return { updated: toFlip.length, alreadyOk }
 }
 
 // ─── Final summary (kept from prior seed; augmented with new counts) ────────
@@ -1295,7 +1411,15 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
     defaultSalesChannelId
   )
 
-  await ensureStockLocations(stockLocationService, fixture)
+  const stockLocationNameToId = await ensureStockLocations(
+    stockLocationService,
+    fixture
+  )
+  await ensureSalesChannelStockLocationLinks(
+    remoteLink,
+    defaultSalesChannelId,
+    Array.from(stockLocationNameToId.values())
+  )
   const shippingProfilesByName = await ensureShippingProfiles(
     fulfillmentService,
     fixture
@@ -1346,6 +1470,11 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
     fixture,
     brandHandleToId
   )
+
+  // Local-dev convenience — see function header. Runs after products+
+  // variants are seeded so it covers freshly-created variants in this
+  // same run as well as any pre-existing ones.
+  await ensureVariantsPurchasableLocally(productModuleService)
 
   const publishableToken = await ensureStorefrontPublishableKey(
     apiKeyModuleService,

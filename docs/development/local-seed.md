@@ -26,7 +26,7 @@ npm run dev:storefront                                            # http://local
 
 ## What `npm run seed:local` does
 
-Two steps, in order, both idempotent:
+Three steps, in order, all idempotent:
 
 1. **Admin user** — `medusa user -e $MEDUSA_ADMIN_EMAIL -p $MEDUSA_ADMIN_PASSWORD`.
    This is Medusa's official CLI command. It wires the auth identity
@@ -36,7 +36,7 @@ Two steps, in order, both idempotent:
    with "user already exists"; the npm script's `|| true` swallows that
    so the seed step still runs.
 
-2. **Store setup + catalog + region + publishable key** —
+2. **Store setup + catalog + region + publishable key + bootstrap links** —
    `medusa exec ./src/scripts/seed.ts`. Loads the sanitized live-derived
    fixture at `apps/backend/src/scripts/fixtures/live-store-setup.json`
    and ensures each entity. Check-before-create everywhere, so re-runs
@@ -48,6 +48,10 @@ Two steps, in order, both idempotent:
      — read via `query.graph`, written via `updateStores(id, data)`
      (the only signature that actually persists; see seed.ts header note)
    - Stock locations (1: `Sama Link`) with full `address` at create time
+   - **Sales Channel ↔ Stock Location link** — required by Medusa's cart
+     flow; without it `POST /store/carts/:id/line-items` fails with
+     `Sales channel <id> is not associated with any stock location for
+     variant <id>`. List-before-create via `remoteLink.list`, idempotent.
    - Shipping profiles (1: `Default Shipping Profile`)
    - **Service zones** under each fulfillment_set, with geo_zones
    - **Shipping options** with prices, rules, type — looked up by name
@@ -66,12 +70,29 @@ Two steps, in order, both idempotent:
    - **Product → brand link** via `metadata.brand_id` — set at product
      create time AND backfilled by a sweep over existing products so
      pre-brand-fixture installs converge on the right link
-   - Publishable API key titled `Storefront Default`, linked to the
-     Default Sales Channel
+   - **Variants set to `manage_inventory=false`** — local-dev only. The
+     live fixture doesn't capture inventory_items / inventory_levels so
+     inventory-managed variants are unfulfillable in dev. Reversible from
+     the admin per-variant. Production stores are unaffected (this only
+     runs via `seed:local`).
+   - Publishable API key (titled `Storefront Default`, or any pre-existing
+     publishable key with a different title), with the
+     `publishable_api_key_sales_channel` link verified and (re)created if
+     missing. Always-on link check guards against drift from prior key/
+     channel rebuilds — without this, the storefront fails with
+     `Publishable key needs to have a sales channel configured`.
    - Older hand-rolled demo handles (`gigabit-switch-8-port`,
      `dual-band-wifi-router-ac1200`, `cat6-ethernet-cable-3m`,
      `medusa-coffee-mug`, `medusa-sweatpants`, `test`) get drafted on
      every run if they exist locally — fully reversible from the admin
+
+3. **Translation catalog** — `medusa exec ./src/scripts/seed-translations.ts`.
+   Reads `translations/storefront.csv` and `translations/admin.csv` (mounted
+   into the backend container at `/app/translations` via
+   `docker-compose.dev.yml`) and inserts rows into the custom `translation`
+   table that backs `/admin/sama-content`. Idempotent — keys already in the
+   table are skipped per catalog. Without this step the admin's Sama Content
+   library renders an empty state ("Translations are not available").
 
 The seed ends with a `Local development summary` block that prints the
 admin URL, admin email, region ID, publishable token, store name +
@@ -84,7 +105,7 @@ These fixture sections are deliberately not seeded:
 
 | Section | Reason |
 |---|---|
-| `inventory_levels` | Live admin API returned 404 on `/admin/inventory-items` and the fixture is empty. |
+| `inventory_levels` | Live admin API returned 404 on `/admin/inventory-items` and the fixture is empty. Local seed compensates by flipping every variant to `manage_inventory=false` so the cart flow works without an inventory chain. |
 | `fulfillment_providers` | Registered at boot via `medusa-config`, not via API. The `manual_manual` provider is already present in any local Medusa install. |
 | `payment_providers` | Live admin API returned 404 (provider config differs per Medusa setup). |
 | `collections` | Fixture is empty. |
@@ -109,10 +130,13 @@ These fixture sections are deliberately not seeded:
 | Products            | Bulk pre-fetch with `select: ["id","handle"]`; reused             |
 | Variants/options    | Created with the parent product (no separate ensure step)         |
 | Variant prices      | Batched `query.graph` lookup; only adds EGP price if missing      |
+| Variants `manage_inventory` | Bulk filter selector flips `true → false`; second run finds 0 to flip and no-ops |
+| SC ↔ SL link        | `remoteLink.list` per stock location; created only when missing   |
 | Product → brand link | Sweep with `select: ["id","handle","metadata"]`; updates `metadata.brand_id` only when missing/wrong, preserving other metadata keys |
 | Thumbnails / images | Set at product create time from fixture URLs; not touched on re-runs |
-| Publishable key     | Looked up by title + type; reused                                 |
-| Key ↔ channel link  | Created only when the key was just created                        |
+| Publishable key     | Looked up by title (with fallback to any publishable key); reused |
+| Key ↔ channel link  | `remoteLink.list` every run; created only when missing            |
+| Translation rows    | Listed per `catalog`; CSV rows whose `key` already exists are skipped |
 
 Validated by running the command twice — second run produces zero new
 rows of any seeded entity and emits the "already up-to-date" log line
@@ -243,3 +267,20 @@ The script is sh-flavored and is intended to run inside the alpine
 backend container (where Medusa's CLI is installed). On Windows hosts,
 invoke it via `docker compose exec backend sh -c "…"` as shown in the
 TL;DR; do not run it in PowerShell or cmd.exe directly.
+
+## Why translation seed is part of `seed:local`
+
+The `translation` table backs `/admin/sama-content` (Sama Content
+Library). Empty table → admin renders the
+"Translations are not available" empty state. Including
+`seed-translations.ts` in `seed:local` means a single command takes a
+fresh DB to a state where both the storefront and the admin's content
+library work, with no extra steps to remember.
+
+The translation seed is itself idempotent — it lists existing keys per
+catalog and inserts only what's missing — so re-running `seed:local`
+after manual edits in `/admin/sama-content` will not overwrite operator
+work. Direct CSV edits in `translations/{storefront,admin}.csv`
+followed by another `seed:local` will pick up newly-added keys but will
+NOT overwrite existing rows; use the admin "Upload translations" flow
+or a focused PATCH to update existing values.
