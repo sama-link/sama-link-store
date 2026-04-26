@@ -53,6 +53,8 @@ const AUTH_LOGIN_PATH = "/auth/user/emailpass"
 const ALLOWED_GET_PREFIXES = [
   "/admin/regions",
   "/admin/sales-channels",
+  "/admin/stores",
+  "/admin/brands",
   "/admin/stock-locations",
   "/admin/shipping-profiles",
   "/admin/fulfillment-providers",
@@ -207,7 +209,75 @@ function sanitizeSalesChannel(s) {
 }
 
 function sanitizeStockLocation(loc) {
-  return { name: loc.name ?? null }
+  // Address: keep only non-PII fields. `phone` is intentionally excluded
+  // (decision in the inspection report); add it back here later only if
+  // explicitly approved.
+  const a = loc.address ?? null
+  const address = a
+    ? {
+        address_1: a.address_1 ?? null,
+        address_2: a.address_2 ?? null,
+        city: a.city ?? null,
+        country_code: (a.country_code ?? "").toLowerCase() || null,
+        postal_code: a.postal_code ?? null,
+        province: a.province ?? null,
+      }
+    : null
+
+  // Fulfillment sets and their service zones are nested. We surface the
+  // tree by name so the seed can re-resolve everything via natural keys
+  // in the local DB. Geo zones drop their live IDs and keep only
+  // (type, country_code).
+  const fulfillment_sets = (loc.fulfillment_sets ?? []).map((fs) => ({
+    name: fs.name ?? null,
+    type: fs.type ?? null,
+    service_zones: (fs.service_zones ?? []).map((sz) => ({
+      name: sz.name ?? null,
+      geo_zones: (sz.geo_zones ?? []).map((gz) => ({
+        type: gz.type ?? null,
+        country_code: (gz.country_code ?? "").toLowerCase() || null,
+      })),
+    })),
+  }))
+
+  return {
+    name: loc.name ?? null,
+    address,
+    fulfillment_sets,
+  }
+}
+
+function sanitizeStore(s, regionsById, channelsById) {
+  return {
+    name: s.name ?? null,
+    default_currency_code:
+      typeof s.default_currency_code === "string"
+        ? s.default_currency_code.toLowerCase()
+        : null,
+    supported_currencies: (s.supported_currencies ?? [])
+      .map((c) => ({
+        currency_code: (c.currency_code ?? "").toLowerCase() || null,
+        is_default: Boolean(c.is_default),
+      }))
+      .filter((c) => c.currency_code),
+    // Resolve default region/sales-channel by name so the seed re-resolves
+    // them locally (live IDs would be meaningless).
+    default_region_name: s.default_region_id
+      ? regionsById.get(s.default_region_id) ?? null
+      : null,
+    default_sales_channel_name: s.default_sales_channel_id
+      ? channelsById.get(s.default_sales_channel_id) ?? null
+      : null,
+  }
+}
+
+function sanitizeBrand(b) {
+  return {
+    name: b.name ?? null,
+    handle: b.handle ?? null,
+    description: b.description ?? null,
+    image_url: sanitizeImageUrl(b.image_url),
+  }
 }
 
 function sanitizeShippingProfile(p) {
@@ -219,12 +289,43 @@ function sanitizeProvider(p) {
 }
 
 function sanitizeShippingOption(opt, regionsById, profilesById) {
+  // The service zone is the natural anchor for a shipping option in
+  // Medusa v2 (option → service_zone → fulfillment_set → stock_location).
+  // We surface it by name so the seed can look it up without IDs.
+  const sz = opt.service_zone ?? null
+  const service_zone = sz
+    ? {
+        name: sz.name ?? null,
+        // No fulfillment_set_name available directly here; the seed
+        // resolves the parent via stock_locations[].fulfillment_sets[].
+        // We still surface the geo zones in case the option's zone is
+        // disjoint from the canonical fulfillment-set tree.
+        geo_zones: (sz.geo_zones ?? []).map((gz) => ({
+          type: gz.type ?? null,
+          country_code: (gz.country_code ?? "").toLowerCase() || null,
+        })),
+      }
+    : null
+
+  // type is the shipping_option_type row (label/code/description), e.g.
+  // pickup vs flat. Optional in older Medusa versions.
+  const t = opt.type ?? null
+  const type = t
+    ? {
+        label: t.label ?? null,
+        code: t.code ?? null,
+        description: t.description ?? null,
+      }
+    : null
+
   return {
     name: opt.name ?? null,
     price_type: opt.price_type ?? null,
     provider_id: opt.provider_id ?? null,
     profile_name: profilesById.get(opt.shipping_profile_id) ?? null,
     region_name: regionsById.get(opt.region_id) ?? null,
+    service_zone,
+    type,
     prices: (opt.prices ?? []).map((p) => ({
       amount: p.amount ?? null,
       currency_code: (p.currency_code ?? "").toLowerCase() || null,
@@ -257,7 +358,19 @@ function sanitizeCollection(c) {
   return { title: c.title ?? null, handle: c.handle ?? null }
 }
 
-function sanitizeProduct(p, collectionHandleById, channelNameById) {
+function sanitizeProduct(p, collectionHandleById, channelNameById, brandHandleById) {
+  // Resolve the (custom Sama Link) brand link from product.metadata.brand_id.
+  // metadata is a free-form JSON column; we extract ONLY brand_id and
+  // discard the rest to avoid exporting unknown/unsafe keys.
+  let brand_handle = null
+  const meta = p.metadata
+  if (meta && typeof meta === "object") {
+    const bid = meta.brand_id
+    if (typeof bid === "string" && bid) {
+      brand_handle = brandHandleById.get(bid) ?? null
+    }
+  }
+
   return {
     title: p.title ?? null,
     subtitle: p.subtitle ?? null,
@@ -284,6 +397,7 @@ function sanitizeProduct(p, collectionHandleById, channelNameById) {
       .map((sc) => channelNameById.get(sc?.id))
       .filter(Boolean)
       .sort(),
+    brand_handle,
     options: (p.options ?? []).map((o) => ({
       title: o.title ?? null,
       values: (o.values ?? [])
@@ -358,7 +472,15 @@ async function main() {
     pageSize: 200,
   })
   const rawLocations = await paginate("/admin/stock-locations", {
-    fields: "id,name",
+    fields:
+      "id,name," +
+      "address.id,address.address_1,address.address_2,address.city," +
+      "address.country_code,address.postal_code,address.province," +
+      "fulfillment_sets.id,fulfillment_sets.name,fulfillment_sets.type," +
+      "fulfillment_sets.service_zones.id,fulfillment_sets.service_zones.name," +
+      "fulfillment_sets.service_zones.geo_zones.id," +
+      "fulfillment_sets.service_zones.geo_zones.type," +
+      "fulfillment_sets.service_zones.geo_zones.country_code",
     pageSize: 200,
     optional: true,
   })
@@ -375,6 +497,23 @@ async function main() {
     fields: "id,title,handle",
     pageSize: 500,
   })
+  // Brands live in the Sama Link custom Medusa module (apps/backend/src/
+  // modules/brand). Optional in case a Medusa setup does not expose it.
+  // Products link to brands via product.metadata.brand_id (string), which
+  // we resolve to a brand handle below at sanitize time.
+  const rawBrands = await paginate("/admin/brands", {
+    fields: "id,name,handle,description,image_url",
+    pageSize: 200,
+    optional: true,
+  })
+  // Store-level config: name, default currency, supported currencies,
+  // default region/sales channel. Medusa always has at least one store.
+  const rawStores = await paginate("/admin/stores", {
+    fields:
+      "id,name,default_currency_code,default_region_id,default_sales_channel_id," +
+      "supported_currencies.currency_code,supported_currencies.is_default",
+    pageSize: 5,
+  })
 
   // Maps for cross-reference resolution.
   const regionsById = new Map(rawRegions.map((r) => [r.id, r.name]))
@@ -386,6 +525,9 @@ async function main() {
   )
   const categoryHandleById = new Map(
     rawCategories.map((c) => [c.id, c.handle])
+  )
+  const brandHandleById = new Map(
+    rawBrands.map((b) => [b.id, b.handle])
   )
 
   // Round 2 — entities that depend on the maps above. The provider and
@@ -404,7 +546,12 @@ async function main() {
   }
   const rawShippingOptions = await paginate("/admin/shipping-options", {
     fields:
-      "id,name,price_type,service_zone_id,shipping_profile_id,provider_id,prices.amount,prices.currency_code,rules.attribute,rules.operator,rules.value",
+      "id,name,price_type,service_zone_id,shipping_profile_id,provider_id," +
+      "prices.amount,prices.currency_code," +
+      "rules.attribute,rules.operator,rules.value," +
+      "service_zone.id,service_zone.name," +
+      "service_zone.geo_zones.type,service_zone.geo_zones.country_code," +
+      "type.id,type.label,type.code,type.description",
     pageSize: 200,
     optional: true,
   })
@@ -414,7 +561,7 @@ async function main() {
   })
   const rawProducts = await paginate("/admin/products", {
     fields:
-      "id,title,subtitle,handle,description,status,thumbnail,images.url,collection_id," +
+      "id,title,subtitle,handle,description,status,thumbnail,images.url,collection_id,metadata," +
       "categories.handle,tags.value,sales_channels.id," +
       "options.title,options.values.value," +
       "variants.id,variants.title,variants.sku,variants.options.option.title,variants.options.value," +
@@ -466,7 +613,7 @@ async function main() {
   )
   const products = sortBy(
     rawProducts.map((p) =>
-      sanitizeProduct(p, collectionHandleById, channelsById)
+      sanitizeProduct(p, collectionHandleById, channelsById, brandHandleById)
     ),
     (p) => p.handle
   )
@@ -474,6 +621,11 @@ async function main() {
     rawInventory.flatMap((i) => sanitizeInventoryLevel(i, locationsById)),
     (i) => `${i.sku}::${i.location_name}`
   )
+  const brands = sortBy(rawBrands.map(sanitizeBrand), (b) => b.handle)
+  // Medusa always returns at least one store; we surface it as a
+  // single object (not an array) since "store" is a singleton concept
+  // for the seed.
+  const store = rawStores[0] ? sanitizeStore(rawStores[0], regionsById, channelsById) : null
 
   const fixture = {
     $schema: "live-store-setup.v1",
@@ -481,6 +633,8 @@ async function main() {
     counts: {
       regions: regions.length,
       sales_channels: sales_channels.length,
+      store: store ? 1 : 0,
+      brands: brands.length,
       stock_locations: stock_locations.length,
       shipping_profiles: shipping_profiles.length,
       fulfillment_providers: fulfillment_providers.length,
@@ -491,10 +645,16 @@ async function main() {
       collections: collections.length,
       products: products.length,
       variants: products.reduce((n, p) => n + (p.variants?.length ?? 0), 0),
+      products_with_brand: products.reduce(
+        (n, p) => n + (p.brand_handle ? 1 : 0),
+        0
+      ),
       inventory_levels: inventory_levels.length,
     },
     regions,
     sales_channels,
+    store,
+    brands,
     stock_locations,
     shipping_profiles,
     fulfillment_providers,

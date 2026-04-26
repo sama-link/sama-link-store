@@ -36,25 +36,36 @@ Two steps, in order, both idempotent:
    with "user already exists"; the npm script's `|| true` swallows that
    so the seed step still runs.
 
-2. **Catalog + region + publishable key** — `medusa exec ./src/scripts/seed.ts`.
-   Loads the sanitized live-derived fixture at
-   `apps/backend/src/scripts/fixtures/live-store-setup.json` and ensures
-   each entity. Check-before-create for every entity, so re-runs are no-ops:
+2. **Store setup + catalog + region + publishable key** —
+   `medusa exec ./src/scripts/seed.ts`. Loads the sanitized live-derived
+   fixture at `apps/backend/src/scripts/fixtures/live-store-setup.json`
+   and ensures each entity. Check-before-create everywhere, so re-runs
+   are no-ops:
    - Egypt region (`currency_code=egp`, `countries=[eg]`)
    - Default Sales Channel (auto-created by Medusa boot; resolved by name)
-   - Stock locations (1: `Sama Link`)
+   - Singleton store: `name`, `default_currency_code`,
+     `supported_currencies`, `default_region_id`, `default_sales_channel_id`
+     — read via `query.graph`, written via `updateStores(id, data)`
+     (the only signature that actually persists; see seed.ts header note)
+   - Stock locations (1: `Sama Link`) with full `address` at create time
    - Shipping profiles (1: `Default Shipping Profile`)
+   - **Service zones** under each fulfillment_set, with geo_zones
+   - **Shipping options** with prices, rules, type — looked up by name
+     within their (location → fulfillment_set → service_zone) tree
+   - **29 brands** (custom `brand` module — apps/backend/src/modules/brand)
    - 26 product categories (parents-first, deterministic by handle)
    - 461 product tags (deterministic by `value`)
    - 917 products from the fixture — **5 skipped** because their only
-     variant has no SKU; SKU is the natural idempotency key for variant
-     pricing on subsequent runs
+     variant has no SKU; SKU is the natural idempotency key for pricing
    - 1 variant per product (916) + 1 product with 2 variants → 913 priced
      variants in EGP (amount per fixture)
    - Real GCS thumbnails + image URLs from the fixture (no migration —
      URLs are passed through and rendered by the storefront's
      `images.remotePatterns` for `storage.googleapis.com` and
      `placehold.co`)
+   - **Product → brand link** via `metadata.brand_id` — set at product
+     create time AND backfilled by a sweep over existing products so
+     pre-brand-fixture installs converge on the right link
    - Publishable API key titled `Storefront Default`, linked to the
      Default Sales Channel
    - Older hand-rolled demo handles (`gigabit-switch-8-port`,
@@ -63,9 +74,9 @@ Two steps, in order, both idempotent:
      every run if they exist locally — fully reversible from the admin
 
 The seed ends with a `Local development summary` block that prints the
-admin URL, admin email, region ID, publishable token, catalog counts,
-and the exact five `NEXT_PUBLIC_*` lines to paste into
-`apps/storefront/.env.local`.
+admin URL, admin email, region ID, publishable token, store name +
+default currency, catalog counts, fulfillment counts, and the exact
+five `NEXT_PUBLIC_*` lines to paste into `apps/storefront/.env.local`.
 
 ### Skipped with warning
 
@@ -73,11 +84,12 @@ These fixture sections are deliberately not seeded:
 
 | Section | Reason |
 |---|---|
-| `shipping_options` | Live export does not capture service zones, which Medusa v2 requires to attach a shipping option safely. Catalog display is unaffected. |
 | `inventory_levels` | Live admin API returned 404 on `/admin/inventory-items` and the fixture is empty. |
 | `fulfillment_providers` | Registered at boot via `medusa-config`, not via API. The `manual_manual` provider is already present in any local Medusa install. |
 | `payment_providers` | Live admin API returned 404 (provider config differs per Medusa setup). |
 | `collections` | Fixture is empty. |
+| Pickup-type fulfillment_set (`Sama Link pick up`) | Auto-created by Medusa with the stock location, but its `service_zones` array is empty in the fixture, so no real pickup option to seed. The fulfillment_set sits ready for an operator to add a zone in the admin UI. |
+| Stock-location address backfill on existing locations | `updateStockLocations(id, {address})` inserts a NEW `stock_location_address` row each call (it doesn't update in place). Address is set at create time on fresh DBs; existing locations are left alone to avoid orphan-row accumulation. |
 
 ## Idempotency guarantees
 
@@ -86,20 +98,48 @@ These fixture sections are deliberately not seeded:
 | Admin user          | `medusa user` errors → `\|\| true` keeps the chain alive          |
 | Egypt region        | Looked up by `currency_code=egp`; reused if found                 |
 | Sales channel       | Looked up by name (`Default Sales Channel`); never created        |
-| Stock locations     | Looked up by `name`; reused                                       |
+| Store               | Read via `query.graph`; updated only when name / supported_currencies / default_region_id / default_sales_channel_id differ from desired |
+| Stock locations     | Looked up by `name`; address set at create time only              |
 | Shipping profiles   | Looked up by `name`; reused                                       |
+| Service zones       | Listed per fulfillment_set; created per zone-name only when missing |
+| Shipping options    | Listed by `name`; created only when missing (and prices deduped)  |
+| Brands              | Bulk pre-fetch + per-handle defensive lookup before each create. Same `select: ["id","handle"]` pattern as categories |
 | Categories          | Bulk pre-fetch + per-handle defensive lookup before each create. Both calls pass `select: ["id","handle"]` because Medusa's default DTO omits the handle |
 | Tags                | Bulk pre-fetch with `select: ["id","value"]`; reused              |
 | Products            | Bulk pre-fetch with `select: ["id","handle"]`; reused             |
 | Variants/options    | Created with the parent product (no separate ensure step)         |
 | Variant prices      | Batched `query.graph` lookup; only adds EGP price if missing      |
+| Product → brand link | Sweep with `select: ["id","handle","metadata"]`; updates `metadata.brand_id` only when missing/wrong, preserving other metadata keys |
 | Thumbnails / images | Set at product create time from fixture URLs; not touched on re-runs |
 | Publishable key     | Looked up by title + type; reused                                 |
 | Key ↔ channel link  | Created only when the key was just created                        |
 
 Validated by running the command twice — second run produces zero new
-rows of any seeded entity. (Total runtime ~6 seconds for the all-skip
-case, ~13 seconds for a fresh DB seed of 912 products.)
+rows of any seeded entity and emits the "already up-to-date" log line
+for the store. (Total runtime ~6 seconds for the all-skip case;
+~18 seconds for the first run including the brand-link sweep across
+910 products; subsequent runs collapse to ~6 seconds again.)
+
+### Medusa v2 quirks worth knowing
+
+A handful of Medusa v2 module-service signatures took experimentation
+to nail down. Hard-won facts encoded in seed.ts:
+
+- `listProductCategories` / `listProductTags` / `listProducts` /
+  `listSalesChannels` / `listStockLocations` / `listShippingProfiles`
+  return DTOs with the natural-key field (handle / value / name) **omitted by default**.
+  Always pass `select: ["id", "<key>", ...]`.
+- `StoreModuleService` does NOT expose `listStores`. Read via
+  `query.graph({entity: "store", fields: [...]})`.
+- `updateStores` only persists in the **two-arg form**:
+  `updateStores(id, data)`. The single-object and array forms silently
+  no-op (Mikro-ORM treats every key as a filter, matches zero rows,
+  returns success).
+- `updateStockLocations(id, {address})` inserts a NEW
+  `stock_location_address` row instead of updating in place. So we
+  set the address only at create time and leave existing locations alone.
+- `updateProducts([...])` errors with "Trying to query by not existing
+  property Product.0". Use `updateProducts(id, data)` per item.
 
 ## What this seed does NOT include
 

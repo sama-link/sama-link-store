@@ -1,9 +1,11 @@
 {
   "$schema": "live-store-setup.v1",
-  "exported_at": "2026-04-26T20:45:39.071Z",
+  "exported_at": "2026-04-26T21:41:03.904Z",
   "counts": {
     "regions": 1,
     "sales_channels": 1,
+    "store": 1,
+    "brands": 29,
     "stock_locations": 1,
     "shipping_profiles": 1,
     "fulfillment_providers": 1,
@@ -14,6 +16,7 @@
     "collections": 0,
     "products": 917,
     "variants": 918,
+    "products_with_brand": 915,
     "inventory_levels": 0
   },
   "regions": [
@@ -32,9 +35,227 @@
       "is_disabled": false
     }
   ],
+  "store": {
+    "name": "Sama Link Store",
+    "default_currency_code": null,
+    "supported_currencies": [
+      {
+        "currency_code": "egp",
+        "is_default": true
+      }
+    ],
+    "default_region_name": "Egypt",
+    "default_sales_channel_name": "Default Sales Channel"
+  },
+  "brands": [
+    {
+      "name": "3COM",
+      "handle": "3com",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "APC Schneider",
+      "handle": "apc-schneider",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "ASUS",
+      "handle": "asus",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Brother",
+      "handle": "brother",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Cisco",
+      "handle": "cisco",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "CTS",
+      "handle": "cts",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "D-Link",
+      "handle": "d-link",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "DELL",
+      "handle": "dell",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Grandstream",
+      "handle": "grandstream",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Hikvision",
+      "handle": "hikvision",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "HP Aruba",
+      "handle": "hp-aruba",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Huawei",
+      "handle": "huawei",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "L'AVVENTO",
+      "handle": "l-avvento",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Legrand",
+      "handle": "legrand",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Lenovo",
+      "handle": "lenovo",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Linksys",
+      "handle": "linksys",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "MERCUSYS",
+      "handle": "mercusys",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "MSI",
+      "handle": "msi",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "NETSYS",
+      "handle": "netsys",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Panasonic",
+      "handle": "panasonic",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "PLANET",
+      "handle": "planet",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Premium-Line",
+      "handle": "premium-line",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "ProLink",
+      "handle": "prolink",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "TAPO",
+      "handle": "tapo",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Tenda",
+      "handle": "tenda",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "TP-Link",
+      "handle": "tp-link",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "UNV",
+      "handle": "unv",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "Western Digital",
+      "handle": "western-digital",
+      "description": null,
+      "image_url": null
+    },
+    {
+      "name": "ZKTeco",
+      "handle": "zkteco",
+      "description": null,
+      "image_url": null
+    }
+  ],
   "stock_locations": [
     {
-      "name": "Sama Link"
+      "name": "Sama Link",
+      "address": {
+        "address_1": "13 Socialist Institute, Montazah, Heliopolis District, in front of Maryland Park",
+        "address_2": "",
+        "city": "cairo",
+        "country_code": "eg",
+        "postal_code": "",
+        "province": ""
+      },
+      "fulfillment_sets": [
+        {
+          "name": "Sama Link shipping",
+          "type": "shipping",
+          "service_zones": [
+            {
+              "name": "Egypt",
+              "geo_zones": [
+                {
+                  "type": "country",
+                  "country_code": "eg"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Sama Link pick up",
+          "type": "pickup",
+          "service_zones": []
+        }
+      ]
     }
   ],
   "shipping_profiles": [
@@ -57,6 +278,20 @@
       "provider_id": "manual_manual",
       "profile_name": "Default Shipping Profile",
       "region_name": null,
+      "service_zone": {
+        "name": "Egypt",
+        "geo_zones": [
+          {
+            "type": "country",
+            "country_code": "eg"
+          }
+        ]
+      },
+      "type": {
+        "label": "Fast Delivery",
+        "code": "fast_delivery",
+        "description": null
+      },
       "prices": [
         {
           "amount": 50,
@@ -1677,6 +1912,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -1727,6 +1963,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -1777,6 +2014,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -1826,6 +2064,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -1877,6 +2116,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -1923,6 +2163,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -1969,6 +2210,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -2018,6 +2260,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -2064,6 +2307,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -2110,6 +2354,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -2160,6 +2405,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -2210,6 +2456,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -2259,6 +2506,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -2310,6 +2558,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -2361,6 +2610,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2410,6 +2660,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2459,6 +2710,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2510,6 +2762,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2560,6 +2813,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -2611,6 +2865,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2661,6 +2916,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2712,6 +2968,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2761,6 +3018,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2825,6 +3083,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2877,6 +3136,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2926,6 +3186,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -2977,6 +3238,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -3028,6 +3290,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -3078,6 +3341,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -3124,6 +3388,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -3170,6 +3435,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -3218,6 +3484,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -3265,6 +3532,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -3311,6 +3579,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -3363,6 +3632,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -3413,6 +3683,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -3463,6 +3734,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -3514,6 +3786,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -3565,6 +3838,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -3615,6 +3889,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -3665,6 +3940,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -3715,6 +3991,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -3765,6 +4042,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -3814,6 +4092,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -3865,6 +4144,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -3915,6 +4195,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -3965,6 +4246,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -4016,6 +4298,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -4066,6 +4349,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -4117,6 +4401,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -4168,6 +4453,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -4219,6 +4505,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -4271,6 +4558,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -4320,6 +4608,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -4370,6 +4659,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -4421,6 +4711,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -4468,6 +4759,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -4515,6 +4807,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -4560,6 +4853,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -4605,6 +4899,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -4650,6 +4945,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -4695,6 +4991,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -4744,6 +5041,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -4784,6 +5082,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -4832,6 +5131,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -4880,6 +5180,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -4926,6 +5227,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -4972,6 +5274,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5018,6 +5321,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5066,6 +5370,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5110,6 +5415,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5161,6 +5467,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5210,6 +5517,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5259,6 +5567,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5308,6 +5617,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5358,6 +5668,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5408,6 +5719,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5457,6 +5769,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5506,6 +5819,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5553,6 +5867,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5601,6 +5916,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5649,6 +5965,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5697,6 +6014,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -5747,6 +6065,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -5795,6 +6114,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -5846,6 +6166,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -5891,6 +6212,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -5943,6 +6265,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -5993,6 +6316,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -6045,6 +6369,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -6093,6 +6418,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "asus",
       "options": [
         {
           "title": "Title",
@@ -6142,6 +6468,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "asus",
       "options": [
         {
           "title": "Title",
@@ -6190,6 +6517,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "asus",
       "options": [
         {
           "title": "Title",
@@ -6238,6 +6566,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "asus",
       "options": [
         {
           "title": "Title",
@@ -6286,6 +6615,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "asus",
       "options": [
         {
           "title": "Title",
@@ -6333,6 +6663,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -6380,6 +6711,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -6427,6 +6759,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -6476,6 +6809,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -6520,6 +6854,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "brother",
       "options": [
         {
           "title": "Title",
@@ -6565,6 +6900,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "brother",
       "options": [
         {
           "title": "Title",
@@ -6609,6 +6945,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "brother",
       "options": [
         {
           "title": "Title",
@@ -6659,6 +6996,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -6709,6 +7047,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -6759,6 +7098,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -6807,6 +7147,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -6856,6 +7197,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -6905,6 +7247,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -6954,6 +7297,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7003,6 +7347,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7053,6 +7398,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7102,6 +7448,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7150,6 +7497,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7198,6 +7546,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7249,6 +7598,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7300,6 +7650,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7352,6 +7703,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7399,6 +7751,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7448,6 +7801,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cisco",
       "options": [
         {
           "title": "Title",
@@ -7496,6 +7850,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "cts",
       "options": [
         {
           "title": "Title",
@@ -7547,6 +7902,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -7597,6 +7953,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -7648,6 +8005,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -7700,6 +8058,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -7750,6 +8109,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -7800,6 +8160,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -7849,6 +8210,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -7900,6 +8262,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -7948,6 +8311,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -7997,6 +8361,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8047,6 +8412,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8099,6 +8465,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8148,6 +8515,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8199,6 +8567,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8251,6 +8620,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8301,6 +8671,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8353,6 +8724,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8403,6 +8775,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8454,6 +8827,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8503,6 +8877,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8553,6 +8928,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8603,6 +8979,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8652,6 +9029,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8702,6 +9080,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8752,6 +9131,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8801,6 +9181,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8848,6 +9229,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8897,6 +9279,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8947,6 +9330,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -8996,6 +9380,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9047,6 +9432,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9098,6 +9484,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9148,6 +9535,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9197,6 +9585,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9244,6 +9633,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9292,6 +9682,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9346,6 +9737,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9399,6 +9791,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9447,6 +9840,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9495,6 +9889,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9547,6 +9942,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9594,6 +9990,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9648,6 +10045,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9699,6 +10097,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9752,6 +10151,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9800,6 +10200,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9855,6 +10256,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9907,6 +10309,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -9957,6 +10360,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10007,6 +10411,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10059,6 +10464,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10108,6 +10514,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10156,6 +10563,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10204,6 +10612,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10253,6 +10662,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10303,6 +10713,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10354,6 +10765,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10405,6 +10817,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10455,6 +10868,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10506,6 +10920,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10555,6 +10970,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10604,6 +11020,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10653,6 +11070,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10703,6 +11121,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10750,6 +11169,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10799,6 +11219,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10849,6 +11270,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10898,6 +11320,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10947,6 +11370,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -10995,6 +11419,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -11044,6 +11469,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -11093,6 +11519,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -11142,6 +11569,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -11192,6 +11620,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -11240,6 +11669,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -11290,6 +11720,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -11338,6 +11769,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -11389,6 +11821,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -11440,6 +11873,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -11489,6 +11923,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "dell",
       "options": [
         {
           "title": "Title",
@@ -11538,6 +11973,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "dell",
       "options": [
         {
           "title": "Title",
@@ -11588,6 +12024,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "dell",
       "options": [
         {
           "title": "Title",
@@ -11632,6 +12069,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "dell",
       "options": [
         {
           "title": "Title",
@@ -11680,6 +12118,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -11728,6 +12167,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -11776,6 +12216,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -11824,6 +12265,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -11872,6 +12314,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -11920,6 +12363,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -11968,6 +12412,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12016,6 +12461,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12065,6 +12511,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12114,6 +12561,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12163,6 +12611,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12212,6 +12661,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12261,6 +12711,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12310,6 +12761,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12359,6 +12811,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12408,6 +12861,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12457,6 +12911,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12506,6 +12961,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12555,6 +13011,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12604,6 +13061,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -12650,6 +13108,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -12698,6 +13157,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -12747,6 +13207,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -12796,6 +13257,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -12843,6 +13305,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -12890,6 +13353,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -12938,6 +13402,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -12987,6 +13452,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -13036,6 +13502,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13083,6 +13550,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -13131,6 +13599,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13179,6 +13648,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13227,6 +13697,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13275,6 +13746,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13323,6 +13795,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13371,6 +13844,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13419,6 +13893,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13466,6 +13941,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13514,6 +13990,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13562,6 +14039,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13610,6 +14088,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13657,6 +14136,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13705,6 +14185,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13753,6 +14234,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13801,6 +14283,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13848,6 +14331,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13897,6 +14381,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13946,6 +14431,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -13995,6 +14481,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14043,6 +14530,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14091,6 +14579,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14140,6 +14629,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14189,6 +14679,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14238,6 +14729,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14286,6 +14778,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14333,6 +14826,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14381,6 +14875,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14429,6 +14924,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14477,6 +14973,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14524,6 +15021,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14573,6 +15071,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14622,6 +15121,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14669,6 +15169,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14715,6 +15216,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14766,6 +15268,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14816,6 +15319,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14867,6 +15371,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14918,6 +15423,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -14970,6 +15476,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -15020,6 +15527,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -15066,6 +15574,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -15113,6 +15622,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -15163,6 +15673,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -15213,6 +15724,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -15263,6 +15775,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -15313,6 +15826,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -15363,6 +15877,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -15413,6 +15928,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -15465,6 +15981,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -15511,6 +16028,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -15561,6 +16079,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -15611,6 +16130,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -15660,6 +16180,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -15711,6 +16232,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -15761,6 +16283,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -15810,6 +16333,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -15859,6 +16383,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -15908,6 +16433,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -15959,6 +16485,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16009,6 +16536,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16061,6 +16589,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16110,6 +16639,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16161,6 +16691,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16210,6 +16741,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16256,6 +16788,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16305,6 +16838,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16355,6 +16889,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16402,6 +16937,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16449,6 +16985,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16496,6 +17033,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16542,6 +17080,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16590,6 +17129,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16641,6 +17181,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16692,6 +17233,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16743,6 +17285,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16792,6 +17335,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16841,6 +17385,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16892,6 +17437,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16941,6 +17487,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -16989,6 +17536,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -17040,6 +17588,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17088,6 +17637,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17138,6 +17688,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17189,6 +17740,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17240,6 +17792,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17291,6 +17844,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17341,6 +17895,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17391,6 +17946,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17444,6 +18000,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17495,6 +18052,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17546,6 +18104,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17594,6 +18153,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17645,6 +18205,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17696,6 +18257,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17746,6 +18308,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17796,6 +18359,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17845,6 +18409,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17895,6 +18460,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17943,6 +18509,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -17995,6 +18562,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -18044,6 +18612,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -18092,6 +18661,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -18141,6 +18711,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -18190,6 +18761,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -18242,6 +18814,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -18294,6 +18867,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -18343,6 +18917,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -18393,6 +18968,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -18444,6 +19020,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -18494,6 +19071,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -18543,6 +19121,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -18588,6 +19167,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -18636,6 +19216,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -18686,6 +19267,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -18735,6 +19317,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -18786,6 +19369,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -18838,6 +19422,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -18888,6 +19473,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -18940,6 +19526,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -18989,6 +19576,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19039,6 +19627,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19090,6 +19679,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19140,6 +19730,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19189,6 +19780,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19240,6 +19832,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19291,6 +19884,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19342,6 +19936,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19391,6 +19986,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19442,6 +20038,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19493,6 +20090,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19544,6 +20142,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19591,6 +20190,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19636,6 +20236,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19680,6 +20281,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19724,6 +20326,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19768,6 +20371,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19819,6 +20423,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19869,6 +20474,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19920,6 +20526,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -19970,6 +20577,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -20021,6 +20629,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -20072,6 +20681,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -20122,6 +20732,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -20173,6 +20784,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -20223,6 +20835,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -20274,6 +20887,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -20326,6 +20940,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -20377,6 +20992,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -20424,6 +21040,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "huawei",
       "options": [
         {
           "title": "Title",
@@ -20472,6 +21089,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "planet",
       "options": [
         {
           "title": "Title",
@@ -20523,6 +21141,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -20571,6 +21190,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -20622,6 +21242,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -20668,6 +21289,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "l-avvento",
       "options": [
         {
           "title": "Title",
@@ -20717,6 +21339,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -20762,6 +21385,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -20814,6 +21438,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -20859,6 +21484,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -20907,6 +21533,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -20957,6 +21584,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -21007,6 +21635,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -21057,6 +21686,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -21103,6 +21733,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -21151,6 +21782,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -21195,6 +21827,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "lenovo",
       "options": [
         {
           "title": "Title",
@@ -21245,6 +21878,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "lenovo",
       "options": [
         {
           "title": "Title",
@@ -21289,6 +21923,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "lenovo",
       "options": [
         {
           "title": "Title",
@@ -21337,6 +21972,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "lenovo",
       "options": [
         {
           "title": "Title",
@@ -21381,6 +22017,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "lenovo",
       "options": [
         {
           "title": "Title",
@@ -21425,6 +22062,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "lenovo",
       "options": [
         {
           "title": "Title",
@@ -21469,6 +22107,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "lenovo",
       "options": [
         {
           "title": "Title",
@@ -21513,6 +22152,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "lenovo",
       "options": [
         {
           "title": "Title",
@@ -21557,6 +22197,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "lenovo",
       "options": [
         {
           "title": "Title",
@@ -21607,6 +22248,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "linksys",
       "options": [
         {
           "title": "Title",
@@ -21657,6 +22299,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "linksys",
       "options": [
         {
           "title": "Title",
@@ -21706,6 +22349,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "linksys",
       "options": [
         {
           "title": "Title",
@@ -21756,6 +22400,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "linksys",
       "options": [
         {
           "title": "Title",
@@ -21805,6 +22450,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "linksys",
       "options": [
         {
           "title": "Title",
@@ -21855,6 +22501,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "linksys",
       "options": [
         {
           "title": "Title",
@@ -21906,6 +22553,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "linksys",
       "options": [
         {
           "title": "Title",
@@ -21957,6 +22605,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "linksys",
       "options": [
         {
           "title": "Title",
@@ -22005,6 +22654,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -22052,6 +22702,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "mercusys",
       "options": [
         {
           "title": "Title",
@@ -22100,6 +22751,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -22150,6 +22802,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "msi",
       "options": [
         {
           "title": "Title",
@@ -22201,6 +22854,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22251,6 +22905,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22302,6 +22957,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22351,6 +23007,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22401,6 +23058,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22453,6 +23111,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22505,6 +23164,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22555,6 +23215,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22604,6 +23265,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22654,6 +23316,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22704,6 +23367,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22754,6 +23418,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22804,6 +23469,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22852,6 +23518,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22902,6 +23569,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22950,6 +23618,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -22999,6 +23668,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23047,6 +23717,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23096,6 +23767,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23144,6 +23816,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23193,6 +23866,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23241,6 +23915,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23292,6 +23967,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23340,6 +24016,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23389,6 +24066,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23437,6 +24115,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23486,6 +24165,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23534,6 +24214,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23583,6 +24264,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23631,6 +24313,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23680,6 +24363,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23730,6 +24414,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23779,6 +24464,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23827,6 +24513,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23876,6 +24563,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23924,6 +24612,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -23973,6 +24662,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24021,6 +24711,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24072,6 +24763,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24120,6 +24812,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24169,6 +24862,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24217,6 +24911,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24266,6 +24961,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24314,6 +25010,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24363,6 +25060,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24411,6 +25109,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24459,6 +25158,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24508,6 +25208,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24556,6 +25257,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24605,6 +25307,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24653,6 +25356,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24702,6 +25406,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24750,6 +25455,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24800,6 +25506,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24848,6 +25555,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24897,6 +25605,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24945,6 +25654,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -24994,6 +25704,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25042,6 +25753,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25091,6 +25803,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25139,6 +25852,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25189,6 +25903,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25237,6 +25952,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25286,6 +26002,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25334,6 +26051,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25385,6 +26103,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25433,6 +26152,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25483,6 +26203,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25531,6 +26252,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25582,6 +26304,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25630,6 +26353,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25679,6 +26403,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25727,6 +26452,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25776,6 +26502,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25824,6 +26551,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25873,6 +26601,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25921,6 +26650,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -25970,6 +26700,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -26019,6 +26750,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -26070,6 +26802,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -26119,6 +26852,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -26168,6 +26902,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "panasonic",
       "options": [
         {
           "title": "Title",
@@ -26214,6 +26949,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "panasonic",
       "options": [
         {
           "title": "Title",
@@ -26262,6 +26998,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "panasonic",
       "options": [
         {
           "title": "Title",
@@ -26310,6 +27047,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "panasonic",
       "options": [
         {
           "title": "Title",
@@ -26358,6 +27096,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "panasonic",
       "options": [
         {
           "title": "Title",
@@ -26411,6 +27150,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "panasonic",
       "options": [
         {
           "title": "Title",
@@ -26463,6 +27203,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "panasonic",
       "options": [
         {
           "title": "Title",
@@ -26515,6 +27256,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "panasonic",
       "options": [
         {
           "title": "Title",
@@ -26566,6 +27308,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -26617,6 +27360,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -26668,6 +27412,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -26719,6 +27464,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -26768,6 +27514,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -26819,6 +27566,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -26868,6 +27616,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -26919,6 +27668,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -26970,6 +27720,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27019,6 +27770,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27068,6 +27820,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27117,6 +27870,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27166,6 +27920,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27215,6 +27970,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27264,6 +28020,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27315,6 +28072,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27366,6 +28124,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27415,6 +28174,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27464,6 +28224,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27513,6 +28274,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27562,6 +28324,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27611,6 +28374,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27662,6 +28426,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27711,6 +28476,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27762,6 +28528,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27813,6 +28580,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27862,6 +28630,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27911,6 +28680,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -27960,6 +28730,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28009,6 +28780,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28060,6 +28832,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28111,6 +28884,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28162,6 +28936,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28211,6 +28986,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28260,6 +29036,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28309,6 +29086,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28359,6 +29137,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28411,6 +29190,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28463,6 +29243,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28515,6 +29296,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28567,6 +29349,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28619,6 +29402,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28671,6 +29455,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28723,6 +29508,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28775,6 +29561,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28827,6 +29614,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28879,6 +29667,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28930,6 +29719,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -28981,6 +29771,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29032,6 +29823,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29083,6 +29875,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29134,6 +29927,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29185,6 +29979,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29236,6 +30031,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29289,6 +30085,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29341,6 +30138,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29392,6 +30190,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29445,6 +30244,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29498,6 +30298,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29551,6 +30352,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29604,6 +30406,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29657,6 +30460,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29710,6 +30514,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29763,6 +30568,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29816,6 +30622,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29867,6 +30674,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29919,6 +30727,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -29971,6 +30780,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30023,6 +30833,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30075,6 +30886,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30127,6 +30939,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30179,6 +30992,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30231,6 +31045,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30281,6 +31096,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30331,6 +31147,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30381,6 +31198,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30433,6 +31251,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30483,6 +31302,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30533,6 +31353,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30585,6 +31406,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30635,6 +31457,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30687,6 +31510,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30737,6 +31561,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30786,6 +31611,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30835,6 +31661,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30886,6 +31713,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30935,6 +31763,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -30984,6 +31813,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31035,6 +31865,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31084,6 +31915,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31137,6 +31969,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31189,6 +32022,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31240,6 +32074,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -31289,6 +32124,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -31338,6 +32174,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31387,6 +32224,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -31438,6 +32276,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31489,6 +32328,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31540,6 +32380,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31590,6 +32431,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31640,6 +32482,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31690,6 +32533,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31740,6 +32584,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31791,6 +32636,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31842,6 +32688,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31893,6 +32740,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31943,6 +32791,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -31993,6 +32842,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -32044,6 +32894,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -32095,6 +32946,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -32146,6 +32998,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -32196,6 +33049,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -32245,6 +33099,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -32295,6 +33150,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -32345,6 +33201,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -32395,6 +33252,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -32441,6 +33299,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "planet",
       "options": [
         {
           "title": "Title",
@@ -32488,6 +33347,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "planet",
       "options": [
         {
           "title": "Title",
@@ -32535,6 +33395,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "planet",
       "options": [
         {
           "title": "Title",
@@ -32582,6 +33443,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "planet",
       "options": [
         {
           "title": "Title",
@@ -32630,6 +33492,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "planet",
       "options": [
         {
           "title": "Title",
@@ -32678,6 +33541,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "planet",
       "options": [
         {
           "title": "Title",
@@ -32727,6 +33591,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "premium-line",
       "options": [
         {
           "title": "Title",
@@ -32776,6 +33641,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "premium-line",
       "options": [
         {
           "title": "Title",
@@ -32825,6 +33691,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "premium-line",
       "options": [
         {
           "title": "Title",
@@ -32870,6 +33737,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "premium-line",
       "options": [
         {
           "title": "Title",
@@ -32919,6 +33787,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "premium-line",
       "options": [
         {
           "title": "Title",
@@ -32968,6 +33837,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -33015,6 +33885,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "prolink",
       "options": [
         {
           "title": "Title",
@@ -33064,6 +33935,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -33113,6 +33985,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -33163,6 +34036,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -33212,6 +34086,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hp-aruba",
       "options": [
         {
           "title": "Title",
@@ -33259,6 +34134,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "3com",
       "options": [
         {
           "title": "Title",
@@ -33310,6 +34186,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "legrand",
       "options": [
         {
           "title": "Title",
@@ -33360,6 +34237,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -33407,6 +34285,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -33454,6 +34333,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -33501,6 +34381,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -33548,6 +34429,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -33597,6 +34479,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "zkteco",
       "options": [
         {
           "title": "Title",
@@ -33645,6 +34528,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -33694,6 +34578,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -33743,6 +34628,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "apc-schneider",
       "options": [
         {
           "title": "Title",
@@ -33794,6 +34680,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -33848,6 +34735,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -33896,6 +34784,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -33951,6 +34840,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34001,6 +34891,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34051,6 +34942,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34105,6 +34997,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34156,6 +35049,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34205,6 +35099,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34257,6 +35152,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34303,6 +35199,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34352,6 +35249,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34404,6 +35302,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34448,6 +35347,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34500,6 +35400,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34552,6 +35453,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34604,6 +35506,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34657,6 +35560,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34707,6 +35611,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34753,6 +35658,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34802,6 +35708,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34855,6 +35762,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -34906,6 +35814,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -34955,6 +35864,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35006,6 +35916,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35050,6 +35961,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35099,6 +36011,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35146,6 +36059,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35190,6 +36104,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35244,6 +36159,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35290,6 +36206,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35334,6 +36251,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35379,6 +36297,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35430,6 +36349,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35478,6 +36398,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35528,6 +36449,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35575,6 +36497,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35623,6 +36546,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35671,6 +36595,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35719,6 +36644,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35772,6 +36698,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35823,6 +36750,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35872,6 +36800,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35921,6 +36850,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -35970,6 +36900,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36019,6 +36950,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36068,6 +37000,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36117,6 +37050,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36170,6 +37104,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36215,6 +37150,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36267,6 +37203,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36316,6 +37253,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36369,6 +37307,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36420,6 +37359,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36472,6 +37412,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36524,6 +37465,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36573,6 +37515,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36623,6 +37566,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36672,6 +37616,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36720,6 +37665,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36771,6 +37717,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36820,6 +37767,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36870,6 +37818,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36918,6 +37867,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tenda",
       "options": [
         {
           "title": "Title",
@@ -36965,6 +37915,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37012,6 +37963,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37062,6 +38014,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37113,6 +38066,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37163,6 +38117,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37214,6 +38169,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37262,6 +38218,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37311,6 +38268,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37361,6 +38319,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37413,6 +38372,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37461,6 +38421,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37512,6 +38473,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37563,6 +38525,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37611,6 +38574,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37662,6 +38626,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37712,6 +38677,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37763,6 +38729,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37814,6 +38781,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37863,6 +38831,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37914,6 +38883,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -37964,6 +38934,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38014,6 +38985,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38062,6 +39034,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38112,6 +39085,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38162,6 +39136,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38211,6 +39186,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38260,6 +39236,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38310,6 +39287,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38360,6 +39338,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38410,6 +39389,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38460,6 +39440,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38505,6 +39486,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38554,6 +39536,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38604,6 +39587,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38653,6 +39637,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38702,6 +39687,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38755,6 +39741,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38803,6 +39790,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38853,6 +39841,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38905,6 +39894,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -38950,6 +39940,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": null,
       "options": [
         {
           "title": "Title",
@@ -38999,6 +39990,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39050,6 +40042,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39100,6 +40093,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39151,6 +40145,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39205,6 +40200,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39254,6 +40250,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39299,6 +40296,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39348,6 +40346,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39398,6 +40397,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39451,6 +40451,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39502,6 +40503,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39550,6 +40552,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39594,6 +40597,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39644,6 +40648,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39693,6 +40698,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39745,6 +40751,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39794,6 +40801,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39846,6 +40854,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39899,6 +40908,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -39949,6 +40959,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40002,6 +41013,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40054,6 +41066,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40106,6 +41119,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40157,6 +41171,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40212,6 +41227,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40264,6 +41280,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40316,6 +41333,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40367,6 +41385,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40418,6 +41437,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40471,6 +41491,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40516,6 +41537,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40561,6 +41583,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40612,6 +41635,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40661,6 +41685,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40706,6 +41731,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40751,6 +41777,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": null,
       "options": [
         {
           "title": "Title",
@@ -40799,6 +41826,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40846,6 +41874,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40898,6 +41927,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40942,6 +41972,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -40992,6 +42023,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41040,6 +42072,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41091,6 +42124,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41142,6 +42176,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41195,6 +42230,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41246,6 +42282,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41295,6 +42332,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41348,6 +42386,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41393,6 +42432,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41448,6 +42488,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41502,6 +42543,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41553,6 +42595,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41603,6 +42646,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41653,6 +42697,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41703,6 +42748,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41754,6 +42800,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41805,6 +42852,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41855,6 +42903,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41905,6 +42954,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -41953,6 +43003,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42009,6 +43060,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tapo",
       "options": [
         {
           "title": "Title",
@@ -42058,6 +43110,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42109,6 +43162,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42156,6 +43210,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42203,6 +43258,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42252,6 +43308,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42306,6 +43363,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42359,6 +43417,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42411,6 +43470,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42463,6 +43523,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42515,6 +43576,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42567,6 +43629,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42619,6 +43682,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42672,6 +43736,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42725,6 +43790,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42774,6 +43840,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42826,6 +43893,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42878,6 +43946,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42931,6 +44000,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -42983,6 +44053,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43035,6 +44106,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43087,6 +44159,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43139,6 +44212,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43191,6 +44265,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43242,6 +44317,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43292,6 +44368,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43340,6 +44417,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43392,6 +44470,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43442,6 +44521,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43494,6 +44574,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43545,6 +44626,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43595,6 +44677,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43648,6 +44731,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43700,6 +44784,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43753,6 +44838,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43802,6 +44888,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43851,6 +44938,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43901,6 +44989,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43946,6 +45035,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -43996,6 +45086,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -44045,6 +45136,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -44094,6 +45186,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "hikvision",
       "options": [
         {
           "title": "Title",
@@ -44144,6 +45237,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -44195,6 +45289,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -44241,6 +45336,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -44287,6 +45383,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -44337,6 +45434,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -44383,6 +45481,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "grandstream",
       "options": [
         {
           "title": "Title",
@@ -44432,6 +45531,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "tp-link",
       "options": [
         {
           "title": "Title",
@@ -44481,6 +45581,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -44533,6 +45634,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -44582,6 +45684,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -44635,6 +45738,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -44686,6 +45790,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -44738,6 +45843,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -44787,6 +45893,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -44838,6 +45945,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -44889,6 +45997,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -44936,6 +46045,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -44987,6 +46097,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -45039,6 +46150,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -45089,6 +46201,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -45138,6 +46251,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "unv",
       "options": [
         {
           "title": "Title",
@@ -45188,6 +46302,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45238,6 +46353,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45288,6 +46404,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45338,6 +46455,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45387,6 +46505,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45437,6 +46556,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45487,6 +46607,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45537,6 +46658,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45587,6 +46709,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45637,6 +46760,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45687,6 +46811,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45737,6 +46862,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45788,6 +46914,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45839,6 +46966,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45889,6 +47017,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45939,6 +47068,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -45989,6 +47119,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -46039,6 +47170,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -46089,6 +47221,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -46139,6 +47272,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -46190,6 +47324,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -46240,6 +47375,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -46291,6 +47427,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -46342,6 +47479,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -46390,6 +47528,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "netsys",
       "options": [
         {
           "title": "Title",
@@ -46439,6 +47578,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "western-digital",
       "options": [
         {
           "title": "Title",
@@ -46488,6 +47628,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "western-digital",
       "options": [
         {
           "title": "Title",
@@ -46537,6 +47678,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "western-digital",
       "options": [
         {
           "title": "Title",
@@ -46586,6 +47728,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "western-digital",
       "options": [
         {
           "title": "Title",
@@ -46634,6 +47777,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "western-digital",
       "options": [
         {
           "title": "Title",
@@ -46683,6 +47827,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -46733,6 +47878,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -46783,6 +47929,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "d-link",
       "options": [
         {
           "title": "Title",
@@ -46834,6 +47981,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "zkteco",
       "options": [
         {
           "title": "Title",
@@ -46880,6 +48028,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "zkteco",
       "options": [
         {
           "title": "Title",
@@ -46931,6 +48080,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "zkteco",
       "options": [
         {
           "title": "Title",
@@ -46982,6 +48132,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "zkteco",
       "options": [
         {
           "title": "Title",
@@ -47034,6 +48185,7 @@
       "sales_channel_names": [
         "Default Sales Channel"
       ],
+      "brand_handle": "zkteco",
       "options": [
         {
           "title": "Title",

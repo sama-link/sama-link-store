@@ -35,6 +35,7 @@ import type {
   IRegionModuleService,
   ISalesChannelModuleService,
   IStockLocationService,
+  IStoreModuleService,
   RegionDTO,
 } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
@@ -42,6 +43,11 @@ import type { Link } from "@medusajs/modules-sdk"
 import type { RemoteQueryFunction } from "@medusajs/types"
 import { promises as fs } from "fs"
 import path from "path"
+// Custom Sama Link brand module (apps/backend/src/modules/brand). Resolved
+// from the container by string key BRAND_MODULE; products link to brands
+// via product.metadata.brand_id (free-form string, not a formal link).
+import { BRAND_MODULE } from "../modules/brand"
+import type BrandModuleService from "../modules/brand/service"
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const SEED_CURRENCY = "egp"
@@ -101,6 +107,7 @@ type FixtureProduct = {
   category_handles: string[]
   tag_values: string[]
   sales_channel_names: string[]
+  brand_handle: string | null
   options: FixtureProductOption[]
   variants: FixtureVariant[]
 }
@@ -109,19 +116,70 @@ type FixtureSalesChannel = {
   description: string | null
   is_disabled: boolean
 }
-type FixtureStockLocation = { name: string | null }
+type FixtureGeoZone = {
+  type: string | null
+  country_code: string | null
+}
+type FixtureServiceZone = {
+  name: string | null
+  geo_zones: FixtureGeoZone[]
+}
+type FixtureFulfillmentSet = {
+  name: string | null
+  type: string | null
+  service_zones: FixtureServiceZone[]
+}
+type FixtureStockLocationAddress = {
+  address_1: string | null
+  address_2: string | null
+  city: string | null
+  country_code: string | null
+  postal_code: string | null
+  province: string | null
+}
+type FixtureStockLocation = {
+  name: string | null
+  address: FixtureStockLocationAddress | null
+  fulfillment_sets: FixtureFulfillmentSet[]
+}
 type FixtureShippingProfile = { name: string | null; type: string | null }
+type FixtureShippingOption = {
+  name: string | null
+  price_type: string | null
+  provider_id: string | null
+  profile_name: string | null
+  region_name: string | null
+  service_zone: { name: string | null; geo_zones: FixtureGeoZone[] } | null
+  type: { label: string | null; code: string | null; description: string | null } | null
+  prices: Array<{ amount: number | null; currency_code: string | null }>
+  rules: Array<{ attribute: string | null; operator: string | null; value: unknown }>
+}
+type FixtureBrand = {
+  name: string | null
+  handle: string | null
+  description: string | null
+  image_url: string | null
+}
+type FixtureStore = {
+  name: string | null
+  default_currency_code: string | null
+  supported_currencies: Array<{ currency_code: string | null; is_default: boolean }>
+  default_region_name: string | null
+  default_sales_channel_name: string | null
+}
 type Fixture = {
   $schema: string
   exported_at: string
   counts: Record<string, number>
   regions: FixtureRegion[]
   sales_channels: FixtureSalesChannel[]
+  store: FixtureStore | null
+  brands: FixtureBrand[]
   stock_locations: FixtureStockLocation[]
   shipping_profiles: FixtureShippingProfile[]
   fulfillment_providers: Array<{ id: string | null }>
   payment_providers: Array<{ id: string | null }>
-  shipping_options: unknown[]
+  shipping_options: FixtureShippingOption[]
   product_categories: FixtureCategory[]
   product_tags: FixtureTag[]
   collections: Array<{ title: string | null; handle: string | null }>
@@ -231,46 +289,507 @@ async function resolveDefaultSalesChannelId(
 async function ensureStockLocations(
   stockLocationService: IStockLocationService,
   fixture: Fixture
-): Promise<void> {
-  if (fixture.stock_locations.length === 0) return
+): Promise<Map<string, string>> {
+  const nameToId = new Map<string, string>()
+  if (fixture.stock_locations.length === 0) return nameToId
+
+  // Need address fields too so we can decide whether to update an existing
+  // location's address. Medusa's default DTO omits address — explicit select.
   const existing = await stockLocationService.listStockLocations(
     {},
-    { take: 100, select: ["id", "name"] }
+    {
+      take: 100,
+      select: [
+        "id",
+        "name",
+        "address.id",
+        "address.address_1",
+        "address.city",
+        "address.country_code",
+      ],
+    }
   )
-  const existingNames = new Set(existing.map((l) => l.name))
+  const existingByName = new Map<string, (typeof existing)[number]>()
+  for (const e of existing) {
+    if (e.name) {
+      existingByName.set(e.name, e)
+      nameToId.set(e.name, e.id)
+    }
+  }
+
   let created = 0
   for (const loc of fixture.stock_locations) {
-    if (!loc.name || existingNames.has(loc.name)) continue
-    await stockLocationService.createStockLocations([{ name: loc.name }])
+    if (!loc.name) continue
+
+    const addressInput = loc.address
+      ? {
+          address_1: loc.address.address_1 ?? "",
+          address_2: loc.address.address_2 ?? "",
+          city: loc.address.city ?? "",
+          country_code: (loc.address.country_code ?? "").toLowerCase(),
+          postal_code: loc.address.postal_code ?? "",
+          province: loc.address.province ?? "",
+        }
+      : undefined
+
+    const existingLoc = existingByName.get(loc.name)
+    if (existingLoc) {
+      // Existing location → leave alone. Medusa v2's
+      // updateStockLocations(id, {address}) inserts a NEW row in
+      // stock_location_address every call (it doesn't update the linked
+      // row in place), so naive backfill on re-runs would accumulate
+      // orphaned address rows. Fresh DBs get the address at create time
+      // below; existing locations are an admin responsibility from here.
+      continue
+    }
+
+    const [createdLoc] = await stockLocationService.createStockLocations([
+      {
+        name: loc.name,
+        ...(addressInput ? { address: addressInput } : {}),
+      },
+    ])
+    if (createdLoc?.name) nameToId.set(createdLoc.name, createdLoc.id)
     created++
   }
   console.log(
     `[seed] stock locations: ${created} created, ${existing.length} pre-existing`
   )
+  return nameToId
 }
 
 // ─── Shipping profile (presence ensure; options themselves are skipped) ─────
 async function ensureShippingProfiles(
   fulfillmentService: IFulfillmentModuleService,
   fixture: Fixture
-): Promise<void> {
-  if (fixture.shipping_profiles.length === 0) return
+): Promise<Map<string, string>> {
+  const nameToId = new Map<string, string>()
+  if (fixture.shipping_profiles.length === 0) return nameToId
+
   const existing = await fulfillmentService.listShippingProfiles(
     {},
     { take: 100, select: ["id", "name"] }
   )
-  const existingNames = new Set(existing.map((p) => p.name))
+  for (const p of existing) {
+    if (p.name) nameToId.set(p.name, p.id)
+  }
+
   let created = 0
   for (const profile of fixture.shipping_profiles) {
-    if (!profile.name || existingNames.has(profile.name)) continue
-    await fulfillmentService.createShippingProfiles([
+    if (!profile.name || nameToId.has(profile.name)) continue
+    const [c] = await fulfillmentService.createShippingProfiles([
       { name: profile.name, type: profile.type ?? "default" },
     ])
+    if (c?.name) nameToId.set(c.name, c.id)
     created++
   }
   console.log(
     `[seed] shipping profiles: ${created} created, ${existing.length} pre-existing`
   )
+  return nameToId
+}
+
+// ─── Brands (custom Sama Link module) ───────────────────────────────────────
+async function ensureBrands(
+  brandService: BrandModuleService,
+  fixture: Fixture
+): Promise<Map<string, string>> {
+  const handleToId = new Map<string, string>()
+  if (fixture.brands.length === 0) return handleToId
+
+  // Same select-explicit pattern used elsewhere — Medusa's default DTO can
+  // omit handle from list responses and silently break idempotency.
+  const existing = await brandService.listBrands(
+    {},
+    { take: 1000, select: ["id", "handle"] }
+  )
+  for (const b of existing as Array<{ id: string; handle: string }>) {
+    if (b.handle) handleToId.set(b.handle, b.id)
+  }
+  const preExisting = handleToId.size
+
+  let created = 0
+  for (const fb of fixture.brands) {
+    if (!fb.handle) continue
+    if (handleToId.has(fb.handle)) continue
+
+    // Defensive per-handle re-check — same rationale as ensureCategories.
+    const [perHandle] = (await brandService.listBrands(
+      { handle: fb.handle },
+      { take: 1, select: ["id", "handle"] }
+    )) as Array<{ id: string; handle: string }>
+    if (perHandle) {
+      handleToId.set(perHandle.handle, perHandle.id)
+      continue
+    }
+
+    const [b] = (await brandService.createBrands([
+      {
+        name: fb.name ?? fb.handle,
+        handle: fb.handle,
+        description: fb.description,
+        image_url: fb.image_url,
+      },
+    ])) as Array<{ id: string; handle: string }>
+    if (b?.handle) handleToId.set(b.handle, b.id)
+    created++
+  }
+  console.log(
+    `[seed] brands: ${created} created, ${preExisting} pre-existing, ${handleToId.size} total`
+  )
+  return handleToId
+}
+
+// ─── Store settings ─────────────────────────────────────────────────────────
+// Updates the singleton Medusa store with the live-derived name, supported
+// currencies, and default region/sales-channel. Idempotent — safe to call
+// every run because the desired state is identical each time.
+async function ensureStoreSettings(
+  storeService: IStoreModuleService,
+  query: RemoteQueryFunction,
+  fixture: Fixture,
+  defaultRegionId: string,
+  defaultSalesChannelId: string
+): Promise<void> {
+  if (!fixture.store) return
+  // NOTE: Medusa v2's StoreModuleService doesn't expose listStores (only
+  // createStores/upsertStores/updateStores). Reading goes through the
+  // remote query, which supports the `supported_currencies.*` field path.
+  console.log("[seed] store: reading current store via query.graph")
+  const { data: stores } = await query.graph({
+    entity: "store",
+    fields: [
+      "id",
+      "name",
+      "default_region_id",
+      "default_sales_channel_id",
+      "supported_currencies.currency_code",
+      "supported_currencies.is_default",
+    ],
+  })
+  console.log(`[seed] store: query.graph returned ${stores?.length ?? 0} store(s)`)
+  if (!stores || stores.length === 0) {
+    console.log(
+      "[seed] store: no store found — Medusa should auto-create one on boot. Skipping."
+    )
+    return
+  }
+  const store = stores[0] as {
+    id: string
+    name: string
+    default_region_id: string | null
+    default_sales_channel_id: string | null
+    supported_currencies?: Array<{ currency_code: string; is_default: boolean }>
+  }
+
+  const desiredName = fixture.store.name ?? store.name
+  const desiredCurrencies = fixture.store.supported_currencies
+    .filter((c) => c.currency_code)
+    .map((c) => ({
+      currency_code: c.currency_code!,
+      is_default: c.is_default,
+    }))
+
+  // Compute whether anything actually needs updating, so the log line is
+  // truthful and we avoid touching the row on no-op runs.
+  const currentCurrencies = (store.supported_currencies ?? [])
+    .map((c) => `${c.currency_code}:${c.is_default ? "1" : "0"}`)
+    .sort()
+    .join(",")
+  const wantedCurrencies = desiredCurrencies
+    .map((c) => `${c.currency_code}:${c.is_default ? "1" : "0"}`)
+    .sort()
+    .join(",")
+
+  const nameMatches = store.name === desiredName
+  const currenciesMatch =
+    desiredCurrencies.length === 0 || currentCurrencies === wantedCurrencies
+  const regionMatches = store.default_region_id === defaultRegionId
+  const channelMatches = store.default_sales_channel_id === defaultSalesChannelId
+
+  if (nameMatches && currenciesMatch && regionMatches && channelMatches) {
+    console.log(
+      `[seed] store: '${store.name}' already up-to-date (default_currency=${desiredCurrencies.find((c) => c.is_default)?.currency_code ?? "(none)"})`
+    )
+    return
+  }
+
+  // NOTE: Medusa v2's StoreModuleService.updateStores requires the
+  // (id, data) two-argument form to actually persist. The single-object
+  // and array forms silently no-op (Mikro-ORM treats every key as a
+  // filter, matches zero rows, and returns success without writing).
+  // Verified against the live DB: only this signature changes the row.
+  await (storeService.updateStores as unknown as (
+    id: string,
+    data: Record<string, unknown>
+  ) => Promise<unknown>)(store.id, {
+    name: desiredName,
+    ...(desiredCurrencies.length > 0
+      ? { supported_currencies: desiredCurrencies }
+      : {}),
+    default_region_id: defaultRegionId,
+    default_sales_channel_id: defaultSalesChannelId,
+  })
+  console.log(
+    `[seed] store: updated name='${desiredName}', default_currency=${desiredCurrencies.find((c) => c.is_default)?.currency_code ?? "(unchanged)"}, default_region=${defaultRegionId}, default_sales_channel=${defaultSalesChannelId}`
+  )
+}
+
+// ─── Service zones + shipping options ───────────────────────────────────────
+// Matches fixture fulfillment_sets to local ones by name (Medusa auto-creates
+// fulfillment_sets named "<location-name> shipping" / "<location-name> pick
+// up" when a stock_location is created). For each matched fulfillment_set,
+// ensures the fixture's service_zones (with geo_zones) exist. Then ensures
+// shipping_options exist, looking up profile_id by name and service_zone_id
+// by name. Anything that can't be resolved is skipped with a clear warning.
+async function ensureFulfillmentAndShipping(
+  fulfillmentService: IFulfillmentModuleService,
+  fixture: Fixture,
+  shippingProfilesByName: Map<string, string>
+): Promise<{
+  zonesCreated: number
+  zonesPreExisting: number
+  optionsCreated: number
+  optionsSkipped: number
+  optionsPreExisting: number
+}> {
+  let zonesCreated = 0
+  let zonesPreExisting = 0
+  let optionsCreated = 0
+  let optionsSkipped = 0
+
+  // Match local fulfillment_sets by name.
+  const localSets = (await fulfillmentService.listFulfillmentSets(
+    {},
+    { take: 100, select: ["id", "name", "type"] }
+  )) as Array<{ id: string; name: string; type: string }>
+  const localSetsByName = new Map(
+    localSets.filter((s) => s.name).map((s) => [s.name, s])
+  )
+
+  // Build zone-name → zone-id map across all matched sets.
+  const zoneNameToId = new Map<string, string>()
+
+  for (const loc of fixture.stock_locations) {
+    for (const fs of loc.fulfillment_sets) {
+      if (!fs.name) continue
+      const localSet = localSetsByName.get(fs.name)
+      if (!localSet) {
+        console.log(
+          `[seed] fulfillment set '${fs.name}' not present locally — skipping its service zones`
+        )
+        continue
+      }
+      const localZones = (await fulfillmentService.listServiceZones(
+        { fulfillment_set_id: localSet.id },
+        { take: 100, select: ["id", "name"] }
+      )) as Array<{ id: string; name: string }>
+      const localZonesByName = new Map(
+        localZones.filter((z) => z.name).map((z) => [z.name, z])
+      )
+
+      for (const fz of fs.service_zones) {
+        if (!fz.name) continue
+        const existingZone = localZonesByName.get(fz.name)
+        if (existingZone) {
+          zoneNameToId.set(fz.name, existingZone.id)
+          zonesPreExisting++
+          continue
+        }
+        const geoZones = fz.geo_zones
+          .filter((gz) => gz.country_code)
+          .map((gz) => ({
+            type: (gz.type ?? "country") as "country",
+            country_code: gz.country_code!,
+          }))
+        try {
+          const created = await fulfillmentService.createServiceZones({
+            name: fz.name,
+            fulfillment_set_id: localSet.id,
+            ...(geoZones.length > 0 ? { geo_zones: geoZones } : {}),
+          })
+          const z = (Array.isArray(created) ? created[0] : created) as
+            | { id: string; name: string }
+            | undefined
+          if (z?.name) {
+            zoneNameToId.set(z.name, z.id)
+            zonesCreated++
+          }
+        } catch (e) {
+          console.log(
+            `[seed] service zone '${fz.name}' creation failed: ${(e as Error).message} — skipping`
+          )
+        }
+      }
+    }
+  }
+
+  console.log(
+    `[seed] service zones: ${zonesCreated} created, ${zonesPreExisting} pre-existing, ${zoneNameToId.size} total`
+  )
+
+  // Now shipping options.
+  const localOptions = (await fulfillmentService.listShippingOptions(
+    {},
+    { take: 200, select: ["id", "name"] }
+  )) as Array<{ id: string; name: string }>
+  const localOptionNames = new Set(
+    localOptions.filter((o) => o.name).map((o) => o.name)
+  )
+
+  for (const fo of fixture.shipping_options) {
+    if (!fo.name) continue
+    if (localOptionNames.has(fo.name)) continue
+
+    if (!fo.service_zone?.name) {
+      console.log(
+        `[seed] shipping option '${fo.name}' has no service_zone — skipping`
+      )
+      optionsSkipped++
+      continue
+    }
+    const zoneId = zoneNameToId.get(fo.service_zone.name)
+    if (!zoneId) {
+      console.log(
+        `[seed] shipping option '${fo.name}' references unresolved service_zone='${fo.service_zone.name}' — skipping`
+      )
+      optionsSkipped++
+      continue
+    }
+    const profileId = fo.profile_name
+      ? shippingProfilesByName.get(fo.profile_name)
+      : undefined
+    if (!profileId) {
+      console.log(
+        `[seed] shipping option '${fo.name}' references unresolved profile='${fo.profile_name}' — skipping`
+      )
+      optionsSkipped++
+      continue
+    }
+
+    // Dedupe prices (live often duplicates the same {amount, currency}).
+    const seenPriceKeys = new Set<string>()
+    const prices: Array<{ amount: number; currency_code: string }> = []
+    for (const p of fo.prices) {
+      if (typeof p.amount !== "number" || !p.currency_code) continue
+      const k = `${p.amount}::${p.currency_code}`
+      if (seenPriceKeys.has(k)) continue
+      seenPriceKeys.add(k)
+      prices.push({ amount: p.amount, currency_code: p.currency_code })
+    }
+
+    const optionType = fo.type
+      ? {
+          label: fo.type.label ?? fo.name,
+          code: fo.type.code ?? fo.name.toLowerCase().replace(/\s+/g, "_"),
+          description: fo.type.description ?? "",
+        }
+      : {
+          label: fo.name,
+          code: fo.name.toLowerCase().replace(/\s+/g, "_"),
+          description: "",
+        }
+
+    try {
+      await fulfillmentService.createShippingOptions({
+        name: fo.name,
+        price_type: (fo.price_type ?? "flat") as "flat" | "calculated",
+        service_zone_id: zoneId,
+        shipping_profile_id: profileId,
+        provider_id: fo.provider_id ?? "manual_manual",
+        type: optionType,
+        prices,
+        rules: fo.rules
+          .filter((r) => r.attribute && r.operator)
+          .map((r) => ({
+            attribute: r.attribute!,
+            operator: r.operator!,
+            value: r.value as string,
+          })),
+      })
+      optionsCreated++
+    } catch (e) {
+      console.log(
+        `[seed] shipping option '${fo.name}' creation failed: ${(e as Error).message} — skipping`
+      )
+      optionsSkipped++
+    }
+  }
+
+  console.log(
+    `[seed] shipping options: ${optionsCreated} created, ${optionsSkipped} skipped, ${localOptions.length} pre-existing`
+  )
+  return {
+    zonesCreated,
+    zonesPreExisting,
+    optionsCreated,
+    optionsSkipped,
+    optionsPreExisting: localOptions.length,
+  }
+}
+
+// ─── Product → brand link sweep ─────────────────────────────────────────────
+// Updates product.metadata.brand_id for every fixture product whose brand
+// link is missing or wrong. Preserves all other metadata keys. Idempotent —
+// products that already have the correct brand_id are skipped.
+async function ensureProductBrandLinks(
+  productModuleService: IProductModuleService,
+  fixture: Fixture,
+  brandHandleToId: Map<string, string>
+): Promise<{ updated: number; skipped: number }> {
+  const expectedByHandle = new Map<string, string>()
+  for (const fp of fixture.products) {
+    if (!fp.handle || !fp.brand_handle) continue
+    const bid = brandHandleToId.get(fp.brand_handle)
+    if (bid) expectedByHandle.set(fp.handle, bid)
+  }
+  if (expectedByHandle.size === 0) return { updated: 0, skipped: 0 }
+
+  let updated = 0
+  let skipped = 0
+  let offset = 0
+
+  for (;;) {
+    const page = (await productModuleService.listProducts(
+      {},
+      { take: 200, skip: offset, select: ["id", "handle", "metadata"] }
+    )) as Array<{
+      id: string
+      handle: string | null
+      metadata: Record<string, unknown> | null
+    }>
+
+    const updates: Array<{ id: string; metadata: Record<string, unknown> }> = []
+    for (const p of page) {
+      if (!p.handle) continue
+      const expectedBid = expectedByHandle.get(p.handle)
+      if (!expectedBid) continue
+      const meta =
+        p.metadata && typeof p.metadata === "object" ? { ...p.metadata } : {}
+      if (meta.brand_id === expectedBid) {
+        skipped++
+        continue
+      }
+      meta.brand_id = expectedBid
+      updates.push({ id: p.id, metadata: meta })
+    }
+
+    // updateProducts([...]) hits the same Mikro-ORM array-as-filter bug
+    // observed on updateStores. Update one at a time — slow on the first
+    // sweep (~917 calls) but a fast no-op on every re-run.
+    for (const u of updates) {
+      await productModuleService.updateProducts(u.id, { metadata: u.metadata })
+      updated++
+    }
+
+    if (page.length < 200) break
+    offset += page.length
+  }
+
+  console.log(
+    `[seed] brand links: updated metadata.brand_id on ${updated} products (${skipped} already correct)`
+  )
+  return { updated, skipped }
 }
 
 // ─── Categories (parents-first iterative ensure) ────────────────────────────
@@ -402,6 +921,7 @@ async function ensureProducts(
   fixture: Fixture,
   categoryHandleToId: Map<string, string>,
   tagValueToId: Map<string, string>,
+  brandHandleToId: Map<string, string>,
   defaultSalesChannelId: string
 ): Promise<EnsureProductsResult> {
   // Pre-fetch existing handles (paginate in case there are many).
@@ -460,6 +980,10 @@ async function ensureProducts(
     const tagIds = fp.tag_values
       .map((v) => tagValueToId.get(v))
       .filter((id): id is string => Boolean(id))
+    const brandId =
+      fp.brand_handle && brandHandleToId.get(fp.brand_handle)
+        ? brandHandleToId.get(fp.brand_handle)
+        : undefined
 
     const input: CreateProductDTO = {
       title: fp.title ?? fp.handle,
@@ -473,6 +997,9 @@ async function ensureProducts(
         : {}),
       ...(categoryIds.length ? { category_ids: categoryIds } : {}),
       ...(tagIds.length ? { tag_ids: tagIds } : {}),
+      // The Sama Link brand link is stored as metadata.brand_id (string) —
+      // see apps/backend/src/admin/widgets/sama-product-brand-picker.tsx.
+      ...(brandId ? { metadata: { brand_id: brandId } } : {}),
       sales_channels: [{ id: defaultSalesChannelId }],
       options:
         fp.options.length > 0
@@ -661,8 +1188,17 @@ function printLocalSummary(args: {
   fixture: Fixture
   productResult: EnsureProductsResult
   pricingAdded: number
+  brandsTotal: number
+  brandLinksUpdated: number
+  zonesCreated: number
+  optionsCreated: number
+  optionsSkipped: number
 }): void {
   const adminEmail = process.env["MEDUSA_ADMIN_EMAIL"] ?? "admin@example.com"
+  const storeName = args.fixture.store?.name ?? "(unchanged)"
+  const defaultCurrency =
+    args.fixture.store?.supported_currencies.find((c) => c.is_default)
+      ?.currency_code ?? args.fixture.store?.default_currency_code ?? "(unset)"
 
   const lines = [
     "",
@@ -675,6 +1211,10 @@ function printLocalSummary(args: {
     `Region ID:               ${args.regionId}`,
     `Publishable API key:     ${args.publishableToken}`,
     "",
+    "Store (from live-store-setup.json):",
+    `  Name:                      ${storeName}`,
+    `  Default currency:          ${defaultCurrency}`,
+    "",
     "Catalog (from live-store-setup.json):",
     `  Products created:          ${args.productResult.created}`,
     `  Products pre-existing:     ${args.productResult.preExisting}`,
@@ -683,6 +1223,13 @@ function printLocalSummary(args: {
     `  Variant prices added:      ${args.pricingAdded}`,
     `  Categories in fixture:     ${args.fixture.product_categories.length}`,
     `  Tags in fixture:           ${args.fixture.product_tags.length}`,
+    `  Brands in DB:              ${args.brandsTotal}`,
+    `  Brand links updated:       ${args.brandLinksUpdated}`,
+    "",
+    "Fulfillment (from live-store-setup.json):",
+    `  Service zones created:     ${args.zonesCreated}`,
+    `  Shipping options created:  ${args.optionsCreated}`,
+    `  Shipping options skipped:  ${args.optionsSkipped}`,
     "",
     "Paste these lines into apps/storefront/.env.local:",
     "------------------------------------------------------------",
@@ -724,6 +1271,8 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
   const fulfillmentService = container.resolve<IFulfillmentModuleService>(
     Modules.FULFILLMENT
   )
+  const storeService = container.resolve<IStoreModuleService>(Modules.STORE)
+  const brandService = container.resolve<BrandModuleService>(BRAND_MODULE)
   const remoteLink = container.resolve<Link>(ContainerRegistrationKeys.LINK)
   const query = container.resolve<RemoteQueryFunction>(
     ContainerRegistrationKeys.QUERY
@@ -736,21 +1285,37 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
     salesChannelModuleService
   )
 
-  await ensureStockLocations(stockLocationService, fixture)
-  await ensureShippingProfiles(fulfillmentService, fixture)
+  // Store-level settings depend on region + sales channel IDs being
+  // resolved, so this runs after both ensure-steps above. Idempotent.
+  await ensureStoreSettings(
+    storeService,
+    query,
+    fixture,
+    region.id,
+    defaultSalesChannelId
+  )
 
-  // Skipped (with logged warning, per docs/development/local-seed.md):
-  if (fixture.shipping_options.length > 0) {
-    console.log(
-      `[seed] shipping options: WARNING — fixture contains ${fixture.shipping_options.length} but the local seed skips them. Reason: live export does not capture service zones, which Medusa v2 requires to attach a shipping option safely. Catalog display is unaffected.`
-    )
-  }
+  await ensureStockLocations(stockLocationService, fixture)
+  const shippingProfilesByName = await ensureShippingProfiles(
+    fulfillmentService,
+    fixture
+  )
+
+  // Service zones + shipping options. Skipped per-entry (with warning) if
+  // anything cannot be safely resolved.
+  const fulfillment = await ensureFulfillmentAndShipping(
+    fulfillmentService,
+    fixture,
+    shippingProfilesByName
+  )
+
   if (fixture.inventory_levels.length > 0) {
     console.log(
       `[seed] inventory levels: WARNING — fixture contains ${fixture.inventory_levels.length} but the local seed skips them (no stock_location ↔ inventory wiring in the export).`
     )
   }
 
+  const brandHandleToId = await ensureBrands(brandService, fixture)
   const categoryHandleToId = await ensureCategories(productModuleService, fixture)
   const tagValueToId = await ensureTags(productModuleService, fixture)
 
@@ -759,6 +1324,7 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
     fixture,
     categoryHandleToId,
     tagValueToId,
+    brandHandleToId,
     defaultSalesChannelId
   )
 
@@ -771,6 +1337,14 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
   )
   console.log(
     `[seed] pricing sweep: added ${pricing.added} (created ${pricing.createdSets} new price sets)`
+  )
+
+  // Backfill product → brand links for any products that pre-dated the
+  // brand fixture (idempotent — skips products already correctly linked).
+  const brandLinkSweep = await ensureProductBrandLinks(
+    productModuleService,
+    fixture,
+    brandHandleToId
   )
 
   const publishableToken = await ensureStorefrontPublishableKey(
@@ -787,5 +1361,10 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
     fixture,
     productResult,
     pricingAdded: pricing.added,
+    brandsTotal: brandHandleToId.size,
+    brandLinksUpdated: brandLinkSweep.updated,
+    zonesCreated: fulfillment.zonesCreated,
+    optionsCreated: fulfillment.optionsCreated,
+    optionsSkipped: fulfillment.optionsSkipped,
   })
 }
