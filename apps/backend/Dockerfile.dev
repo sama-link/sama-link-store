@@ -1,14 +1,75 @@
+# Dev-only backend image. Production Cloud Run uses apps/backend/Dockerfile
+# with build context apps/backend; this file is invoked by docker-compose.dev.yml
+# with build context = repo root so the workspace lockfile is visible.
 FROM node:20-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
+# Stage 1 — dependency layer.
+# Copy the root manifest + lockfile and every workspace package.json so npm
+# can validate the workspace tree against the root lockfile. The storefront
+# package.json is required for the workspace declaration to resolve, but the
+# `--workspace=apps/backend` flag means storefront deps are NOT installed.
+# Keeping this layer separate from the source COPY below means rebuilds that
+# don't change package.json/package-lock.json reuse the cached install.
+COPY package.json package-lock.json ./
+COPY apps/backend/package.json apps/backend/
+COPY apps/storefront/package.json apps/storefront/
 
-COPY . .
+RUN npm ci --workspace=apps/backend --include-workspace-root --no-audit --no-fund
+
+# ─── Patch the workspace install so it looks flat to Medusa's resolvers ───
+# npm workspace hoisting puts some packages at /app/node_modules and tucks
+# others into nested node_modules to honor exact version pins. Production
+# Cloud Run avoids this entirely (apps/backend is the only install root, so
+# everything hoists flat). Two gaps need patching here:
+#
+#  1. Workspace-local devDeps (ts-node, tsconfig-paths, @swc/core, jest, etc.)
+#     stay under apps/backend/node_modules. The hoisted @medusajs/cli at
+#     /app/node_modules/@medusajs/cli/cli.js does `require('ts-node')` and
+#     walks up from its own dir, never entering the workspace folder.
+#     Fix: extend Node's NODE_PATH to include the workspace devDep dir.
+#
+#  2. @medusajs/dashboard pins exact versions of @medusajs/ui, @medusajs/icons,
+#     react-hook-form, etc., so npm hoists @medusajs/dashboard to root but
+#     keeps those deps nested under it. Two failure modes follow:
+#       a. The hoisted @medusajs/admin-bundler calls require.resolve("@medusajs/ui")
+#          at build time, fails, falls back to "" — and Tailwind's content
+#          array gets an empty-string glob (fast-glob rejects this).
+#       b. @medusajs/draft-order declares @medusajs/ui as an OPTIONAL peer
+#          dep; Vite's admin plugin probes its sibling node_modules tree, the
+#          probe fails, so Vite emits a __vite-optional-peer-dep stub — and
+#          Rollup then errors that "Tooltip" is not exported by the stub.
+#     Vite's bundler uses its own filesystem resolver and IGNORES NODE_PATH,
+#     so the only fix that addresses both (a) and (b) is to make the nested
+#     packages physically reachable at the expected top-level locations.
+#     Fix: symlink every package nested under @medusajs/dashboard's bundled
+#     deps up to /app/node_modules/@medusajs/ AND to apps/backend/node_modules
+#     /@medusajs/, so both the hoisted bundler and the workspace-level draft
+#     -order see them as siblings — exactly like the production flat install.
+ENV NODE_PATH=/app/apps/backend/node_modules:/app/node_modules/@medusajs/dashboard/node_modules
+RUN set -eu; \
+    NESTED=/app/node_modules/@medusajs/dashboard/node_modules/@medusajs; \
+    if [ -d "$NESTED" ]; then \
+      for target in /app/node_modules/@medusajs /app/apps/backend/node_modules/@medusajs; do \
+        mkdir -p "$target"; \
+        for pkg in "$NESTED"/*; do \
+          name=$(basename "$pkg"); \
+          if [ ! -e "$target/$name" ]; then \
+            ln -s "$pkg" "$target/$name"; \
+          fi; \
+        done; \
+      done; \
+    fi
+
+# Stage 2 — backend source.
+COPY apps/backend ./apps/backend
+
+WORKDIR /app/apps/backend
 
 RUN npx medusa build
 
 EXPOSE 9000
 
-CMD ["sh", "-c", "npx medusa db:migrate && cd /app/.medusa/server && npx medusa start"]
+# db:migrate is idempotent — safe to run on every cold start.
+CMD ["sh", "-c", "npx medusa db:migrate && cd /app/apps/backend/.medusa/server && npx medusa start"]

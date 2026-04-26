@@ -18,8 +18,16 @@ services:
 
   backend:
     build:
-      context: apps/backend
-      dockerfile: Dockerfile.dev
+      # Build context is the repo root so the Dockerfile can see the root
+      # package-lock.json. npm workspaces only emit one lockfile (at the
+      # root); without it inside the build, `npm install` re-resolves the
+      # whole Medusa graph on every cold build (very slow) and can also
+      # drop nested transitive copies that Rollup expects (this is what
+      # broke `react-hook-form` resolution under @medusajs/dashboard).
+      # Production Cloud Run builds still use apps/backend/Dockerfile with
+      # context apps/backend and are unaffected.
+      context: .
+      dockerfile: apps/backend/Dockerfile.dev
     restart: unless-stopped
     env_file:
       - apps/backend/.env
