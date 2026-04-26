@@ -407,13 +407,57 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
   const salesChannelModuleService = container.resolve<ISalesChannelModuleService>(
     Modules.SALES_CHANNEL
   )
-  await ensureStorefrontPublishableKey(
+  const publishableToken = await ensureStorefrontPublishableKey(
     apiKeyModuleService,
     salesChannelModuleService,
     remoteLink
   )
 
   console.log("[seed] BACK-3 / BACK-3b seed completed successfully")
+
+  printLocalSummary({
+    regionId: region.id,
+    publishableToken,
+  })
+}
+
+function printLocalSummary({
+  regionId,
+  publishableToken,
+}: {
+  regionId: string
+  publishableToken: string
+}): void {
+  // Read the admin email from the same env var the backend container is
+  // configured with; fall back to the .env.example default. The admin
+  // PASSWORD is NEVER printed — it lives only in the developer's local env.
+  const adminEmail = process.env["MEDUSA_ADMIN_EMAIL"] ?? "admin@example.com"
+
+  const lines = [
+    "",
+    "============================================================",
+    "[seed] Local development summary",
+    "============================================================",
+    "Admin URL:               http://localhost:9000/app",
+    `Admin email:             ${adminEmail}`,
+    "Admin password:          (from MEDUSA_ADMIN_PASSWORD in apps/backend/.env)",
+    `Region ID:               ${regionId}`,
+    `Publishable API key:     ${publishableToken}`,
+    "",
+    "Paste these lines into apps/storefront/.env.local:",
+    "------------------------------------------------------------",
+    "NEXT_PUBLIC_MEDUSA_BACKEND_URL=http://localhost:9000",
+    "NEXT_PUBLIC_BASE_URL=http://localhost:3000",
+    "NEXT_PUBLIC_DEFAULT_LOCALE=ar",
+    `NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY=${publishableToken}`,
+    `NEXT_PUBLIC_MEDUSA_REGION_ID=${regionId}`,
+    "============================================================",
+    "",
+  ]
+
+  for (const line of lines) {
+    console.log(line)
+  }
 }
 
 const STOREFRONT_KEY_TITLE = "Storefront Default"
@@ -422,13 +466,14 @@ async function ensureStorefrontPublishableKey(
   apiKeyModuleService: IApiKeyModuleService,
   salesChannelModuleService: ISalesChannelModuleService,
   remoteLink: Link
-): Promise<void> {
+): Promise<string> {
   const existing = await apiKeyModuleService.listApiKeys({
     title: STOREFRONT_KEY_TITLE,
     type: "publishable",
   })
 
   let key = existing[0]
+  let keyWasCreated = false
   if (key) {
     console.log(
       `[seed] Part D: publishable key '${STOREFRONT_KEY_TITLE}' already exists -> ${key.token}`
@@ -440,6 +485,7 @@ async function ensureStorefrontPublishableKey(
       created_by: "seed",
     })
     key = Array.isArray(created) ? created[0]! : created
+    keyWasCreated = true
     console.log(
       `[seed] Part D: created publishable key '${STOREFRONT_KEY_TITLE}' -> ${key.token}`
     )
@@ -449,14 +495,25 @@ async function ensureStorefrontPublishableKey(
   const channel = channels[0]
   if (!channel) {
     console.log(`[seed] Part D: no sales channel found; skipping link`)
-    return
+    return key.token
   }
 
-  await remoteLink.create({
-    [Modules.API_KEY]: { publishable_key_id: key.id },
-    [Modules.SALES_CHANNEL]: { sales_channel_id: channel.id },
-  })
-  console.log(
-    `[seed] Part D: linked publishable key ${key.id} <-> sales channel ${channel.id}`
-  )
+  // Only create the link when the key itself was just created. On re-runs the
+  // link already exists; remoteLink.create() silently tolerates duplicates,
+  // but skipping the call avoids a misleading "linked …" log line every run.
+  if (keyWasCreated) {
+    await remoteLink.create({
+      [Modules.API_KEY]: { publishable_key_id: key.id },
+      [Modules.SALES_CHANNEL]: { sales_channel_id: channel.id },
+    })
+    console.log(
+      `[seed] Part D: linked publishable key ${key.id} <-> sales channel ${channel.id}`
+    )
+  } else {
+    console.log(
+      `[seed] Part D: publishable key already linked to sales channel ${channel.id}`
+    )
+  }
+
+  return key.token
 }
