@@ -45,6 +45,12 @@ desktop.ini
 CLAUDE.md
 TASKS.md
 
+# Local knowledge base — sibling folder, never include if accidentally placed inside repo
+sama-link-store-kb/
+.local-kb/
+local-kb/
+governance-local/
+
 # Agent instruction folders — local to each developer's tooling, never push
 .cursor/
 .copilot/
