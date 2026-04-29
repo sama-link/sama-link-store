@@ -86,6 +86,10 @@ temp/
 # Executor task reports — local review only, never push
 task report.txt
 
+# Local import/data artifacts
+/sama-link-medusa-import-final.csv
+/test-write.txt
+
 # Translation audit log — local operator trail, never push
 translations/.edit-log.jsonl
 
