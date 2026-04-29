@@ -9,11 +9,26 @@ A production-grade, multilingual, SEO-friendly e-commerce platform built on a co
 ## Quick Setup
 
 ```bash
-# Copy env file and fill in values
+# 1. Workspace install (root)
+npm install
+
+# 2. Copy backend env (defaults to admin@example.com / supersecret — change for your machine)
 cp .env.example apps/backend/.env
 
-# Start all services via Docker Compose
-docker compose -f docker-compose.dev.yml up -d
+# 3. Start postgres + Medusa (storefront stays on the host)
+docker compose -f docker-compose.dev.yml up -d postgres backend
+
+# 4. Create the admin user + seed the catalog/region/publishable key
+docker compose -f docker-compose.dev.yml exec backend \
+  sh -c "cd /app/apps/backend && npm run seed:local"
+
+# 5. Copy storefront env, then paste the two seed-printed values
+cp apps/storefront/.env.local.example apps/storefront/.env.local
+#    (paste NEXT_PUBLIC_MEDUSA_PUBLISHABLE_API_KEY and NEXT_PUBLIC_MEDUSA_REGION_ID
+#     from the seed output's "Local development summary" block)
+
+# 6. Start the storefront on the host
+npm run dev:storefront
 ```
 
 | Service | URL |
@@ -22,7 +37,12 @@ docker compose -f docker-compose.dev.yml up -d
 | Backend / Admin | http://localhost:9000 |
 | Admin UI | http://localhost:9000/app |
 
-**Prerequisites:** Docker Desktop
+**Prerequisites:** Docker Desktop, Node 20+
+
+`npm run seed:local` is idempotent — safe to re-run any time. See
+[`docs/development/local-seed.md`](docs/development/local-seed.md) for
+what it creates, the admin-user requirement, and the optional
+GCP/dev → local fixture-derivation procedure.
 
 > Rebuild after any `docker-compose.dev.yml` or `Dockerfile.dev` change:
 > `docker compose -f docker-compose.dev.yml up -d --build backend`

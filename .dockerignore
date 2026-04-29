@@ -1,0 +1,82 @@
+# Root .dockerignore — applies when the Docker build context is the repo root.
+# Currently only docker-compose.dev.yml builds with the repo root as context
+# (so it can see the workspace lockfile). Production Cloud Run builds use
+# `context: apps/backend` and are unaffected by this file.
+#
+# Goal: keep the dev backend image lean and the build context small/fast so
+# `npm ci` is the dominant cost, not tarball uploads to the Docker daemon.
+# Be careful: do NOT exclude anything `apps/backend` needs at build time.
+
+# Dependencies — let `npm ci` rebuild these inside the image.
+**/node_modules
+
+# Git history is not needed inside the build context.
+.git
+.gitignore
+.gitattributes
+
+# Environment files — never bake secrets into the image.
+# (docker-compose.dev.yml mounts `apps/backend/.env` via env_file at runtime.)
+.env
+.env.*
+**/.env
+**/.env.*
+
+# Build outputs / caches — regenerated inside the container.
+.turbo
+**/.turbo
+.next
+**/.next
+**/.medusa
+dist
+**/dist
+build
+**/build
+*.tsbuildinfo
+.cache
+**/.cache
+coverage
+**/coverage
+.nyc_output
+
+# Logs.
+*.log
+**/*.log
+.dev.pids
+
+# Storefront — runs locally on the host, never shipped in the backend image.
+# Use a wildcard exclude so we can re-include the workspace package.json,
+# which npm needs in order to validate the workspace tree against the root
+# lockfile during `npm ci --workspace=apps/backend`. Excluding the directory
+# itself (without /**) would also hide the re-included file under BuildKit.
+apps/storefront/**
+!apps/storefront/package.json
+
+# IDE/editor/OS noise.
+.vscode
+.idea
+.cursor
+.copilot
+.aider
+.continue
+.cline
+.windsurf
+.roo
+.claude
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Local-only governance/agent material.
+.agents
+CLAUDE.md
+TASKS.md
+
+# Docs and CI — not needed at runtime.
+docs
+.github
+
+# Brand source assets — large raw exports that never ship.
+sama-link_brand-assets_FULL
+*_brand-assets_*
+*_brand-assets_RAW
