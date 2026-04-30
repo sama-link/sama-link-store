@@ -49,6 +49,12 @@ desktop.ini
 CLAUDE.md
 TASKS.md
 
+# Local knowledge base — sibling folder, never include if accidentally placed inside repo
+sama-link-store-kb/
+.local-kb/
+local-kb/
+governance-local/
+
 # Agent instruction folders — local to each developer's tooling, never push
 .cursor/
 .copilot/
@@ -83,6 +89,10 @@ temp/
 
 # Executor task reports — local review only, never push
 task report.txt
+
+# Local import/data artifacts
+/sama-link-medusa-import-final.csv
+/test-write.txt
 
 # Translation audit log — local operator trail, never push
 translations/.edit-log.jsonl

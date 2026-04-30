@@ -93,3 +93,11 @@ UI copy is managed via CSV files in `translations/`. Runtime JSON files in `apps
 ## Environment
 
 See [`.env.example`](.env.example) for all required environment variables.
+
+---
+
+## Project Governance
+
+This repository contains executable code only. Project governance, ADRs, task workflows, handoff documents, and the local knowledge base are stored **outside this repo** in the sibling folder `../sama-link-store-kb/` (local only — not pushed to GitHub).
+
+Notion remains the daily operating workspace.
