@@ -28,6 +28,10 @@
     },
     "address": {
       "title": "عنوان الشحن",
+      "savedAddressesLabel": "العناوين المحفوظة",
+      "savedAddressesPlaceholder": "اختر عنوانًا محفوظًا",
+      "savedAddressesHint": "اختر عنوانًا محفوظًا أو أدخل عنوانًا جديدًا بالأسفل.",
+      "savedAddressFallback": "عنوان محفوظ",
       "firstName": "الاسم الأول",
       "lastName": "اسم العائلة",
       "address1": "العنوان",

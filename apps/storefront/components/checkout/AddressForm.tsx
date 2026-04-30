@@ -1,12 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/hooks/useCart";
 import {
   updateCartShippingAddress,
   type ShippingAddressPayload,
+  type StoreCustomerAddress,
 } from "@/lib/medusa-client";
 import { cn } from "@/lib/cn";
 
@@ -63,6 +65,8 @@ function Field({
 
 interface AddressFormProps {
   locale: string;
+  savedAddresses?: StoreCustomerAddress[];
+  regionCountryCodes?: string[];
 }
 
 type FormData = {
@@ -89,7 +93,53 @@ const emptyForm: FormData = {
   phone: "",
 };
 
-export default function AddressForm({ locale }: AddressFormProps) {
+type SavedAddressOption = {
+  key: string;
+  address: StoreCustomerAddress;
+};
+
+function mapAddressToFormData(address: StoreCustomerAddress): FormData {
+  return {
+    first_name: address.first_name ?? "",
+    last_name: address.last_name ?? "",
+    address_1: address.address_1 ?? "",
+    address_2: address.address_2 ?? "",
+    city: address.city ?? "",
+    country_code: (address.country_code ?? "").toLowerCase(),
+    province: address.province ?? "",
+    postal_code: address.postal_code ?? "",
+    phone: address.phone ?? "",
+  };
+}
+
+function hasShippingAddress(address: Partial<FormData> | null | undefined): boolean {
+  if (!address) return false;
+  return Boolean(
+    address.first_name ||
+      address.last_name ||
+      address.address_1 ||
+      address.city ||
+      address.country_code,
+  );
+}
+
+function formatSavedAddressLabel(
+  address: StoreCustomerAddress,
+  fallbackLabel: string,
+): string {
+  const name = [address.first_name, address.last_name].filter(Boolean).join(" ");
+  const line = [address.address_1, address.city, address.country_code?.toUpperCase()]
+    .filter(Boolean)
+    .join(", ");
+  if (name && line) return `${name} - ${line}`;
+  return name || line || fallbackLabel;
+}
+
+export default function AddressForm({
+  locale,
+  savedAddresses = [],
+  regionCountryCodes = [],
+}: AddressFormProps) {
   const t = useTranslations("checkout.address");
   const router = useRouter();
   const { cart, loading: cartLoading } = useCart();
@@ -101,12 +151,51 @@ export default function AddressForm({ locale }: AddressFormProps) {
   );
   const [submitting, setSubmitting] = useState(false);
   const [apiError, setApiError] = useState("");
+  const [selectedSavedAddressKey, setSelectedSavedAddressKey] = useState("");
+
+  const savedAddressOptions = useMemo<SavedAddressOption[]>(() => {
+    const allowedCountryCodes = new Set(
+      regionCountryCodes.map((code) => code.toLowerCase()),
+    );
+    const addressesInRegion = savedAddresses.filter((address) => {
+      const countryCode = address.country_code?.toLowerCase();
+      if (!countryCode) return false;
+      if (allowedCountryCodes.size === 0) return true;
+      return allowedCountryCodes.has(countryCode);
+    });
+    return addressesInRegion.map((address, index) => ({
+      key: address.id ?? `saved-${index}`,
+      address,
+    }));
+  }, [regionCountryCodes, savedAddresses]);
+
+  const preferredSavedAddress = useMemo<SavedAddressOption | null>(() => {
+    if (savedAddressOptions.length === 0) return null;
+    const explicitDefault = savedAddressOptions.find(
+      (entry) => entry.address.is_default_shipping,
+    );
+    if (explicitDefault) return explicitDefault;
+
+    const sorted = [...savedAddressOptions].sort((a, b) => {
+      const aTime = Date.parse(
+        String((a.address as { updated_at?: string | null }).updated_at ?? ""),
+      );
+      const bTime = Date.parse(
+        String((b.address as { updated_at?: string | null }).updated_at ?? ""),
+      );
+      if (Number.isFinite(aTime) && Number.isFinite(bTime) && aTime !== bTime) {
+        return bTime - aTime;
+      }
+      return a.key.localeCompare(b.key);
+    });
+    return sorted[0] ?? null;
+  }, [savedAddressOptions]);
 
   useEffect(() => {
     if (!cart || initialized) return;
     const id = window.requestAnimationFrame(() => {
       const addr = cart.shipping_address;
-      if (addr) {
+      if (addr && hasShippingAddress(addr)) {
         setFormData({
           first_name: addr.first_name ?? "",
           last_name: addr.last_name ?? "",
@@ -118,11 +207,24 @@ export default function AddressForm({ locale }: AddressFormProps) {
           postal_code: addr.postal_code ?? "",
           phone: addr.phone ?? "",
         });
+      } else if (preferredSavedAddress) {
+        setFormData(mapAddressToFormData(preferredSavedAddress.address));
+        setSelectedSavedAddressKey(preferredSavedAddress.key);
       }
       setInitialized(true);
     });
     return () => window.cancelAnimationFrame(id);
-  }, [cart, initialized]);
+  }, [cart, initialized, preferredSavedAddress]);
+
+  useEffect(() => {
+    if (!selectedSavedAddressKey) return;
+    const stillExists = savedAddressOptions.some(
+      (entry) => entry.key === selectedSavedAddressKey,
+    );
+    if (!stillExists) {
+      setSelectedSavedAddressKey("");
+    }
+  }, [savedAddressOptions, selectedSavedAddressKey]);
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
@@ -132,6 +234,15 @@ export default function AddressForm({ locale }: AddressFormProps) {
     if (errors[name as keyof FormData]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
     }
+  }
+
+  function handleSavedAddressChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const { value } = e.target;
+    setSelectedSavedAddressKey(value);
+    const selected = savedAddressOptions.find((entry) => entry.key === value);
+    if (!selected) return;
+    setFormData(mapAddressToFormData(selected.address));
+    setErrors({});
   }
 
   function validate(): boolean {
@@ -185,6 +296,32 @@ export default function AddressForm({ locale }: AddressFormProps) {
       <h2 className="mb-6 text-lg font-semibold text-text-primary">
         {t("title")}
       </h2>
+
+      {savedAddressOptions.length > 0 ? (
+        <div className="mb-6 space-y-2">
+          <label
+            htmlFor="saved-address-select"
+            className="block text-sm font-medium text-text-primary"
+          >
+            {t("savedAddressesLabel")}
+          </label>
+          <select
+            id="saved-address-select"
+            value={selectedSavedAddressKey}
+            onChange={handleSavedAddressChange}
+            disabled={disabled}
+            className={cn(inputClass, "cursor-pointer")}
+          >
+            <option value="">{t("savedAddressesPlaceholder")}</option>
+            {savedAddressOptions.map((entry) => (
+              <option key={entry.key} value={entry.key}>
+                {formatSavedAddressLabel(entry.address, t("savedAddressFallback"))}
+              </option>
+            ))}
+          </select>
+          <p className="text-xs text-text-secondary">{t("savedAddressesHint")}</p>
+        </div>
+      ) : null}
 
       <div className="space-y-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
