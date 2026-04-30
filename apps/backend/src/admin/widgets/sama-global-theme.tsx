@@ -27,6 +27,9 @@ import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import { useEffect } from "react"
 import { ADMIN_THEME_STYLE_ID, buildAdminThemeCss } from "../lib/admin-theme-css"
 import samaLogoUrl from "../assets/sama-link-icon-on-dark.webp"
+import samaFaviconUrl from "../assets/sama-link-icon-on-light.webp"
+
+const FAVICON_MARKER = "data-sama-favicon"
 
 let injected = false
 
@@ -48,6 +51,24 @@ const SamaGlobalThemeWidget = (): null => {
       // Append LAST so our :root + .dark declarations win the specificity
       // tie against Medusa's own ones (same specificity — later declaration wins).
       document.head.appendChild(el)
+
+      // Replace Medusa's `<link rel="icon" href="data:," data-placeholder-favicon />`
+      // with our Sama icon. Reuse the placeholder element if present (preserves
+      // any other attributes the admin shell might add later); otherwise create
+      // one. The marker attribute prevents double-injection on HMR.
+      if (!document.querySelector(`link[rel="icon"][${FAVICON_MARKER}]`)) {
+        const existing = document.querySelector<HTMLLinkElement>(
+          'link[rel="icon"][data-placeholder-favicon]'
+        )
+        const link = existing ?? document.createElement("link")
+        link.rel = "icon"
+        link.type = "image/webp"
+        link.href = samaFaviconUrl
+        link.removeAttribute("data-placeholder-favicon")
+        link.setAttribute(FAVICON_MARKER, "")
+        if (!existing) document.head.appendChild(link)
+      }
+
       injected = true
     } catch (err) {
       // Theme injection must never break the admin shell. If anything goes
