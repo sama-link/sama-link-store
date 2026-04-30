@@ -95,6 +95,77 @@ export type CreateCustomerPayload = Parameters<
   (typeof sdk.store.customer)["create"]
 >[0];
 
+export type UpdateCustomerPayload = Parameters<
+  (typeof sdk.store.customer)["update"]
+>[0];
+
+type StoreCustomerAddressResponse = Awaited<
+  ReturnType<(typeof sdk.store.customer)["retrieveAddress"]>
+>;
+export type StoreCustomerAddress = StoreCustomerAddressResponse extends {
+  address: infer A;
+}
+  ? A
+  : never;
+
+export type ListCustomerAddressesParams = NonNullable<
+  Parameters<(typeof sdk.store.customer)["listAddress"]>[0]
+>;
+
+export type ListCustomerAddressesResult = Awaited<
+  ReturnType<(typeof sdk.store.customer)["listAddress"]>
+>;
+
+export type CreateCustomerAddressPayload = Parameters<
+  (typeof sdk.store.customer)["createAddress"]
+>[0];
+
+export type UpdateCustomerAddressPayload = Parameters<
+  (typeof sdk.store.customer)["updateAddress"]
+>[1];
+
+export type ListCustomerOrdersParams = NonNullable<
+  Parameters<(typeof sdk.store.order)["list"]>[0]
+>;
+
+export type ListCustomerOrdersResult = Awaited<
+  ReturnType<(typeof sdk.store.order)["list"]>
+>;
+
+export type GetCustomerOrderParams = NonNullable<
+  Parameters<(typeof sdk.store.order)["retrieve"]>[1]
+>;
+
+type StoreOrderRetrieveResponse = Awaited<
+  ReturnType<(typeof sdk.store.order)["retrieve"]>
+>;
+export type StoreOrder = StoreOrderRetrieveResponse extends { order: infer O }
+  ? O
+  : never;
+
+function pickNewlyCreatedAddress(customer: StoreCustomer): StoreCustomerAddress | null {
+  const list = customer.addresses;
+  if (!list?.length) return null;
+  const sorted = [...list].sort((a, b) => {
+    const ta = Date.parse(String((a as { created_at?: string }).created_at ?? ""));
+    const tb = Date.parse(String((b as { created_at?: string }).created_at ?? ""));
+    if (Number.isFinite(tb) && Number.isFinite(ta) && tb !== ta) return tb - ta;
+    return (b.id ?? "").localeCompare(a.id ?? "");
+  });
+  return sorted[0] ?? null;
+}
+
+function addressFromCustomerOrThrow(
+  customer: StoreCustomer,
+  addressId: string,
+): StoreCustomerAddress {
+  const found = customer.addresses?.find((a) => a.id === addressId);
+  if (!found) {
+    throw new Error("Expected address on customer response.");
+  }
+  return found;
+}
+
 export async function emailpassLogin(email: string, password: string) {
   try {
     const token = await sdk.auth.login("customer", "emailpass", {
@@ -161,6 +232,87 @@ export async function getCurrentCustomer(
 ): Promise<StoreCustomer | null> {
   const response = await sdk.store.customer.retrieve({}, authHeader(token));
   return response.customer ?? null;
+}
+
+export async function updateCustomer(
+  payload: UpdateCustomerPayload,
+  token: string,
+): Promise<StoreCustomer> {
+  const response = await sdk.store.customer.update(
+    payload,
+    {},
+    authHeader(token),
+  );
+  return response.customer;
+}
+
+export async function listCustomerAddresses(
+  token: string,
+  queryParams?: ListCustomerAddressesParams,
+): Promise<ListCustomerAddressesResult> {
+  return sdk.store.customer.listAddress(
+    queryParams ?? {},
+    authHeader(token),
+  );
+}
+
+/** Unwraps `{ customer }` from the SDK and returns the created address entity. */
+export async function createCustomerAddress(
+  payload: CreateCustomerAddressPayload,
+  token: string,
+): Promise<StoreCustomerAddress> {
+  const response = await sdk.store.customer.createAddress(
+    payload,
+    {},
+    authHeader(token),
+  );
+  const picked = pickNewlyCreatedAddress(response.customer);
+  if (!picked) {
+    throw new Error("Create address response did not include an address.");
+  }
+  return picked;
+}
+
+/** Unwraps `{ customer }` and returns the updated row for `addressId`. */
+export async function updateCustomerAddress(
+  addressId: string,
+  payload: UpdateCustomerAddressPayload,
+  token: string,
+): Promise<StoreCustomerAddress> {
+  const response = await sdk.store.customer.updateAddress(
+    addressId,
+    payload,
+    {},
+    authHeader(token),
+  );
+  return addressFromCustomerOrThrow(response.customer, addressId);
+}
+
+export async function deleteCustomerAddress(
+  addressId: string,
+  token: string,
+): Promise<void> {
+  await sdk.store.customer.deleteAddress(addressId, authHeader(token));
+}
+
+export async function listCustomerOrders(
+  token: string,
+  queryParams?: ListCustomerOrdersParams,
+): Promise<ListCustomerOrdersResult> {
+  return sdk.store.order.list(queryParams ?? {}, authHeader(token));
+}
+
+export async function getCustomerOrder(
+  orderId: string,
+  token: string,
+  queryParams?: GetCustomerOrderParams,
+): Promise<StoreOrder> {
+  const response = await sdk.store.order.retrieve(
+    orderId,
+    queryParams ?? {},
+    authHeader(token),
+  );
+  return response.order;
 }
 
 export async function logoutSession(token: string): Promise<void> {
