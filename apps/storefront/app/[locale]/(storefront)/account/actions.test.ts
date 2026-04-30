@@ -58,6 +58,12 @@ vi.mock("@/lib/cart-cookie-server", () => ({
   clearCartIdCookie: vi.fn(),
 }));
 
+vi.mock("@/lib/data/cart", () => ({
+  rememberCustomerCartIdAfterAuth: vi.fn(),
+}));
+
+import * as DataCart from "@/lib/data/cart";
+
 const dummyCustomer = { id: "c1", email: "u@example.com" } as StoreCustomer;
 
 function fd(values: Record<string, string>): FormData {
@@ -92,6 +98,9 @@ describe("account server actions", () => {
     vi.mocked(AuthCookie.getAuthToken).mockResolvedValue(null);
     vi.mocked(AuthCookie.clearAuthCookie).mockResolvedValue(undefined);
     vi.mocked(CartCookieServer.clearCartIdCookie).mockResolvedValue(undefined);
+    vi.mocked(DataCart.rememberCustomerCartIdAfterAuth).mockResolvedValue(
+      undefined,
+    );
   });
 
   describe("loginAction", () => {
@@ -124,6 +133,28 @@ describe("account server actions", () => {
         "loginTok",
       );
       expect(redirect).toHaveBeenCalledWith("/en/account");
+    });
+
+    it("3b-persist syncs customer.last_cart_id after a successful login (CART-PERSIST-1A)", async () => {
+      vi.mocked(CartCookieServer.getCartIdFromCookie).mockResolvedValue(
+        "cart_guest",
+      );
+
+      await loginAction(
+        {},
+        fd({ email: "a@b.com", password: "secret12" }),
+      );
+
+      expect(DataCart.rememberCustomerCartIdAfterAuth).toHaveBeenCalledTimes(1);
+      // Must run after the transferCart sequence so the cookie cart id
+      // reflects the just-promoted customer cart.
+      const transferOrder = vi
+        .mocked(Medusa.transferCartToCustomer)
+        .mock.invocationCallOrder[0];
+      const persistOrder = vi
+        .mocked(DataCart.rememberCustomerCartIdAfterAuth)
+        .mock.invocationCallOrder[0];
+      expect(persistOrder).toBeGreaterThan(transferOrder ?? 0);
     });
 
     it("3c valid credentials with cart but transfer throws: still set cookie and redirect", async () => {
@@ -160,6 +191,8 @@ describe("account server actions", () => {
       expect(r).toEqual({ error: "genericError" });
       expect(AuthCookie.setAuthCookie).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
+      // Sync must not fire when login itself failed.
+      expect(DataCart.rememberCustomerCartIdAfterAuth).not.toHaveBeenCalled();
     });
 
     it("3f emailpassLogin throws AuthProviderUnavailableError: rethrows", async () => {
@@ -244,6 +277,31 @@ describe("account server actions", () => {
         "sessionTok",
       );
       expect(redirect).toHaveBeenCalledWith("/en/account");
+    });
+
+    it("4b-persist syncs customer.last_cart_id after a successful register (CART-PERSIST-1A)", async () => {
+      vi.mocked(CartCookieServer.getCartIdFromCookie).mockResolvedValue(
+        "cart_x",
+      );
+
+      await registerAction(
+        {},
+        fd({
+          email: "a@b.com",
+          password: "secret12",
+          first_name: "A",
+          last_name: "B",
+        }),
+      );
+
+      expect(DataCart.rememberCustomerCartIdAfterAuth).toHaveBeenCalledTimes(1);
+      const transferOrder = vi
+        .mocked(Medusa.transferCartToCustomer)
+        .mock.invocationCallOrder[0];
+      const persistOrder = vi
+        .mocked(DataCart.rememberCustomerCartIdAfterAuth)
+        .mock.invocationCallOrder[0];
+      expect(persistOrder).toBeGreaterThan(transferOrder ?? 0);
     });
 
     it("4c valid fields with cart but transfer throws: still redirect", async () => {
