@@ -7,10 +7,13 @@ import * as CartCookieServer from "@/lib/cart-cookie-server";
 import type { StoreCustomer } from "@/lib/medusa-client";
 import * as Medusa from "@/lib/medusa-client";
 import {
+  createAddressAction,
+  deleteAddressAction,
   loginAction,
   logoutAction,
   profileUpdateAction,
   registerAction,
+  updateAddressAction,
 } from "./actions";
 
 vi.mock("next/navigation", () => ({
@@ -37,6 +40,9 @@ vi.mock("@/lib/medusa-client", async (importOriginal) => {
     logoutSession: vi.fn(),
     transferCartToCustomer: vi.fn(),
     updateCustomer: vi.fn(),
+    createCustomerAddress: vi.fn(),
+    updateCustomerAddress: vi.fn(),
+    deleteCustomerAddress: vi.fn(),
     getErrorStatusCode: vi.fn(),
   };
 });
@@ -77,6 +83,9 @@ describe("account server actions", () => {
     vi.mocked(Medusa.logoutSession).mockResolvedValue(undefined);
     vi.mocked(Medusa.transferCartToCustomer).mockResolvedValue(undefined);
     vi.mocked(Medusa.updateCustomer).mockResolvedValue(dummyCustomer);
+    vi.mocked(Medusa.createCustomerAddress).mockResolvedValue({} as never);
+    vi.mocked(Medusa.updateCustomerAddress).mockResolvedValue({} as never);
+    vi.mocked(Medusa.deleteCustomerAddress).mockResolvedValue(undefined);
     vi.mocked(Medusa.getErrorStatusCode).mockReturnValue(null);
     vi.mocked(CartCookieServer.getCartIdFromCookie).mockResolvedValue(null);
     vi.mocked(AuthCookie.setAuthCookie).mockResolvedValue(undefined);
@@ -417,6 +426,161 @@ describe("account server actions", () => {
         }),
       );
 
+      expect(redirect).toHaveBeenCalledWith("/en/account/login");
+    });
+  });
+
+  describe("createAddressAction", () => {
+    it("creates address and revalidates on success", async () => {
+      vi.mocked(AuthCookie.getAuthToken).mockResolvedValue("tok");
+      const result = await createAddressAction(
+        {},
+        fd({
+          first_name: "Jane",
+          last_name: "Doe",
+          address_1: "Line 1",
+          city: "Cairo",
+          country_code: "eg",
+          phone: "0100",
+        }),
+      );
+
+      expect(Medusa.createCustomerAddress).toHaveBeenCalledWith(
+        expect.objectContaining({
+          first_name: "Jane",
+          last_name: "Doe",
+          address_1: "Line 1",
+          city: "Cairo",
+          country_code: "eg",
+          phone: "0100",
+        }),
+        "tok",
+      );
+      expect(result).toEqual({ success: true });
+      expect(revalidatePath).toHaveBeenCalledWith("/en/account/addresses");
+    });
+
+    it("returns error for missing required fields", async () => {
+      const result = await createAddressAction(
+        {},
+        fd({
+          first_name: "",
+          last_name: "Doe",
+          address_1: "Line 1",
+          city: "Cairo",
+          country_code: "eg",
+        }),
+      );
+      expect(result).toEqual({ error: "addresses.createError" });
+      expect(Medusa.createCustomerAddress).not.toHaveBeenCalled();
+    });
+
+    it("redirects on 401", async () => {
+      vi.mocked(AuthCookie.getAuthToken).mockResolvedValue("tok");
+      vi.mocked(Medusa.createCustomerAddress).mockRejectedValue(new Error("401"));
+      vi.mocked(Medusa.getErrorStatusCode).mockReturnValue(401);
+
+      await createAddressAction(
+        {},
+        fd({
+          first_name: "Jane",
+          last_name: "Doe",
+          address_1: "Line 1",
+          city: "Cairo",
+          country_code: "eg",
+        }),
+      );
+      expect(redirect).toHaveBeenCalledWith("/en/account/login");
+    });
+  });
+
+  describe("updateAddressAction", () => {
+    it("updates address and revalidates on success", async () => {
+      vi.mocked(AuthCookie.getAuthToken).mockResolvedValue("tok");
+      const result = await updateAddressAction(
+        {},
+        fd({
+          address_id: "addr_1",
+          first_name: "Jane",
+          last_name: "Doe",
+          address_1: "Line 1",
+          city: "Cairo",
+          country_code: "eg",
+        }),
+      );
+
+      expect(Medusa.updateCustomerAddress).toHaveBeenCalledWith(
+        "addr_1",
+        expect.objectContaining({
+          first_name: "Jane",
+          last_name: "Doe",
+          address_1: "Line 1",
+          city: "Cairo",
+          country_code: "eg",
+        }),
+        "tok",
+      );
+      expect(result).toEqual({ success: true });
+      expect(revalidatePath).toHaveBeenCalledWith("/en/account/addresses");
+    });
+
+    it("returns error if address_id missing", async () => {
+      const result = await updateAddressAction(
+        {},
+        fd({
+          first_name: "Jane",
+          last_name: "Doe",
+          address_1: "Line 1",
+          city: "Cairo",
+          country_code: "eg",
+        }),
+      );
+      expect(result).toEqual({ error: "addresses.updateError" });
+      expect(Medusa.updateCustomerAddress).not.toHaveBeenCalled();
+    });
+
+    it("redirects on 401", async () => {
+      vi.mocked(AuthCookie.getAuthToken).mockResolvedValue("tok");
+      vi.mocked(Medusa.updateCustomerAddress).mockRejectedValue(new Error("401"));
+      vi.mocked(Medusa.getErrorStatusCode).mockReturnValue(401);
+
+      await updateAddressAction(
+        {},
+        fd({
+          address_id: "addr_1",
+          first_name: "Jane",
+          last_name: "Doe",
+          address_1: "Line 1",
+          city: "Cairo",
+          country_code: "eg",
+        }),
+      );
+      expect(redirect).toHaveBeenCalledWith("/en/account/login");
+    });
+  });
+
+  describe("deleteAddressAction", () => {
+    it("deletes address and revalidates on success", async () => {
+      vi.mocked(AuthCookie.getAuthToken).mockResolvedValue("tok");
+      const result = await deleteAddressAction({}, fd({ address_id: "addr_1" }));
+
+      expect(Medusa.deleteCustomerAddress).toHaveBeenCalledWith("addr_1", "tok");
+      expect(result).toEqual({ success: true });
+      expect(revalidatePath).toHaveBeenCalledWith("/en/account/addresses");
+    });
+
+    it("returns error if address_id missing", async () => {
+      const result = await deleteAddressAction({}, fd({ address_id: "" }));
+      expect(result).toEqual({ error: "addresses.deleteError" });
+      expect(Medusa.deleteCustomerAddress).not.toHaveBeenCalled();
+    });
+
+    it("redirects on 401", async () => {
+      vi.mocked(AuthCookie.getAuthToken).mockResolvedValue("tok");
+      vi.mocked(Medusa.deleteCustomerAddress).mockRejectedValue(new Error("401"));
+      vi.mocked(Medusa.getErrorStatusCode).mockReturnValue(401);
+
+      await deleteAddressAction({}, fd({ address_id: "addr_1" }));
       expect(redirect).toHaveBeenCalledWith("/en/account/login");
     });
   });

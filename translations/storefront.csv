@@ -292,9 +292,35 @@ account.profile.saveCta,Save changes,حفظ التغييرات,ACCT-2 AR PROPOSE
 account.profile.cancelCta,Cancel,إلغاء,ACCT-2 AR PROPOSED
 account.profile.updateSuccess,Profile updated successfully.,تم تحديث الملف الشخصي بنجاح.,ACCT-2 AR PROPOSED
 account.profile.updateError,We couldn't update your profile. Try again.,تعذّر تحديث الملف الشخصي. حاول مرة أخرى.,ACCT-2 AR PROPOSED
-account.addressesStub.heading,Addresses,العناوين,ACCT-2 AR PROPOSED
-account.addressesStub.body,Address management will be available in the next account update.,ستتوفر إدارة العناوين في تحديث الحساب القادم.,ACCT-2 AR PROPOSED
-account.addressesStub.backToAccount,Back to account,العودة إلى الحساب,ACCT-2 AR PROPOSED
+account.addresses.heading,Addresses,العناوين,ACCT-3 AR PROPOSED
+account.addresses.subheading,Manage your saved addresses for faster checkout.,أدر عناوينك المحفوظة لتسريع إتمام الشراء.,ACCT-3 AR PROPOSED
+account.addresses.addCta,Add address,إضافة عنوان,ACCT-3 AR PROPOSED
+account.addresses.company,Company (optional),الشركة (اختياري),ACCT-3 AR PROPOSED
+account.addresses.address1,Address,العنوان,ACCT-3 AR PROPOSED
+account.addresses.address2,"Apartment, suite, etc. (optional)","شقة، جناح، إلخ. (اختياري)",ACCT-3 AR PROPOSED
+account.addresses.city,City,المدينة,ACCT-3 AR PROPOSED
+account.addresses.province,State / Province (optional),المنطقة / المحافظة (اختياري),ACCT-3 AR PROPOSED
+account.addresses.postalCode,Postal code (optional),الرمز البريدي (اختياري),ACCT-3 AR PROPOSED
+account.addresses.country,Country,الدولة,ACCT-3 AR PROPOSED
+account.addresses.phone,Phone,الهاتف,ACCT-3 AR PROPOSED
+account.addresses.phoneOptional,optional,اختياري,ACCT-3 AR PROPOSED
+account.addresses.saveCta,Save address,حفظ العنوان,ACCT-3 AR PROPOSED
+account.addresses.cancelCta,Cancel,إلغاء,ACCT-3 AR PROPOSED
+account.addresses.editCta,Edit,تعديل,ACCT-3 AR PROPOSED
+account.addresses.deleteCta,Delete,حذف,ACCT-3 AR PROPOSED
+account.addresses.deleteConfirmCta,Confirm delete,تأكيد الحذف,ACCT-3 AR PROPOSED
+account.addresses.deleteCancelCta,Cancel,إلغاء,ACCT-3 AR PROPOSED
+account.addresses.createSuccess,Address saved successfully.,تم حفظ العنوان بنجاح.,ACCT-3 AR PROPOSED
+account.addresses.updateSuccess,Address updated successfully.,تم تحديث العنوان بنجاح.,ACCT-3 AR PROPOSED
+account.addresses.deleteSuccess,Address deleted successfully.,تم حذف العنوان بنجاح.,ACCT-3 AR PROPOSED
+account.addresses.createError,"Couldn't save this address. Try again.",تعذّر حفظ هذا العنوان. حاول مرة أخرى.,ACCT-3 AR PROPOSED
+account.addresses.updateError,"Couldn't update this address. Try again.",تعذّر تحديث هذا العنوان. حاول مرة أخرى.,ACCT-3 AR PROPOSED
+account.addresses.deleteError,"Couldn't delete this address. Try again.",تعذّر حذف هذا العنوان. حاول مرة أخرى.,ACCT-3 AR PROPOSED
+account.addresses.empty.heading,No saved addresses yet,لا توجد عناوين محفوظة بعد,ACCT-3 AR PROPOSED
+account.addresses.empty.body,Add your first address to speed up checkout next time.,أضف أول عنوان لك لتسريع إتمام الشراء لاحقًا.,ACCT-3 AR PROPOSED
+account.addresses.defaultShippingToggle,Set as default shipping address,تعيين كعنوان شحن افتراضي,ACCT-3 AR PROPOSED
+account.addresses.defaultBadge,Default,افتراضي,ACCT-3 AR PROPOSED
+account.addresses.unnamed,Saved address,عنوان محفوظ,ACCT-3 AR PROPOSED
 account.ordersStub.heading,Orders,الطلبات,ACCT-2 AR PROPOSED
 account.ordersStub.body,Order history will be available in the next account update.,سيتوفر سجل الطلبات في تحديث الحساب القادم.,ACCT-2 AR PROPOSED
 account.ordersStub.backToAccount,Back to account,العودة إلى الحساب,ACCT-2 AR PROPOSED
