@@ -1,3 +1,4 @@
+import path from 'node:path';
 import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 
@@ -10,6 +11,14 @@ const isProdBuild = process.env.NODE_ENV === 'production';
 
 const nextConfig: NextConfig = {
   ...(isProdBuild ? { output: 'standalone' as const } : {}),
+  /* Anchor Turbopack's resolver to this workspace so it locates the
+     hoisted `next` package at the monorepo root. Without this, dev on
+     Windows paths containing spaces panics with
+     "Next.js package not found" → repeating endpoint compile failures
+     and a flicker loop in the browser. */
+  turbopack: {
+    root: path.join(__dirname, '..', '..'),
+  },
   /* Hide the Next.js/Turbopack dev indicator — showed up in production-looking
      dev screenshots as a small vertical ▲ ● ▼ cluster. Purely cosmetic. */
   devIndicators: false,
