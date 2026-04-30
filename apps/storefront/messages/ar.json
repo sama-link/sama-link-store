@@ -228,10 +228,47 @@
       "defaultBadge": "افتراضي",
       "unnamed": "عنوان محفوظ"
     },
-    "ordersStub": {
+    "orders": {
       "heading": "الطلبات",
-      "body": "سيتوفر سجل الطلبات في تحديث الحساب القادم.",
-      "backToAccount": "العودة إلى الحساب"
+      "subheading": "طلباتك السابقة مدرجة بالأسفل.",
+      "errorHeading": "تعذّر تحميل طلباتك.",
+      "errorBody": "حاول مرة أخرى بعد قليل.",
+      "showingHint": "يتم عرض أول {shown} من أصل {total}",
+      "itemsCount": "{count, plural, zero {# عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}}",
+      "empty": {
+        "heading": "لا توجد طلبات بعد",
+        "body": "عند إجراء أول طلب، سيظهر هنا.",
+        "startCta": "ابدأ التسوق"
+      },
+      "status": {
+        "pending": "قيد الانتظار",
+        "completed": "مكتمل",
+        "canceled": "ملغي",
+        "archived": "مؤرشف",
+        "requiresAction": "يتطلب إجراء"
+      },
+      "paymentStatus": {
+        "notPaid": "غير مدفوع",
+        "awaiting": "بانتظار الدفع",
+        "authorized": "تم التفويض",
+        "partiallyAuthorized": "تفويض جزئي",
+        "captured": "مدفوع",
+        "partiallyCaptured": "تحصيل جزئي",
+        "partiallyRefunded": "استرداد جزئي",
+        "refunded": "مسترد",
+        "canceled": "تم إلغاء الدفع",
+        "requiresAction": "الدفع يتطلب إجراء"
+      },
+      "fulfillmentStatus": {
+        "notFulfilled": "غير منفذ",
+        "partiallyFulfilled": "منفذ جزئيًا",
+        "fulfilled": "منفذ",
+        "partiallyShipped": "مشحون جزئيًا",
+        "shipped": "مشحون",
+        "partiallyDelivered": "تم التسليم جزئيًا",
+        "delivered": "تم التسليم",
+        "canceled": "تم إلغاء التنفيذ"
+      }
     }
   },
   "home": {
