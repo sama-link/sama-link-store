@@ -392,3 +392,319 @@ describe("rememberCustomerCartIdAfterAuth (CART-PERSIST-1A — auth-boundary syn
     expect(updateCustomer).not.toHaveBeenCalled();
   });
 });
+
+describe("mergeGuestCartIntoCustomerCart (CART-PERSIST-1B)", () => {
+  beforeEach(() => {
+    cookieStore.jar.clear();
+    cookieStore.get.mockClear();
+    cookieStore.set.mockClear();
+    updateTagMock.mockClear();
+    vi.restoreAllMocks();
+  });
+
+  function mockCartRetrievals(carts: Record<string, unknown>) {
+    return vi
+      .spyOn(sdk.store.cart, "retrieve")
+      .mockImplementation(async (id: string) => {
+        const cart = carts[id];
+        if (!cart) throw new Error(`cart ${id} not found`);
+        return { cart } as never;
+      });
+  }
+
+  it("appends a new variant from the guest cart to the customer's previous cart", async () => {
+    cookieStore.jar.set("sama_customer_session", "tok");
+    cookieStore.jar.set("medusa_cart_id", "cart_guest");
+
+    vi.spyOn(sdk.store.customer, "retrieve").mockResolvedValue({
+      customer: { id: "cus", metadata: { last_cart_id: "cart_prev" } },
+    } as never);
+    mockCartRetrievals({
+      cart_prev: {
+        id: "cart_prev",
+        items: [
+          { id: "li_1", variant_id: "var_A", quantity: 1 },
+        ],
+        completed_at: null,
+      },
+      cart_guest: {
+        id: "cart_guest",
+        items: [{ variant_id: "var_B", quantity: 2 }],
+        completed_at: null,
+      },
+    });
+    const createLineItem = vi
+      .spyOn(sdk.store.cart, "createLineItem")
+      .mockResolvedValue({ cart: { id: "cart_prev" } } as never);
+    const updateLineItem = vi.spyOn(sdk.store.cart, "updateLineItem");
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(createLineItem).toHaveBeenCalledTimes(1);
+    const [targetCartId, payload] = createLineItem.mock.calls[0]!;
+    expect(targetCartId).toBe("cart_prev");
+    expect(payload).toEqual({ variant_id: "var_B", quantity: 2 });
+    expect(updateLineItem).not.toHaveBeenCalled();
+    expect(cookieStore.jar.get("medusa_cart_id")).toBe("cart_prev");
+    expect(updateTagMock).toHaveBeenCalledWith("cart");
+  });
+
+  it("sums the quantity when both carts have the same variant", async () => {
+    cookieStore.jar.set("sama_customer_session", "tok");
+    cookieStore.jar.set("medusa_cart_id", "cart_guest");
+
+    vi.spyOn(sdk.store.customer, "retrieve").mockResolvedValue({
+      customer: { id: "cus", metadata: { last_cart_id: "cart_prev" } },
+    } as never);
+    mockCartRetrievals({
+      cart_prev: {
+        id: "cart_prev",
+        items: [{ id: "li_1", variant_id: "var_A", quantity: 1 }],
+        completed_at: null,
+      },
+      cart_guest: {
+        id: "cart_guest",
+        items: [{ variant_id: "var_A", quantity: 3 }],
+        completed_at: null,
+      },
+    });
+    const updateLineItem = vi
+      .spyOn(sdk.store.cart, "updateLineItem")
+      .mockResolvedValue({ cart: { id: "cart_prev" } } as never);
+    const createLineItem = vi.spyOn(sdk.store.cart, "createLineItem");
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(updateLineItem).toHaveBeenCalledTimes(1);
+    const [targetCartId, lineItemId, payload] = updateLineItem.mock.calls[0]!;
+    expect(targetCartId).toBe("cart_prev");
+    expect(lineItemId).toBe("li_1");
+    expect(payload).toEqual({ quantity: 4 });
+    expect(createLineItem).not.toHaveBeenCalled();
+    expect(cookieStore.jar.get("medusa_cart_id")).toBe("cart_prev");
+  });
+
+  it("handles a mix of same-variant sum and new-variant append", async () => {
+    cookieStore.jar.set("sama_customer_session", "tok");
+    cookieStore.jar.set("medusa_cart_id", "cart_guest");
+
+    vi.spyOn(sdk.store.customer, "retrieve").mockResolvedValue({
+      customer: { id: "cus", metadata: { last_cart_id: "cart_prev" } },
+    } as never);
+    mockCartRetrievals({
+      cart_prev: {
+        id: "cart_prev",
+        items: [
+          { id: "li_A", variant_id: "var_A", quantity: 2 },
+          { id: "li_C", variant_id: "var_C", quantity: 1 },
+        ],
+        completed_at: null,
+      },
+      cart_guest: {
+        id: "cart_guest",
+        items: [
+          { variant_id: "var_A", quantity: 1 },
+          { variant_id: "var_B", quantity: 5 },
+        ],
+        completed_at: null,
+      },
+    });
+    const updateLineItem = vi
+      .spyOn(sdk.store.cart, "updateLineItem")
+      .mockResolvedValue({ cart: { id: "cart_prev" } } as never);
+    const createLineItem = vi
+      .spyOn(sdk.store.cart, "createLineItem")
+      .mockResolvedValue({ cart: { id: "cart_prev" } } as never);
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(updateLineItem).toHaveBeenCalledTimes(1);
+    expect(updateLineItem.mock.calls[0]![2]).toEqual({ quantity: 3 });
+    expect(createLineItem).toHaveBeenCalledTimes(1);
+    expect(createLineItem.mock.calls[0]![1]).toEqual({
+      variant_id: "var_B",
+      quantity: 5,
+    });
+  });
+
+  it("skips a single failing line-item and continues with the rest", async () => {
+    cookieStore.jar.set("sama_customer_session", "tok");
+    cookieStore.jar.set("medusa_cart_id", "cart_guest");
+
+    vi.spyOn(sdk.store.customer, "retrieve").mockResolvedValue({
+      customer: { id: "cus", metadata: { last_cart_id: "cart_prev" } },
+    } as never);
+    mockCartRetrievals({
+      cart_prev: { id: "cart_prev", items: [], completed_at: null },
+      cart_guest: {
+        id: "cart_guest",
+        items: [
+          { variant_id: "var_OOS", quantity: 1 },
+          { variant_id: "var_OK", quantity: 1 },
+        ],
+        completed_at: null,
+      },
+    });
+    const createLineItem = vi
+      .spyOn(sdk.store.cart, "createLineItem")
+      .mockImplementation(async (_id, payload) => {
+        if ((payload as { variant_id?: string }).variant_id === "var_OOS") {
+          throw new Error("out of stock");
+        }
+        return { cart: { id: "cart_prev" } } as never;
+      });
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(createLineItem).toHaveBeenCalledTimes(2);
+    // Cookie still switches even if one line failed.
+    expect(cookieStore.jar.get("medusa_cart_id")).toBe("cart_prev");
+  });
+
+  it("is a no-op when guest is unauthed", async () => {
+    cookieStore.jar.set("medusa_cart_id", "cart_guest");
+
+    const retrieveCustomer = vi.spyOn(sdk.store.customer, "retrieve");
+    const retrieveCart = vi.spyOn(sdk.store.cart, "retrieve");
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(retrieveCustomer).not.toHaveBeenCalled();
+    expect(retrieveCart).not.toHaveBeenCalled();
+    expect(cookieStore.jar.get("medusa_cart_id")).toBe("cart_guest");
+  });
+
+  it("is a no-op when no cookie cart", async () => {
+    cookieStore.jar.set("sama_customer_session", "tok");
+
+    const retrieveCustomer = vi.spyOn(sdk.store.customer, "retrieve");
+    const retrieveCart = vi.spyOn(sdk.store.cart, "retrieve");
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(retrieveCustomer).not.toHaveBeenCalled();
+    expect(retrieveCart).not.toHaveBeenCalled();
+  });
+
+  it("is a no-op when customer has no previous cart in metadata", async () => {
+    cookieStore.jar.set("sama_customer_session", "tok");
+    cookieStore.jar.set("medusa_cart_id", "cart_guest");
+
+    vi.spyOn(sdk.store.customer, "retrieve").mockResolvedValue({
+      customer: { id: "cus", metadata: {} },
+    } as never);
+    const retrieveCart = vi.spyOn(sdk.store.cart, "retrieve");
+    const createLineItem = vi.spyOn(sdk.store.cart, "createLineItem");
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(retrieveCart).not.toHaveBeenCalled();
+    expect(createLineItem).not.toHaveBeenCalled();
+    // Cookie unchanged.
+    expect(cookieStore.jar.get("medusa_cart_id")).toBe("cart_guest");
+  });
+
+  it("is a no-op when metadata.last_cart_id equals the cookie cart (same cart, nothing to merge)", async () => {
+    cookieStore.jar.set("sama_customer_session", "tok");
+    cookieStore.jar.set("medusa_cart_id", "cart_same");
+
+    vi.spyOn(sdk.store.customer, "retrieve").mockResolvedValue({
+      customer: { id: "cus", metadata: { last_cart_id: "cart_same" } },
+    } as never);
+    const retrieveCart = vi.spyOn(sdk.store.cart, "retrieve");
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(retrieveCart).not.toHaveBeenCalled();
+  });
+
+  it("is a no-op when the previous cart is no longer usable (completed)", async () => {
+    cookieStore.jar.set("sama_customer_session", "tok");
+    cookieStore.jar.set("medusa_cart_id", "cart_guest");
+
+    vi.spyOn(sdk.store.customer, "retrieve").mockResolvedValue({
+      customer: { id: "cus", metadata: { last_cart_id: "cart_done" } },
+    } as never);
+    mockCartRetrievals({
+      cart_done: {
+        id: "cart_done",
+        items: [],
+        completed_at: "2026-04-30T00:00:00.000Z",
+      },
+      cart_guest: {
+        id: "cart_guest",
+        items: [{ variant_id: "var_A", quantity: 1 }],
+        completed_at: null,
+      },
+    });
+    const createLineItem = vi.spyOn(sdk.store.cart, "createLineItem");
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(createLineItem).not.toHaveBeenCalled();
+    // Cookie stays on the just-promoted cart.
+    expect(cookieStore.jar.get("medusa_cart_id")).toBe("cart_guest");
+  });
+
+  it("is a no-op when either cart retrieve throws", async () => {
+    cookieStore.jar.set("sama_customer_session", "tok");
+    cookieStore.jar.set("medusa_cart_id", "cart_guest");
+
+    vi.spyOn(sdk.store.customer, "retrieve").mockResolvedValue({
+      customer: { id: "cus", metadata: { last_cart_id: "cart_prev" } },
+    } as never);
+    vi.spyOn(sdk.store.cart, "retrieve").mockRejectedValue(
+      new Error("404 cart not found"),
+    );
+    const createLineItem = vi.spyOn(sdk.store.cart, "createLineItem");
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(createLineItem).not.toHaveBeenCalled();
+    expect(cookieStore.jar.get("medusa_cart_id")).toBe("cart_guest");
+  });
+
+  it("skips guest line items missing variant_id or with non-positive quantity", async () => {
+    cookieStore.jar.set("sama_customer_session", "tok");
+    cookieStore.jar.set("medusa_cart_id", "cart_guest");
+
+    vi.spyOn(sdk.store.customer, "retrieve").mockResolvedValue({
+      customer: { id: "cus", metadata: { last_cart_id: "cart_prev" } },
+    } as never);
+    mockCartRetrievals({
+      cart_prev: { id: "cart_prev", items: [], completed_at: null },
+      cart_guest: {
+        id: "cart_guest",
+        items: [
+          { variant_id: null, quantity: 2 },
+          { variant_id: "var_OK", quantity: 0 },
+          { variant_id: "var_OK", quantity: -1 },
+          { variant_id: "var_OK", quantity: 1 },
+        ],
+        completed_at: null,
+      },
+    });
+    const createLineItem = vi
+      .spyOn(sdk.store.cart, "createLineItem")
+      .mockResolvedValue({ cart: { id: "cart_prev" } } as never);
+
+    const { mergeGuestCartIntoCustomerCart } = await import("./cart");
+    await mergeGuestCartIntoCustomerCart();
+
+    expect(createLineItem).toHaveBeenCalledTimes(1);
+    expect(createLineItem.mock.calls[0]![1]).toEqual({
+      variant_id: "var_OK",
+      quantity: 1,
+    });
+  });
+});

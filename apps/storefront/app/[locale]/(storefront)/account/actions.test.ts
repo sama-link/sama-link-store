@@ -60,6 +60,7 @@ vi.mock("@/lib/cart-cookie-server", () => ({
 
 vi.mock("@/lib/data/cart", () => ({
   rememberCustomerCartIdAfterAuth: vi.fn(),
+  mergeGuestCartIntoCustomerCart: vi.fn(),
 }));
 
 import * as DataCart from "@/lib/data/cart";
@@ -99,6 +100,9 @@ describe("account server actions", () => {
     vi.mocked(AuthCookie.clearAuthCookie).mockResolvedValue(undefined);
     vi.mocked(CartCookieServer.clearCartIdCookie).mockResolvedValue(undefined);
     vi.mocked(DataCart.rememberCustomerCartIdAfterAuth).mockResolvedValue(
+      undefined,
+    );
+    vi.mocked(DataCart.mergeGuestCartIntoCustomerCart).mockResolvedValue(
       undefined,
     );
   });
@@ -157,6 +161,30 @@ describe("account server actions", () => {
       expect(persistOrder).toBeGreaterThan(transferOrder ?? 0);
     });
 
+    it("3b-merge calls merge between transferCart and the metadata sync (CART-PERSIST-1B)", async () => {
+      vi.mocked(CartCookieServer.getCartIdFromCookie).mockResolvedValue(
+        "cart_guest",
+      );
+
+      await loginAction(
+        {},
+        fd({ email: "a@b.com", password: "secret12" }),
+      );
+
+      expect(DataCart.mergeGuestCartIntoCustomerCart).toHaveBeenCalledTimes(1);
+      const transferOrder = vi
+        .mocked(Medusa.transferCartToCustomer)
+        .mock.invocationCallOrder[0];
+      const mergeOrder = vi
+        .mocked(DataCart.mergeGuestCartIntoCustomerCart)
+        .mock.invocationCallOrder[0];
+      const persistOrder = vi
+        .mocked(DataCart.rememberCustomerCartIdAfterAuth)
+        .mock.invocationCallOrder[0];
+      expect(mergeOrder).toBeGreaterThan(transferOrder ?? 0);
+      expect(persistOrder).toBeGreaterThan(mergeOrder ?? 0);
+    });
+
     it("3c valid credentials with cart but transfer throws: still set cookie and redirect", async () => {
       vi.mocked(CartCookieServer.getCartIdFromCookie).mockResolvedValue(
         "cart_guest",
@@ -191,7 +219,8 @@ describe("account server actions", () => {
       expect(r).toEqual({ error: "genericError" });
       expect(AuthCookie.setAuthCookie).not.toHaveBeenCalled();
       expect(redirect).not.toHaveBeenCalled();
-      // Sync must not fire when login itself failed.
+      // Merge + sync must not fire when login itself failed.
+      expect(DataCart.mergeGuestCartIntoCustomerCart).not.toHaveBeenCalled();
       expect(DataCart.rememberCustomerCartIdAfterAuth).not.toHaveBeenCalled();
     });
 
@@ -302,6 +331,35 @@ describe("account server actions", () => {
         .mocked(DataCart.rememberCustomerCartIdAfterAuth)
         .mock.invocationCallOrder[0];
       expect(persistOrder).toBeGreaterThan(transferOrder ?? 0);
+    });
+
+    it("4b-merge calls merge between transferCart and the metadata sync (CART-PERSIST-1B)", async () => {
+      vi.mocked(CartCookieServer.getCartIdFromCookie).mockResolvedValue(
+        "cart_x",
+      );
+
+      await registerAction(
+        {},
+        fd({
+          email: "a@b.com",
+          password: "secret12",
+          first_name: "A",
+          last_name: "B",
+        }),
+      );
+
+      expect(DataCart.mergeGuestCartIntoCustomerCart).toHaveBeenCalledTimes(1);
+      const transferOrder = vi
+        .mocked(Medusa.transferCartToCustomer)
+        .mock.invocationCallOrder[0];
+      const mergeOrder = vi
+        .mocked(DataCart.mergeGuestCartIntoCustomerCart)
+        .mock.invocationCallOrder[0];
+      const persistOrder = vi
+        .mocked(DataCart.rememberCustomerCartIdAfterAuth)
+        .mock.invocationCallOrder[0];
+      expect(mergeOrder).toBeGreaterThan(transferOrder ?? 0);
+      expect(persistOrder).toBeGreaterThan(mergeOrder ?? 0);
     });
 
     it("4c valid fields with cart but transfer throws: still redirect", async () => {

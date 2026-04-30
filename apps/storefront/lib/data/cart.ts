@@ -188,3 +188,91 @@ export async function rememberCustomerCartIdAfterAuth(): Promise<void> {
   if (lookup.metadata[LAST_CART_METADATA_KEY] === cartId) return;
   await persistLastCartId(cartId, lookup.metadata, headers);
 }
+
+type IncomingLineItem = {
+  variant_id?: string | null;
+  quantity?: number | null;
+};
+
+type ExistingLineItem = IncomingLineItem & { id: string };
+
+// CART-PERSIST-1B: called from `loginAction` / `registerAction` after the
+// auth + transferCart sequence and before `rememberCustomerCartIdAfterAuth`.
+//
+// When a customer with a previously-active cart logs in on a new device or
+// browser where they had built a guest cart, both carts now belong to the
+// customer (`transferCartToCustomer` promoted the cookie one). This action
+// merges the just-promoted cart's items into the customer's previously-
+// active cart and switches the cookie to the previously-active cart so
+// subsequent requests operate on the merged result. The orphaned guest
+// cart row is left in the DB; cleanup is an operations concern.
+//
+// Merge rules (this PR):
+//   - Same `variant_id` in both carts → sum quantities.
+//   - Different variants → append.
+//
+// Out of scope (not in this PR): stock caps, region/currency reconciliation,
+// promotion re-validation, in-progress checkout preservation. The function
+// is a no-op when there is nothing to merge (no cookie cart, no
+// previously-active cart, or both ids are the same), keeping the
+// pre-1B behavior byte-identical for those paths.
+export async function mergeGuestCartIntoCustomerCart(): Promise<void> {
+  const headers = await getAuthHeaders();
+  if (!isAuthed(headers)) return;
+  const cookieCartId = await getCartId();
+  if (!cookieCartId) return;
+  const lookup = await readCustomerMetadata(headers);
+  if (!lookup) return;
+  const previousCartId = lookup.lastCartId;
+  if (!previousCartId || previousCartId === cookieCartId) return;
+
+  let previousCart: StoreCart;
+  let incomingCart: StoreCart;
+  try {
+    const [previous, incoming] = await Promise.all([
+      sdk.store.cart.retrieve(previousCartId, cartSelect, headers),
+      sdk.store.cart.retrieve(cookieCartId, cartSelect, headers),
+    ]);
+    if (!previous.cart || !incoming.cart) return;
+    if (!isCartUsable(previous.cart as StoreCart, cartRegionId)) return;
+    previousCart = previous.cart as StoreCart;
+    incomingCart = incoming.cart as StoreCart;
+  } catch {
+    // Either cart unreachable; skip merge — 1A's metadata sync still keeps
+    // the existing cookie cart attached to the customer.
+    return;
+  }
+
+  const existingItems = (previousCart.items ?? []) as ExistingLineItem[];
+  const incomingItems = (incomingCart.items ?? []) as IncomingLineItem[];
+
+  for (const item of incomingItems) {
+    const variantId = item.variant_id;
+    const qty = item.quantity ?? 0;
+    if (!variantId || qty <= 0) continue;
+    const match = existingItems.find((it) => it.variant_id === variantId);
+    try {
+      if (match) {
+        const summed = (match.quantity ?? 0) + qty;
+        await sdk.store.cart.updateLineItem(
+          previousCart.id,
+          match.id,
+          { quantity: summed },
+          cartSelect,
+        );
+      } else {
+        await sdk.store.cart.createLineItem(
+          previousCart.id,
+          { variant_id: variantId, quantity: qty },
+          cartSelect,
+        );
+      }
+    } catch {
+      // Per-line best-effort: out-of-stock, deleted variant, region
+      // pricing gap. Skip silently and continue with the remaining items.
+    }
+  }
+
+  await setCartId(previousCart.id);
+  updateTag("cart");
+}
