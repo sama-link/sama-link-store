@@ -20,8 +20,8 @@ Before starting any non-trivial work, agents must read the relevant local KB doc
 
 - `../sama-link-store-kb/README.md`
 - `../sama-link-store-kb/governance/constitution.md`
-- `../sama-link-store-kb/operations/task-workflow.md`
-- `../sama-link-store-kb/operations/workspace-architecture.md`
+- `../sama-link-store-kb/workflows/task-workflow.md`
+- `../sama-link-store-kb/workflows/workspace-architecture.md`
 - `../sama-link-store-kb/governance/actors/claude-contract.md`
 
 ## Important rules
