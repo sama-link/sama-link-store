@@ -195,10 +195,38 @@
       "updateSuccess": "Profile updated successfully.",
       "updateError": "We couldn't update your profile. Try again."
     },
-    "addressesStub": {
+    "addresses": {
       "heading": "Addresses",
-      "body": "Address management will be available in the next account update.",
-      "backToAccount": "Back to account"
+      "subheading": "Manage your saved addresses for faster checkout.",
+      "addCta": "Add address",
+      "company": "Company (optional)",
+      "address1": "Address",
+      "address2": "Apartment, suite, etc. (optional)",
+      "city": "City",
+      "province": "State / Province (optional)",
+      "postalCode": "Postal code (optional)",
+      "country": "Country",
+      "phone": "Phone",
+      "phoneOptional": "optional",
+      "saveCta": "Save address",
+      "cancelCta": "Cancel",
+      "editCta": "Edit",
+      "deleteCta": "Delete",
+      "deleteConfirmCta": "Confirm delete",
+      "deleteCancelCta": "Cancel",
+      "createSuccess": "Address saved successfully.",
+      "updateSuccess": "Address updated successfully.",
+      "deleteSuccess": "Address deleted successfully.",
+      "createError": "Couldn't save this address. Try again.",
+      "updateError": "Couldn't update this address. Try again.",
+      "deleteError": "Couldn't delete this address. Try again.",
+      "empty": {
+        "heading": "No saved addresses yet",
+        "body": "Add your first address to speed up checkout next time."
+      },
+      "defaultShippingToggle": "Set as default shipping address",
+      "defaultBadge": "Default",
+      "unnamed": "Saved address"
     },
     "ordersStub": {
       "heading": "Orders",
