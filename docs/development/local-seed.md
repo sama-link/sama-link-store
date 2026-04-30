@@ -172,7 +172,9 @@ safe and the local stack obviously distinct from production:
 
 - Real customer records, addresses, or PII
 - Real orders, carts, payments, refunds, returns
-- Stripe / payment provider secrets, webhook secrets
+- Paymob / Bosta / Tepro secrets, webhook secrets, integration IDs (governed integrations per
+  ADR-048 + ADR-049 — the prior Stripe direction is superseded; older fixtures may still
+  reference Stripe-style secret exclusion language)
 - `JWT_SECRET`, `COOKIE_SECRET`, API tokens (the publishable token is
   generated locally by Medusa, not copied from anywhere)
 - Password hashes or auth identities (created by `medusa user`)
@@ -212,7 +214,10 @@ The script:
   through only when they look like `http(s)://...`.
 - Hard-excludes every forbidden table and field: customers, orders,
   carts, payments, refunds, returns, users, auth identities, sessions,
-  password hashes, JWT/cookie/Stripe/webhook secrets.
+  password hashes, JWT/cookie secrets, and the governed-integration
+  secrets — Paymob (ADR-048), Bosta + Tepro (ADR-049), plus any legacy
+  Stripe/webhook secret strings that may still be present in older
+  exports.
 - Writes the sanitized result to
   `apps/backend/src/scripts/fixtures/live-store-setup.json` (overwrites
   on each run; never persists raw data).
@@ -244,8 +249,11 @@ NEXT_PUBLIC_DEFAULT_LOCALE=ar
 ```
 
 Do NOT put backend secrets (`JWT_SECRET`, `COOKIE_SECRET`,
-`DATABASE_URL`, Stripe keys) in this file — they would be shipped to
-the browser. Backend secrets belong in `apps/backend/.env`.
+`DATABASE_URL`, Paymob keys, Bosta keys, Tepro keys) in this file —
+they would be shipped to the browser. Backend secrets belong in
+`apps/backend/.env`. (Paymob is the governed payment provider per
+ADR-048; Bosta + Tepro are the governed shipping providers per
+ADR-049. The prior Stripe direction was superseded on 2026-04-30.)
 
 ## Why admin creation lives in the npm script, not in `seed.ts`
 
