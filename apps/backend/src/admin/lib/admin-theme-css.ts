@@ -6,11 +6,11 @@
 // to match where Medusa itself sets them. We append this AFTER Medusa's bundle
 // has loaded, so identical-specificity selectors resolve to our declaration.
 //
-// KNOWN LIMITATION (documented in ADR-047): admin-sdk widgets do NOT mount on
-// `/app/login`. So a *first* load on login stays Medusa-default until the
-// operator signs in and any main-list widget mounts, which injects the theme
-// for the rest of the SPA session. Hardening login too requires a more
-// invasive index.html patch — tracked as a follow-up inside Workstream Q.
+// COLD-LOGIN COVERAGE (REF-24): the companion widget registers on the
+// `login.before` zone (confirmed in Medusa dashboard's compiled
+// `login-IMDOL4BZ.mjs`), so this style sheet is appended to document.head
+// before Medusa's login form renders — the Sama logo paints from first
+// paint on a fresh visit to `/app/login`, not just after first sign-in.
 //
 // FRAGILITY (accepted): these selectors target Medusa's built-in variable
 // names. A Medusa minor upgrade can rename them — the contract is one smoke
@@ -21,7 +21,13 @@
 
 export const ADMIN_THEME_STYLE_ID = "sama-admin-theme"
 
-export const ADMIN_THEME_CSS = `
+/* Builds the global admin theme stylesheet, with the Sama logo URL injected
+   into the two branded wordmark slots (login wordmark + sidebar store badge).
+   The sidebar user-avatar slot intentionally keeps Medusa's per-user initial
+   so the logged-in operator's identity remains visible. The logo URL is
+   passed in by the widget so Vite can hash + serve it as a normal admin
+   bundle asset; the navy tile remains as a fallback if the image 404s. */
+export const buildAdminThemeCss = (logoUrl: string): string => `
 /* ─────────────────────────────────────────────────────────────────────────
    LIGHT MODE — override Medusa's :root tokens.
    ──────────────────────────────────────────────────────────────────────── */
@@ -234,11 +240,15 @@ html, body {
 
    Three DOM slots were inspected live on 2026-04-19 against this branch's
    Medusa dashboard build. Each block below targets one slot via the most
-   stable class combo we could spot; if Medusa renames or restructures any
-   of them the visual will fall back to a clean Sama-navy badge (no "S"
-   leak) because we have hidden the inner text with font-size:0 before
-   the pseudo-element paints. Patch these selectors in REF-33 smoke after
-   any @medusajs/* bump.
+   stable class combo we could spot; if Medusa renames or restructures
+   any of them the visual falls back to a clean Sama-navy badge (the
+   inner letter is still hidden via font-size:0 / color:transparent on
+   the descendants). Patch these selectors in REF-33 smoke after any
+   @medusajs/* bump.
+
+   The Sama icon itself is painted via background-image with a URL passed
+   in by the widget (Vite hashes + serves the asset). A 404 on the icon
+   leaves the Sama-navy tile in place — never a Medusa wordmark.
 
    Requires CSS :has() — Chrome 105+ / Firefox 121+ / Safari 15.4+. Safe
    across every supported admin browser per Medusa compatibility matrix.
@@ -247,31 +257,22 @@ html, body {
 /* ── 1. Login-page wordmark.
       The login mark is an inline <svg viewBox="0 0 400 400"> inside a
       nested <div> wrapper inside .bg-ui-button-neutral. Hide the SVG,
-      repaint the wrapper as a Sama navy tile, and drop an "SL" monogram
-      on top via the after-pseudo. ─────────────────────────────────── */
+      repaint the wrapper as a Sama navy tile, and paint the Sama icon
+      on top via background-image. The navy tile remains as a fallback
+      if the logo URL fails to load. ─────────────────────────────────── */
 .bg-ui-button-neutral > div > svg[viewBox="0 0 400 400"] {
   display: none !important;
 }
 .bg-ui-button-neutral > div:has(> svg[viewBox="0 0 400 400"]) {
-  background: #0f2b4f !important;
+  background-color: #0f2b4f !important;
+  background-image: url("${logoUrl}") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 76% !important;
   border-radius: 10px !important;
   box-shadow: none !important;
   position: relative;
   overflow: hidden;
-}
-.bg-ui-button-neutral > div:has(> svg[viewBox="0 0 400 400"])::after {
-  content: "SL";
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff;
-  font-weight: 700;
-  font-size: 16px;
-  font-family: "Geist", "IBM Plex Sans Arabic", system-ui, sans-serif;
-  letter-spacing: 0.04em;
-  pointer-events: none;
 }
 /* Kill the neutral-button gradient the login tile uses so the Sama navy
    reads cleanly instead of washing out. */
@@ -283,12 +284,16 @@ html, body {
 
 /* ── 2. Sidebar store badge (top).
       24×24 rounded-md tile whose inner <span> prints the store's first
-      letter. Paint the outer tile navy, zero out the inner font-size to
-      hide the "S", and overlay "SL" via a pseudo. Selector narrowness
-      (class combo + letter-badge descendant) keeps customer/variant
-      avatars elsewhere in the admin untouched. ──────────────────────── */
+      letter. Paint the outer tile navy, hide the inner letter, and
+      paint the Sama icon via background-image on the wrapper. Selector
+      narrowness (class combo + letter-badge descendant) keeps customer/
+      variant avatars elsewhere in the admin untouched. ───────────────── */
 .shadow-borders-base.bg-ui-bg-base.h-6.w-6.rounded-md {
-  background: #0f2b4f !important;
+  background-color: #0f2b4f !important;
+  background-image: url("${logoUrl}") !important;
+  background-repeat: no-repeat !important;
+  background-position: center !important;
+  background-size: 78% !important;
   box-shadow: none !important;
 }
 .shadow-borders-base.bg-ui-bg-base.h-6.w-6.rounded-md > .bg-ui-bg-component-hover,
@@ -296,50 +301,10 @@ html, body {
   background: transparent !important;
   color: transparent !important;
   font-size: 0 !important;
-  position: relative;
-}
-.shadow-borders-base.bg-ui-bg-base.h-6.w-6.rounded-md > span::after {
-  content: "SL";
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff !important;
-  font-weight: 700;
-  font-size: 9px !important;
-  font-family: "Geist", "IBM Plex Sans Arabic", system-ui, sans-serif;
-  letter-spacing: 0.04em;
 }
 
-/* ── 3. Sidebar user avatar (bottom).
-      24×24 rounded-full tile with the same letter-badge pattern. The
-      operator asked for Sama in every slot so we mirror block 2 but
-      keep the circle shape. (Trade-off: you lose the per-user initial
-      cue for the logged-in operator; if that's unwanted, remove this
-      block and the user's initial comes back.) ──────────────────────── */
-.shadow-borders-base.bg-ui-bg-base.h-6.w-6.rounded-full {
-  background: #0f2b4f !important;
-  box-shadow: none !important;
-}
-.shadow-borders-base.bg-ui-bg-base.h-6.w-6.rounded-full > .bg-ui-bg-component-hover,
-.shadow-borders-base.bg-ui-bg-base.h-6.w-6.rounded-full > span {
-  background: transparent !important;
-  color: transparent !important;
-  font-size: 0 !important;
-  position: relative;
-}
-.shadow-borders-base.bg-ui-bg-base.h-6.w-6.rounded-full > span::after {
-  content: "SL";
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #ffffff !important;
-  font-weight: 700;
-  font-size: 9px !important;
-  font-family: "Geist", "IBM Plex Sans Arabic", system-ui, sans-serif;
-  letter-spacing: 0.04em;
-}
+/* The 24×24 rounded-full sidebar slot (bottom of sidebar) is the per-user
+   avatar with the operator's first initial. We intentionally do NOT brand
+   this slot — operator identity is more useful there than another Sama
+   mark, and the wordmark surfaces above already carry the brand. */
 `.trim()
