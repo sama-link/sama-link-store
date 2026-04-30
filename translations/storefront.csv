@@ -321,9 +321,38 @@ account.addresses.empty.body,Add your first address to speed up checkout next ti
 account.addresses.defaultShippingToggle,Set as default shipping address,تعيين كعنوان شحن افتراضي,ACCT-3 AR PROPOSED
 account.addresses.defaultBadge,Default,افتراضي,ACCT-3 AR PROPOSED
 account.addresses.unnamed,Saved address,عنوان محفوظ,ACCT-3 AR PROPOSED
-account.ordersStub.heading,Orders,الطلبات,ACCT-2 AR PROPOSED
-account.ordersStub.body,Order history will be available in the next account update.,سيتوفر سجل الطلبات في تحديث الحساب القادم.,ACCT-2 AR PROPOSED
-account.ordersStub.backToAccount,Back to account,العودة إلى الحساب,ACCT-2 AR PROPOSED
+account.orders.heading,Orders,الطلبات,ACCT-4 AR PROPOSED
+account.orders.subheading,Your past orders are listed below.,طلباتك السابقة مدرجة بالأسفل.,ACCT-4 AR PROPOSED
+account.orders.errorHeading,"Couldn't load your orders.",تعذّر تحميل طلباتك.,ACCT-4 AR PROPOSED
+account.orders.errorBody,Try again in a moment.,حاول مرة أخرى بعد قليل.,ACCT-4 AR PROPOSED
+account.orders.showingHint,Showing first {shown} of {total},يتم عرض أول {shown} من أصل {total},ACCT-4 AR PROPOSED
+account.orders.itemsCount,"{count, plural, one {# item} other {# items}}","{count, plural, zero {# عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}}",ACCT-4 AR PROPOSED
+account.orders.empty.heading,No orders yet,لا توجد طلبات بعد,ACCT-4 AR PROPOSED
+account.orders.empty.body,"Once you place an order, it'll show up here.",عند إجراء أول طلب، سيظهر هنا.,ACCT-4 AR PROPOSED
+account.orders.empty.startCta,Start shopping,ابدأ التسوق,ACCT-4 AR PROPOSED
+account.orders.status.pending,Pending,قيد الانتظار,ACCT-4 AR PROPOSED
+account.orders.status.completed,Completed,مكتمل,ACCT-4 AR PROPOSED
+account.orders.status.canceled,Canceled,ملغي,ACCT-4 AR PROPOSED
+account.orders.status.archived,Archived,مؤرشف,ACCT-4 AR PROPOSED
+account.orders.status.requiresAction,Requires action,يتطلب إجراء,ACCT-4 AR PROPOSED
+account.orders.paymentStatus.notPaid,Not paid,غير مدفوع,ACCT-4 AR PROPOSED
+account.orders.paymentStatus.awaiting,Awaiting payment,بانتظار الدفع,ACCT-4 AR PROPOSED
+account.orders.paymentStatus.authorized,Authorized,تم التفويض,ACCT-4 AR PROPOSED
+account.orders.paymentStatus.partiallyAuthorized,Partially authorized,تفويض جزئي,ACCT-4 AR PROPOSED
+account.orders.paymentStatus.captured,Paid,مدفوع,ACCT-4 AR PROPOSED
+account.orders.paymentStatus.partiallyCaptured,Partially captured,تحصيل جزئي,ACCT-4 AR PROPOSED
+account.orders.paymentStatus.partiallyRefunded,Partially refunded,استرداد جزئي,ACCT-4 AR PROPOSED
+account.orders.paymentStatus.refunded,Refunded,مسترد,ACCT-4 AR PROPOSED
+account.orders.paymentStatus.canceled,Payment canceled,تم إلغاء الدفع,ACCT-4 AR PROPOSED
+account.orders.paymentStatus.requiresAction,Payment requires action,الدفع يتطلب إجراء,ACCT-4 AR PROPOSED
+account.orders.fulfillmentStatus.notFulfilled,Not fulfilled,غير منفذ,ACCT-4 AR PROPOSED
+account.orders.fulfillmentStatus.partiallyFulfilled,Partially fulfilled,منفذ جزئيًا,ACCT-4 AR PROPOSED
+account.orders.fulfillmentStatus.fulfilled,Fulfilled,منفذ,ACCT-4 AR PROPOSED
+account.orders.fulfillmentStatus.partiallyShipped,Partially shipped,مشحون جزئيًا,ACCT-4 AR PROPOSED
+account.orders.fulfillmentStatus.shipped,Shipped,مشحون,ACCT-4 AR PROPOSED
+account.orders.fulfillmentStatus.partiallyDelivered,Partially delivered,تم التسليم جزئيًا,ACCT-4 AR PROPOSED
+account.orders.fulfillmentStatus.delivered,Delivered,تم التسليم,ACCT-4 AR PROPOSED
+account.orders.fulfillmentStatus.canceled,Fulfillment canceled,تم إلغاء التنفيذ,ACCT-4 AR PROPOSED
 topbar.announcement,"Free shipping on orders over EGP 1,500","شحن مجاني على الطلبات فوق 1,500 ج.م",ADR-045 flat refresh — AR proposed pending CONTENT-1 review
 topbar.announcementCta,Shop now,تسوق الآن,ADR-045 flat refresh — AR proposed pending CONTENT-1 review
 nav.catbarLabel,Category shortcuts,اختصارات الفئات,ADR-045 flat refresh — aria-label for category strip — AR proposed

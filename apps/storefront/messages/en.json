@@ -228,10 +228,47 @@
       "defaultBadge": "Default",
       "unnamed": "Saved address"
     },
-    "ordersStub": {
+    "orders": {
       "heading": "Orders",
-      "body": "Order history will be available in the next account update.",
-      "backToAccount": "Back to account"
+      "subheading": "Your past orders are listed below.",
+      "errorHeading": "Couldn't load your orders.",
+      "errorBody": "Try again in a moment.",
+      "showingHint": "Showing first {shown} of {total}",
+      "itemsCount": "{count, plural, one {# item} other {# items}}",
+      "empty": {
+        "heading": "No orders yet",
+        "body": "Once you place an order, it'll show up here.",
+        "startCta": "Start shopping"
+      },
+      "status": {
+        "pending": "Pending",
+        "completed": "Completed",
+        "canceled": "Canceled",
+        "archived": "Archived",
+        "requiresAction": "Requires action"
+      },
+      "paymentStatus": {
+        "notPaid": "Not paid",
+        "awaiting": "Awaiting payment",
+        "authorized": "Authorized",
+        "partiallyAuthorized": "Partially authorized",
+        "captured": "Paid",
+        "partiallyCaptured": "Partially captured",
+        "partiallyRefunded": "Partially refunded",
+        "refunded": "Refunded",
+        "canceled": "Payment canceled",
+        "requiresAction": "Payment requires action"
+      },
+      "fulfillmentStatus": {
+        "notFulfilled": "Not fulfilled",
+        "partiallyFulfilled": "Partially fulfilled",
+        "fulfilled": "Fulfilled",
+        "partiallyShipped": "Partially shipped",
+        "shipped": "Shipped",
+        "partiallyDelivered": "Partially delivered",
+        "delivered": "Delivered",
+        "canceled": "Fulfillment canceled"
+      }
     }
   },
   "home": {
