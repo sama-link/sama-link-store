@@ -25,7 +25,8 @@
 
 import { defineWidgetConfig } from "@medusajs/admin-sdk"
 import { useEffect } from "react"
-import { ADMIN_THEME_CSS, ADMIN_THEME_STYLE_ID } from "../lib/admin-theme-css"
+import { ADMIN_THEME_STYLE_ID, buildAdminThemeCss } from "../lib/admin-theme-css"
+import samaLogoUrl from "../assets/sama-link-icon-on-dark.webp"
 
 let injected = false
 
@@ -43,7 +44,7 @@ const SamaGlobalThemeWidget = (): null => {
 
       const el = document.createElement("style")
       el.id = ADMIN_THEME_STYLE_ID
-      el.textContent = ADMIN_THEME_CSS
+      el.textContent = buildAdminThemeCss(samaLogoUrl)
       // Append LAST so our :root + .dark declarations win the specificity
       // tie against Medusa's own ones (same specificity — later declaration wins).
       document.head.appendChild(el)
@@ -61,10 +62,17 @@ const SamaGlobalThemeWidget = (): null => {
   return null
 }
 
-// Widget zones — four well-documented zones that are guaranteed valid in
+// Widget zones — five well-documented zones that are guaranteed valid in
 // Medusa v2 admin-sdk. The widget is a zero-weight null component, so once
 // it mounts on any of these pages the `<style>` tag is in the document head
 // and persists across every SPA route change for the rest of the session.
+//
+// `login.before` is what hardens the cold-load case: a fresh visit to
+// `/app/login` (no prior session) mounts our widget BEFORE Medusa's login
+// form renders, so the Sama logo paints from first paint instead of after
+// the operator signs in once. Zone confirmed against
+// `node_modules/@medusajs/dashboard/dist/login-IMDOL4BZ.mjs` line 234,
+// which calls `getWidgets("login.before")` during login render.
 //
 // Earlier iteration listed 22 zones (including speculative ones like
 // `tax.list.before`, `store.details.before`, `inventory.list.before`,
@@ -74,6 +82,7 @@ const SamaGlobalThemeWidget = (): null => {
 // Medusa admin-sdk source or a successful smoke test first.
 export const config = defineWidgetConfig({
   zone: [
+    "login.before",
     "order.list.before",
     "product.list.before",
     "customer.list.before",
