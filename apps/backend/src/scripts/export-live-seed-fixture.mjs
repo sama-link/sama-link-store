@@ -37,7 +37,10 @@
 //
 // EXCLUDED (never fetched, never written): customers, orders, carts, payments,
 // payment-collections, refunds, returns, users, invites, api-key tokens,
-// sessions, password hashes, JWT/cookie secrets, Stripe/webhook secrets, any PII.
+// sessions, password hashes, JWT/cookie secrets, Paymob secrets/HMAC/webhook secrets
+// (ADR-048 — governed payment provider), Bosta and Tepro API keys/webhook secrets
+// (ADR-049 — governed shipping providers), any legacy Stripe/webhook secret strings
+// that may still appear in older configurations, any PII.
 // ============================================================================
 
 import { writeFile, mkdir } from "node:fs/promises"
