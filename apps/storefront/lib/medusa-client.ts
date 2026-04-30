@@ -506,7 +506,8 @@ export async function listCmsPages(): Promise<CmsPage[]> {
 // ── Cart ──────────────────────────────────────────────────────────────────
 
 export const CART_FIELDS =
-  "id,currency_code,items,items.id,items.variant_id,items.quantity,items.unit_price," +
+  "id,currency_code,completed_at,customer_id,region_id," +
+  "items,items.id,items.variant_id,items.quantity,items.unit_price," +
   "items.title,items.thumbnail,items.variant.title," +
   "items.variant.product.handle,total,subtotal,item_total," +
   "shipping_address.first_name,shipping_address.last_name," +

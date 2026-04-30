@@ -22,6 +22,7 @@ import {
   clearCartIdCookie,
   getCartIdFromCookie,
 } from "@/lib/cart-cookie-server";
+import { rememberCustomerCartIdAfterAuth } from "@/lib/data/cart";
 
 type ActionState = { error?: string; success?: boolean };
 
@@ -71,6 +72,9 @@ export async function loginAction(
         void transferError;
       }
     }
+    // CART-PERSIST-1A: sync the customer's last_cart_id so a future
+    // fresh-browser session can adopt the just-promoted cart.
+    await rememberCustomerCartIdAfterAuth();
   } catch (error) {
     if (error instanceof AuthProviderUnavailableError) throw error;
     return { error: t("genericError") };
@@ -119,6 +123,9 @@ export async function registerAction(
         void transferError;
       }
     }
+    // CART-PERSIST-1A: sync the customer's last_cart_id so a future
+    // fresh-browser session can adopt the just-promoted cart.
+    await rememberCustomerCartIdAfterAuth();
   } catch (error) {
     if (error instanceof AuthProviderUnavailableError) throw error;
     return { error: t("registerError") };
