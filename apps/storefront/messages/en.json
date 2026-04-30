@@ -28,6 +28,10 @@
     },
     "address": {
       "title": "Shipping Address",
+      "savedAddressesLabel": "Saved addresses",
+      "savedAddressesPlaceholder": "Select a saved address",
+      "savedAddressesHint": "Choose a saved address or enter a new one below.",
+      "savedAddressFallback": "Saved address",
       "firstName": "First Name",
       "lastName": "Last Name",
       "address1": "Address",
