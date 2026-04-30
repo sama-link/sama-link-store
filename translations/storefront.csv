@@ -245,25 +245,59 @@ meta.pages.contact.description,Get in touch with Sama Link Store customer suppor
 meta.pages.shippingReturns.description,Shipping and returns information for Sama Link Store orders.,,MVP-10 SEO — info page description
 meta.pages.privacy.description,Sama Link Store privacy policy — how we collect and handle your data.,,MVP-10 SEO — info page description
 meta.pages.terms.description,Sama Link Store terms and conditions of use.,,MVP-10 SEO — info page description
-account.title,Account,,
-account.signIn,Sign in,,
-account.signUp,Create account,,
-account.signOut,Sign out,,
-account.emailLabel,Email,,
-account.passwordLabel,Password,,
-account.firstNameLabel,First name,,
-account.lastNameLabel,Last name,,
-account.loginCta,Sign in,,
-account.registerCta,Create account,,
-account.loginHeading,Welcome back,,
-account.registerHeading,Create your account,,
-account.noAccountPrompt,Don't have an account?,,
-account.hasAccountPrompt,Already have an account?,,
-account.genericError,We couldn't sign you in. Check your details and try again.,,
-account.registerError,We couldn't create your account. Try again.,,
-account.welcomeBack,"Welcome back, {name}",,
-account.placeholderDashboard,Your account area - more features coming soon.,,
-account.greetingSignedOut,"Hello, guest",,
+account.title,Account,الحساب,ACCT-2 AR PROPOSED
+account.signIn,Sign in,تسجيل الدخول,ACCT-2 AR PROPOSED
+account.signUp,Create account,إنشاء حساب,ACCT-2 AR PROPOSED
+account.signOut,Sign out,تسجيل الخروج,ACCT-2 AR PROPOSED
+account.emailLabel,Email,البريد الإلكتروني,ACCT-2 AR PROPOSED
+account.passwordLabel,Password,كلمة المرور,ACCT-2 AR PROPOSED
+account.firstNameLabel,First name,الاسم الأول,ACCT-2 AR PROPOSED
+account.lastNameLabel,Last name,اسم العائلة,ACCT-2 AR PROPOSED
+account.loginCta,Sign in,تسجيل الدخول,ACCT-2 AR PROPOSED
+account.registerCta,Create account,إنشاء حساب,ACCT-2 AR PROPOSED
+account.loginHeading,Welcome back,مرحبًا بعودتك,ACCT-2 AR PROPOSED
+account.registerHeading,Create your account,أنشئ حسابك,ACCT-2 AR PROPOSED
+account.noAccountPrompt,Don't have an account?,ليس لديك حساب؟,ACCT-2 AR PROPOSED
+account.hasAccountPrompt,Already have an account?,لديك حساب بالفعل؟,ACCT-2 AR PROPOSED
+account.genericError,We couldn't sign you in. Check your details and try again.,تعذّر تسجيل الدخول. تحقق من بياناتك ثم حاول مرة أخرى.,ACCT-2 AR PROPOSED
+account.registerError,We couldn't create your account. Try again.,تعذّر إنشاء الحساب. حاول مرة أخرى.,ACCT-2 AR PROPOSED
+account.welcomeBack,"Welcome back, {name}","مرحبًا بعودتك، {name}",ACCT-2 AR PROPOSED
+account.placeholderDashboard,Your account area - more features coming soon.,منطقة حسابك - مزايا إضافية قريبًا.,ACCT-2 AR PROPOSED
+account.greetingSignedOut,"Hello, guest","مرحبًا، زائر",ACCT-2 AR PROPOSED
+account.nav.desktopLabel,Account navigation,تنقل الحساب,ACCT-2 AR PROPOSED
+account.nav.mobileLabel,Account tabs,تبويبات الحساب,ACCT-2 AR PROPOSED
+account.nav.dashboard,Dashboard,لوحة الحساب,ACCT-2 AR PROPOSED
+account.nav.profile,Profile,الملف الشخصي,ACCT-2 AR PROPOSED
+account.nav.addresses,Addresses,العناوين,ACCT-2 AR PROPOSED
+account.nav.orders,Orders,الطلبات,ACCT-2 AR PROPOSED
+account.dashboard.profileSummary,Profile summary,ملخص الملف الشخصي,ACCT-2 AR PROPOSED
+account.dashboard.recentOrders,Recent orders,أحدث الطلبات,ACCT-2 AR PROPOSED
+account.dashboard.defaultAddress,Default address,العنوان الافتراضي,ACCT-2 AR PROPOSED
+account.dashboard.editProfile,Edit profile,تعديل الملف الشخصي,ACCT-2 AR PROPOSED
+account.dashboard.viewAllOrders,View all orders,عرض كل الطلبات,ACCT-2 AR PROPOSED
+account.dashboard.editAddresses,Edit addresses,تعديل العناوين,ACCT-2 AR PROPOSED
+account.dashboard.noOrders,No orders yet — start shopping.,لا توجد طلبات بعد — ابدأ التسوق.,ACCT-2 AR PROPOSED
+account.dashboard.noAddresses,No saved addresses yet.,لا توجد عناوين محفوظة بعد.,ACCT-2 AR PROPOSED
+account.dashboard.errorOrders,"Couldn't load your orders. Try again.",تعذّر تحميل طلباتك. حاول مرة أخرى.,ACCT-2 AR PROPOSED
+account.dashboard.errorAddresses,"Couldn't load your addresses. Try again.",تعذّر تحميل عناوينك. حاول مرة أخرى.,ACCT-2 AR PROPOSED
+account.dashboard.startShopping,Browse products,تصفح المنتجات,ACCT-2 AR PROPOSED
+account.profile.heading,Profile,الملف الشخصي,ACCT-2 AR PROPOSED
+account.profile.emailLabel,Email,البريد الإلكتروني,ACCT-2 AR PROPOSED
+account.profile.emailHelp,Email can't be changed in this beta.,لا يمكن تغيير البريد الإلكتروني في هذه النسخة التجريبية.,ACCT-2 AR PROPOSED
+account.profile.firstNameLabel,First name,الاسم الأول,ACCT-2 AR PROPOSED
+account.profile.lastNameLabel,Last name,اسم العائلة,ACCT-2 AR PROPOSED
+account.profile.phoneLabel,Phone,الهاتف,ACCT-2 AR PROPOSED
+account.profile.phoneOptional,optional,اختياري,ACCT-2 AR PROPOSED
+account.profile.saveCta,Save changes,حفظ التغييرات,ACCT-2 AR PROPOSED
+account.profile.cancelCta,Cancel,إلغاء,ACCT-2 AR PROPOSED
+account.profile.updateSuccess,Profile updated successfully.,تم تحديث الملف الشخصي بنجاح.,ACCT-2 AR PROPOSED
+account.profile.updateError,We couldn't update your profile. Try again.,تعذّر تحديث الملف الشخصي. حاول مرة أخرى.,ACCT-2 AR PROPOSED
+account.addressesStub.heading,Addresses,العناوين,ACCT-2 AR PROPOSED
+account.addressesStub.body,Address management will be available in the next account update.,ستتوفر إدارة العناوين في تحديث الحساب القادم.,ACCT-2 AR PROPOSED
+account.addressesStub.backToAccount,Back to account,العودة إلى الحساب,ACCT-2 AR PROPOSED
+account.ordersStub.heading,Orders,الطلبات,ACCT-2 AR PROPOSED
+account.ordersStub.body,Order history will be available in the next account update.,سيتوفر سجل الطلبات في تحديث الحساب القادم.,ACCT-2 AR PROPOSED
+account.ordersStub.backToAccount,Back to account,العودة إلى الحساب,ACCT-2 AR PROPOSED
 topbar.announcement,"Free shipping on orders over EGP 1,500","شحن مجاني على الطلبات فوق 1,500 ج.م",ADR-045 flat refresh — AR proposed pending CONTENT-1 review
 topbar.announcementCta,Shop now,تسوق الآن,ADR-045 flat refresh — AR proposed pending CONTENT-1 review
 nav.catbarLabel,Category shortcuts,اختصارات الفئات,ADR-045 flat refresh — aria-label for category strip — AR proposed

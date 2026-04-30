@@ -1,14 +1,24 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { getLocale, getTranslations } from "next-intl/server";
 import * as AuthCookie from "@/lib/auth-cookie";
 import * as CartCookieServer from "@/lib/cart-cookie-server";
 import type { StoreCustomer } from "@/lib/medusa-client";
 import * as Medusa from "@/lib/medusa-client";
-import { loginAction, logoutAction, registerAction } from "./actions";
+import {
+  loginAction,
+  logoutAction,
+  profileUpdateAction,
+  registerAction,
+} from "./actions";
 
 vi.mock("next/navigation", () => ({
   redirect: vi.fn(),
+}));
+
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
 }));
 
 vi.mock("next-intl/server", () => ({
@@ -26,6 +36,8 @@ vi.mock("@/lib/medusa-client", async (importOriginal) => {
     refreshAuthToken: vi.fn(),
     logoutSession: vi.fn(),
     transferCartToCustomer: vi.fn(),
+    updateCustomer: vi.fn(),
+    getErrorStatusCode: vi.fn(),
   };
 });
 
@@ -64,6 +76,8 @@ describe("account server actions", () => {
     vi.mocked(Medusa.refreshAuthToken).mockResolvedValue("sessionTok");
     vi.mocked(Medusa.logoutSession).mockResolvedValue(undefined);
     vi.mocked(Medusa.transferCartToCustomer).mockResolvedValue(undefined);
+    vi.mocked(Medusa.updateCustomer).mockResolvedValue(dummyCustomer);
+    vi.mocked(Medusa.getErrorStatusCode).mockReturnValue(null);
     vi.mocked(CartCookieServer.getCartIdFromCookie).mockResolvedValue(null);
     vi.mocked(AuthCookie.setAuthCookie).mockResolvedValue(undefined);
     vi.mocked(AuthCookie.getAuthToken).mockResolvedValue(null);
@@ -329,6 +343,81 @@ describe("account server actions", () => {
       await logoutAction();
 
       expect(redirect).toHaveBeenCalledWith("/ar");
+    });
+  });
+
+  describe("profileUpdateAction", () => {
+    it("updates profile with token and returns success", async () => {
+      vi.mocked(AuthCookie.getAuthToken).mockResolvedValue("tok");
+
+      const result = await profileUpdateAction(
+        {},
+        fd({
+          first_name: "Jane",
+          last_name: "Doe",
+          phone: "0100",
+        }),
+      );
+
+      expect(Medusa.updateCustomer).toHaveBeenCalledWith(
+        {
+          first_name: "Jane",
+          last_name: "Doe",
+          phone: "0100",
+        },
+        "tok",
+      );
+      expect(result).toEqual({ success: true });
+      expect(revalidatePath).toHaveBeenCalledWith("/en/account");
+      expect(revalidatePath).toHaveBeenCalledWith("/en/account/profile");
+    });
+
+    it("returns translated error when required fields are missing", async () => {
+      const result = await profileUpdateAction(
+        {},
+        fd({
+          first_name: "",
+          last_name: "Doe",
+          phone: "",
+        }),
+      );
+
+      expect(result).toEqual({ error: "profile.updateError" });
+      expect(Medusa.updateCustomer).not.toHaveBeenCalled();
+    });
+
+    it("returns translated error on generic update failure", async () => {
+      vi.mocked(AuthCookie.getAuthToken).mockResolvedValue("tok");
+      vi.mocked(Medusa.updateCustomer).mockRejectedValue(new Error("boom"));
+      vi.mocked(Medusa.getErrorStatusCode).mockReturnValue(500);
+
+      const result = await profileUpdateAction(
+        {},
+        fd({
+          first_name: "Jane",
+          last_name: "Doe",
+          phone: "",
+        }),
+      );
+
+      expect(result).toEqual({ error: "profile.updateError" });
+    });
+
+    it("redirects to login on 401", async () => {
+      vi.mocked(AuthCookie.getAuthToken).mockResolvedValue("tok");
+      vi.mocked(Medusa.updateCustomer).mockRejectedValue(new Error("unauthorized"));
+      vi.mocked(Medusa.getErrorStatusCode).mockReturnValue(401);
+
+      await profileUpdateAction(
+        {},
+        fd({
+          first_name: "Jane",
+          last_name: "Doe",
+          phone: "",
+        }),
+      );
+
+      expect(redirect).toHaveBeenCalledWith("/en/account/login");
     });
   });
 });
