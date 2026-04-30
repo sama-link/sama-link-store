@@ -1,6 +1,7 @@
 "use server";
 
 import { getLocale, getTranslations } from "next-intl/server";
+import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   AuthProviderUnavailableError,
@@ -10,6 +11,8 @@ import {
   logoutSession,
   refreshAuthToken,
   transferCartToCustomer,
+  updateCustomer,
+  getErrorStatusCode,
 } from "@/lib/medusa-client";
 import { clearAuthCookie, getAuthToken, setAuthCookie } from "@/lib/auth-cookie";
 import {
@@ -17,7 +20,7 @@ import {
   getCartIdFromCookie,
 } from "@/lib/cart-cookie-server";
 
-type ActionState = { error?: string };
+type ActionState = { error?: string; success?: boolean };
 
 function getRequiredString(
   formData: FormData,
@@ -127,4 +130,48 @@ export async function logoutAction(): Promise<void> {
   await clearAuthCookie();
   await clearCartIdCookie();
   redirect(`/${locale}`);
+}
+
+export async function profileUpdateAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "account" });
+  const token = await getAuthToken();
+
+  if (!token) {
+    redirect(`/${locale}/account/login`);
+  }
+
+  const firstName = getRequiredString(formData, "first_name");
+  const lastName = getRequiredString(formData, "last_name");
+  if (!firstName.ok || !lastName.ok) {
+    return { error: t("profile.updateError") };
+  }
+
+  const phoneRaw = formData.get("phone");
+  const phone =
+    typeof phoneRaw === "string" && phoneRaw.trim().length > 0
+      ? phoneRaw.trim()
+      : undefined;
+
+  try {
+    await updateCustomer(
+      {
+        first_name: firstName.value,
+        last_name: lastName.value,
+        ...(phone ? { phone } : {}),
+      },
+      token,
+    );
+    revalidatePath(`/${locale}/account`);
+    revalidatePath(`/${locale}/account/profile`);
+    return { success: true };
+  } catch (error) {
+    if (getErrorStatusCode(error) === 401) {
+      redirect(`/${locale}/account/login`);
+    }
+    return { error: t("profile.updateError") };
+  }
 }

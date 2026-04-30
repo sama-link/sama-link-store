@@ -160,7 +160,51 @@
     "registerError": "We couldn't create your account. Try again.",
     "welcomeBack": "Welcome back, {name}",
     "placeholderDashboard": "Your account area - more features coming soon.",
-    "greetingSignedOut": "Hello, guest"
+    "greetingSignedOut": "Hello, guest",
+    "nav": {
+      "desktopLabel": "Account navigation",
+      "mobileLabel": "Account tabs",
+      "dashboard": "Dashboard",
+      "profile": "Profile",
+      "addresses": "Addresses",
+      "orders": "Orders"
+    },
+    "dashboard": {
+      "profileSummary": "Profile summary",
+      "recentOrders": "Recent orders",
+      "defaultAddress": "Default address",
+      "editProfile": "Edit profile",
+      "viewAllOrders": "View all orders",
+      "editAddresses": "Edit addresses",
+      "noOrders": "No orders yet — start shopping.",
+      "noAddresses": "No saved addresses yet.",
+      "errorOrders": "Couldn't load your orders. Try again.",
+      "errorAddresses": "Couldn't load your addresses. Try again.",
+      "startShopping": "Browse products"
+    },
+    "profile": {
+      "heading": "Profile",
+      "emailLabel": "Email",
+      "emailHelp": "Email can't be changed in this beta.",
+      "firstNameLabel": "First name",
+      "lastNameLabel": "Last name",
+      "phoneLabel": "Phone",
+      "phoneOptional": "optional",
+      "saveCta": "Save changes",
+      "cancelCta": "Cancel",
+      "updateSuccess": "Profile updated successfully.",
+      "updateError": "We couldn't update your profile. Try again."
+    },
+    "addressesStub": {
+      "heading": "Addresses",
+      "body": "Address management will be available in the next account update.",
+      "backToAccount": "Back to account"
+    },
+    "ordersStub": {
+      "heading": "Orders",
+      "body": "Order history will be available in the next account update.",
+      "backToAccount": "Back to account"
+    }
   },
   "home": {
     "headline": "Sama Link Store",
