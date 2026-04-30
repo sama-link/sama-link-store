@@ -11,17 +11,16 @@ import {
   type ReactNode,
 } from "react";
 import {
-  createCart,
-  retrieveCart,
   addCartLineItem,
   updateCartLineItem,
   deleteCartLineItem,
 } from "@/lib/medusa-client";
-import { getCartId, setCartId } from "@/lib/cart-cookie";
+import { getOrSetCart, type StoreCart } from "@/lib/data/cart";
 
-type Cart = NonNullable<
-  Awaited<ReturnType<typeof retrieveCart>>["cart"]
->;
+// CHECKOUT-RESET-1: cart bootstrap (create/retrieve) is now a server action
+// (`getOrSetCart`) that passes auth headers per-request. Line-item operations
+// remain on the existing browser-SDK path; migrating them is RESET-2-adjacent.
+type Cart = StoreCart;
 
 export interface CartContextValue {
   cart: Cart | null;
@@ -55,33 +54,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     async function bootstrap() {
       setLoading(true);
       try {
-        const cartId = getCartId();
-        if (cartId) {
-          try {
-            const { cart: existing } = await retrieveCart(cartId);
-            if (!cancelled) setCart(existing);
-          } catch {
-            try {
-              const { cart: fresh } = await createCart();
-              if (!cancelled) {
-                setCartId(fresh.id);
-                setCart(fresh);
-              }
-            } catch (err) {
-              console.error("[useCart] createCart failed during bootstrap", err);
-            }
-          }
-        } else {
-          try {
-            const { cart: fresh } = await createCart();
-            if (!cancelled) {
-              setCartId(fresh.id);
-              setCart(fresh);
-            }
-          } catch (err) {
-            console.error("[useCart] createCart failed during bootstrap", err);
-          }
-        }
+        const { cart: ready } = await getOrSetCart();
+        if (!cancelled) setCart(ready);
+      } catch (err) {
+        console.error("[useCart] getOrSetCart failed during bootstrap", err);
       } finally {
         if (!cancelled) setLoading(false);
       }
