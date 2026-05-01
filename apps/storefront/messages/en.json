@@ -171,7 +171,8 @@
       "dashboard": "Dashboard",
       "profile": "Profile",
       "addresses": "Addresses",
-      "orders": "Orders"
+      "orders": "Orders",
+      "wishlist": "Wishlist"
     },
     "dashboard": {
       "profileSummary": "Profile summary",
@@ -303,6 +304,22 @@
         "tax": "Tax",
         "discount": "Discount",
         "total": "Total"
+      }
+    },
+    "wishlist": {
+      "heading": "Wishlist",
+      "subheading": "Products you've saved for later.",
+      "clearAll": "Clear all",
+      "moveToCart": "Move to cart",
+      "moving": "Moving...",
+      "removeItem": "Remove",
+      "removing": "Removing...",
+      "moveError": "Couldn't move this item to cart. Try again.",
+      "unnamedItem": "Saved product",
+      "empty": {
+        "heading": "Your wishlist is empty",
+        "body": "Save products you're interested in and find them here next time you sign in.",
+        "cta": "Browse products"
       }
     }
   },
