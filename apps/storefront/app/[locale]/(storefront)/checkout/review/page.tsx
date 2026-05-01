@@ -15,6 +15,39 @@ interface ReviewPageProps {
   params: Promise<{ locale: string }>;
 }
 
+function numberValue(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
+function positiveNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? value
+    : null;
+}
+
+function sumNumbers(values: unknown[]): number {
+  return values.reduce<number>((sum, value) => sum + numberValue(value), 0);
+}
+
+function itemLineSubtotal(item: unknown): number {
+  const line = item as {
+    item_subtotal?: unknown;
+    subtotal?: unknown;
+    item_total?: unknown;
+    total?: unknown;
+    unit_price?: unknown;
+    quantity?: unknown;
+  };
+  return (
+    positiveNumber(line.item_subtotal) ??
+    positiveNumber(line.subtotal) ??
+    positiveNumber(line.item_total) ??
+    positiveNumber(line.total) ??
+    numberValue(line.unit_price) *
+      (typeof line.quantity === "number" && line.quantity > 0 ? line.quantity : 1)
+  );
+}
+
 export async function generateMetadata({
   params,
 }: ReviewPageProps): Promise<Metadata> {
@@ -84,8 +117,34 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
   const firstMethod = shippingMethods[0]!;
   const shippingMethod: ReviewShippingMethod = {
     name: firstMethod.name ?? "",
-    amount: Number(firstMethod.amount ?? 0),
+    amount:
+      positiveNumber((firstMethod as { total?: unknown }).total) ??
+      numberValue(firstMethod.amount),
   };
+  const itemsSubtotal = (cart.items ?? []).reduce(
+    (sum, item) => sum + itemLineSubtotal(item),
+    0,
+  );
+  const itemSubtotal =
+    positiveNumber((cart as { item_subtotal?: unknown }).item_subtotal) ??
+    positiveNumber(itemsSubtotal) ??
+    numberValue(cart.subtotal);
+  const shippingTotal =
+    positiveNumber((cart as { shipping_total?: unknown }).shipping_total) ??
+    sumNumbers(
+      shippingMethods.map((method) => {
+        const fields = method as { total?: unknown; amount?: unknown };
+        return positiveNumber(fields.total) ?? fields.amount;
+      }),
+    );
+  const taxTotal = numberValue((cart as { tax_total?: unknown }).tax_total);
+  const discountTotal = numberValue(
+    (cart as { discount_total?: unknown }).discount_total,
+  );
+  const derivedTotal = itemSubtotal + shippingTotal + taxTotal - discountTotal;
+  const cartTotal = positiveNumber(cart.total);
+  const displayTotal =
+    cartTotal && cartTotal >= derivedTotal ? cartTotal : derivedTotal;
 
   return (
     <OrderReview
@@ -95,8 +154,8 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
       items={items}
       shippingAddress={shippingAddress}
       shippingMethod={shippingMethod}
-      subtotal={Number(cart.subtotal ?? 0)}
-      total={Number(cart.total ?? 0)}
+      subtotal={itemSubtotal}
+      total={displayTotal}
     />
   );
 }
