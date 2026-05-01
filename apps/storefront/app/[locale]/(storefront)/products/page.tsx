@@ -245,6 +245,7 @@ export default async function ProductsPage({
           </h1>
 
           <CatalogToolbar
+            totalCount={count}
             activeSort={activeSort}
             activeCols={activeCols}
             activeView={activeView}

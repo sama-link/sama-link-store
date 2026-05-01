@@ -16,6 +16,7 @@ import {
 } from "@/components/products/catalog-toolbar-utils";
 
 interface Props {
+  totalCount: number | null;
   activeSort: SortKey;
   activeCols: ColumnCount;
   activeView: ViewMode;
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export default function CatalogToolbar({
+  totalCount,
   activeSort,
   activeCols,
   activeView,
@@ -74,7 +76,47 @@ export default function CatalogToolbar({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-end gap-3 rounded-xl border border-border bg-surface px-4 py-3">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-3">
+      {/* Start cluster — page size + total count. Logical-side `flex` so RTL mirrors. */}
+      <div className="flex items-center gap-2">
+        <label className="flex items-center gap-2 text-sm text-text-secondary">
+          <span>{t("show")}</span>
+          <div className="relative">
+            <select
+              value={activePageSize}
+              onChange={onPageSizeChange}
+              className="h-9 appearance-none rounded-lg border border-border bg-surface pe-8 ps-3 text-sm font-medium text-text-primary transition-colors hover:border-border-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 cursor-pointer"
+            >
+              {PAGE_SIZE_OPTIONS.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.75}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
+              aria-hidden="true"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        </label>
+        {totalCount != null ? (
+          <span className="text-sm font-medium text-text-secondary">
+            {t("ofTotal", { total: totalCount })}
+          </span>
+        ) : null}
+      </div>
+
+      {/* End cluster — view / density / sort */}
+      <div className="flex items-center gap-3">
       {/* Grid / List view toggle — always visible */}
       <div
         role="radiogroup"
@@ -133,37 +175,6 @@ export default function CatalogToolbar({
         </div>
       ) : null}
 
-      {/* Page Size — visible on all breakpoints, sits with the right cluster */}
-      <label className="flex items-center gap-2 text-sm text-text-secondary">
-        <span>{t("show")}</span>
-        <div className="relative">
-          <select
-            value={activePageSize}
-            onChange={onPageSizeChange}
-            className="h-9 appearance-none rounded-lg border border-border bg-surface pe-8 ps-3 text-sm font-medium text-text-primary transition-colors hover:border-border-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 cursor-pointer"
-          >
-            {PAGE_SIZE_OPTIONS.map((size) => (
-              <option key={size} value={size}>
-                {size}
-              </option>
-            ))}
-          </select>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.75}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
-            aria-hidden="true"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
-        </div>
-      </label>
-
       {/* Sort — desktop only (mobile uses the FAB's View tab) */}
       <label className="hidden items-center gap-2 text-sm text-text-secondary sm:flex">
         <span className="hidden sm:inline">{t("sortBy")}</span>
@@ -194,6 +205,7 @@ export default function CatalogToolbar({
           </svg>
         </div>
       </label>
+      </div>
     </div>
   );
 }

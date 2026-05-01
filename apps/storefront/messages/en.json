@@ -437,6 +437,7 @@
       "showing": "Showing {shown}",
       "showingOf": "Showing {shown} of {total}",
       "show": "Show",
+      "ofTotal": "of {total}",
       "close": "Close",
       "sort": {
         "newest": "Newest",

@@ -482,6 +482,7 @@
       "showing": "يظهر {shown}",
       "showingOf": "يظهر {shown} من {total}",
       "show": "عرض",
+      "ofTotal": "من {total}",
       "close": "إغلاق",
       "sort": {
         "newest": "الأحدث",
