@@ -461,7 +461,7 @@ export async function listCollections() {
 
 export async function listProductCategories() {
   return sdk.store.category.list({
-    fields: "id,name,handle",
+    fields: "id,name,handle,parent_category_id",
     limit: 100,
   } as ListProductCategoriesParams);
 }
