@@ -254,6 +254,14 @@
         "canceled": "Canceled",
         "actionRequired": "Action required"
       },
+      "primaryStatus": {
+        "cancelled": "Canceled",
+        "delivered": "Delivered",
+        "shipped": "Shipped",
+        "preparing": "Preparing",
+        "paymentPending": "Payment pending",
+        "processing": "Processing"
+      },
       "status": {
         "pending": "Pending",
         "completed": "Completed",
@@ -287,6 +295,12 @@
         "backToOrders": "Back to orders",
         "heading": "Order #{id}",
         "statusHeading": "Status",
+        "statusDetailsHeading": "Status details",
+        "statusDetailsHint": "Technical fields from our store system.",
+        "rawOrderStatus": "Order status",
+        "rawPaymentStatus": "Payment status",
+        "rawFulfillmentStatus": "Fulfillment status",
+        "rawStatusUnavailable": "—",
         "itemsHeading": "Items",
         "shippingAddressHeading": "Shipping address",
         "totalsHeading": "Totals",

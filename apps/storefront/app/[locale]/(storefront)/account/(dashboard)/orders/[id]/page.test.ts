@@ -74,7 +74,9 @@ describe("order detail page", () => {
       fields: expect.stringContaining("items.title"),
     });
     expect(html).toContain("orders.detail.heading");
-    expect(html).toContain("orders.customerStatus.delivered");
+    expect(html).toContain("orders.primaryStatus.delivered");
+    expect(html).toContain("orders.detail.statusDetailsHeading");
+    expect(html).toContain("orders.detail.rawOrderStatus");
     expect(html).toContain("orders.status.pending");
     expect(html).toContain("orders.paymentStatus.captured");
     expect(html).toContain("orders.fulfillmentStatus.delivered");

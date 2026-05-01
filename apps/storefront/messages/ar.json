@@ -254,6 +254,14 @@
         "canceled": "ملغي",
         "actionRequired": "يتطلب إجراء"
       },
+      "primaryStatus": {
+        "cancelled": "ملغي",
+        "delivered": "تم التسليم",
+        "shipped": "تم الشحن",
+        "preparing": "قيد التجهيز",
+        "paymentPending": "بانتظار الدفع",
+        "processing": "قيد المعالجة"
+      },
       "status": {
         "pending": "قيد الانتظار",
         "completed": "مكتمل",
@@ -287,6 +295,12 @@
         "backToOrders": "العودة إلى الطلبات",
         "heading": "طلب رقم {id}",
         "statusHeading": "الحالة",
+        "statusDetailsHeading": "تفاصيل الحالة",
+        "statusDetailsHint": "حقول تقنية من نظام المتجر.",
+        "rawOrderStatus": "حالة الطلب",
+        "rawPaymentStatus": "حالة الدفع",
+        "rawFulfillmentStatus": "حالة التنفيذ",
+        "rawStatusUnavailable": "—",
         "itemsHeading": "المنتجات",
         "shippingAddressHeading": "عنوان الشحن",
         "totalsHeading": "الإجماليات",

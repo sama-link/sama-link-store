@@ -5,13 +5,10 @@ import { getAuthToken } from "@/lib/auth-cookie";
 import { formatPrice } from "@/lib/format-price";
 import { listCustomerOrders, type ListCustomerOrdersResult } from "@/lib/medusa-client";
 import {
-  FULFILLMENT_STATUS_KEYS,
-  ORDER_STATUS_KEYS,
-  PAYMENT_STATUS_KEYS,
-  customerStatusLabel,
   formatOrderDate,
-  localizeStatus,
-  statusVariant,
+  primaryOrderStatus,
+  primaryOrderStatusLabel,
+  primaryOrderStatusVariant,
 } from "./order-display";
 
 interface OrdersPageProps {
@@ -68,23 +65,12 @@ export default async function OrdersPage({ params }: OrdersPageProps) {
         ) : (
           <ul className="space-y-3">
             {orders.map((order) => {
-              const orderStatus = localizeStatus(order.status, t, ORDER_STATUS_KEYS);
-              const paymentStatus = localizeStatus(
-                order.payment_status ?? null,
-                t,
-                PAYMENT_STATUS_KEYS,
-              );
-              const fulfillmentStatus = localizeStatus(
-                order.fulfillment_status ?? null,
-                t,
-                FULFILLMENT_STATUS_KEYS,
-              );
-              const customerStatus = customerStatusLabel(
+              const primaryKey = primaryOrderStatus(
                 order.status,
                 order.payment_status ?? null,
                 order.fulfillment_status ?? null,
-                t,
               );
+              const primaryLabel = primaryOrderStatusLabel(t, primaryKey);
 
               return (
                 <li
@@ -111,22 +97,7 @@ export default async function OrdersPage({ params }: OrdersPageProps) {
                   </div>
 
                   <div className="mt-3 flex flex-wrap gap-2">
-                    <Badge variant={statusVariant(order.fulfillment_status ?? order.status)}>
-                      {customerStatus}
-                    </Badge>
-                    {orderStatus ? (
-                      <Badge variant={statusVariant(order.status)}>{orderStatus}</Badge>
-                    ) : null}
-                    {paymentStatus ? (
-                      <Badge variant={statusVariant(order.payment_status ?? null)}>
-                        {paymentStatus}
-                      </Badge>
-                    ) : null}
-                    {fulfillmentStatus ? (
-                      <Badge variant={statusVariant(order.fulfillment_status ?? null)}>
-                        {fulfillmentStatus}
-                      </Badge>
-                    ) : null}
+                    <Badge variant={primaryOrderStatusVariant(primaryKey)}>{primaryLabel}</Badge>
                   </div>
                   <Link
                     href={`/${locale}/account/orders/${order.id}`}

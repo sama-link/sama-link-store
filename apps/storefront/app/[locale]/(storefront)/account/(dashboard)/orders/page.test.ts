@@ -65,10 +65,10 @@ describe("orders page", () => {
     const html = renderToString(jsx);
 
     expect(html).toContain("1024");
-    expect(html).toContain("orders.status.pending");
-    expect(html).toContain("orders.paymentStatus.captured");
-    expect(html).toContain("orders.fulfillmentStatus.fulfilled");
-    expect(html).toContain("orders.customerStatus.processing");
+    expect(html).toContain("orders.primaryStatus.preparing");
+    expect(html).not.toContain("orders.paymentStatus.captured");
+    expect(html).not.toContain("orders.fulfillmentStatus.fulfilled");
+    expect(html).not.toContain("orders.status.pending");
     expect(html).toContain("/en/account/orders/order_1");
     expect(html).toContain("orders.viewDetails");
     expect(html).toContain("orders.showingHint");
@@ -105,6 +105,6 @@ describe("orders page", () => {
     const jsx = await OrdersPage({ params: Promise.resolve({ locale: "en" }) });
     const html = renderToString(jsx);
     expect(html).toContain("order_2");
-    expect(html).toContain("Mystery State");
+    expect(html).toContain("orders.primaryStatus.processing");
   });
 });

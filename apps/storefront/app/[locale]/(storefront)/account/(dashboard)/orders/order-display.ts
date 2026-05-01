@@ -74,31 +74,101 @@ export function statusVariant(value: string | null | undefined) {
   return "warning" as const;
 }
 
-export function customerStatusLabel(
+/** Single customer-facing status for orders list + detail (not Medusa raw fields). */
+export type PrimaryOrderStatusKey =
+  | "cancelled"
+  | "delivered"
+  | "shipped"
+  | "preparing"
+  | "paymentPending"
+  | "processing";
+
+function isCancelled(
   orderStatus: string | null | undefined,
   paymentStatus: string | null | undefined,
   fulfillmentStatus: string | null | undefined,
-  t: Translator,
-): string {
-  if (orderStatus === "canceled" || paymentStatus === "canceled") {
-    return t("orders.customerStatus.canceled");
+): boolean {
+  const o = orderStatus ?? "";
+  const p = paymentStatus ?? "";
+  const f = fulfillmentStatus ?? "";
+  return (
+    o === "canceled" ||
+    o === "cancelled" ||
+    p === "canceled" ||
+    f === "canceled"
+  );
+}
+
+function isPaymentPending(paymentStatus: string | null | undefined): boolean {
+  const p = paymentStatus ?? "";
+  return p === "not_paid" || p === "awaiting" || p === "requires_action";
+}
+
+function isPaymentReadyForPreparing(paymentStatus: string | null | undefined): boolean {
+  const p = paymentStatus ?? "";
+  return (
+    p === "captured" ||
+    p === "partially_captured" ||
+    p === "authorized" ||
+    p === "partially_authorized"
+  );
+}
+
+function isShippedOrDelivered(fulfillmentStatus: string | null | undefined): boolean {
+  const f = fulfillmentStatus ?? "";
+  return (
+    f === "shipped" ||
+    f === "partially_shipped" ||
+    f === "delivered" ||
+    f === "partially_delivered"
+  );
+}
+
+export function primaryOrderStatus(
+  orderStatus: string | null | undefined,
+  paymentStatus: string | null | undefined,
+  fulfillmentStatus: string | null | undefined,
+): PrimaryOrderStatusKey {
+  if (isCancelled(orderStatus, paymentStatus, fulfillmentStatus)) {
+    return "cancelled";
   }
-  if (fulfillmentStatus === "delivered") {
-    return t("orders.customerStatus.delivered");
+
+  const f = fulfillmentStatus ?? "";
+  if (f === "delivered" || f === "partially_delivered") {
+    return "delivered";
   }
-  if (fulfillmentStatus === "shipped" || fulfillmentStatus === "partially_shipped") {
-    return t("orders.customerStatus.shipped");
+  if (f === "shipped" || f === "partially_shipped") {
+    return "shipped";
   }
-  if (fulfillmentStatus === "fulfilled" || fulfillmentStatus === "partially_fulfilled") {
-    return t("orders.customerStatus.processing");
+
+  if (isPaymentPending(paymentStatus)) {
+    return "paymentPending";
   }
-  if (paymentStatus === "captured" || paymentStatus === "authorized") {
-    return t("orders.customerStatus.paid");
+
+  if (isPaymentReadyForPreparing(paymentStatus) && !isShippedOrDelivered(fulfillmentStatus)) {
+    return "preparing";
   }
-  if (orderStatus === "requires_action" || paymentStatus === "requires_action") {
-    return t("orders.customerStatus.actionRequired");
+
+  return "processing";
+}
+
+export function primaryOrderStatusLabel(t: Translator, key: PrimaryOrderStatusKey): string {
+  return t(`orders.primaryStatus.${key}`);
+}
+
+export function primaryOrderStatusVariant(key: PrimaryOrderStatusKey) {
+  switch (key) {
+    case "cancelled":
+      return "error" as const;
+    case "delivered":
+    case "shipped":
+      return "success" as const;
+    case "preparing":
+    case "paymentPending":
+      return "warning" as const;
+    default:
+      return "default" as const;
   }
-  return t("orders.customerStatus.pending");
 }
 
 export function formatOrderDate(locale: string, value?: string | Date | null) {
