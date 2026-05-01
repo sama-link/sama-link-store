@@ -5,13 +5,13 @@ import { WishlistProvider, type WishlistItem } from "@/hooks/useWishlist";
 import { CustomerProvider } from "@/hooks/useCustomer";
 import CartDrawer from "@/components/layout/CartDrawer";
 import CartFab from "@/components/layout/CartFab";
-import Header from "@/components/layout/Header";
+import Header, { type HeaderCategory } from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import RouteProgress from "@/components/layout/RouteProgress";
 import { getAuthToken } from "@/lib/auth-cookie";
 import { compareItemsFromBackendList } from "@/lib/compare-hydration";
 import { getCurrentCustomerFromCookie } from "@/lib/customer-server";
-import { getCustomerList } from "@/lib/medusa-client";
+import { getCustomerList, listProductCategories } from "@/lib/medusa-client";
 import { wishlistItemsFromBackendList } from "@/lib/wishlist-hydration";
 
 // ACCT-6D / ACCT-6E: when a customer session cookie is present, hydrate
@@ -38,6 +38,24 @@ async function getInitialCompareItems(token: string): Promise<CompareItem[]> {
   }
 }
 
+// Pre-fetch product categories at the layout level so the (async) Header
+// can render synchronously and ship in source order alongside <main>/<Footer>.
+// Without this, Header awaiting the backend categories call inside its own
+// body causes Next.js RSC to stream it out-of-order (after <footer>), which
+// makes header actions render at the bottom of the page until the client
+// $RS slot-replacement script runs.
+async function getInitialHeaderCategories(): Promise<HeaderCategory[]> {
+  try {
+    const result = await listProductCategories();
+    return (result.product_categories ?? []).map((c: { id: string; name?: string | null; handle?: string | null }) => ({
+      id: c.id,
+      name: c.name ?? c.handle ?? c.id,
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function StorefrontLayout({
   children,
 }: {
@@ -46,12 +64,11 @@ export default async function StorefrontLayout({
   const customer = await getCurrentCustomerFromCookie();
   const token = await getAuthToken();
   const isAuthed = Boolean(token);
-  const [wishlistItems, compareItems] = isAuthed
-    ? await Promise.all([
-        getInitialWishlistItems(token!),
-        getInitialCompareItems(token!),
-      ])
-    : [[], []];
+  const [wishlistItems, compareItems, headerCategories] = await Promise.all([
+    isAuthed ? getInitialWishlistItems(token!) : Promise.resolve<WishlistItem[]>([]),
+    isAuthed ? getInitialCompareItems(token!) : Promise.resolve<CompareItem[]>([]),
+    getInitialHeaderCategories(),
+  ]);
 
   return (
     <CustomerProvider initialCustomer={customer}>
@@ -67,7 +84,7 @@ export default async function StorefrontLayout({
             <Suspense fallback={null}>
               <RouteProgress />
             </Suspense>
-            <Header />
+            <Header categories={headerCategories} />
             <main className="flex-1">{children}</main>
             <Footer />
             <CartDrawer />

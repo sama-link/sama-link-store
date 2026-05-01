@@ -1,7 +1,6 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
-import { listProductCategories } from "@/lib/medusa-client";
 import Container from "./Container";
 import LocaleSwitcher from "./LocaleSwitcher";
 import MobileMenu from "./MobileMenu";
@@ -13,6 +12,15 @@ import WishlistHeaderButton from "./WishlistHeaderButton";
 import CompareHeaderButton from "./CompareHeaderButton";
 import AccountHeaderLink from "./AccountHeaderLink";
 import StickyHeader from "./StickyHeader";
+
+export interface HeaderCategory {
+  id: string;
+  name: string;
+}
+
+interface HeaderProps {
+  categories: HeaderCategory[];
+}
 
 /*
   Layout (ADR-045 flat refresh — header redesign):
@@ -32,23 +40,8 @@ import StickyHeader from "./StickyHeader";
     Cart lives as a floating FAB; wishlist/compare inside the menu.
 */
 
-export default async function Header() {
+export default async function Header({ categories: megaCategories }: HeaderProps) {
   const locale = await getLocale();
-
-  const categoriesResult = await Promise.allSettled([listProductCategories()]).then(
-    (r) => r[0],
-  );
-
-  const product_categories =
-    categoriesResult.status === "fulfilled"
-      ? categoriesResult.value.product_categories
-      : [];
-
-  const megaCategories = product_categories.map((c: any) => ({
-    id: c.id,
-    name: c.name ?? c.handle ?? c.id,
-  }));
-
   const t = await getTranslations("nav");
   const tTop = await getTranslations("topbar");
   const tCommon = await getTranslations("common");
