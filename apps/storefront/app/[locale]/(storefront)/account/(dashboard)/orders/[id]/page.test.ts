@@ -82,4 +82,46 @@ describe("order detail page", () => {
     expect(html).toContain("123 Street");
     expect(html).toContain("egp:1000");
   });
+
+  it("derives totals when order aggregates only contain shipping", async () => {
+    const { getCustomerOrder } = await import("@/lib/medusa-client");
+    vi.mocked(getCustomerOrder).mockResolvedValueOnce({
+      id: "order_18",
+      display_id: 18,
+      created_at: "2026-04-29T10:00:00.000Z",
+      currency_code: "egp",
+      status: "pending",
+      payment_status: "captured",
+      fulfillment_status: "delivered",
+      subtotal: 50,
+      shipping_total: 50,
+      tax_total: 0,
+      discount_total: 0,
+      total: 50,
+      shipping_address: {
+        first_name: "Ali",
+        last_name: "Saleh",
+        address_1: "123 Street",
+        city: "Cairo",
+        country_code: "eg",
+      },
+      items: [
+        {
+          id: "item_18",
+          title: "Switch",
+          quantity: 1,
+          unit_price: 610.5,
+          total: 0,
+        },
+      ],
+    } as never);
+
+    const jsx = await OrderDetailPage({
+      params: Promise.resolve({ locale: "en", id: "order_18" }),
+    });
+    const html = renderToString(jsx);
+
+    expect(html).toContain("egp:610.5");
+    expect(html).toContain("egp:660.5");
+  });
 });
