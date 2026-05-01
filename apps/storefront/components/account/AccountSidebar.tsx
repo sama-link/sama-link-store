@@ -12,6 +12,7 @@ const accountPaths = {
   profile: "/account/profile",
   addresses: "/account/addresses",
   orders: "/account/orders",
+  wishlist: "/account/wishlist",
 } as const;
 
 export default function AccountSidebar({ variant }: { variant: Variant }) {
@@ -24,6 +25,7 @@ export default function AccountSidebar({ variant }: { variant: Variant }) {
     { key: "profile", href: `/${locale}${accountPaths.profile}` },
     { key: "addresses", href: `/${locale}${accountPaths.addresses}` },
     { key: "orders", href: `/${locale}${accountPaths.orders}` },
+    { key: "wishlist", href: `/${locale}${accountPaths.wishlist}` },
   ] as const;
 
   if (variant === "mobile") {

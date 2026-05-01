@@ -7,16 +7,24 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
+  useTransition,
   type ReactNode,
 } from "react";
 import type { listProducts } from "@/lib/medusa-client";
+import {
+  addToWishlistAction,
+  clearWishlistAction,
+  removeFromWishlistAction,
+} from "@/app/[locale]/(storefront)/account/actions";
 
 export type ListProduct = Awaited<
   ReturnType<typeof listProducts>
 >["products"][number];
 
-/** Minimal catalog snapshot for wishlist / compare (Stage A localStorage). */
+/** Lightweight catalog snapshot persisted in localStorage (guest mode) or
+ *  reconstructed from server tombstones + live product data (authed mode). */
 export interface WishlistItem {
   id: string;
   handle: string | null;
@@ -29,6 +37,9 @@ export interface WishlistItem {
   variantId: string | null;
   amount: number | null;
   currencyCode: string | null;
+  /** Backend `customer_list_item.id` — present in authed mode, used for
+   *  remove calls. Undefined for guest items. */
+  backendItemId?: string | null;
 }
 
 const STORAGE_KEY = "sama:wishlist:v1";
@@ -120,53 +131,124 @@ export interface WishlistContextValue {
 
 const WishlistContext = createContext<WishlistContextValue | null>(null);
 
-export function WishlistProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<WishlistItem[]>([]);
-  const [isHydrated, setIsHydrated] = useState(false);
+interface WishlistProviderProps {
+  children: ReactNode;
+  /** When true, the provider operates in server-bound mode: mutations go
+   *  through ACCT-6C server actions and localStorage is not used. The
+   *  initialItems prop carries the server-side snapshot for first paint. */
+  initialAuthed?: boolean;
+  initialItems?: WishlistItem[];
+}
+
+export function WishlistProvider({
+  children,
+  initialAuthed = false,
+  initialItems = [],
+}: WishlistProviderProps) {
+  // Mode is captured once at mount. Sign-in / sign-out triggers a full
+  // route refresh (the auth cookie is re-issued on the server, layout
+  // re-renders, the provider re-mounts), so a session change inside the
+  // lifetime of one provider instance is not a real scenario.
+  const mode = initialAuthed ? "authed" : "guest";
+  const [items, setItems] = useState<WishlistItem[]>(
+    mode === "authed" ? initialItems : [],
+  );
+  const [isHydrated, setIsHydrated] = useState(mode === "authed");
+  const itemsRef = useRef<WishlistItem[]>(items);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    setItems(parseStorage(window.localStorage.getItem(STORAGE_KEY)));
+    itemsRef.current = items;
+  }, [items]);
+
+  // Guest-mode hydration: read localStorage on the client. Authed mode
+  // ships its initial state from the server-rendered layout, so the
+  // provider is hydrated synchronously and skips this effect.
+  useEffect(() => {
+    if (mode !== "guest" || typeof window === "undefined") return;
+    const loaded = parseStorage(window.localStorage.getItem(STORAGE_KEY));
+    itemsRef.current = loaded;
+    setItems(loaded);
     setIsHydrated(true);
-  }, []);
+  }, [mode]);
 
   const has = useCallback(
     (productId: string) => items.some((i) => i.id === productId),
     [items],
   );
 
-  const remove = useCallback((productId: string) => {
-    setItems((prev) => {
-      const next = prev.filter((i) => i.id !== productId);
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(STORAGE_KEY, serialize(next));
-      }
-      return next;
-    });
+  const persistGuest = useCallback((next: WishlistItem[]) => {
+    if (typeof window !== "undefined") {
+      window.localStorage.setItem(STORAGE_KEY, serialize(next));
+    }
   }, []);
 
-  const toggle = useCallback((item: WishlistItem) => {
-    setItems((prev) => {
-      const exists = prev.some((i) => i.id === item.id);
-      const next = exists
-        ? prev.filter((i) => i.id !== item.id)
-        : [...prev, item];
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(STORAGE_KEY, serialize(next));
+  const remove = useCallback(
+    (productId: string) => {
+      const prev = itemsRef.current;
+      const target = prev.find((i) => i.id === productId);
+      const next = prev.filter((i) => i.id !== productId);
+      itemsRef.current = next;
+      setItems(next);
+      if (mode === "guest") {
+        persistGuest(next);
+        return;
       }
-      return next;
-    });
-  }, []);
+      // Authed: send the remove server action by backend item id. If we
+      // do not have the backend id (item added in this session before a
+      // hydration cycle), the optimistic local update is enough — the
+      // next page load will re-hydrate the canonical state.
+      const backendId = target?.backendItemId;
+      if (backendId) {
+        const formData = new FormData();
+        formData.set("item_id", backendId);
+        startTransition(() => {
+          void removeFromWishlistAction({}, formData);
+        });
+      }
+    },
+    [mode, persistGuest],
+  );
+
+  const toggle = useCallback(
+    (item: WishlistItem) => {
+      const prev = itemsRef.current;
+      const exists = prev.some((i) => i.id === item.id);
+      if (exists) {
+        remove(item.id);
+        return;
+      }
+      // Optimistic add — local state first, server in the background.
+      const next = [...prev, item];
+      itemsRef.current = next;
+      setItems(next);
+      if (mode === "guest") {
+        persistGuest(next);
+        return;
+      }
+      const formData = new FormData();
+      formData.set("product_id", item.id);
+      if (item.variantId) formData.set("variant_id", item.variantId);
+      if (item.title) formData.set("title_snapshot", item.title);
+      if (item.thumbnail) formData.set("thumbnail_snapshot", item.thumbnail);
+      startTransition(() => {
+        void addToWishlistAction({}, formData);
+      });
+    },
+    [mode, persistGuest, remove],
+  );
 
   const clear = useCallback(() => {
-    setItems(() => {
-      const next: WishlistItem[] = [];
-      if (typeof window !== "undefined") {
-        window.localStorage.setItem(STORAGE_KEY, serialize(next));
-      }
-      return next;
+    itemsRef.current = [];
+    setItems([]);
+    if (mode === "guest") {
+      persistGuest([]);
+      return;
+    }
+    startTransition(() => {
+      void clearWishlistAction({}, new FormData());
     });
-  }, []);
+  }, [mode, persistGuest]);
 
   const value = useMemo<WishlistContextValue>(
     () => ({

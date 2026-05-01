@@ -515,6 +515,22 @@ export async function clearCompareAction(
 }
 
 /**
+ * Single-arg form-action wrappers for use with `<form action={...}>`
+ * (which calls handlers with one FormData argument, not the
+ * `(prev, formData)` shape useActionState consumes). These wrappers
+ * delegate to the `*Action` functions above and discard their return
+ * value — pages re-render via `revalidatePath` from the underlying
+ * helper.
+ */
+export async function clearWishlistFormAction(formData: FormData): Promise<void> {
+  await clearList("wishlist", formData);
+}
+
+export async function clearCompareFormAction(formData: FormData): Promise<void> {
+  await clearList("compare", formData);
+}
+
+/**
  * Generic add action for callers that need to pick the list type
  * dynamically (for example a single "Save" button with a hidden
  * `list_type` field). Delegates to `addItemToList`.
