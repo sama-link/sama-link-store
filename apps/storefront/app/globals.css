@@ -938,14 +938,19 @@ html.dark .hero-pro-slide {
    and was overpowering the design's border. Suppress it and pin the border
    color explicitly so light mode reads light, dark mode reads dark. */
 .hero-pro-rings .ring {
-  box-shadow: none;
   border-width: 2.5px;
-  border-color: rgba(255, 255, 255, 0.72);
-  filter: drop-shadow(0 14px 28px rgba(15, 43, 79, 0.18));
+  border-color: rgba(255, 255, 255, 0.62);
+  box-shadow:
+    0 18px 40px rgba(15, 43, 79, 0.16),
+    inset 0 0 24px rgba(255, 255, 255, 0.08);
+  filter: none;
 }
 html.dark .hero-pro-rings .ring {
-  border-color: rgba(180, 188, 204, 0.58);
-  filter: drop-shadow(0 16px 32px rgba(0, 0, 0, 0.34));
+  border-color: rgba(92, 103, 122, 0.62);
+  box-shadow:
+    0 18px 44px rgba(0, 0, 0, 0.28),
+    inset 0 0 24px rgba(255, 255, 255, 0.035);
+  filter: none;
 }
 .hero-pro-rings .r1 { width: 600px; height: 600px; animation-delay: 0s; }
 .hero-pro-rings .r2 { width: 720px; height: 720px; animation-delay: 1s; }
