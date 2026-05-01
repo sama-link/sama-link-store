@@ -68,6 +68,9 @@ describe("orders page", () => {
     expect(html).toContain("orders.status.pending");
     expect(html).toContain("orders.paymentStatus.captured");
     expect(html).toContain("orders.fulfillmentStatus.fulfilled");
+    expect(html).toContain("orders.customerStatus.processing");
+    expect(html).toContain("/en/account/orders/order_1");
+    expect(html).toContain("orders.viewDetails");
     expect(html).toContain("orders.showingHint");
   });
 
