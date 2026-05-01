@@ -10,7 +10,12 @@ import {
   type CustomerListItem,
 } from "@/lib/medusa-client";
 import { localizeProduct } from "@/lib/product-i18n";
-import { COMPARE_MAX_ITEMS } from "@/hooks/useCompare";
+// Server-safe constant: import from the plain module, NOT from
+// @/hooks/useCompare (which is "use client") — going through a client
+// module turns the value into a client-reference proxy when consumed
+// from a Server Component, which serialises as a function-shaped error
+// inside the page instead of the literal `4`.
+import { COMPARE_MAX_ITEMS } from "@/lib/compare-cap";
 import { clearCompareFormAction } from "../../actions";
 import CompareItemActions from "./CompareItemActions";
 
