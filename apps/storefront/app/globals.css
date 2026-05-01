@@ -939,10 +939,10 @@ html.dark .hero-pro-slide {
    color explicitly so light mode reads light, dark mode reads dark. */
 .hero-pro-rings .ring {
   box-shadow: none;
-  border-color: rgba(255, 255, 255, 0.35);
+  border-color: rgba(255, 255, 255, 0.55);
 }
 html.dark .hero-pro-rings .ring {
-  border-color: rgba(15, 43, 79, 0.45);
+  border-color: rgba(15, 43, 79, 0.65);
 }
 .hero-pro-rings .r1 { width: 600px; height: 600px; animation-delay: 0s; }
 .hero-pro-rings .r2 { width: 720px; height: 720px; animation-delay: 1s; }
