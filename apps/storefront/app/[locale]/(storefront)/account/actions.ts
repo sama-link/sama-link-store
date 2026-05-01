@@ -5,6 +5,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import {
   AuthProviderUnavailableError,
+  CUSTOMER_LIST_TYPES,
+  CustomerListCapReachedError,
+  CustomerListType,
+  addItemToCustomerList,
+  clearCustomerList,
   createCustomerAddress,
   createCustomer,
   deleteCustomerAddress,
@@ -12,6 +17,7 @@ import {
   emailpassRegister,
   logoutSession,
   refreshAuthToken,
+  removeItemFromCustomerList,
   transferCartToCustomer,
   updateCustomerAddress,
   updateCustomer,
@@ -334,4 +340,194 @@ export async function deleteAddressAction(
     }
     return { error: t("addresses.deleteError") };
   }
+}
+
+// ── Customer-list actions (wishlist + compare) — ACCT-6C ────────────────
+//
+// Six form-bound server actions for the ACCT-6D / ACCT-6E UIs:
+//   addToWishlistAction        addToCompareAction
+//   removeFromWishlistAction   removeFromCompareAction
+//   clearWishlistAction        clearCompareAction
+//
+// All six delegate to three internal helpers that take the list_type
+// explicitly. Each surface action passes the right list_type so call
+// sites stay narrow and self-documenting.
+//
+// State shape extends the address-action shape with a `code` field so
+// the UI can branch on cap-reached errors ("compare_full" / "wishlist_full")
+// without parsing a localized message.
+
+type ListActionState = {
+  error?: string;
+  code?: "compare_full" | "wishlist_full" | "auth" | "validation" | "unknown";
+  success?: boolean;
+};
+
+function isCustomerListType(value: unknown): value is CustomerListType {
+  return typeof value === "string" && (CUSTOMER_LIST_TYPES as readonly string[]).includes(value);
+}
+
+function readListType(formData: FormData): CustomerListType | null {
+  const raw = formData.get("list_type");
+  return isCustomerListType(raw) ? raw : null;
+}
+
+async function addItemToList(
+  list_type: CustomerListType,
+  formData: FormData,
+): Promise<ListActionState> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "account" });
+  const token = await getAuthToken();
+  if (!token) {
+    redirect(`/${locale}/account/login`);
+  }
+
+  const productId = getRequiredString(formData, "product_id");
+  if (!productId.ok) {
+    return { error: t("genericError"), code: "validation" };
+  }
+
+  const variantId = getOptionalString(formData, "variant_id") ?? null;
+  const titleSnapshot = getOptionalString(formData, "title_snapshot") ?? null;
+  const thumbnailSnapshot =
+    getOptionalString(formData, "thumbnail_snapshot") ?? null;
+
+  try {
+    await addItemToCustomerList(token, list_type, {
+      product_id: productId.value,
+      variant_id: variantId,
+      title_snapshot: titleSnapshot,
+      thumbnail_snapshot: thumbnailSnapshot,
+    });
+    revalidatePath(`/${locale}/account/${list_type}`);
+    return { success: true };
+  } catch (error) {
+    if (error instanceof CustomerListCapReachedError) {
+      return { error: error.message, code: error.code };
+    }
+    if (getErrorStatusCode(error) === 401) {
+      redirect(`/${locale}/account/login`);
+    }
+    return { error: t("genericError"), code: "unknown" };
+  }
+}
+
+async function removeItemFromList(
+  list_type: CustomerListType,
+  formData: FormData,
+): Promise<ListActionState> {
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "account" });
+  const token = await getAuthToken();
+  if (!token) {
+    redirect(`/${locale}/account/login`);
+  }
+
+  const itemId = getRequiredString(formData, "item_id");
+  if (!itemId.ok) {
+    return { error: t("genericError"), code: "validation" };
+  }
+
+  try {
+    await removeItemFromCustomerList(token, list_type, itemId.value);
+    revalidatePath(`/${locale}/account/${list_type}`);
+    return { success: true };
+  } catch (error) {
+    if (getErrorStatusCode(error) === 401) {
+      redirect(`/${locale}/account/login`);
+    }
+    // 404 from the backend means the item is already gone (or never
+    // belonged to this customer) — the desired UI state is the same as
+    // success, so we don't surface an error toast.
+    if (getErrorStatusCode(error) === 404) {
+      revalidatePath(`/${locale}/account/${list_type}`);
+      return { success: true };
+    }
+    return { error: t("genericError"), code: "unknown" };
+  }
+}
+
+async function clearList(
+  list_type: CustomerListType,
+  _formData: FormData,
+): Promise<ListActionState> {
+  void _formData;
+  const locale = await getLocale();
+  const t = await getTranslations({ locale, namespace: "account" });
+  const token = await getAuthToken();
+  if (!token) {
+    redirect(`/${locale}/account/login`);
+  }
+
+  try {
+    await clearCustomerList(token, list_type);
+    revalidatePath(`/${locale}/account/${list_type}`);
+    return { success: true };
+  } catch (error) {
+    if (getErrorStatusCode(error) === 401) {
+      redirect(`/${locale}/account/login`);
+    }
+    return { error: t("genericError"), code: "unknown" };
+  }
+}
+
+export async function addToWishlistAction(
+  _prevState: ListActionState,
+  formData: FormData,
+): Promise<ListActionState> {
+  return addItemToList("wishlist", formData);
+}
+
+export async function addToCompareAction(
+  _prevState: ListActionState,
+  formData: FormData,
+): Promise<ListActionState> {
+  return addItemToList("compare", formData);
+}
+
+export async function removeFromWishlistAction(
+  _prevState: ListActionState,
+  formData: FormData,
+): Promise<ListActionState> {
+  return removeItemFromList("wishlist", formData);
+}
+
+export async function removeFromCompareAction(
+  _prevState: ListActionState,
+  formData: FormData,
+): Promise<ListActionState> {
+  return removeItemFromList("compare", formData);
+}
+
+export async function clearWishlistAction(
+  _prevState: ListActionState,
+  formData: FormData,
+): Promise<ListActionState> {
+  return clearList("wishlist", formData);
+}
+
+export async function clearCompareAction(
+  _prevState: ListActionState,
+  formData: FormData,
+): Promise<ListActionState> {
+  return clearList("compare", formData);
+}
+
+/**
+ * Generic add action for callers that need to pick the list type
+ * dynamically (for example a single "Save" button with a hidden
+ * `list_type` field). Delegates to `addItemToList`.
+ */
+export async function addToCustomerListAction(
+  _prevState: ListActionState,
+  formData: FormData,
+): Promise<ListActionState> {
+  const listType = readListType(formData);
+  if (!listType) {
+    const locale = await getLocale();
+    const t = await getTranslations({ locale, namespace: "account" });
+    return { error: t("genericError"), code: "validation" };
+  }
+  return addItemToList(listType, formData);
 }
