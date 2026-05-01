@@ -172,7 +172,8 @@
       "profile": "Profile",
       "addresses": "Addresses",
       "orders": "Orders",
-      "wishlist": "Wishlist"
+      "wishlist": "Wishlist",
+      "compare": "Compare"
     },
     "dashboard": {
       "profileSummary": "Profile summary",
@@ -319,6 +320,19 @@
       "empty": {
         "heading": "Your wishlist is empty",
         "body": "Save products you're interested in and find them here next time you sign in.",
+        "cta": "Browse products"
+      }
+    },
+    "compare": {
+      "heading": "Compare",
+      "subheading": "You can compare up to {max} products side by side.",
+      "clearAll": "Clear all",
+      "removeItem": "Remove",
+      "removing": "Removing...",
+      "unnamedItem": "Saved product",
+      "empty": {
+        "heading": "Nothing to compare yet",
+        "body": "Pick products from the catalog to compare them side by side.",
         "cta": "Browse products"
       }
     }

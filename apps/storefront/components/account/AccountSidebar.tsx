@@ -13,6 +13,7 @@ const accountPaths = {
   addresses: "/account/addresses",
   orders: "/account/orders",
   wishlist: "/account/wishlist",
+  compare: "/account/compare",
 } as const;
 
 export default function AccountSidebar({ variant }: { variant: Variant }) {
@@ -26,6 +27,7 @@ export default function AccountSidebar({ variant }: { variant: Variant }) {
     { key: "addresses", href: `/${locale}${accountPaths.addresses}` },
     { key: "orders", href: `/${locale}${accountPaths.orders}` },
     { key: "wishlist", href: `/${locale}${accountPaths.wishlist}` },
+    { key: "compare", href: `/${locale}${accountPaths.compare}` },
   ] as const;
 
   if (variant === "mobile") {
