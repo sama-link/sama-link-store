@@ -580,7 +580,7 @@ html[data-theme-changing] *::after {
   --slide-btn-ghost-hover-border: rgba(15, 43, 79, 0.4);
   --slide-arrow: var(--color-text-primary);
   --slide-orb: rgba(15, 43, 79, 0.05);
-  --slide-ring-color: rgba(15, 43, 79, 0.15);
+  --slide-ring-color: rgba(255, 255, 255, 0.15);
   --slide-glow-color: rgba(15, 43, 79, 0.1);
 }
 html.dark .hero-pro-slide {
@@ -600,7 +600,7 @@ html.dark .hero-pro-slide {
   --slide-btn-ghost-hover-border: rgba(255, 255, 255, 0.7);
   --slide-arrow: #fff;
   --slide-orb: rgba(255, 255, 255, 0.18);
-  --slide-ring-color: rgba(255, 255, 255, 0.25);
+  --slide-ring-color: rgba(15, 43, 79, 0.25);
   --slide-glow-color: rgba(255, 255, 255, 0.4);
 }
 .hero-pro-slide.is-active {
