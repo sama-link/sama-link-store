@@ -122,6 +122,12 @@ interface ProductsPageProps {
   }>;
 }
 
+function parsePageParam(raw: string | undefined): number {
+  const n = raw ? Number(raw) : NaN;
+  if (!Number.isFinite(n) || n < 1) return 1;
+  return Math.floor(n);
+}
+
 export async function generateMetadata({
   params,
 }: ProductsPageProps): Promise<Metadata> {
@@ -162,6 +168,7 @@ export default async function ProductsPage({
     cols: colsRaw,
     view: viewRaw,
     pageSize: pageSizeRaw,
+    page: pageRaw,
   } = await searchParams;
   const t = await getTranslations({ locale, namespace: "products.listing" });
   const tb = await getTranslations({ locale, namespace: "breadcrumbs" });
@@ -170,6 +177,8 @@ export default async function ProductsPage({
   const activeCols = parseCols(colsRaw);
   const activeView = parseView(viewRaw);
   const activePageSize = parsePageSize(pageSizeRaw);
+  const currentPage = parsePageParam(pageRaw);
+  const offset = (currentPage - 1) * activePageSize;
 
   const filterParams: ListProductsParams = {};
   if (collection) filterParams.collection_id = [collection];
@@ -182,7 +191,7 @@ export default async function ProductsPage({
   const [listResult, collectionsResult, categoriesResult] = await Promise.all([
     listProducts({
       limit: activePageSize,
-      offset: 0,
+      offset,
       ...filterParams,
     }),
     listCollections(),
@@ -203,16 +212,6 @@ export default async function ProductsPage({
   const filterCategories = mapCategoriesForFilters(
     categoriesResult.product_categories,
   );
-
-  const filtersForClient = {
-    collection,
-    category,
-    q: q && q.trim().length > 0 ? q.trim() : undefined,
-    minPrice,
-    maxPrice,
-    rating,
-    inStock,
-  };
 
   return (
     <Container>
@@ -246,8 +245,6 @@ export default async function ProductsPage({
           </h1>
 
           <CatalogToolbar
-            totalCount={count}
-            shownCount={products.length}
             activeSort={activeSort}
             activeCols={activeCols}
             activeView={activeView}
@@ -261,7 +258,7 @@ export default async function ProductsPage({
             cols={activeCols}
             sort={activeSort}
             view={activeView}
-            filters={filtersForClient}
+            currentPage={currentPage}
           />
         </div>
       </div>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/cn";
 import {
@@ -16,8 +16,6 @@ import {
 } from "@/components/products/catalog-toolbar-utils";
 
 interface Props {
-  totalCount: number | null;
-  shownCount: number;
   activeSort: SortKey;
   activeCols: ColumnCount;
   activeView: ViewMode;
@@ -25,8 +23,6 @@ interface Props {
 }
 
 export default function CatalogToolbar({
-  totalCount,
-  shownCount,
   activeSort,
   activeCols,
   activeView,
@@ -77,137 +73,127 @@ export default function CatalogToolbar({
     });
   };
 
-  const countLabel = useMemo(() => {
-    if (totalCount == null) return t("showing", { shown: shownCount });
-    return t("showingOf", { shown: shownCount, total: totalCount });
-  }, [shownCount, totalCount, t]);
-
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-3">
-      <div className="flex items-center gap-3">
-        {/* Page Size — visible on all breakpoints */}
-        <label className="flex items-center gap-2 text-sm text-text-secondary">
-          <span>{t("show")}</span>
-          <div className="relative">
-            <select
-              value={activePageSize}
-              onChange={onPageSizeChange}
-              className="h-9 appearance-none rounded-lg border border-border bg-surface pe-8 ps-3 text-sm font-medium text-text-primary transition-colors hover:border-border-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 cursor-pointer"
+    <div className="flex flex-wrap items-center justify-end gap-3 rounded-xl border border-border bg-surface px-4 py-3">
+      {/* Grid / List view toggle — always visible */}
+      <div
+        role="radiogroup"
+        aria-label={t("viewMode")}
+        className="inline-flex h-9 items-center rounded-lg border border-border bg-surface p-0.5"
+      >
+        {VIEW_MODES.map((v) => {
+          const active = activeView === v;
+          return (
+            <button
+              key={v}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => onViewClick(v)}
+              aria-label={t(`viewModes.${v}`)}
+              title={t(`viewModes.${v}`)}
+              className={cn(
+                "inline-flex h-8 w-9 items-center justify-center rounded-md text-text-muted transition-colors hover:text-text-primary",
+                active && "bg-accent-muted text-brand",
+              )}
             >
-              {PAGE_SIZE_OPTIONS.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
-              aria-hidden="true"
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </div>
-        </label>
-        <div className="text-sm font-medium text-text-secondary">{countLabel}</div>
+              <ViewIcon mode={v} />
+            </button>
+          );
+        })}
       </div>
 
-      <div className="flex items-center gap-3">
-        {/* Grid / List view toggle — always visible */}
+      {/* Density — desktop only, and only when in grid view */}
+      {activeView === "grid" ? (
         <div
           role="radiogroup"
-          aria-label={t("viewMode")}
-          className="inline-flex h-9 items-center rounded-lg border border-border bg-surface p-0.5"
+          aria-label={t("density")}
+          className="hidden items-center rounded-lg border border-border bg-surface p-0.5 md:flex"
         >
-          {VIEW_MODES.map((v) => {
-            const active = activeView === v;
+          {COL_OPTIONS.map((c) => {
+            const active = activeCols === c;
             return (
               <button
-                key={v}
+                key={c}
                 type="button"
                 role="radio"
                 aria-checked={active}
-                onClick={() => onViewClick(v)}
-                aria-label={t(`viewModes.${v}`)}
-                title={t(`viewModes.${v}`)}
+                onClick={() => onColsClick(c)}
+                aria-label={t("density")}
+                title={t("densityCols", { count: c })}
                 className={cn(
-                  "inline-flex h-8 w-9 items-center justify-center rounded-md text-text-muted transition-colors hover:text-text-primary",
+                  "inline-flex h-7 w-9 items-center justify-center rounded-md text-text-muted transition-colors hover:text-text-primary",
                   active && "bg-accent-muted text-brand",
                 )}
               >
-                <ViewIcon mode={v} />
+                <DensityIcon count={c} />
               </button>
             );
           })}
         </div>
+      ) : null}
 
-        {/* Density — desktop only, and only when in grid view */}
-        {activeView === "grid" ? (
-          <div
-            role="radiogroup"
-            aria-label={t("density")}
-            className="hidden items-center rounded-lg border border-border bg-surface p-0.5 md:flex"
+      {/* Page Size — visible on all breakpoints, sits with the right cluster */}
+      <label className="flex items-center gap-2 text-sm text-text-secondary">
+        <span>{t("show")}</span>
+        <div className="relative">
+          <select
+            value={activePageSize}
+            onChange={onPageSizeChange}
+            className="h-9 appearance-none rounded-lg border border-border bg-surface pe-8 ps-3 text-sm font-medium text-text-primary transition-colors hover:border-border-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 cursor-pointer"
           >
-            {COL_OPTIONS.map((c) => {
-              const active = activeCols === c;
-              return (
-                <button
-                  key={c}
-                  type="button"
-                  role="radio"
-                  aria-checked={active}
-                  onClick={() => onColsClick(c)}
-                  aria-label={t("density")}
-                  title={t("densityCols", { count: c })}
-                  className={cn(
-                    "inline-flex h-7 w-9 items-center justify-center rounded-md text-text-muted transition-colors hover:text-text-primary",
-                    active && "bg-accent-muted text-brand",
-                  )}
-                >
-                  <DensityIcon count={c} />
-                </button>
-              );
-            })}
-          </div>
-        ) : null}
+            {PAGE_SIZE_OPTIONS.map((size) => (
+              <option key={size} value={size}>
+                {size}
+              </option>
+            ))}
+          </select>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
+            aria-hidden="true"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+      </label>
 
-        {/* Sort — desktop only (mobile uses the FAB's View tab) */}
-        <label className="hidden items-center gap-2 text-sm text-text-secondary sm:flex">
-          <span className="hidden sm:inline">{t("sortBy")}</span>
-          <div className="relative">
-            <select
-              value={activeSort}
-              onChange={onSortChange}
-              className="h-9 appearance-none rounded-lg border border-border bg-surface pe-8 ps-3 text-sm font-medium text-text-primary transition-colors hover:border-border-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 cursor-pointer"
-            >
-              {SORT_KEYS.map((k) => (
-                <option key={k} value={k}>
-                  {t(`sort.${k}`)}
-                </option>
-              ))}
-            </select>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
-              aria-hidden="true"
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </div>
-        </label>
-      </div>
+      {/* Sort — desktop only (mobile uses the FAB's View tab) */}
+      <label className="hidden items-center gap-2 text-sm text-text-secondary sm:flex">
+        <span className="hidden sm:inline">{t("sortBy")}</span>
+        <div className="relative">
+          <select
+            value={activeSort}
+            onChange={onSortChange}
+            className="h-9 appearance-none rounded-lg border border-border bg-surface pe-8 ps-3 text-sm font-medium text-text-primary transition-colors hover:border-border-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 cursor-pointer"
+          >
+            {SORT_KEYS.map((k) => (
+              <option key={k} value={k}>
+                {t(`sort.${k}`)}
+              </option>
+            ))}
+          </select>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={1.75}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
+            aria-hidden="true"
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </div>
+      </label>
     </div>
   );
 }
