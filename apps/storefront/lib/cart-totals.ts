@@ -37,30 +37,38 @@ function num(value: unknown): number {
 
 function lineSubtotalFromFields(line: CartLine): number {
   const qty = line.quantity ?? 1;
-  const unit = finiteNumber(line.unit_price) ?? 0;
-  return (
-    finiteNumber(line.item_subtotal) ??
-    finiteNumber(line.subtotal) ??
-    finiteNumber(line.item_total) ??
-    finiteNumber(line.total) ??
-    unit * qty
-  );
+  const unit = finiteNumber(line.unit_price);
+  const itemSubtotal = finiteNumber(line.item_subtotal);
+  const subtotal = finiteNumber(line.subtotal);
+  const itemTotal = finiteNumber(line.item_total);
+  const total = finiteNumber(line.total);
+  const computed = unit != null ? unit * qty : null;
+
+  // Prefer the first positive candidate. Falls back to whichever value
+  // was explicitly set (allows legitimate 0 for free items).
+  if (itemSubtotal != null && itemSubtotal > 0) return itemSubtotal;
+  if (subtotal != null && subtotal > 0) return subtotal;
+  if (itemTotal != null && itemTotal > 0) return itemTotal;
+  if (total != null && total > 0) return total;
+  if (computed != null && computed > 0) return computed;
+  return itemSubtotal ?? subtotal ?? itemTotal ?? total ?? computed ?? 0;
 }
 
 /**
  * Merchandise subtotal: sum of line items, excluding shipping. Prefers
- * `cart.item_subtotal`. Never returns Medusa's `cart.subtotal` (which
- * includes shipping_subtotal in v2).
+ * `cart.item_subtotal` ONLY when positive; otherwise sums line items.
+ * Never reads `cart.subtotal` (which is `item_subtotal + shipping_subtotal`
+ * in v2 and would leak shipping into the displayed Subtotal).
  */
 export function getCartItemsSubtotal(
   cart: CartLike | null | undefined,
 ): number {
   if (!cart) return 0;
   const aggregate = finiteNumber(cart.item_subtotal);
-  if (aggregate != null) return aggregate;
+  if (aggregate != null && aggregate > 0) return aggregate;
   return (cart.items ?? []).reduce<number>(
     (sum, item) => sum + lineSubtotalFromFields(item),
-    0,
+    aggregate ?? 0,
   );
 }
 
@@ -85,8 +93,23 @@ export function getCartDiscountTotal(
   return num(cart?.discount_total);
 }
 
+/**
+ * Cart grand total — what the customer will pay. Computes from the
+ * displayed parts (subtotal + shipping + tax - discount) and uses
+ * `cart.total` only if it matches or exceeds that sum. This guarantees
+ * the displayed Total always equals the sum of the displayed line
+ * breakdown — protects against any cart-side analogue of the order #18
+ * mismatch bug.
+ */
 export function getCartGrandTotal(cart: CartLike | null | undefined): number {
-  return num(cart?.total);
+  if (!cart) return 0;
+  const subtotal = getCartItemsSubtotal(cart);
+  const shipping = getCartShippingTotal(cart);
+  const tax = getCartTaxTotal(cart);
+  const discount = getCartDiscountTotal(cart);
+  const computed = subtotal + shipping + tax - discount;
+  const reported = num(cart.total);
+  return reported >= computed ? reported : computed;
 }
 
 /**

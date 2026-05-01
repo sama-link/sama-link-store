@@ -10,6 +10,29 @@ import {
 } from "@/lib/order-totals";
 
 describe("getOrderItemsSubtotal", () => {
+  it("regression for order #18: item.total = 0 next to positive unit_price -> Subtotal derived from line items, Total computed from parts", () => {
+    // Real-world bug: SDK returned `item.total = 0` and
+    // `order.subtotal = order.total = 50` (the shipping amount). The
+    // helper must (a) sum line items via unit_price * quantity when
+    // line.total is 0, (b) compute the grand total from the displayed
+    // parts when the reported total is lower than the sum.
+    const lineA = { unit_price: 610.5, quantity: 1, total: 0 };
+    const order = {
+      subtotal: 50, // SDK quirk
+      shipping_subtotal: 50,
+      shipping_total: 50,
+      tax_total: 0,
+      discount_total: 0,
+      total: 50, // SDK quirk: lower than sum of parts
+      items: [lineA],
+    } as never;
+    expect(getOrderItemsSubtotal(order)).toBe(610.5);
+    expect(getOrderShippingTotal(order)).toBe(50);
+    expect(getOrderGrandTotal(order)).toBe(660.5);
+    expect(getOrderLineDisplayTotal(lineA)).toBe(610.5);
+    expect(getOrderLineUnitPrice(lineA)).toBe(610.5);
+  });
+
   it("regression for order #19: items 2,013 + shipping 50 -> Subtotal 2,013, Shipping 50, Total 2,063", () => {
     // Reproduces the bug where the v2 store API returned `order.subtotal = 50`
     // (shipping amount) for a real-world order whose item_subtotal was 2,013.
@@ -46,6 +69,28 @@ describe("getOrderItemsSubtotal", () => {
     expect(getOrderItemsSubtotal(null)).toBe(0);
     expect(getOrderItemsSubtotal(undefined)).toBe(0);
     expect(getOrderItemsSubtotal({} as never)).toBe(0);
+  });
+
+  it("computes grand total from parts when order.total is lower than sum of parts (defensive)", () => {
+    const order = {
+      item_subtotal: 610.5,
+      shipping_subtotal: 50,
+      total: 50, // reported < sum-of-parts
+      items: [{ unit_price: 610.5, quantity: 1 }],
+    } as never;
+    expect(getOrderGrandTotal(order)).toBe(660.5);
+  });
+
+  it("respects order.total when it matches or exceeds the sum of parts", () => {
+    const order = {
+      item_subtotal: 900,
+      shipping_total: 50,
+      tax_total: 100,
+      discount_total: 50,
+      total: 1_000,
+      items: [{ unit_price: 450, quantity: 2, total: 900 }],
+    } as never;
+    expect(getOrderGrandTotal(order)).toBe(1_000);
   });
 });
 
