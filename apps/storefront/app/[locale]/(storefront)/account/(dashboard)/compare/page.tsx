@@ -150,7 +150,12 @@ export default async function AccountComparePage({ params }: ComparePageProps) {
   ];
 
   return (
-    <div className="space-y-4 rounded-lg border border-border bg-surface p-5">
+    // `min-w-0` breaks the default `min-width: auto` on the parent grid
+    // item (the dashboard right column), so the card never expands the
+    // section past its 1fr track. Without it, `min-w-max` on the table
+    // would push the whole page wide and the body would scroll instead
+    // of the card.
+    <div className="min-w-0 max-w-full space-y-4 rounded-lg border border-border bg-surface p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-text-primary">
@@ -190,13 +195,19 @@ export default async function AccountComparePage({ params }: ComparePageProps) {
           </Link>
         </div>
       ) : (
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-max border-collapse text-left text-sm">
+        // overflow-x-auto here scopes horizontal scroll INSIDE the
+        // card. Combined with `min-w-0` on the outer card div, the
+        // table can be wider than the card without the body ever
+        // scrolling. Per-cell widths below sum to a fixed table width
+        // (128 + N*240 px) so the table doesn't grow unbounded with
+        // long titles.
+        <div className="-mx-1 overflow-x-auto rounded-md border border-border">
+          <table className="w-max border-collapse text-left text-sm">
             <thead>
               <tr>
                 <th
                   scope="col"
-                  className="sticky start-0 z-20 min-w-[8rem] border border-border bg-surface p-3 text-xs font-semibold uppercase tracking-wide text-text-muted"
+                  className="sticky start-0 z-20 w-32 border border-border bg-surface p-3 text-xs font-semibold uppercase tracking-wide text-text-muted"
                 >
                   {tCompare("headers.image")}
                 </th>
@@ -209,7 +220,7 @@ export default async function AccountComparePage({ params }: ComparePageProps) {
                     <th
                       key={entry.backendItemId}
                       scope="col"
-                      className="min-w-[10rem] border border-border bg-surface-subtle p-3 text-center align-bottom"
+                      className="w-60 border border-border bg-surface-subtle p-3 text-center align-bottom"
                     >
                       <Link
                         href={href}
@@ -252,7 +263,7 @@ export default async function AccountComparePage({ params }: ComparePageProps) {
                 <tr key={row.key}>
                   <th
                     scope="row"
-                    className="sticky start-0 z-10 border border-border bg-surface p-3 text-xs font-semibold uppercase tracking-wide text-text-muted"
+                    className="sticky start-0 z-10 w-32 border border-border bg-surface p-3 text-xs font-semibold uppercase tracking-wide text-text-muted"
                   >
                     {row.label}
                   </th>
@@ -261,7 +272,7 @@ export default async function AccountComparePage({ params }: ComparePageProps) {
                     return (
                       <td
                         key={`${entry.backendItemId}-${row.key}`}
-                        className="border border-border bg-surface p-3 align-middle text-text-primary"
+                        className="w-60 border border-border bg-surface p-3 align-middle text-text-primary"
                       >
                         {val != null && val !== "" ? val : EM_DASH}
                       </td>
