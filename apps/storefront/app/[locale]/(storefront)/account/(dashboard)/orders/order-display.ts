@@ -52,6 +52,65 @@ export function localizeStatus(
   return t(`orders.${key}`);
 }
 
+function isPaidLikePayment(value: string | null | undefined): boolean {
+  return value === "paid" || value === "captured";
+}
+
+/**
+ * Customer-facing label for the order's primary status. Display-only —
+ * does NOT mutate `order.status` server-side. Rule:
+ *   - canceled (any of order/payment/fulfillment) → "Canceled"
+ *   - paid + delivered                            → "Complete"
+ *   - everything else                             → raw localized order.status
+ *                                                   (typically "Pending")
+ *
+ * Medusa v2 keeps order.status = "pending" for the entire fulfilled life
+ * of an order until an operator explicitly archives or completes it,
+ * which historically read to customers as "your order is still pending"
+ * even after delivery. The rule above corrects that purely in the UI.
+ */
+export function displayOrderStatus(
+  orderStatus: string | null | undefined,
+  paymentStatus: string | null | undefined,
+  fulfillmentStatus: string | null | undefined,
+  t: Translator,
+): string | null {
+  if (
+    orderStatus === "canceled" ||
+    paymentStatus === "canceled" ||
+    fulfillmentStatus === "canceled"
+  ) {
+    return t("orders.status.canceled");
+  }
+  if (isPaidLikePayment(paymentStatus) && fulfillmentStatus === "delivered") {
+    return t("orders.status.complete");
+  }
+  return localizeStatus(orderStatus, t, ORDER_STATUS_KEYS);
+}
+
+/**
+ * Badge variant for the same derived display rule. Returns "success" when
+ * the order is effectively complete, "error" when canceled, otherwise
+ * delegates to `statusVariant(order.status)`.
+ */
+export function displayOrderStatusVariant(
+  orderStatus: string | null | undefined,
+  paymentStatus: string | null | undefined,
+  fulfillmentStatus: string | null | undefined,
+) {
+  if (
+    orderStatus === "canceled" ||
+    paymentStatus === "canceled" ||
+    fulfillmentStatus === "canceled"
+  ) {
+    return "error" as const;
+  }
+  if (isPaidLikePayment(paymentStatus) && fulfillmentStatus === "delivered") {
+    return "success" as const;
+  }
+  return statusVariant(orderStatus);
+}
+
 export function statusVariant(value: string | null | undefined) {
   if (!value) return "default" as const;
   if (

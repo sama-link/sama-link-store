@@ -16,12 +16,11 @@ import {
 } from "@/lib/order-totals";
 import {
   FULFILLMENT_STATUS_KEYS,
-  ORDER_STATUS_KEYS,
   PAYMENT_STATUS_KEYS,
-  customerStatusLabel,
+  displayOrderStatus,
+  displayOrderStatusVariant,
   formatOrderDate,
   localizeStatus,
-  statusVariant,
 } from "../order-display";
 
 interface OrderDetailPageProps {
@@ -88,18 +87,22 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   }
 
   const currencyCode = order.currency_code || "EGP";
-  const orderStatus = localizeStatus(order.status, t, ORDER_STATUS_KEYS);
+  const primaryStatus = displayOrderStatus(
+    order.status,
+    order.payment_status ?? null,
+    order.fulfillment_status ?? null,
+    t,
+  );
+  const primaryStatusVariant = displayOrderStatusVariant(
+    order.status,
+    order.payment_status ?? null,
+    order.fulfillment_status ?? null,
+  );
   const paymentStatus = localizeStatus(order.payment_status ?? null, t, PAYMENT_STATUS_KEYS);
   const fulfillmentStatus = localizeStatus(
     order.fulfillment_status ?? null,
     t,
     FULFILLMENT_STATUS_KEYS,
-  );
-  const customerStatus = customerStatusLabel(
-    order.status,
-    order.payment_status ?? null,
-    order.fulfillment_status ?? null,
-    t,
   );
   const items = order.items ?? [];
 
@@ -121,30 +124,41 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             {formatOrderDate(locale, order.created_at)}
           </p>
         </div>
-        <Badge variant={statusVariant(order.fulfillment_status ?? order.status)}>
-          {customerStatus}
-        </Badge>
+        {primaryStatus ? (
+          <Badge variant={primaryStatusVariant}>{primaryStatus}</Badge>
+        ) : null}
       </div>
 
       <section className="rounded-md border border-border bg-surface-subtle p-4">
         <h2 className="text-base font-semibold text-text-primary">
           {t("orders.detail.statusHeading")}
         </h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {orderStatus ? (
-            <Badge variant={statusVariant(order.status)}>{orderStatus}</Badge>
+        <dl className="mt-3 space-y-2 text-sm">
+          {primaryStatus ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-text-secondary">
+                {t("orders.detail.orderStatusLabel")}
+              </dt>
+              <dd className="text-text-primary">{primaryStatus}</dd>
+            </div>
           ) : null}
           {paymentStatus ? (
-            <Badge variant={statusVariant(order.payment_status ?? null)}>
-              {paymentStatus}
-            </Badge>
+            <div className="flex justify-between gap-4">
+              <dt className="text-text-secondary">
+                {t("orders.detail.paymentStatusLabel")}
+              </dt>
+              <dd className="text-text-primary">{paymentStatus}</dd>
+            </div>
           ) : null}
           {fulfillmentStatus ? (
-            <Badge variant={statusVariant(order.fulfillment_status ?? null)}>
-              {fulfillmentStatus}
-            </Badge>
+            <div className="flex justify-between gap-4">
+              <dt className="text-text-secondary">
+                {t("orders.detail.deliveryStatusLabel")}
+              </dt>
+              <dd className="text-text-primary">{fulfillmentStatus}</dd>
+            </div>
           ) : null}
-        </div>
+        </dl>
       </section>
 
       <section className="rounded-md border border-border bg-surface-subtle p-4">

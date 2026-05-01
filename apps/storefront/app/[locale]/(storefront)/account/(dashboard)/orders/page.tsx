@@ -7,12 +7,11 @@ import { listCustomerOrders, type ListCustomerOrdersResult } from "@/lib/medusa-
 import { getOrderGrandTotal } from "@/lib/order-totals";
 import {
   FULFILLMENT_STATUS_KEYS,
-  ORDER_STATUS_KEYS,
   PAYMENT_STATUS_KEYS,
-  customerStatusLabel,
+  displayOrderStatus,
+  displayOrderStatusVariant,
   formatOrderDate,
   localizeStatus,
-  statusVariant,
 } from "./order-display";
 
 interface OrdersPageProps {
@@ -69,7 +68,17 @@ export default async function OrdersPage({ params }: OrdersPageProps) {
         ) : (
           <ul className="space-y-3">
             {orders.map((order) => {
-              const orderStatus = localizeStatus(order.status, t, ORDER_STATUS_KEYS);
+              const primaryStatus = displayOrderStatus(
+                order.status,
+                order.payment_status ?? null,
+                order.fulfillment_status ?? null,
+                t,
+              );
+              const primaryStatusVariant = displayOrderStatusVariant(
+                order.status,
+                order.payment_status ?? null,
+                order.fulfillment_status ?? null,
+              );
               const paymentStatus = localizeStatus(
                 order.payment_status ?? null,
                 t,
@@ -79,12 +88,6 @@ export default async function OrdersPage({ params }: OrdersPageProps) {
                 order.fulfillment_status ?? null,
                 t,
                 FULFILLMENT_STATUS_KEYS,
-              );
-              const customerStatus = customerStatusLabel(
-                order.status,
-                order.payment_status ?? null,
-                order.fulfillment_status ?? null,
-                t,
               );
 
               return (
@@ -111,24 +114,27 @@ export default async function OrdersPage({ params }: OrdersPageProps) {
                     <p>{t("orders.itemsCount", { count: itemCount(order) })}</p>
                   </div>
 
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    <Badge variant={statusVariant(order.fulfillment_status ?? order.status)}>
-                      {customerStatus}
-                    </Badge>
-                    {orderStatus ? (
-                      <Badge variant={statusVariant(order.status)}>{orderStatus}</Badge>
-                    ) : null}
+                  {primaryStatus ? (
+                    <div className="mt-3">
+                      <Badge variant={primaryStatusVariant}>{primaryStatus}</Badge>
+                    </div>
+                  ) : null}
+
+                  <dl className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-text-secondary">
                     {paymentStatus ? (
-                      <Badge variant={statusVariant(order.payment_status ?? null)}>
-                        {paymentStatus}
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <dt>{t("orders.paymentLabel")}:</dt>
+                        <dd className="text-text-primary">{paymentStatus}</dd>
+                      </div>
                     ) : null}
                     {fulfillmentStatus ? (
-                      <Badge variant={statusVariant(order.fulfillment_status ?? null)}>
-                        {fulfillmentStatus}
-                      </Badge>
+                      <div className="flex items-center gap-1">
+                        <dt>{t("orders.deliveryLabel")}:</dt>
+                        <dd className="text-text-primary">{fulfillmentStatus}</dd>
+                      </div>
                     ) : null}
-                  </div>
+                  </dl>
+
                   <Link
                     href={`/${locale}/account/orders/${order.id}`}
                     className="mt-3 inline-block text-sm font-medium text-brand hover:underline"

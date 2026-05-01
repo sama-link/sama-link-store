@@ -256,11 +256,14 @@
       },
       "status": {
         "pending": "قيد الانتظار",
+        "complete": "مكتمل",
         "completed": "مكتمل",
         "canceled": "ملغي",
         "archived": "مؤرشف",
         "requiresAction": "يتطلب إجراء"
       },
+      "paymentLabel": "الدفع",
+      "deliveryLabel": "التوصيل",
       "paymentStatus": {
         "notPaid": "غير مدفوع",
         "awaiting": "بانتظار الدفع",
@@ -287,6 +290,9 @@
         "backToOrders": "العودة إلى الطلبات",
         "heading": "طلب رقم {id}",
         "statusHeading": "الحالة",
+        "orderStatusLabel": "حالة الطلب",
+        "paymentStatusLabel": "حالة الدفع",
+        "deliveryStatusLabel": "حالة التوصيل",
         "itemsHeading": "المنتجات",
         "shippingAddressHeading": "عنوان الشحن",
         "totalsHeading": "الإجماليات",
