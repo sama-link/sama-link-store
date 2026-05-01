@@ -638,3 +638,186 @@ export async function initiatePaymentSession(
 export async function listPaymentProviders(regionId: string) {
   return sdk.store.payment.listPaymentProviders({ region_id: regionId });
 }
+
+// ── Customer lists (wishlist + compare) — ACCT-6C ─────────────────────────
+//
+// Typed wrappers over the ACCT-6B backend routes:
+//   GET    /store/customer-lists/:list_type
+//   POST   /store/customer-lists/:list_type/items
+//   DELETE /store/customer-lists/:list_type/items/:item_id
+//   DELETE /store/customer-lists/:list_type/items
+//
+// All four routes require an authenticated customer; helpers take a
+// `token` parameter (mirroring the rest of this file) and pass it as a
+// Bearer header. The publishable-api-key header is auto-attached by
+// `sdk.client.fetch`. Non-2xx responses surface as `FetchError` with a
+// `status` field — `getErrorStatusCode` already understands that shape.
+
+export type CustomerListType = "wishlist" | "compare";
+
+export const CUSTOMER_LIST_TYPES: readonly CustomerListType[] = [
+  "wishlist",
+  "compare",
+] as const;
+
+export interface CustomerListItem {
+  id: string;
+  customer_list_id: string;
+  product_id: string;
+  variant_id: string | null;
+  title_snapshot: string | null;
+  thumbnail_snapshot: string | null;
+}
+
+export interface CustomerList {
+  id: string | null;
+  customer_id: string;
+  list_type: CustomerListType;
+  items: CustomerListItem[];
+}
+
+export interface AddCustomerListItemPayload {
+  product_id: string;
+  variant_id?: string | null;
+  title_snapshot?: string | null;
+  thumbnail_snapshot?: string | null;
+}
+
+export interface AddCustomerListItemResult {
+  item: CustomerListItem;
+  created: boolean;
+}
+
+export interface CustomerListCapErrorBody {
+  code: "compare_full" | "wishlist_full";
+  message: string;
+  list_type: CustomerListType;
+  cap: number;
+}
+
+/**
+ * Thrown when the backend rejects an `addItemToCustomerList` call with
+ * 409 because the per-list cap has been hit. Carries the typed body the
+ * route returns so callers can branch on `code`.
+ */
+export class CustomerListCapReachedError extends Error {
+  readonly code: "compare_full" | "wishlist_full";
+  readonly listType: CustomerListType;
+  readonly cap: number;
+  constructor(body: CustomerListCapErrorBody) {
+    super(body.message);
+    this.name = "CustomerListCapReachedError";
+    this.code = body.code;
+    this.listType = body.list_type;
+    this.cap = body.cap;
+  }
+}
+
+function customerListPath(list_type: CustomerListType): string {
+  return `/store/customer-lists/${list_type}`;
+}
+
+/** GET /store/customer-lists/:list_type — returns an empty-shape response
+ *  with `id: null` when the customer has not yet added any items. */
+export async function getCustomerList(
+  token: string,
+  list_type: CustomerListType,
+): Promise<CustomerList> {
+  const data = await sdk.client.fetch<{ list: CustomerList }>(
+    customerListPath(list_type),
+    {
+      method: "GET",
+      headers: authHeader(token),
+    },
+  );
+  return data.list;
+}
+
+/** POST /store/customer-lists/:list_type/items — idempotent on
+ *  (product_id, variant_id); returns `{ item, created: false }` on a
+ *  repeat add. Throws `CustomerListCapReachedError` on the typed 409
+ *  body so the caller can show a "compare list is full" toast without
+ *  parsing a generic error string. */
+export async function addItemToCustomerList(
+  token: string,
+  list_type: CustomerListType,
+  payload: AddCustomerListItemPayload,
+): Promise<AddCustomerListItemResult> {
+  try {
+    return await sdk.client.fetch<AddCustomerListItemResult>(
+      `${customerListPath(list_type)}/items`,
+      {
+        method: "POST",
+        headers: authHeader(token),
+        body: payload as unknown as Record<string, unknown>,
+      },
+    );
+  } catch (error) {
+    if (getErrorStatusCode(error) === 409) {
+      const body = extractCapErrorBody(error);
+      if (body) throw new CustomerListCapReachedError(body);
+    }
+    throw error;
+  }
+}
+
+/** DELETE /store/customer-lists/:list_type/items/:item_id — backend
+ *  returns 404 if the item does not belong to this customer; the caller
+ *  can detect that via `getErrorStatusCode(error) === 404`. */
+export async function removeItemFromCustomerList(
+  token: string,
+  list_type: CustomerListType,
+  itemId: string,
+): Promise<void> {
+  await sdk.client.fetch<{ deleted: true; id: string }>(
+    `${customerListPath(list_type)}/items/${itemId}`,
+    {
+      method: "DELETE",
+      headers: authHeader(token),
+    },
+  );
+}
+
+/** DELETE /store/customer-lists/:list_type/items — clears every item;
+ *  header row preserved. Idempotent on an empty list (returns count 0). */
+export async function clearCustomerList(
+  token: string,
+  list_type: CustomerListType,
+): Promise<{ deleted: true; count: number }> {
+  return sdk.client.fetch<{ deleted: true; count: number }>(
+    `${customerListPath(list_type)}/items`,
+    {
+      method: "DELETE",
+      headers: authHeader(token),
+    },
+  );
+}
+
+function extractCapErrorBody(error: unknown): CustomerListCapErrorBody | null {
+  if (!error || typeof error !== "object") return null;
+  const candidates = [
+    (error as Record<string, unknown>).body,
+    (error as Record<string, unknown>).data,
+    (error as { response?: Record<string, unknown> }).response?.data,
+    (error as { response?: Record<string, unknown> }).response?.body,
+  ];
+  for (const candidate of candidates) {
+    if (candidate && typeof candidate === "object") {
+      const body = candidate as Record<string, unknown>;
+      const code = body.code;
+      if (code === "compare_full" || code === "wishlist_full") {
+        const list_type = body.list_type;
+        const cap = body.cap;
+        const message = body.message;
+        if (
+          (list_type === "compare" || list_type === "wishlist") &&
+          typeof cap === "number" &&
+          typeof message === "string"
+        ) {
+          return { code, message, list_type, cap };
+        }
+      }
+    }
+  }
+  return null;
+}
