@@ -4,6 +4,7 @@ import Badge from "@/components/ui/Badge";
 import { getAuthToken } from "@/lib/auth-cookie";
 import { formatPrice } from "@/lib/format-price";
 import { listCustomerOrders, type ListCustomerOrdersResult } from "@/lib/medusa-client";
+import { getOrderGrandTotal } from "@/lib/order-totals";
 import {
   FULFILLMENT_STATUS_KEYS,
   ORDER_STATUS_KEYS,
@@ -105,7 +106,7 @@ export default async function OrdersPage({ params }: OrdersPageProps) {
                   </div>
 
                   <div className="mt-1 flex flex-wrap items-center gap-2 text-text-secondary">
-                    <p>{formatPrice(order.total, order.currency_code || "EGP", locale)}</p>
+                    <p>{formatPrice(getOrderGrandTotal(order), order.currency_code || "EGP", locale)}</p>
                     <span aria-hidden="true">·</span>
                     <p>{t("orders.itemsCount", { count: itemCount(order) })}</p>
                   </div>

@@ -3,6 +3,10 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { CART_COOKIE_NAME } from "@/lib/cart-cookie";
+import {
+  getCartGrandTotal,
+  getCartItemsSubtotal,
+} from "@/lib/cart-totals";
 import { retrieveCart } from "@/lib/medusa-client";
 import { buildCanonical } from "@/lib/seo";
 import OrderReview, {
@@ -95,8 +99,8 @@ export default async function ReviewPage({ params }: ReviewPageProps) {
       items={items}
       shippingAddress={shippingAddress}
       shippingMethod={shippingMethod}
-      subtotal={Number(cart.subtotal ?? 0)}
-      total={Number(cart.total ?? 0)}
+      subtotal={getCartItemsSubtotal(cart)}
+      total={getCartGrandTotal(cart)}
     />
   );
 }

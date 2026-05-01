@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useCart } from "@/hooks/useCart";
 import { cn } from "@/lib/cn";
 import CartLineItem from "@/components/layout/CartLineItem";
-import { getCartItemsSubtotal } from "@/components/layout/cart-totals";
+import { getCartItemsSubtotal } from "@/lib/cart-totals";
 import { formatPrice } from "@/lib/format-price";
 
 function collectFocusable(panel: HTMLElement): HTMLElement[] {
