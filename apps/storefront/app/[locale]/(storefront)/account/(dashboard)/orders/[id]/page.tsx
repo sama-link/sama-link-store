@@ -24,11 +24,17 @@ type OrderAddress = NonNullable<StoreOrder["shipping_address"]>;
 
 const ORDER_DETAIL_FIELDS =
   "id,display_id,created_at,currency_code,status,payment_status,fulfillment_status," +
-  "subtotal,shipping_total,tax_total,discount_total,total," +
+  "item_total,item_subtotal,item_tax_total,item_discount_total," +
+  "subtotal,shipping_total,shipping_subtotal,shipping_tax_total,shipping_discount_total," +
+  "tax_total,discount_total,total," +
   "shipping_address.first_name,shipping_address.last_name,shipping_address.address_1," +
   "shipping_address.address_2,shipping_address.city,shipping_address.province," +
   "shipping_address.postal_code,shipping_address.country_code,shipping_address.phone," +
-  "items.id,items.title,items.subtitle,items.thumbnail,items.quantity,items.unit_price,items.total";
+  "shipping_methods.id,shipping_methods.amount,shipping_methods.total,shipping_methods.subtotal," +
+  "shipping_methods.tax_total,shipping_methods.discount_total," +
+  "items.id,items.title,items.subtitle,items.thumbnail,items.quantity,items.unit_price," +
+  "items.item_total,items.item_subtotal,items.item_tax_total,items.item_discount_total," +
+  "items.total,items.subtotal,items.tax_total,items.discount_total";
 
 function displayOrderId(order: StoreOrder): string {
   return typeof order.display_id === "number" ? String(order.display_id) : order.id;
@@ -38,12 +44,82 @@ function numberValue(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
-function itemTotal(item: OrderItem): number {
-  const explicitTotal = (item as { total?: unknown }).total;
-  if (typeof explicitTotal === "number" && Number.isFinite(explicitTotal)) {
-    return explicitTotal;
-  }
-  return numberValue((item as { unit_price?: unknown }).unit_price) * (item.quantity ?? 1);
+function positiveNumber(value: unknown): number | null {
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? value
+    : null;
+}
+
+function sumNumbers(values: unknown[]): number {
+  return values.reduce<number>((sum, value) => sum + numberValue(value), 0);
+}
+
+function itemUnitPrice(item: OrderItem): number {
+  return numberValue((item as { unit_price?: unknown }).unit_price);
+}
+
+function itemQuantity(item: OrderItem): number {
+  return typeof item.quantity === "number" && item.quantity > 0 ? item.quantity : 1;
+}
+
+function itemUnitFallback(item: OrderItem): number {
+  return itemUnitPrice(item) * itemQuantity(item);
+}
+
+function itemLineSubtotal(item: OrderItem): number {
+  const fields = item as { item_subtotal?: unknown; subtotal?: unknown };
+  return (
+    positiveNumber(fields.item_subtotal) ??
+    positiveNumber(fields.subtotal) ??
+    itemUnitFallback(item)
+  );
+}
+
+function itemLineTotal(item: OrderItem): number {
+  const fields = item as { item_total?: unknown; total?: unknown };
+  return (
+    positiveNumber(fields.item_total) ??
+    positiveNumber(fields.total) ??
+    itemUnitFallback(item)
+  );
+}
+
+function resolveOrderTotals(order: StoreOrder) {
+  const items = order.items ?? [];
+  const shippingMethods = order.shipping_methods ?? [];
+  const itemSubtotal =
+    positiveNumber((order as { item_subtotal?: unknown }).item_subtotal) ??
+    items.reduce((sum, item) => sum + itemLineSubtotal(item), 0);
+  const shippingTotal =
+    positiveNumber(order.shipping_total) ??
+    sumNumbers(
+      shippingMethods.map((method) => {
+        const fields = method as { total?: unknown; amount?: unknown };
+        return positiveNumber(fields.total) ?? fields.amount;
+      }),
+    );
+  const taxTotal =
+    positiveNumber(order.tax_total) ??
+    sumNumbers([
+      (order as { item_tax_total?: unknown }).item_tax_total,
+      (order as { shipping_tax_total?: unknown }).shipping_tax_total,
+    ]);
+  const discountTotal =
+    positiveNumber(order.discount_total) ??
+    sumNumbers([
+      (order as { item_discount_total?: unknown }).item_discount_total,
+      (order as { shipping_discount_total?: unknown }).shipping_discount_total,
+    ]);
+  const derivedTotal = itemSubtotal + shippingTotal + taxTotal - discountTotal;
+  const orderTotal = positiveNumber(order.total);
+
+  return {
+    subtotal: itemSubtotal,
+    shipping: shippingTotal,
+    tax: taxTotal,
+    discount: discountTotal,
+    total: orderTotal && orderTotal >= itemSubtotal ? orderTotal : derivedTotal,
+  };
 }
 
 function AddressBlock({
@@ -105,6 +181,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     t,
   );
   const items = order.items ?? [];
+  const totals = resolveOrderTotals(order);
 
   return (
     <div className="space-y-4 rounded-lg border border-border bg-surface p-5">
@@ -168,14 +245,10 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
               </div>
               <div className="text-end">
                 <p className="text-text-primary">
-                  {formatPrice(itemTotal(item), currencyCode, locale)}
+                  {formatPrice(itemLineTotal(item), currencyCode, locale)}
                 </p>
                 <p className="text-text-secondary">
-                  {formatPrice(
-                    numberValue((item as { unit_price?: unknown }).unit_price),
-                    currencyCode,
-                    locale,
-                  )}
+                  {formatPrice(itemUnitPrice(item), currencyCode, locale)}
                 </p>
               </div>
             </li>
@@ -204,31 +277,31 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             <div className="flex justify-between gap-4">
               <dt className="text-text-secondary">{t("orders.detail.subtotal")}</dt>
               <dd className="text-text-primary">
-                {formatPrice(numberValue(order.subtotal), currencyCode, locale)}
+                {formatPrice(totals.subtotal, currencyCode, locale)}
               </dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-text-secondary">{t("orders.detail.shipping")}</dt>
               <dd className="text-text-primary">
-                {formatPrice(numberValue(order.shipping_total), currencyCode, locale)}
+                {formatPrice(totals.shipping, currencyCode, locale)}
               </dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-text-secondary">{t("orders.detail.tax")}</dt>
               <dd className="text-text-primary">
-                {formatPrice(numberValue(order.tax_total), currencyCode, locale)}
+                {formatPrice(totals.tax, currencyCode, locale)}
               </dd>
             </div>
             <div className="flex justify-between gap-4">
               <dt className="text-text-secondary">{t("orders.detail.discount")}</dt>
               <dd className="text-text-primary">
-                {formatPrice(numberValue(order.discount_total), currencyCode, locale)}
+                {formatPrice(totals.discount, currencyCode, locale)}
               </dd>
             </div>
             <div className="flex justify-between gap-4 border-t border-border pt-2 font-semibold">
               <dt className="text-text-primary">{t("orders.detail.total")}</dt>
               <dd className="text-text-primary">
-                {formatPrice(numberValue(order.total), currencyCode, locale)}
+                {formatPrice(totals.total, currencyCode, locale)}
               </dd>
             </div>
           </dl>
