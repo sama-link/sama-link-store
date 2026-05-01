@@ -9,13 +9,23 @@ import {
   useMemo,
   useRef,
   useState,
+  useTransition,
   type ReactNode,
 } from "react";
 import type { WishlistItem } from "@/hooks/useWishlist";
+import { COMPARE_MAX_ITEMS } from "@/lib/compare-cap";
+import {
+  addToCompareAction,
+  clearCompareAction,
+  removeFromCompareAction,
+} from "@/app/[locale]/(storefront)/account/actions";
 
 export type CompareItem = WishlistItem;
 
-export const COMPARE_MAX_ITEMS = 4;
+// Re-exported for back-compat — existing call sites import this name
+// from `@/hooks/useCompare`. The single source of truth lives in
+// `@/lib/compare-cap` (no React / no server-action dependency).
+export { COMPARE_MAX_ITEMS };
 
 const STORAGE_KEY = "sama:compare:v1";
 
@@ -60,24 +70,45 @@ export interface CompareContextValue {
 
 const CompareContext = createContext<CompareContextValue | null>(null);
 
-export function CompareProvider({ children }: { children: ReactNode }) {
-  const [items, setItems] = useState<CompareItem[]>([]);
-  const [isHydrated, setIsHydrated] = useState(false);
-  const itemsRef = useRef<CompareItem[]>([]);
+interface CompareProviderProps {
+  children: ReactNode;
+  /** When true, the provider operates in server-bound mode: mutations go
+   *  through ACCT-6C server actions and localStorage is not used. The
+   *  initialItems prop carries the server-side snapshot for first paint. */
+  initialAuthed?: boolean;
+  initialItems?: CompareItem[];
+}
+
+export function CompareProvider({
+  children,
+  initialAuthed = false,
+  initialItems = [],
+}: CompareProviderProps) {
+  // Mode is captured once at mount; sign-in/out re-renders the layout
+  // and re-mounts the provider with fresh props (matches ACCT-6D's
+  // wishlist provider).
+  const mode = initialAuthed ? "authed" : "guest";
+  const [items, setItems] = useState<CompareItem[]>(
+    mode === "authed" ? initialItems.slice(0, COMPARE_MAX_ITEMS) : [],
+  );
+  const [isHydrated, setIsHydrated] = useState(mode === "authed");
+  const itemsRef = useRef<CompareItem[]>(items);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     itemsRef.current = items;
   }, [items]);
 
+  // Guest hydration: read localStorage on mount (existing behavior).
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    if (mode !== "guest" || typeof window === "undefined") return;
     const loaded = parseStorage(window.localStorage.getItem(STORAGE_KEY));
     itemsRef.current = loaded;
     setItems(loaded);
     setIsHydrated(true);
-  }, []);
+  }, [mode]);
 
-  const persist = useCallback((next: CompareItem[]) => {
+  const persistGuest = useCallback((next: CompareItem[]) => {
     const capped = next.slice(0, COMPARE_MAX_ITEMS);
     itemsRef.current = capped;
     setItems(capped);
@@ -95,9 +126,25 @@ export function CompareProvider({ children }: { children: ReactNode }) {
 
   const remove = useCallback(
     (productId: string) => {
-      persist(itemsRef.current.filter((i) => i.id !== productId));
+      const prev = itemsRef.current;
+      const target = prev.find((i) => i.id === productId);
+      const next = prev.filter((i) => i.id !== productId);
+      if (mode === "guest") {
+        persistGuest(next);
+        return;
+      }
+      itemsRef.current = next;
+      setItems(next);
+      const backendId = target?.backendItemId;
+      if (backendId) {
+        const formData = new FormData();
+        formData.set("item_id", backendId);
+        startTransition(() => {
+          void removeFromCompareAction({}, formData);
+        });
+      }
     },
-    [persist],
+    [mode, persistGuest],
   );
 
   const toggle = useCallback(
@@ -105,21 +152,49 @@ export function CompareProvider({ children }: { children: ReactNode }) {
       const prev = itemsRef.current;
       const exists = prev.some((i) => i.id === item.id);
       if (exists) {
-        persist(prev.filter((i) => i.id !== item.id));
+        if (mode === "guest") {
+          persistGuest(prev.filter((i) => i.id !== item.id));
+        } else {
+          remove(item.id);
+        }
         return { ok: true };
       }
+      // Client-side cap check — UX-only short-circuit. Backend cap is
+      // still authoritative; the server enforces it on POST.
       if (prev.length >= COMPARE_MAX_ITEMS) {
         return { ok: false, reason: "full" };
       }
-      persist([...prev, item]);
+      const next = [...prev, item];
+      if (mode === "guest") {
+        persistGuest(next);
+        return { ok: true };
+      }
+      itemsRef.current = next;
+      setItems(next);
+      const formData = new FormData();
+      formData.set("product_id", item.id);
+      if (item.variantId) formData.set("variant_id", item.variantId);
+      if (item.title) formData.set("title_snapshot", item.title);
+      if (item.thumbnail) formData.set("thumbnail_snapshot", item.thumbnail);
+      startTransition(() => {
+        void addToCompareAction({}, formData);
+      });
       return { ok: true };
     },
-    [persist],
+    [mode, persistGuest, remove],
   );
 
   const clear = useCallback(() => {
-    persist([]);
-  }, [persist]);
+    if (mode === "guest") {
+      persistGuest([]);
+      return;
+    }
+    itemsRef.current = [];
+    setItems([]);
+    startTransition(() => {
+      void clearCompareAction({}, new FormData());
+    });
+  }, [mode, persistGuest]);
 
   const value = useMemo<CompareContextValue>(
     () => ({
