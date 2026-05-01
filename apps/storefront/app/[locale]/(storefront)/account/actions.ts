@@ -372,6 +372,19 @@ function readListType(formData: FormData): CustomerListType | null {
   return isCustomerListType(raw) ? raw : null;
 }
 
+/**
+ * Revalidates every cached path that renders the customer's list of
+ * the given type. Both the public surface (`/wishlist`, `/compare`)
+ * and the account surface (`/account/wishlist`, `/account/compare`)
+ * server-fetch the same backend list when authed (see
+ * `app/[locale]/(storefront)/{wishlist,compare}/page.tsx` and the
+ * matching `(dashboard)` pages), so they must invalidate together.
+ */
+function revalidateListPaths(locale: string, list_type: CustomerListType): void {
+  revalidatePath(`/${locale}/account/${list_type}`);
+  revalidatePath(`/${locale}/${list_type}`);
+}
+
 async function addItemToList(
   list_type: CustomerListType,
   formData: FormData,
@@ -400,7 +413,7 @@ async function addItemToList(
       title_snapshot: titleSnapshot,
       thumbnail_snapshot: thumbnailSnapshot,
     });
-    revalidatePath(`/${locale}/account/${list_type}`);
+    revalidateListPaths(locale, list_type);
     return { success: true };
   } catch (error) {
     if (error instanceof CustomerListCapReachedError) {
@@ -431,7 +444,7 @@ async function removeItemFromList(
 
   try {
     await removeItemFromCustomerList(token, list_type, itemId.value);
-    revalidatePath(`/${locale}/account/${list_type}`);
+    revalidateListPaths(locale, list_type);
     return { success: true };
   } catch (error) {
     if (getErrorStatusCode(error) === 401) {
@@ -462,7 +475,7 @@ async function clearList(
 
   try {
     await clearCustomerList(token, list_type);
-    revalidatePath(`/${locale}/account/${list_type}`);
+    revalidateListPaths(locale, list_type);
     return { success: true };
   } catch (error) {
     if (getErrorStatusCode(error) === 401) {

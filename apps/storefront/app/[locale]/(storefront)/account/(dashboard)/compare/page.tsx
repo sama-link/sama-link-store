@@ -152,7 +152,9 @@ export default async function AccountComparePage({ params }: ComparePageProps) {
             {t("compare.heading")}
           </h1>
           <p className="mt-1 text-sm text-text-secondary">
-            {t("compare.subheading", { max: COMPARE_MAX_ITEMS })}
+            {/* next-intl strict-ICU rejects {max} when the value is a
+                number (it expects a typed format). Pass a string. */}
+            {t("compare.subheading", { max: String(COMPARE_MAX_ITEMS) })}
           </p>
         </div>
         {entries.length > 0 ? (
