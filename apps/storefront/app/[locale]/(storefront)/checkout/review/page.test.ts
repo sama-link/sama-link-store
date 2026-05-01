@@ -40,7 +40,7 @@ vi.mock("@/components/checkout/OrderReview", () => ({
 import ReviewPage from "./page";
 
 describe("checkout review page", () => {
-  it("derives displayed total when cart total excludes shipping", async () => {
+  it("uses item subtotal while preserving shipping-inclusive total", async () => {
     cookiesMock.mockResolvedValue({
       get: vi.fn(() => ({ value: "cart_1" })),
     });
@@ -49,7 +49,7 @@ describe("checkout review page", () => {
         id: "cart_1",
         currency_code: "egp",
         subtotal: 23850,
-        item_subtotal: 23850,
+        item_subtotal: 23800,
         shipping_total: 50,
         tax_total: 0,
         discount_total: 0,
@@ -72,7 +72,7 @@ describe("checkout review page", () => {
           {
             id: "item_1",
             title: "Camera",
-            unit_price: 23850,
+            unit_price: 23800,
             quantity: 1,
           },
         ],
@@ -83,9 +83,58 @@ describe("checkout review page", () => {
 
     expect((element as { props: unknown }).props).toEqual(
       expect.objectContaining({
-        subtotal: 23850,
+        subtotal: 23800,
         shippingMethod: expect.objectContaining({ amount: 50 }),
-        total: 23900,
+        total: 23850,
+      }),
+    );
+  });
+
+  it("derives item subtotal from line items when aggregate item subtotal is absent", async () => {
+    cookiesMock.mockResolvedValue({
+      get: vi.fn(() => ({ value: "cart_1" })),
+    });
+    retrieveCartMock.mockResolvedValue({
+      cart: {
+        id: "cart_1",
+        currency_code: "egp",
+        subtotal: 23850,
+        shipping_total: 50,
+        tax_total: 0,
+        discount_total: 0,
+        total: 23850,
+        shipping_address: {
+          first_name: "Ali",
+          last_name: "Saleh",
+          address_1: "123 Street",
+          city: "Cairo",
+          country_code: "eg",
+        },
+        shipping_methods: [
+          {
+            id: "sm_1",
+            name: "Fast Delivery",
+            amount: 50,
+          },
+        ],
+        items: [
+          {
+            id: "item_1",
+            title: "Camera",
+            unit_price: 23800,
+            quantity: 1,
+          },
+        ],
+      },
+    });
+
+    const element = await ReviewPage({ params: Promise.resolve({ locale: "en" }) });
+
+    expect((element as { props: unknown }).props).toEqual(
+      expect.objectContaining({
+        subtotal: 23800,
+        shippingMethod: expect.objectContaining({ amount: 50 }),
+        total: 23850,
       }),
     );
   });
