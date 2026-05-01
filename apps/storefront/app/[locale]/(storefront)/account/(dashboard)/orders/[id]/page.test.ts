@@ -140,8 +140,10 @@ describe("order detail page", () => {
         [])
         .length;
 
-    // Line top + line bottom + Subtotal → three places must render 610.5.
-    expect(occurs("egp:610.5")).toBeGreaterThanOrEqual(3);
+    // Line top + Subtotal → 2 places render 610.5. The unit-price line
+    // below the line total is suppressed because quantity === 1
+    // (item-row cleanup; previously rendered a duplicate 610.5).
+    expect(occurs("egp:610.5")).toBeGreaterThanOrEqual(2);
     // Total derived from parts (610.5 + 50 + 0 - 0).
     expect(html).toContain("egp:660.5");
     // Shipping renders.
@@ -252,8 +254,10 @@ describe("order detail page", () => {
         [])
         .length;
 
-    // Line top + line bottom + Subtotal must all render 2,900.
-    expect(occurs("egp:2900")).toBeGreaterThanOrEqual(3);
+    // Line top + Subtotal must render 2,900. The duplicate unit-price
+    // line below the line total is suppressed by the item-row cleanup
+    // because quantity === 1.
+    expect(occurs("egp:2900")).toBeGreaterThanOrEqual(2);
     // Computed total = 2,900 + 50 + 0 - 0 = 2,950 (the broken reported
     // order.total = 50 is overridden by the parts-sum guard).
     expect(html).toContain("egp:2950");
@@ -266,6 +270,207 @@ describe("order detail page", () => {
     expect(html).not.toContain("orders.status.complete");
     expect(html).toContain("orders.paymentStatus.authorized");
     expect(html).toContain("orders.fulfillmentStatus.notFulfilled");
+  });
+
+  it("item-row cleanup: subtitle equal to title is hidden; price renders once for qty=1", async () => {
+    // Owner-reported regression: order rows showed
+    //   Dual-Band Router SL-ROU-103
+    //   Dual-Band Router SL-ROU-103   <- duplicate
+    //   Qty 1
+    //   731.50 EGP
+    //   731.50 EGP                    <- duplicate
+    // With the cleanup: title renders once (subtitle suppressed when it
+    // equals title), and the unit-price line is suppressed for qty=1.
+    const { getCustomerOrder } = await import("@/lib/medusa-client");
+    vi.mocked(getCustomerOrder).mockResolvedValueOnce({
+      id: "order_dup",
+      display_id: 21,
+      created_at: "2026-05-01T10:00:00.000Z",
+      currency_code: "egp",
+      status: "pending",
+      payment_status: "captured",
+      fulfillment_status: "delivered",
+      item_subtotal: 731.5,
+      shipping_subtotal: 0,
+      shipping_total: 0,
+      tax_total: 0,
+      discount_total: 0,
+      total: 731.5,
+      shipping_address: {
+        first_name: "Ali",
+        last_name: "Saleh",
+        address_1: "1 Street",
+        city: "Cairo",
+        country_code: "eg",
+      },
+      items: [
+        {
+          id: "item_dup",
+          title: "Dual-Band Router SL-ROU-103",
+          subtitle: "Dual-Band Router SL-ROU-103", // duplicates the title
+          quantity: 1,
+          unit_price: 731.5,
+          total: 731.5,
+        },
+      ],
+    } as never);
+
+    const jsx = await OrderDetailPage({
+      params: Promise.resolve({ locale: "en", id: "order_dup" }),
+    });
+    const html = renderToString(jsx);
+
+    const occurs = (s: string) =>
+      (html.match(new RegExp(s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g")) ||
+        [])
+        .length;
+
+    // Title appears only once in the row (the page header repeats it via
+    // `orders.detail.heading`, so we look for the literal product string
+    // appearing exactly once — it's not the heading copy).
+    expect(occurs("Dual-Band Router SL-ROU-103")).toBe(1);
+    // Price 731.5 appears: line top + Subtotal + Total = 3. NOT a 4th
+    // duplicate unit-price line.
+    expect(occurs("egp:731.5")).toBe(3);
+    // The unit-price-times-quantity breakdown text is absent for qty=1.
+    expect(html).not.toContain("× 1");
+  });
+
+  it("item-row cleanup: meaningful variant subtitle (e.g. 'One Size') renders under the product title", async () => {
+    const { getCustomerOrder } = await import("@/lib/medusa-client");
+    vi.mocked(getCustomerOrder).mockResolvedValueOnce({
+      id: "order_var",
+      display_id: 22,
+      created_at: "2026-05-01T10:00:00.000Z",
+      currency_code: "egp",
+      status: "pending",
+      payment_status: "captured",
+      fulfillment_status: "delivered",
+      item_subtotal: 200,
+      shipping_subtotal: 0,
+      shipping_total: 0,
+      tax_total: 0,
+      discount_total: 0,
+      total: 200,
+      shipping_address: {
+        first_name: "Ali",
+        last_name: "Saleh",
+        address_1: "1 Street",
+        city: "Cairo",
+        country_code: "eg",
+      },
+      items: [
+        {
+          id: "item_var",
+          title: "Cotton T-Shirt",
+          subtitle: "One Size",
+          quantity: 1,
+          unit_price: 200,
+          total: 200,
+        },
+      ],
+    } as never);
+
+    const jsx = await OrderDetailPage({
+      params: Promise.resolve({ locale: "en", id: "order_var" }),
+    });
+    const html = renderToString(jsx);
+
+    expect(html).toContain("Cotton T-Shirt");
+    // Variant subtitle is shown because it differs from the title.
+    expect(html).toContain("One Size");
+  });
+
+  it("item-row cleanup: quantity > 1 surfaces the unit-price × quantity breakdown", async () => {
+    const { getCustomerOrder } = await import("@/lib/medusa-client");
+    vi.mocked(getCustomerOrder).mockResolvedValueOnce({
+      id: "order_qty",
+      display_id: 23,
+      created_at: "2026-05-01T10:00:00.000Z",
+      currency_code: "egp",
+      status: "pending",
+      payment_status: "captured",
+      fulfillment_status: "delivered",
+      item_subtotal: 1463,
+      shipping_subtotal: 0,
+      shipping_total: 0,
+      tax_total: 0,
+      discount_total: 0,
+      total: 1463,
+      shipping_address: {
+        first_name: "Ali",
+        last_name: "Saleh",
+        address_1: "1 Street",
+        city: "Cairo",
+        country_code: "eg",
+      },
+      items: [
+        {
+          id: "item_qty",
+          title: "Router",
+          quantity: 2,
+          unit_price: 731.5,
+          total: 1463,
+        },
+      ],
+    } as never);
+
+    const jsx = await OrderDetailPage({
+      params: Promise.resolve({ locale: "en", id: "order_qty" }),
+    });
+    const html = renderToString(jsx);
+
+    // Line top = 1463 (the line total).
+    expect(html).toContain("egp:1463");
+    // Useful breakdown for qty>1: "[unit] × 2".
+    expect(html).toContain("egp:731.5");
+    expect(html).toContain("× 2");
+  });
+
+  it("item-row cleanup: empty subtitle is not rendered", async () => {
+    const { getCustomerOrder } = await import("@/lib/medusa-client");
+    vi.mocked(getCustomerOrder).mockResolvedValueOnce({
+      id: "order_nosub",
+      display_id: 24,
+      created_at: "2026-05-01T10:00:00.000Z",
+      currency_code: "egp",
+      status: "pending",
+      payment_status: "captured",
+      fulfillment_status: "delivered",
+      item_subtotal: 100,
+      shipping_subtotal: 0,
+      shipping_total: 0,
+      tax_total: 0,
+      discount_total: 0,
+      total: 100,
+      shipping_address: {
+        first_name: "Ali",
+        last_name: "Saleh",
+        address_1: "1 Street",
+        city: "Cairo",
+        country_code: "eg",
+      },
+      items: [
+        {
+          id: "item_nosub",
+          title: "Bare Item",
+          subtitle: "",
+          quantity: 1,
+          unit_price: 100,
+          total: 100,
+        },
+      ],
+    } as never);
+
+    const jsx = await OrderDetailPage({
+      params: Promise.resolve({ locale: "en", id: "order_nosub" }),
+    });
+    const html = renderToString(jsx);
+
+    expect(html).toContain("Bare Item");
+    // No empty `<p>` from the subtitle slot — easiest sanity check is no
+    // `× 1` and no duplicate price line.
+    expect(html).not.toContain("× 1");
   });
 
   it("regression: paid + not-delivered orders show Pending in the Order status row", async () => {

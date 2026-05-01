@@ -166,31 +166,51 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           {t("orders.detail.itemsHeading")}
         </h2>
         <ul className="mt-3 divide-y divide-border">
-          {items.map((item) => (
-            <li key={item.id} className="flex justify-between gap-4 py-3 text-sm">
-              <div>
-                <p className="font-medium text-text-primary">{item.title ?? "-"}</p>
-                {item.subtitle ? (
-                  <p className="text-text-secondary">{item.subtitle}</p>
-                ) : null}
-                <p className="text-text-secondary">
-                  {t("orders.detail.quantity", { count: item.quantity ?? 1 })}
-                </p>
-              </div>
-              <div className="text-end">
-                <p className="text-text-primary">
-                  {formatPrice(getOrderLineDisplayTotal(item), currencyCode, locale)}
-                </p>
-                <p className="text-text-secondary">
-                  {formatPrice(
-                    getOrderLineUnitPrice(item),
-                    currencyCode,
-                    locale,
-                  )}
-                </p>
-              </div>
-            </li>
-          ))}
+          {items.map((item) => {
+            const title = (item.title ?? "").trim();
+            const subtitleRaw = (item.subtitle ?? "").trim();
+            // Hide subtitle when it's empty or duplicates the title — Medusa
+            // sometimes echoes the product name into both fields for items
+            // without real variants, which read as a duplicated row.
+            const showSubtitle =
+              subtitleRaw.length > 0 &&
+              subtitleRaw.toLowerCase() !== title.toLowerCase();
+            const quantity = item.quantity ?? 1;
+            const lineTotal = getOrderLineDisplayTotal(item);
+            const unitPrice = getOrderLineUnitPrice(item);
+            // Show the unit-price breakdown only when it adds information.
+            // For quantity == 1 the line total already is the unit price,
+            // so a second line ("EGP 731.50") is redundant. For
+            // quantity > 1 we surface "EGP X × N" so the customer can see
+            // the per-unit price.
+            const showUnitBreakdown = quantity > 1 && unitPrice > 0;
+
+            return (
+              <li key={item.id} className="flex justify-between gap-4 py-3 text-sm">
+                <div>
+                  <p className="font-medium text-text-primary">
+                    {title || "-"}
+                  </p>
+                  {showSubtitle ? (
+                    <p className="text-text-secondary">{subtitleRaw}</p>
+                  ) : null}
+                  <p className="text-text-secondary">
+                    {t("orders.detail.quantity", { count: quantity })}
+                  </p>
+                </div>
+                <div className="text-end">
+                  <p className="text-text-primary">
+                    {formatPrice(lineTotal, currencyCode, locale)}
+                  </p>
+                  {showUnitBreakdown ? (
+                    <p className="text-text-secondary">
+                      {`${formatPrice(unitPrice, currencyCode, locale)} × ${quantity}`}
+                    </p>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </section>
 
