@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useCart } from "@/hooks/useCart";
 import CartLineItem from "@/components/layout/CartLineItem";
+import { getCartItemsSubtotal } from "@/components/layout/cart-totals";
 import { formatPrice } from "@/lib/format-price";
 
 interface CartPageContentProps {
@@ -15,6 +16,7 @@ export default function CartPageContent({ locale }: CartPageContentProps) {
 
   const currencyCode = cart?.currency_code ?? "USD";
   const hasItems = Boolean(cart?.items?.length);
+  const itemsSubtotal = getCartItemsSubtotal(cart);
 
   if (loading) {
     return <p className="text-text-secondary">{t("loading")}</p>;
@@ -60,7 +62,7 @@ export default function CartPageContent({ locale }: CartPageContentProps) {
           <div className="flex items-center justify-between text-sm">
             <span className="text-text-secondary">{t("subtotal")}</span>
             <span className="font-semibold text-text-primary">
-              {formatPrice(cart?.subtotal, currencyCode, locale)}
+              {formatPrice(itemsSubtotal, currencyCode, locale)}
             </span>
           </div>
           <a

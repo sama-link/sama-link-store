@@ -509,7 +509,7 @@ export const CART_FIELDS =
   "id,currency_code,completed_at,customer_id,region_id," +
   "items,items.id,items.variant_id,items.quantity,items.unit_price," +
   "items.title,items.thumbnail,items.variant.title," +
-  "items.variant.product.handle,total,subtotal,item_total," +
+  "items.variant.product.handle,total,subtotal,item_subtotal,item_total," +
   "shipping_address.first_name,shipping_address.last_name," +
   "shipping_address.address_1,shipping_address.address_2," +
   "shipping_address.city,shipping_address.country_code," +
