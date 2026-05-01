@@ -933,6 +933,17 @@ html.dark .hero-pro-slide {
   border: 1.5px solid var(--slide-ring-color);
   animation: ring-pulse 4s ease-out infinite;
 }
+/* The element class `ring` collides with Tailwind's `.ring` utility, which
+   draws a box-shadow ring in `currentcolor` — that shadow inverts per theme
+   and was overpowering the design's border. Suppress it and pin the border
+   color explicitly so light mode reads light, dark mode reads dark. */
+.hero-pro-rings .ring {
+  box-shadow: none;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+html.dark .hero-pro-rings .ring {
+  border-color: rgba(15, 43, 79, 0.45);
+}
 .hero-pro-rings .r1 { width: 600px; height: 600px; animation-delay: 0s; }
 .hero-pro-rings .r2 { width: 720px; height: 720px; animation-delay: 1s; }
 .hero-pro-rings .r3 { width: 840px; height: 840px; animation-delay: 2s; }
