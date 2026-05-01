@@ -4,14 +4,35 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { formatCatalogPrice } from "@/lib/format-price";
-import { useWishlist } from "@/hooks/useWishlist";
+import { useWishlist, type WishlistItem } from "@/hooks/useWishlist";
 import { cn } from "@/lib/cn";
 
-export default function WishlistClient() {
+interface WishlistClientProps {
+  /** Server-fetched list when the customer is authenticated. When this
+   *  prop is non-null the client renders out of it (the source of
+   *  truth is the backend, not the provider's optimistic state).
+   *  Guest visitors get `null` and fall through to the existing
+   *  localStorage-backed provider read. */
+  initialAuthedItems?: WishlistItem[] | null;
+}
+
+export default function WishlistClient({
+  initialAuthedItems = null,
+}: WishlistClientProps) {
   const t = useTranslations("wishlist");
   const tCommon = useTranslations("common");
   const locale = useLocale();
-  const { items, remove, isHydrated } = useWishlist();
+  const provider = useWishlist();
+
+  // Authed: render the server-snapshot directly. The provider is still
+  // mounted (header count + product-card hearts), but we deliberately
+  // bypass its `items` here so optimistic-only state cannot diverge
+  // from /account/wishlist.
+  // Guest: fall through to the existing localStorage-backed flow.
+  const isAuthed = initialAuthedItems !== null;
+  const items = isAuthed ? initialAuthedItems! : provider.items;
+  const isHydrated = isAuthed ? true : provider.isHydrated;
+  const remove = provider.remove;
 
   const heading = (
     <div className="mx-auto max-w-7xl px-4 pt-8">
@@ -58,7 +79,7 @@ export default function WishlistClient() {
     <>
       {heading}
       <ul className="mx-auto grid max-w-7xl list-none grid-cols-1 gap-6 px-4 py-8 sm:grid-cols-2 lg:grid-cols-3">
-      {items.map((item: any) => {
+      {items.map((item) => {
         const priceLabel =
           formatCatalogPrice(item.amount, item.currencyCode, locale) || null;
         const href =
