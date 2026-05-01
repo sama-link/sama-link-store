@@ -239,10 +239,20 @@
       "errorBody": "Try again in a moment.",
       "showingHint": "Showing first {shown} of {total}",
       "itemsCount": "{count, plural, one {# item} other {# items}}",
+      "viewDetails": "View details",
       "empty": {
         "heading": "No orders yet",
         "body": "Once you place an order, it'll show up here.",
         "startCta": "Start shopping"
+      },
+      "customerStatus": {
+        "pending": "Pending",
+        "paid": "Paid",
+        "processing": "Preparing",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "canceled": "Canceled",
+        "actionRequired": "Action required"
       },
       "status": {
         "pending": "Pending",
@@ -272,6 +282,21 @@
         "partiallyDelivered": "Partially delivered",
         "delivered": "Delivered",
         "canceled": "Fulfillment canceled"
+      },
+      "detail": {
+        "backToOrders": "Back to orders",
+        "heading": "Order #{id}",
+        "statusHeading": "Status",
+        "itemsHeading": "Items",
+        "shippingAddressHeading": "Shipping address",
+        "totalsHeading": "Totals",
+        "quantity": "Qty {count}",
+        "noShippingAddress": "No shipping address on this order.",
+        "subtotal": "Subtotal",
+        "shipping": "Shipping",
+        "tax": "Tax",
+        "discount": "Discount",
+        "total": "Total"
       }
     }
   },

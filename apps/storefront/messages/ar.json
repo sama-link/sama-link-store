@@ -239,10 +239,20 @@
       "errorBody": "حاول مرة أخرى بعد قليل.",
       "showingHint": "يتم عرض أول {shown} من أصل {total}",
       "itemsCount": "{count, plural, zero {# عناصر} one {عنصر واحد} two {عنصران} few {# عناصر} many {# عنصرًا} other {# عنصر}}",
+      "viewDetails": "عرض التفاصيل",
       "empty": {
         "heading": "لا توجد طلبات بعد",
         "body": "عند إجراء أول طلب، سيظهر هنا.",
         "startCta": "ابدأ التسوق"
+      },
+      "customerStatus": {
+        "pending": "قيد الانتظار",
+        "paid": "مدفوع",
+        "processing": "قيد التجهيز",
+        "shipped": "تم الشحن",
+        "delivered": "تم التسليم",
+        "canceled": "ملغي",
+        "actionRequired": "يتطلب إجراء"
       },
       "status": {
         "pending": "قيد الانتظار",
@@ -272,6 +282,21 @@
         "partiallyDelivered": "تم التسليم جزئيًا",
         "delivered": "تم التسليم",
         "canceled": "تم إلغاء التنفيذ"
+      },
+      "detail": {
+        "backToOrders": "العودة إلى الطلبات",
+        "heading": "طلب رقم {id}",
+        "statusHeading": "الحالة",
+        "itemsHeading": "المنتجات",
+        "shippingAddressHeading": "عنوان الشحن",
+        "totalsHeading": "الإجماليات",
+        "quantity": "الكمية {count}",
+        "noShippingAddress": "لا يوجد عنوان شحن لهذا الطلب.",
+        "subtotal": "المجموع الفرعي",
+        "shipping": "الشحن",
+        "tax": "الضريبة",
+        "discount": "الخصم",
+        "total": "الإجمالي"
       }
     }
   },

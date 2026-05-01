@@ -4,98 +4,27 @@ import Badge from "@/components/ui/Badge";
 import { getAuthToken } from "@/lib/auth-cookie";
 import { formatPrice } from "@/lib/format-price";
 import { listCustomerOrders, type ListCustomerOrdersResult } from "@/lib/medusa-client";
+import {
+  FULFILLMENT_STATUS_KEYS,
+  ORDER_STATUS_KEYS,
+  PAYMENT_STATUS_KEYS,
+  customerStatusLabel,
+  formatOrderDate,
+  localizeStatus,
+  statusVariant,
+} from "./order-display";
 
-interface OrdersStubPageProps {
+interface OrdersPageProps {
   params: Promise<{ locale: string }>;
 }
 
 type OrderListItem = ListCustomerOrdersResult["orders"][number];
 
-const ORDER_STATUS_KEYS: Record<string, string> = {
-  pending: "status.pending",
-  completed: "status.completed",
-  canceled: "status.canceled",
-  archived: "status.archived",
-  requires_action: "status.requiresAction",
-};
-
-const PAYMENT_STATUS_KEYS: Record<string, string> = {
-  not_paid: "paymentStatus.notPaid",
-  awaiting: "paymentStatus.awaiting",
-  authorized: "paymentStatus.authorized",
-  partially_authorized: "paymentStatus.partiallyAuthorized",
-  captured: "paymentStatus.captured",
-  partially_captured: "paymentStatus.partiallyCaptured",
-  partially_refunded: "paymentStatus.partiallyRefunded",
-  refunded: "paymentStatus.refunded",
-  canceled: "paymentStatus.canceled",
-  requires_action: "paymentStatus.requiresAction",
-};
-
-const FULFILLMENT_STATUS_KEYS: Record<string, string> = {
-  not_fulfilled: "fulfillmentStatus.notFulfilled",
-  partially_fulfilled: "fulfillmentStatus.partiallyFulfilled",
-  fulfilled: "fulfillmentStatus.fulfilled",
-  partially_shipped: "fulfillmentStatus.partiallyShipped",
-  shipped: "fulfillmentStatus.shipped",
-  partially_delivered: "fulfillmentStatus.partiallyDelivered",
-  delivered: "fulfillmentStatus.delivered",
-  canceled: "fulfillmentStatus.canceled",
-};
-
-function fallbackStatusLabel(value: string): string {
-  return value
-    .split("_")
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-    .join(" ");
-}
-
-function localizeStatus(
-  value: string | null | undefined,
-  t: Awaited<ReturnType<typeof getTranslations>>,
-  map: Record<string, string>,
-): string | null {
-  if (!value) return null;
-  const key = map[value];
-  if (!key) return fallbackStatusLabel(value);
-  return t(`orders.${key}`);
-}
-
-function statusVariant(value: string | null | undefined) {
-  if (!value) return "default" as const;
-  if (
-    value === "completed" ||
-    value === "captured" ||
-    value === "fulfilled" ||
-    value === "shipped" ||
-    value === "delivered"
-  ) {
-    return "success" as const;
-  }
-  if (
-    value === "canceled" ||
-    value === "requires_action" ||
-    value === "refunded" ||
-    value === "partially_refunded"
-  ) {
-    return "error" as const;
-  }
-  return "warning" as const;
-}
-
-function formatOrderDate(locale: string, value?: string | Date | null) {
-  if (!value) return "—";
-  const date = typeof value === "string" ? new Date(value) : value;
-  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "—";
-  const intlLocale = locale === "ar" ? "ar-EG" : "en-US";
-  return new Intl.DateTimeFormat(intlLocale, { dateStyle: "medium" }).format(date);
-}
-
 function itemCount(order: OrderListItem): number {
   return Array.isArray(order.items) ? order.items.length : 0;
 }
 
-export default async function OrdersStubPage({ params }: OrdersStubPageProps) {
+export default async function OrdersPage({ params }: OrdersPageProps) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "account" });
   const token = await getAuthToken();
@@ -150,6 +79,12 @@ export default async function OrdersStubPage({ params }: OrdersStubPageProps) {
                 t,
                 FULFILLMENT_STATUS_KEYS,
               );
+              const customerStatus = customerStatusLabel(
+                order.status,
+                order.payment_status ?? null,
+                order.fulfillment_status ?? null,
+                t,
+              );
 
               return (
                 <li
@@ -157,10 +92,13 @@ export default async function OrdersStubPage({ params }: OrdersStubPageProps) {
                   className="rounded-md border border-border bg-surface-subtle p-4 text-sm"
                 >
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="font-medium text-text-primary">
+                    <Link
+                      href={`/${locale}/account/orders/${order.id}`}
+                      className="font-medium text-text-primary hover:text-brand hover:underline"
+                    >
                       #
                       {typeof order.display_id === "number" ? order.display_id : order.id}
-                    </p>
+                    </Link>
                     <p className="text-text-secondary">
                       {formatOrderDate(locale, order.created_at)}
                     </p>
@@ -173,6 +111,9 @@ export default async function OrdersStubPage({ params }: OrdersStubPageProps) {
                   </div>
 
                   <div className="mt-3 flex flex-wrap gap-2">
+                    <Badge variant={statusVariant(order.fulfillment_status ?? order.status)}>
+                      {customerStatus}
+                    </Badge>
                     {orderStatus ? (
                       <Badge variant={statusVariant(order.status)}>{orderStatus}</Badge>
                     ) : null}
@@ -187,6 +128,12 @@ export default async function OrdersStubPage({ params }: OrdersStubPageProps) {
                       </Badge>
                     ) : null}
                   </div>
+                  <Link
+                    href={`/${locale}/account/orders/${order.id}`}
+                    className="mt-3 inline-block text-sm font-medium text-brand hover:underline"
+                  >
+                    {t("orders.viewDetails")}
+                  </Link>
                 </li>
               );
             })}
