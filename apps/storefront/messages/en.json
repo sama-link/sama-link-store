@@ -256,11 +256,14 @@
       },
       "status": {
         "pending": "Pending",
+        "complete": "Complete",
         "completed": "Completed",
         "canceled": "Canceled",
         "archived": "Archived",
         "requiresAction": "Requires action"
       },
+      "paymentLabel": "Payment",
+      "deliveryLabel": "Delivery",
       "paymentStatus": {
         "notPaid": "Not paid",
         "awaiting": "Awaiting payment",
@@ -287,6 +290,9 @@
         "backToOrders": "Back to orders",
         "heading": "Order #{id}",
         "statusHeading": "Status",
+        "orderStatusLabel": "Order status",
+        "paymentStatusLabel": "Payment status",
+        "deliveryStatusLabel": "Delivery status",
         "itemsHeading": "Items",
         "shippingAddressHeading": "Shipping address",
         "totalsHeading": "Totals",

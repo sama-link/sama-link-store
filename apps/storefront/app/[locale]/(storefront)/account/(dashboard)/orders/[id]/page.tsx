@@ -16,12 +16,11 @@ import {
 } from "@/lib/order-totals";
 import {
   FULFILLMENT_STATUS_KEYS,
-  ORDER_STATUS_KEYS,
   PAYMENT_STATUS_KEYS,
-  customerStatusLabel,
+  displayOrderStatus,
+  displayOrderStatusVariant,
   formatOrderDate,
   localizeStatus,
-  statusVariant,
 } from "../order-display";
 
 interface OrderDetailPageProps {
@@ -88,18 +87,22 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   }
 
   const currencyCode = order.currency_code || "EGP";
-  const orderStatus = localizeStatus(order.status, t, ORDER_STATUS_KEYS);
+  const primaryStatus = displayOrderStatus(
+    order.status,
+    order.payment_status ?? null,
+    order.fulfillment_status ?? null,
+    t,
+  );
+  const primaryStatusVariant = displayOrderStatusVariant(
+    order.status,
+    order.payment_status ?? null,
+    order.fulfillment_status ?? null,
+  );
   const paymentStatus = localizeStatus(order.payment_status ?? null, t, PAYMENT_STATUS_KEYS);
   const fulfillmentStatus = localizeStatus(
     order.fulfillment_status ?? null,
     t,
     FULFILLMENT_STATUS_KEYS,
-  );
-  const customerStatus = customerStatusLabel(
-    order.status,
-    order.payment_status ?? null,
-    order.fulfillment_status ?? null,
-    t,
   );
   const items = order.items ?? [];
 
@@ -121,30 +124,41 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
             {formatOrderDate(locale, order.created_at)}
           </p>
         </div>
-        <Badge variant={statusVariant(order.fulfillment_status ?? order.status)}>
-          {customerStatus}
-        </Badge>
+        {primaryStatus ? (
+          <Badge variant={primaryStatusVariant}>{primaryStatus}</Badge>
+        ) : null}
       </div>
 
       <section className="rounded-md border border-border bg-surface-subtle p-4">
         <h2 className="text-base font-semibold text-text-primary">
           {t("orders.detail.statusHeading")}
         </h2>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {orderStatus ? (
-            <Badge variant={statusVariant(order.status)}>{orderStatus}</Badge>
+        <dl className="mt-3 space-y-2 text-sm">
+          {primaryStatus ? (
+            <div className="flex justify-between gap-4">
+              <dt className="text-text-secondary">
+                {t("orders.detail.orderStatusLabel")}
+              </dt>
+              <dd className="text-text-primary">{primaryStatus}</dd>
+            </div>
           ) : null}
           {paymentStatus ? (
-            <Badge variant={statusVariant(order.payment_status ?? null)}>
-              {paymentStatus}
-            </Badge>
+            <div className="flex justify-between gap-4">
+              <dt className="text-text-secondary">
+                {t("orders.detail.paymentStatusLabel")}
+              </dt>
+              <dd className="text-text-primary">{paymentStatus}</dd>
+            </div>
           ) : null}
           {fulfillmentStatus ? (
-            <Badge variant={statusVariant(order.fulfillment_status ?? null)}>
-              {fulfillmentStatus}
-            </Badge>
+            <div className="flex justify-between gap-4">
+              <dt className="text-text-secondary">
+                {t("orders.detail.deliveryStatusLabel")}
+              </dt>
+              <dd className="text-text-primary">{fulfillmentStatus}</dd>
+            </div>
           ) : null}
-        </div>
+        </dl>
       </section>
 
       <section className="rounded-md border border-border bg-surface-subtle p-4">
@@ -152,31 +166,51 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
           {t("orders.detail.itemsHeading")}
         </h2>
         <ul className="mt-3 divide-y divide-border">
-          {items.map((item) => (
-            <li key={item.id} className="flex justify-between gap-4 py-3 text-sm">
-              <div>
-                <p className="font-medium text-text-primary">{item.title ?? "-"}</p>
-                {item.subtitle ? (
-                  <p className="text-text-secondary">{item.subtitle}</p>
-                ) : null}
-                <p className="text-text-secondary">
-                  {t("orders.detail.quantity", { count: item.quantity ?? 1 })}
-                </p>
-              </div>
-              <div className="text-end">
-                <p className="text-text-primary">
-                  {formatPrice(getOrderLineDisplayTotal(item), currencyCode, locale)}
-                </p>
-                <p className="text-text-secondary">
-                  {formatPrice(
-                    getOrderLineUnitPrice(item),
-                    currencyCode,
-                    locale,
-                  )}
-                </p>
-              </div>
-            </li>
-          ))}
+          {items.map((item) => {
+            const title = (item.title ?? "").trim();
+            const subtitleRaw = (item.subtitle ?? "").trim();
+            // Hide subtitle when it's empty or duplicates the title — Medusa
+            // sometimes echoes the product name into both fields for items
+            // without real variants, which read as a duplicated row.
+            const showSubtitle =
+              subtitleRaw.length > 0 &&
+              subtitleRaw.toLowerCase() !== title.toLowerCase();
+            const quantity = item.quantity ?? 1;
+            const lineTotal = getOrderLineDisplayTotal(item);
+            const unitPrice = getOrderLineUnitPrice(item);
+            // Show the unit-price breakdown only when it adds information.
+            // For quantity == 1 the line total already is the unit price,
+            // so a second line ("EGP 731.50") is redundant. For
+            // quantity > 1 we surface "EGP X × N" so the customer can see
+            // the per-unit price.
+            const showUnitBreakdown = quantity > 1 && unitPrice > 0;
+
+            return (
+              <li key={item.id} className="flex justify-between gap-4 py-3 text-sm">
+                <div>
+                  <p className="font-medium text-text-primary">
+                    {title || "-"}
+                  </p>
+                  {showSubtitle ? (
+                    <p className="text-text-secondary">{subtitleRaw}</p>
+                  ) : null}
+                  <p className="text-text-secondary">
+                    {t("orders.detail.quantity", { count: quantity })}
+                  </p>
+                </div>
+                <div className="text-end">
+                  <p className="text-text-primary">
+                    {formatPrice(lineTotal, currencyCode, locale)}
+                  </p>
+                  {showUnitBreakdown ? (
+                    <p className="text-text-secondary">
+                      {`${formatPrice(unitPrice, currencyCode, locale)} × ${quantity}`}
+                    </p>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       </section>
 
