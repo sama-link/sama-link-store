@@ -4,16 +4,31 @@ import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { formatCatalogPrice } from "@/lib/format-price";
-import { useCompare } from "@/hooks/useCompare";
+import { useCompare, type CompareItem } from "@/hooks/useCompare";
 import { cn } from "@/lib/cn";
 
 const EM_DASH = "\u2014";
 
-export default function CompareClient() {
+interface CompareClientProps {
+  /** Server-fetched list when the customer is authenticated. When this
+   *  prop is non-null the client renders out of it (the source of
+   *  truth is the backend, not the provider's optimistic state).
+   *  Guest visitors get `null` and fall through to the existing
+   *  localStorage-backed provider read. */
+  initialAuthedItems?: CompareItem[] | null;
+}
+
+export default function CompareClient({
+  initialAuthedItems = null,
+}: CompareClientProps) {
   const t = useTranslations("compare");
   const tCommon = useTranslations("common");
   const locale = useLocale();
-  const { items, remove, isHydrated } = useCompare();
+  const provider = useCompare();
+  const isAuthed = initialAuthedItems !== null;
+  const items = isAuthed ? initialAuthedItems! : provider.items;
+  const isHydrated = isAuthed ? true : provider.isHydrated;
+  const remove = provider.remove;
 
   const heading = (
     <div className="mx-auto max-w-7xl px-4 pt-8">
