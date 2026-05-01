@@ -256,6 +256,7 @@
       },
       "status": {
         "pending": "Pending",
+        "complete": "Complete",
         "completed": "Completed",
         "canceled": "Canceled",
         "archived": "Archived",

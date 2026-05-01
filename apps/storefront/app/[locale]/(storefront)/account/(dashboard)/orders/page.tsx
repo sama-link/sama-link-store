@@ -6,9 +6,10 @@ import { formatPrice } from "@/lib/format-price";
 import { listCustomerOrders, type ListCustomerOrdersResult } from "@/lib/medusa-client";
 import {
   FULFILLMENT_STATUS_KEYS,
-  ORDER_STATUS_KEYS,
   PAYMENT_STATUS_KEYS,
   customerStatusLabel,
+  displayOrderStatus,
+  displayOrderStatusVariant,
   formatOrderDate,
   localizeStatus,
   statusVariant,
@@ -68,7 +69,17 @@ export default async function OrdersPage({ params }: OrdersPageProps) {
         ) : (
           <ul className="space-y-3">
             {orders.map((order) => {
-              const orderStatus = localizeStatus(order.status, t, ORDER_STATUS_KEYS);
+              const orderStatus = displayOrderStatus(
+                order.status,
+                order.payment_status ?? null,
+                order.fulfillment_status ?? null,
+                t,
+              );
+              const orderStatusBadgeVariant = displayOrderStatusVariant(
+                order.status,
+                order.payment_status ?? null,
+                order.fulfillment_status ?? null,
+              );
               const paymentStatus = localizeStatus(
                 order.payment_status ?? null,
                 t,
@@ -115,7 +126,7 @@ export default async function OrdersPage({ params }: OrdersPageProps) {
                       {customerStatus}
                     </Badge>
                     {orderStatus ? (
-                      <Badge variant={statusVariant(order.status)}>{orderStatus}</Badge>
+                      <Badge variant={orderStatusBadgeVariant}>{orderStatus}</Badge>
                     ) : null}
                     {paymentStatus ? (
                       <Badge variant={statusVariant(order.payment_status ?? null)}>

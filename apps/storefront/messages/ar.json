@@ -256,6 +256,7 @@
       },
       "status": {
         "pending": "قيد الانتظار",
+        "complete": "مكتمل",
         "completed": "مكتمل",
         "canceled": "ملغي",
         "archived": "مؤرشف",

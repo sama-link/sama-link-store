@@ -52,6 +52,54 @@ export function localizeStatus(
   return t(`orders.${key}`);
 }
 
+function isPaidLikePayment(value: string | null | undefined): boolean {
+  return value === "paid" || value === "captured";
+}
+
+/**
+ * Customer-facing label for the order's primary status badge. Display-only:
+ * does NOT mutate `order.status` server-side. When the order has been paid
+ * AND fulfilled to delivery, the administrative `pending` value (which is
+ * Medusa v2's default lifecycle marker that does not auto-advance) reads
+ * as "Complete" in the customer UI. Every other case falls through to the
+ * raw `order.status` localization, preserving the multi-badge layout.
+ */
+export function displayOrderStatus(
+  orderStatus: string | null | undefined,
+  paymentStatus: string | null | undefined,
+  fulfillmentStatus: string | null | undefined,
+  t: Translator,
+): string | null {
+  if (
+    orderStatus !== "canceled" &&
+    isPaidLikePayment(paymentStatus) &&
+    fulfillmentStatus === "delivered"
+  ) {
+    return t("orders.status.complete");
+  }
+  return localizeStatus(orderStatus, t, ORDER_STATUS_KEYS);
+}
+
+/**
+ * Badge variant for the same derived display rule. Returns `success` when
+ * the order is effectively complete (paid + delivered) so the badge color
+ * matches the label. Otherwise delegates to `statusVariant(order.status)`.
+ */
+export function displayOrderStatusVariant(
+  orderStatus: string | null | undefined,
+  paymentStatus: string | null | undefined,
+  fulfillmentStatus: string | null | undefined,
+) {
+  if (
+    orderStatus !== "canceled" &&
+    isPaidLikePayment(paymentStatus) &&
+    fulfillmentStatus === "delivered"
+  ) {
+    return "success" as const;
+  }
+  return statusVariant(orderStatus);
+}
+
 export function statusVariant(value: string | null | undefined) {
   if (!value) return "default" as const;
   if (

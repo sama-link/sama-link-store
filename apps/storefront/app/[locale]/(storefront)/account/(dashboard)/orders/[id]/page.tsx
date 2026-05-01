@@ -7,9 +7,10 @@ import { formatPrice } from "@/lib/format-price";
 import { getCustomerOrder, type StoreOrder } from "@/lib/medusa-client";
 import {
   FULFILLMENT_STATUS_KEYS,
-  ORDER_STATUS_KEYS,
   PAYMENT_STATUS_KEYS,
   customerStatusLabel,
+  displayOrderStatus,
+  displayOrderStatusVariant,
   formatOrderDate,
   localizeStatus,
   statusVariant,
@@ -91,7 +92,17 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
   }
 
   const currencyCode = order.currency_code || "EGP";
-  const orderStatus = localizeStatus(order.status, t, ORDER_STATUS_KEYS);
+  const orderStatus = displayOrderStatus(
+    order.status,
+    order.payment_status ?? null,
+    order.fulfillment_status ?? null,
+    t,
+  );
+  const orderStatusBadgeVariant = displayOrderStatusVariant(
+    order.status,
+    order.payment_status ?? null,
+    order.fulfillment_status ?? null,
+  );
   const paymentStatus = localizeStatus(order.payment_status ?? null, t, PAYMENT_STATUS_KEYS);
   const fulfillmentStatus = localizeStatus(
     order.fulfillment_status ?? null,
@@ -135,7 +146,7 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
         </h2>
         <div className="mt-3 flex flex-wrap gap-2">
           {orderStatus ? (
-            <Badge variant={statusVariant(order.status)}>{orderStatus}</Badge>
+            <Badge variant={orderStatusBadgeVariant}>{orderStatus}</Badge>
           ) : null}
           {paymentStatus ? (
             <Badge variant={statusVariant(order.payment_status ?? null)}>
