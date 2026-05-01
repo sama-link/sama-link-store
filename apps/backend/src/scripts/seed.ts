@@ -57,6 +57,12 @@ import path from "path"
 // via product.metadata.brand_id (free-form string, not a formal link).
 import { BRAND_MODULE } from "../modules/brand"
 import type BrandModuleService from "../modules/brand/service"
+import {
+  parseSamaLabels,
+  PRODUCT_LABEL_SLUGS,
+  SAMA_LABELS_METADATA_KEY,
+  serializeSamaLabels,
+} from "../lib/sama-product-labels"
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 const SEED_CURRENCY = "egp"
@@ -1260,6 +1266,72 @@ async function ensureStorefrontPublishableKey(
 // sales channel. Production deploys solve this through the admin UI; for
 // the local seed we flip every variant to manage_inventory=false. This is a
 // dev-only convenience and is fully reversible from the admin.
+/** Stable pseudo-random score so re-seeding picks the same 50 handles for special-offer tagging. */
+function hashProductIdForSample(id: string): number {
+  let h = 0
+  for (let i = 0; i < id.length; i++) {
+    h = Math.imul(31, h) + id.charCodeAt(i)
+  }
+  return Math.abs(h >>> 0)
+}
+
+// Tag exactly `SPECIAL_OFFER_SAMPLE_COUNT` published products with the
+// `special_offer` catalog label (metadata.sama_labels). Idempotent: products
+// that already include the label are skipped; the same 50 IDs are preferred
+// across runs via deterministic ordering by hash(id).
+const SPECIAL_OFFER_SAMPLE_COUNT = 50
+
+async function ensureSpecialOfferLabelsOnSample(
+  productModuleService: IProductModuleService
+): Promise<{ tagged: number; skippedAlready: number }> {
+  type Row = { id: string; metadata: Record<string, unknown> | null }
+  const rows: Row[] = []
+  let offset = 0
+  for (;;) {
+    const page = (await productModuleService.listProducts(
+      {},
+      { take: 200, skip: offset, select: ["id", "metadata", "status"] }
+    )) as Array<Row & { status?: string }>
+    for (const r of page) {
+      if (r.status === "published") {
+        rows.push({ id: r.id, metadata: r.metadata })
+      }
+    }
+    if (page.length < 200) break
+    offset += page.length
+  }
+
+  const scored = rows.map((r) => ({
+    ...r,
+    score: hashProductIdForSample(r.id),
+  }))
+  scored.sort((a, b) => a.score - b.score)
+  const picked = scored.slice(0, SPECIAL_OFFER_SAMPLE_COUNT)
+
+  let tagged = 0
+  let skippedAlready = 0
+  const label = PRODUCT_LABEL_SLUGS.SPECIAL_OFFER
+
+  for (const p of picked) {
+    const meta =
+      p.metadata && typeof p.metadata === "object" ? { ...p.metadata } : {}
+    const labels = parseSamaLabels(meta)
+    if (labels.includes(label)) {
+      skippedAlready++
+      continue
+    }
+    const next = serializeSamaLabels([...labels, label])
+    meta[SAMA_LABELS_METADATA_KEY] = next
+    await productModuleService.updateProducts(p.id, { metadata: meta })
+    tagged++
+  }
+
+  console.log(
+    `[seed] catalog labels: special_offer on ${tagged} products (${skippedAlready} already tagged in sample set, ${rows.length} published total)`
+  )
+  return { tagged, skippedAlready }
+}
+
 async function ensureVariantsPurchasableLocally(
   productModuleService: IProductModuleService
 ): Promise<{ updated: number; alreadyOk: number }> {
@@ -1470,6 +1542,8 @@ export default async function seed({ container }: ExecArgs): Promise<void> {
     fixture,
     brandHandleToId
   )
+
+  await ensureSpecialOfferLabelsOnSample(productModuleService)
 
   // Local-dev convenience — see function header. Runs after products+
   // variants are seeded so it covers freshly-created variants in this

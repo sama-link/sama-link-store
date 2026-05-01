@@ -92,6 +92,7 @@
   "breadcrumbs": {
     "home": "Home",
     "products": "Products",
+    "specialOffers": "Today's Deals",
     "collections": "Collections",
     "cart": "Cart",
     "checkout": "Checkout",
@@ -100,6 +101,10 @@
   "nav": {
     "home": "Home",
     "products": "Products",
+    "allProducts": "All Products",
+    "allCategories": "All Categories",
+    "hotDeals": "Today's Deals",
+    "contact": "Contact",
     "collections": "Collections",
     "about": "About",
     "cart": "Cart",
@@ -111,6 +116,7 @@
     "openCart": "Open cart ({count} items)",
     "openMenu": "Open menu",
     "closeMenu": "Close menu",
+    "menu": "Menu",
     "mobileNavigation": "Mobile navigation",
     "switchToEnglish": "English",
     "switchToArabic": "العربية",
@@ -326,13 +332,13 @@
       "trust": {
         "authentic": { "title": "Authentic only", "body": "Manufacturer-backed warranty" },
         "delivery":  { "title": "48h delivery",   "body": "Fast shipping across Egypt" },
-        "cod":       { "title": "Cash on delivery", "body": "Pay when you receive" }
+        "cod":       { "title": "Cash on delivery", "body": "Pay when you receive" },
+        "returns":   { "title": "14-day returns", "body": "No questions asked" }
       },
-      "cards": {
-        "networking":   { "eyebrow": "Networking",   "sub": "EGP 4,299" },
-        "surveillance": { "eyebrow": "Surveillance", "sub": "IP67 · Night Vision" },
-        "power":        { "eyebrow": "Power",        "sub": "Protection" },
-        "smart":        { "eyebrow": "Smart",        "sub": "EGP 240" }
+      "carousel": {
+        "previous": "Previous slide",
+        "next": "Next slide",
+        "goToSlide": "Go to slide {n}"
       }
     },
     "sections": {
@@ -378,13 +384,22 @@
   "products": {
     "featuredTitle": "Featured Products",
     "noProducts": "No products available yet.",
+    "specialOffers": {
+      "metaTitle": "Today's Deals | Special offers",
+      "metaDescription": "Limited-time prices on selected networking, surveillance, and IT equipment.",
+      "bannerEyebrow": "Special offer",
+      "bannerTitle": "Today's Deals",
+      "bannerBody": "Hand-picked products with extra value. Same warranty and delivery — better prices while stocks last.",
+      "listHeading": "Special offer products",
+      "empty": "No special-offer products right now. Check back soon."
+    },
     "listing": {
       "title": "All Products",
       "description": "Browse our full catalog of networking and surveillance products.",
       "empty": "No products available yet.",
       "paginationLabel": "Pagination",
-      "previous": "← Previous",
-      "next": "Next →",
+      "previous": "Previous",
+      "next": "Next",
       "pageOf": "{current} / {total}",
       "loadMore": "Load more",
       "loading": "Loading…",
@@ -397,8 +412,8 @@
       "view": "View",
       "viewMode": "Layout",
       "densityCols": "{count} columns",
-      "showing": "Showing {shown}",
-      "showingOf": "Showing {shown} of {total}",
+      "showing": "{total} Products",
+      "showingOf": "of {total} Products",
       "close": "Close",
       "sort": {
         "newest": "Newest",
@@ -406,6 +421,7 @@
         "price-desc": "Price: high to low",
         "title": "Name (A–Z)"
       },
+      "show": "Show",
       "viewModes": {
         "grid": "Grid",
         "list": "List"
@@ -415,6 +431,7 @@
     "filtersAndViewAria": "Filters and view controls",
     "filters": {
       "heading": "Filters",
+      "brands": "Brands",
       "collections": "Collections",
       "categories": "Categories",
       "allCategories": "All",
@@ -554,28 +571,258 @@
   },
   "pages": {
     "about": {
-      "title": "About Us"
+      "title": "About Us",
+      "intro": {
+        "kicker": "Who we are",
+        "heading": "Sama Link Store is your reliable partner for business technology needs.",
+        "body": "We provide curated hardware, networking, and infrastructure solutions with clear guidance, dependable quality, and responsive local support.",
+        "primaryCta": "Browse Collections",
+        "secondaryCta": "Contact Sales"
+      },
+      "stats": {
+        "years": {
+          "value": "10+",
+          "label": "Years in business technology"
+        },
+        "clients": {
+          "value": "1,200+",
+          "label": "Business customers served"
+        },
+        "categories": {
+          "value": "30+",
+          "label": "Core product categories"
+        }
+      },
+      "values": {
+        "heading": "What you can expect from us",
+        "one": {
+          "title": "Trusted Quality",
+          "body": "We select products from dependable brands and verified suppliers."
+        },
+        "two": {
+          "title": "Fast Fulfillment",
+          "body": "Orders are processed quickly with practical delivery options."
+        },
+        "three": {
+          "title": "Practical Support",
+          "body": "Our team helps you choose the right setup for your real use case."
+        }
+      }
     },
     "faq": {
-      "title": "FAQ"
+      "title": "FAQ",
+      "design": {
+        "kicker": "Need help?",
+        "heading": "Frequently asked questions",
+        "body": "Quick answers to the most common questions about orders, shipping, returns, and support.",
+        "items": {
+          "one": {
+            "question": "How long does delivery usually take?",
+            "answer": "Delivery times vary by location and product availability. Most in-stock orders are prepared quickly and delivered within the stated shipping window at checkout."
+          },
+          "two": {
+            "question": "Can I return a product after receiving it?",
+            "answer": "Yes, eligible items can be returned within the return period if they are in original condition. Please contact support first to receive return guidance."
+          },
+          "three": {
+            "question": "How can I track my order?",
+            "answer": "After your order is confirmed, you can use the tracking page once tracking is activated for your shipment."
+          },
+          "four": {
+            "question": "How do I get product recommendations?",
+            "answer": "You can contact our team with your requirements and budget, and we will recommend suitable options for your use case."
+          }
+        }
+      }
     },
     "contact": {
-      "title": "Contact Us"
+      "title": "Contact Us",
+      "design": {
+        "kicker": "Let's connect",
+        "heading": "Speak with the Sama Link team and get the right solution faster.",
+        "body": "Whether you need product recommendations, pricing support, or order follow-up, our team is ready to help with clear and practical guidance.",
+        "secondaryCta": "Browse Collections",
+        "cards": {
+          "phone": {
+            "title": "Phone Support",
+            "body": "+20 100 000 0000\nSun - Thu, 10:00 AM - 6:00 PM"
+          },
+          "email": {
+            "title": "Email",
+            "body": "support@samalink.store\nWe typically reply within one business day."
+          },
+          "hours": {
+            "title": "Business Hours",
+            "body": "Customer support: Sun - Thu\nSales inquiries: Daily during business hours"
+          }
+        },
+        "process": {
+          "heading": "How we handle your request",
+          "one": {
+            "title": "1) Share your need",
+            "body": "Tell us what you are looking for, expected quantities, and timeline."
+          },
+          "two": {
+            "title": "2) Get tailored guidance",
+            "body": "We suggest suitable options based on your use case and budget."
+          },
+          "three": {
+            "title": "3) Confirm and proceed",
+            "body": "Once approved, we guide you through order, payment, and delivery."
+          }
+        }
+      }
     },
     "shippingReturns": {
-      "title": "Shipping & Returns"
+      "title": "Shipping & Returns",
+      "design": {
+        "kicker": "Shipping made clear",
+        "heading": "Simple shipping and returns information",
+        "body": "Everything you need to know about order processing, delivery timelines, and return eligibility.",
+        "cards": {
+          "processing": {
+            "title": "Order Processing",
+            "body": "Most orders are reviewed and prepared within 1-2 business days after confirmation."
+          },
+          "delivery": {
+            "title": "Delivery Timing",
+            "body": "Delivery duration depends on your location and product availability. Exact timing appears at checkout when possible."
+          },
+          "tracking": {
+            "title": "Order Tracking",
+            "body": "Once your shipment is dispatched, tracking details are shared so you can follow delivery progress."
+          }
+        },
+        "returns": {
+          "heading": "Returns at a glance",
+          "policy": {
+            "title": "Return Eligibility",
+            "body": "Items can be returned within the allowed return window if unused and in original condition with packaging."
+          },
+          "process": {
+            "title": "How to Start a Return",
+            "body": "Contact support with your order number and reason for return. Our team will guide you through the next steps."
+          }
+        }
+      }
     },
     "privacy": {
-      "title": "Privacy Policy"
+      "title": "Privacy Policy",
+      "design": {
+        "kicker": "Your privacy matters",
+        "heading": "How Sama Link Store handles your personal information",
+        "body": "This policy explains what we collect when you shop with us, why we use it, and how we keep it secure. We aim to be transparent and to use data only where it helps us serve you.",
+        "lastUpdated": "This is a summary policy for our storefront. For legal questions or data requests, contact us using the link below.",
+        "cards": {
+          "collect": {
+            "title": "What we collect",
+            "body": "We may collect contact details (name, email, phone), shipping and billing addresses, order history, and technical data such as device type and approximate location when you use the site."
+          },
+          "use": {
+            "title": "How we use it",
+            "body": "We use your information to process and deliver orders, communicate about your purchases, improve our service, prevent fraud, and comply with the law."
+          },
+          "security": {
+            "title": "How we protect it",
+            "body": "We apply reasonable technical and organisational measures to protect personal data. Access is limited to people and systems that need it to operate the store."
+          }
+        },
+        "details": {
+          "heading": "More detail",
+          "cookies": {
+            "title": "Cookies and similar technologies",
+            "body": "We may use cookies or similar tools to remember your preferences, keep your session secure, and understand how the site is used. You can control cookies through your browser settings."
+          },
+          "thirdParties": {
+            "title": "Service providers",
+            "body": "We may share data with trusted partners who help us run the store (for example payment, shipping, or hosting). They may only use it for those purposes and under appropriate agreements."
+          },
+          "rights": {
+            "title": "Your choices",
+            "body": "Depending on applicable law, you may have rights to access, correct, or delete certain personal data, or to object to some processing. Contact us and we will respond in line with local requirements."
+          }
+        },
+        "contact": {
+          "heading": "Questions about privacy?",
+          "body": "If you have questions about this policy or how we use your data, our team is happy to help.",
+          "cta": "Contact us"
+        }
+      }
     },
     "terms": {
-      "title": "Terms & Conditions"
+      "title": "Terms & Conditions",
+      "design": {
+        "kicker": "Agreement",
+        "heading": "Terms of use for Sama Link Store",
+        "body": "By accessing or purchasing from this site, you agree to these terms. They describe how our service works, what you can expect from us, and what we expect from you.",
+        "lastUpdated": "This is a storefront summary. For binding legal wording or jurisdiction-specific clauses, seek professional review.",
+        "cards": {
+          "acceptance": {
+            "title": "Using the site",
+            "body": "You must provide accurate information when placing an order. You may not misuse the site, attempt to interfere with its operation, or use it for unlawful purposes."
+          },
+          "orders": {
+            "title": "Orders, pricing, and payment",
+            "body": "Product availability and prices may change. We reserve the right to refuse or cancel orders in case of errors, fraud suspicion, or stock issues. Payment is due according to the method you select at checkout."
+          },
+          "liability": {
+            "title": "Products and limitations",
+            "body": "We strive for accurate descriptions but do not warrant that all content is error-free. To the extent permitted by law, our liability is limited to remedies related to your purchase as described in our policies."
+          }
+        },
+        "details": {
+          "heading": "Additional terms",
+          "shipping": {
+            "title": "Shipping and returns",
+            "body": "Delivery timelines, fees, and return rules are explained on our dedicated page.",
+            "link": "Shipping & Returns"
+          },
+          "conduct": {
+            "title": "Accounts and communications",
+            "body": "If you create an account or subscribe to updates, you are responsible for keeping credentials secure. Marketing messages include a way to opt out where required by law."
+          },
+          "changes": {
+            "title": "Changes to these terms",
+            "body": "We may update these terms from time to time. Continued use of the site after changes constitutes acceptance of the revised terms where permitted by applicable law."
+          }
+        },
+        "footer": {
+          "heading": "Related information",
+          "body": "Privacy practices and how to reach us are available on the pages below.",
+          "privacyCta": "Privacy Policy",
+          "contactCta": "Contact us"
+        }
+      }
     },
     "fallbackBody": "This page is coming soon."
   },
   "trackOrder": {
     "title": "Track Order",
-    "body": "Order tracking will be available soon."
+    "body": "Track your order using your order number and email.",
+    "kicker": "Real-time order lookup",
+    "heading": "Find your order status in seconds",
+    "form": {
+      "orderRefLabel": "Order number",
+      "orderRefPlaceholder": "Example: 1234",
+      "emailLabel": "Order email",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Track now",
+      "loading": "Tracking..."
+    },
+    "result": {
+      "orderNo": "Order",
+      "orderStatus": "Order status",
+      "fulfillmentStatus": "Fulfillment",
+      "total": "Total",
+      "itemsHeading": "Items in this order",
+      "noItems": "No line items found for this order.",
+      "quantity": "Qty",
+      "untitledItem": "Untitled item"
+    },
+    "errors": {
+      "notFound": "We could not find an order with these details.",
+      "generic": "Something went wrong while tracking the order. Please try again."
+    }
   },
   "meta": {
     "root": {
@@ -642,7 +889,7 @@
     "trackOrder": "Track Order",
     "about": "About",
     "tagline": "Quality products delivered to your door.",
-    "builtWithCare": "Built with care in the Arab world.",
+    "builtWithCare": "Built with care by the Sama Link team.",
     "copyrightLine": "© {year} {storeName}. {rights}",
     "paymentsLabel": "Payment methods accepted",
     "socials": {

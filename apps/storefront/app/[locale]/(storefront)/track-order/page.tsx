@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { buildCanonical } from "@/lib/seo";
 import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import TrackOrderClient from "@/components/track-order/TrackOrderClient";
 
 export const revalidate = 3600; // ISR — ADR-017
 
@@ -45,7 +46,7 @@ export default async function TrackOrderPage({ params }: TrackOrderPageProps) {
         <h1 className="text-3xl font-bold tracking-tight text-text-primary">
           {t("title")}
         </h1>
-        <p className="max-w-3xl text-text-secondary">{t("body")}</p>
+        <TrackOrderClient locale={locale} />
       </div>
     </Container>
   );

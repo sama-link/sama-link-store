@@ -11,9 +11,15 @@ export interface FilterCollectionOption {
   title: string;
 }
 
+export interface FilterBrandOption {
+  id: string;
+  title: string;
+}
+
 export interface FilterCategoryOption {
   id: string;
   title: string;
+  children?: FilterCategoryOption[];
 }
 
 const PRICE_MIN = 0;
@@ -24,6 +30,7 @@ const RATING_OPTIONS = [4, 3, 2] as const;
 
 type StagedFilters = {
   collection: string | null;
+  brand: string | null;
   category: string | null;
   minPrice: string | null;
   maxPrice: string | null;
@@ -35,6 +42,7 @@ type StagedFilters = {
 function sameStage(a: StagedFilters, b: StagedFilters): boolean {
   return (
     a.collection === b.collection &&
+    a.brand === b.brand &&
     a.category === b.category &&
     a.minPrice === b.minPrice &&
     a.maxPrice === b.maxPrice &&
@@ -46,8 +54,10 @@ function sameStage(a: StagedFilters, b: StagedFilters): boolean {
 
 export interface FilterSidebarProps {
   collections: FilterCollectionOption[];
+  brands: FilterBrandOption[];
   categories: FilterCategoryOption[];
   activeCollection: string | null;
+  activeBrand: string | null;
   activeCategory: string | null;
   activeMinPrice: string | null;
   activeMaxPrice: string | null;
@@ -66,10 +76,116 @@ export interface FilterSidebarProps {
    A single `Apply filters` button commits the full staged set in one navigate,
    guaranteeing multi-change flows land a consistent URL. Single-change flows
    just click Apply once — predictable, no lost clicks from rapid sequences. */
+function CategoryTree({
+  categories,
+  stagedCategory,
+  stageSet,
+  level = 0,
+}: {
+  categories: FilterCategoryOption[];
+  stagedCategory: string | null;
+  stageSet: (key: keyof StagedFilters, value: any) => void;
+  level?: number;
+}) {
+  if (!categories || categories.length === 0) return null;
+  return (
+    <div className={cn("flex flex-col", level === 0 ? "gap-2" : "mt-2 gap-2 ms-4 border-s border-border ps-4")}>
+      {categories.map((c) => {
+        const isActive = stagedCategory === c.id;
+        const hasChildren = c.children && c.children.length > 0;
+        return (
+          <CategoryTreeNode
+            key={c.id}
+            c={c}
+            isActive={isActive}
+            hasChildren={hasChildren}
+            stagedCategory={stagedCategory}
+            stageSet={stageSet}
+            level={level}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function CategoryTreeNode({
+  c,
+  isActive,
+  hasChildren,
+  stagedCategory,
+  stageSet,
+  level,
+}: {
+  c: FilterCategoryOption;
+  isActive: boolean;
+  hasChildren: boolean | undefined;
+  stagedCategory: string | null;
+  stageSet: (key: keyof StagedFilters, value: any) => void;
+  level: number;
+}) {
+  // Always start expanded if it's the root level, otherwise collapsed
+  const [isOpen, setIsOpen] = useState(level === 0);
+
+  return (
+    <div className="flex flex-col">
+      <div className="flex items-center justify-between">
+        <label className={cn(
+          "flex cursor-pointer items-center gap-2.5 text-[13px] hover:text-brand transition-colors",
+          level === 0 ? "font-semibold text-text-primary" : "text-text-secondary",
+          isActive && "text-brand font-semibold"
+        )}>
+          <input
+            type="checkbox"
+            checked={isActive}
+            onChange={(e) => stageSet("category", e.target.checked ? c.id : null)}
+            className="h-4 w-4 rounded border-border text-brand accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+          />
+          <span>{c.title}</span>
+        </label>
+        
+        {hasChildren && (
+          <button
+            type="button"
+            onClick={() => setIsOpen(!isOpen)}
+            className="flex h-6 w-6 items-center justify-center rounded-md text-text-muted hover:bg-surface-subtle hover:text-text-primary transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className={cn("h-3.5 w-3.5 transition-transform duration-200", isOpen ? "rotate-90" : "")}
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {hasChildren && isOpen && (
+        <div className="animate-in fade-in slide-in-from-top-1 duration-200">
+          <CategoryTree
+            categories={c.children!}
+            stagedCategory={stagedCategory}
+            stageSet={stageSet}
+            level={level + 1}
+          />
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function FilterSidebar({
   collections,
+  brands,
   categories,
   activeCollection,
+  activeBrand,
   activeCategory,
   activeMinPrice,
   activeMaxPrice,
@@ -87,6 +203,7 @@ export default function FilterSidebar({
   const active: StagedFilters = useMemo(
     () => ({
       collection: activeCollection,
+      brand: activeBrand,
       category: activeCategory,
       minPrice: activeMinPrice,
       maxPrice: activeMaxPrice,
@@ -96,6 +213,7 @@ export default function FilterSidebar({
     }),
     [
       activeCollection,
+      activeBrand,
       activeCategory,
       activeMinPrice,
       activeMaxPrice,
@@ -121,6 +239,7 @@ export default function FilterSidebar({
         else params.set(key, v);
       };
       setOrDel("collection", nextStaged.collection);
+      setOrDel("brand", nextStaged.brand);
       setOrDel("category", nextStaged.category);
       setOrDel("minPrice", nextStaged.minPrice);
       setOrDel("maxPrice", nextStaged.maxPrice);
@@ -140,6 +259,7 @@ export default function FilterSidebar({
   const clearAll = () => {
     const cleared: StagedFilters = {
       collection: null,
+      brand: null,
       category: null,
       minPrice: null,
       maxPrice: null,
@@ -165,6 +285,7 @@ export default function FilterSidebar({
 
   const hasAnyFilter =
     staged.collection != null ||
+    staged.brand != null ||
     staged.category != null ||
     staged.minPrice != null ||
     staged.maxPrice != null ||
@@ -181,193 +302,170 @@ export default function FilterSidebar({
 
   return (
     <div className="flex max-h-full flex-col rounded-xl border border-border bg-surface">
-      <div className="flex items-center justify-between gap-2 border-b border-border px-5 py-3">
-        <h2 className="text-sm font-semibold text-text-primary">
+      <div className="flex-1 overflow-y-auto p-5">
+        <h4 className="mb-3 text-[14px] font-semibold text-text-primary">
           {t("heading")}
-        </h2>
+        </h4>
+
+        <div className="flex flex-col divide-y divide-border">
+          {/* Active search query chip */}
+          {staged.q ? (
+            <div className="py-5 first:pt-0">
+              <div className="flex items-center gap-2 rounded-lg bg-accent-muted px-3 py-2 text-xs">
+                <span className="text-text-muted">{t("searchChipLabel")}</span>
+                <span className="flex-1 truncate font-medium text-brand">
+                  &ldquo;{staged.q}&rdquo;
+                </span>
+                <button
+                  type="button"
+                  onClick={() => stageSet("q", null)}
+                  aria-label={t("clearSearch")}
+                  className="inline-flex h-5 w-5 items-center justify-center rounded-full text-brand transition-transform hover:bg-surface motion-safe:active:scale-90"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden="true">
+                    <path d="M6 18 18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          ) : null}
+
+          {/* Categories */}
+          <div className="py-5 first:pt-0">
+            <div className="mb-2.5 flex items-center justify-between text-[13px] font-semibold text-text-primary">
+              {t("categories")}
+            </div>
+            <CategoryTree
+              categories={categories}
+              stagedCategory={staged.category}
+              stageSet={stageSet as any}
+            />
+          </div>
+
+          {/* Brands */}
+          <div className="py-5 first:pt-0">
+            <div className="mb-2.5 flex items-center justify-between text-[13px] font-semibold text-text-primary">
+              {t("brands") || "Brands"}
+            </div>
+            <div className="flex flex-col gap-2">
+              {brands.map((b: any) => {
+                const isActive = staged.brand === b.id;
+                return (
+                  <label key={b.id} className="flex cursor-pointer items-center gap-2.5 text-[13px] text-text-secondary">
+                    <input
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={(e) => stageSet("brand", e.target.checked ? b.id : null)}
+                      className="h-4 w-4 rounded border-border text-brand accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                    />
+                    <span>{b.title}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Collections */}
+          <div className="py-5 first:pt-0">
+            <div className="mb-2.5 flex items-center justify-between text-[13px] font-semibold text-text-primary">
+              {t("collections")}
+            </div>
+            <div className="flex flex-col gap-2">
+              {collections.map((c: any) => {
+                const isActive = staged.collection === c.id;
+                return (
+                  <label key={c.id} className="flex cursor-pointer items-center gap-2.5 text-[13px] text-text-secondary">
+                    <input
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={(e) => stageSet("collection", e.target.checked ? c.id : null)}
+                      className="h-4 w-4 rounded border-border text-brand accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                    />
+                    <span>{c.title}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Price range */}
+          <div className="py-5 first:pt-0">
+            <div className="mb-2.5 flex items-center justify-between text-[13px] font-semibold text-text-primary">
+              {t("priceRange")}
+              <span className="text-xs font-normal text-text-muted">EGP</span>
+            </div>
+            <PriceRangeSlider
+              min={PRICE_MIN}
+              max={PRICE_MAX}
+              step={PRICE_STEP}
+              valueMin={parsedMin}
+              valueMax={parsedMax}
+              onCommit={(lo, hi) => {
+                stageSet("minPrice", lo == null ? null : String(lo));
+                stageSet("maxPrice", hi == null ? null : String(hi));
+              }}
+            />
+          </div>
+
+          {/* Rating */}
+          <div className="py-5 first:pt-0">
+            <div className="mb-2.5 flex items-center justify-between text-[13px] font-semibold text-text-primary">
+              {t("rating")}
+            </div>
+            <div className="flex flex-col gap-2">
+              {RATING_OPTIONS.map((r) => {
+                const val = String(r);
+                const isActive = staged.rating === val;
+                return (
+                  <label key={r} className="flex cursor-pointer items-center gap-2.5 text-[13px] text-text-secondary">
+                    <input
+                      type="checkbox"
+                      checked={isActive}
+                      onChange={(e) => stageSet("rating", e.target.checked ? val : null)}
+                      className="h-4 w-4 rounded border-border text-brand accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                    />
+                    <span className="inline-flex text-warning">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <span key={i} className={i < r ? "text-warning" : "text-border-strong"}>
+                          ★
+                        </span>
+                      ))}
+                    </span>
+                    <span className="text-[12px] text-text-secondary">{t("ratingAndUp")}</span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Availability */}
+          <div className="py-5 first:pt-0">
+            <div className="mb-2.5 flex items-center justify-between text-[13px] font-semibold text-text-primary">
+              {t("availability")}
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="flex cursor-pointer items-center gap-2.5 text-[13px] text-text-secondary">
+                <input
+                  type="checkbox"
+                  checked={staged.inStock}
+                  onChange={(e) => stageSet("inStock", e.target.checked)}
+                  className="h-4 w-4 rounded border-border text-brand accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                />
+                <span>{t("inStock")}</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
         {hasAnyFilter ? (
           <button
             type="button"
             onClick={clearAll}
-            className="text-xs font-medium text-text-secondary underline decoration-transparent underline-offset-2 transition-colors hover:text-text-primary hover:decoration-current motion-safe:active:scale-95"
+            className="mt-4 inline-flex h-8 w-full items-center justify-center gap-1.5 whitespace-nowrap rounded-lg border border-brand bg-transparent px-3 text-xs font-medium text-brand transition-all hover:bg-brand hover:text-white motion-safe:active:scale-[0.98]"
           >
             {t("clearAll")}
           </button>
         ) : null}
-      </div>
-
-      <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
-        {/* Active search query chip */}
-        {staged.q ? (
-          <div className="flex items-center gap-2 rounded-lg bg-accent-muted px-3 py-2 text-xs">
-            <span className="text-text-muted">{t("searchChipLabel")}</span>
-            <span className="flex-1 truncate font-medium text-brand">
-              &ldquo;{staged.q}&rdquo;
-            </span>
-            <button
-              type="button"
-              onClick={() => stageSet("q", null)}
-              aria-label={t("clearSearch")}
-              className="inline-flex h-5 w-5 items-center justify-center rounded-full text-brand transition-transform hover:bg-surface motion-safe:active:scale-90"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden="true">
-                <path d="M6 18 18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        ) : null}
-
-        {/* Categories */}
-        <section className="space-y-3" aria-labelledby="filter-categories-heading">
-          <h3 id="filter-categories-heading" className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-            {t("categories")}
-          </h3>
-          <ul className="flex flex-col gap-1">
-            <li>
-              <button
-                type="button"
-                onClick={() => stageSet("category", null)}
-                className={rowClass(staged.category == null)}
-              >
-                {t("allCategories")}
-              </button>
-            </li>
-            {categories.map((c: any) => {
-              const isActive = staged.category === c.id;
-              return (
-                <li key={c.id}>
-                  <button
-                    type="button"
-                    onClick={() => stageSet("category", isActive ? null : c.id)}
-                    className={rowClass(isActive)}
-                  >
-                    {c.title}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-
-        {/* Collections */}
-        <section className="space-y-3" aria-labelledby="filter-collections-heading">
-          <h3 id="filter-collections-heading" className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-            {t("collections")}
-          </h3>
-          <ul className="flex flex-col gap-1">
-            <li>
-              <button
-                type="button"
-                onClick={() => stageSet("collection", null)}
-                className={rowClass(staged.collection == null)}
-              >
-                {t("allCollections")}
-              </button>
-            </li>
-            {collections.map((c: any) => {
-              const isActive = staged.collection === c.id;
-              return (
-                <li key={c.id}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      stageSet("collection", isActive ? null : c.id)
-                    }
-                    className={rowClass(isActive)}
-                  >
-                    {c.title}
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-
-        {/* Price range — dual-handle slider */}
-        <section className="space-y-3" aria-labelledby="filter-price-heading">
-          <h3 id="filter-price-heading" className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-            {t("priceRange")}
-          </h3>
-          <PriceRangeSlider
-            min={PRICE_MIN}
-            max={PRICE_MAX}
-            step={PRICE_STEP}
-            valueMin={parsedMin}
-            valueMax={parsedMax}
-            onCommit={(lo, hi) => {
-              stageSet("minPrice", lo == null ? null : String(lo));
-              stageSet("maxPrice", hi == null ? null : String(hi));
-            }}
-          />
-        </section>
-
-        {/* Rating */}
-        <section className="space-y-3" aria-labelledby="filter-rating-heading">
-          <h3 id="filter-rating-heading" className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-            {t("rating")}
-          </h3>
-          <ul className="flex flex-col gap-1">
-            {RATING_OPTIONS.map((r) => {
-              const val = String(r);
-              const isActive = staged.rating === val;
-              return (
-                <li key={r}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      stageSet("rating", isActive ? null : val)
-                    }
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-all motion-safe:active:scale-[0.98]",
-                      isActive
-                        ? "bg-accent-muted text-brand"
-                        : "text-text-secondary hover:bg-surface-subtle hover:text-text-primary",
-                    )}
-                  >
-                    <span className="inline-flex items-center text-warning">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <svg
-                          key={i}
-                          xmlns="http://www.w3.org/2000/svg"
-                          viewBox="0 0 24 24"
-                          fill={i < r ? "currentColor" : "none"}
-                          stroke="currentColor"
-                          strokeWidth={1.5}
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          className={cn(
-                            "h-3.5 w-3.5",
-                            i >= r && "text-border-strong",
-                          )}
-                          aria-hidden="true"
-                        >
-                          <path d="M12 2 14.6 8.4 21.4 9 16.4 13.6 17.9 20.4 12 16.9 6.1 20.4 7.6 13.6 2.6 9 9.4 8.4 12 2z" />
-                        </svg>
-                      ))}
-                    </span>
-                    <span className="text-xs">{t("ratingAndUp")}</span>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
-
-        {/* Availability */}
-        <section className="space-y-2" aria-labelledby="filter-availability-heading">
-          <h3 id="filter-availability-heading" className="text-[11px] font-semibold uppercase tracking-[0.12em] text-text-muted">
-            {t("availability")}
-          </h3>
-          <label className="flex cursor-pointer items-center gap-2 text-sm text-text-primary">
-            <input
-              type="checkbox"
-              checked={staged.inStock}
-              onChange={(e) => stageSet("inStock", e.target.checked)}
-              className="h-4 w-4 rounded border-border text-brand accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
-            />
-            <span>{t("inStock")}</span>
-          </label>
-        </section>
       </div>
 
       {/* Apply button — pinned below the scroll area as a flex sibling */}
@@ -390,14 +488,5 @@ export default function FilterSidebar({
         </button>
       </div>
     </div>
-  );
-}
-
-function rowClass(active: boolean): string {
-  return cn(
-    "w-full rounded-md px-2 py-1.5 text-start text-sm transition-all duration-150 motion-safe:active:scale-[0.98]",
-    active
-      ? "bg-accent-muted font-semibold text-brand"
-      : "text-text-secondary hover:bg-surface-subtle hover:text-text-primary",
   );
 }

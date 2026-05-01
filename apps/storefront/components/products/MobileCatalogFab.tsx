@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import FilterSidebar, {
+  type FilterBrandOption,
   type FilterCategoryOption,
   type FilterCollectionOption,
 } from "@/components/products/FilterSidebar";
@@ -31,8 +32,10 @@ import { cn } from "@/lib/cn";
 
 interface Props {
   collections: FilterCollectionOption[];
+  brands: FilterBrandOption[];
   categories: FilterCategoryOption[];
   activeCollection: string | null;
+  activeBrand: string | null;
   activeCategory: string | null;
   activeMinPrice: string | null;
   activeMaxPrice: string | null;
@@ -116,7 +119,7 @@ export default function MobileCatalogFab(props: Props) {
     router.push(
       buildHref({
         sort: stagedSort === "newest" ? null : stagedSort,
-        cols: stagedCols === 4 ? null : String(stagedCols),
+        cols: stagedCols === 3 ? null : String(stagedCols),
         view: stagedView === "grid" ? null : stagedView,
       }),
       { scroll: false },
@@ -126,6 +129,7 @@ export default function MobileCatalogFab(props: Props) {
 
   const activeFilterCount =
     (props.activeCollection ? 1 : 0) +
+    (props.activeBrand ? 1 : 0) +
     (props.activeCategory ? 1 : 0) +
     (props.activeMinPrice || props.activeMaxPrice ? 1 : 0) +
     (props.activeQuery ? 1 : 0) +
@@ -223,8 +227,10 @@ export default function MobileCatalogFab(props: Props) {
             {tab === "filter" ? (
               <FilterSidebar
                 collections={props.collections}
+                brands={props.brands}
                 categories={props.categories}
                 activeCollection={props.activeCollection}
+                activeBrand={props.activeBrand}
                 activeCategory={props.activeCategory}
                 activeMinPrice={props.activeMinPrice}
                 activeMaxPrice={props.activeMaxPrice}

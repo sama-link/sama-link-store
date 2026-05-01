@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import {
   getProductByHandle,
   listRelatedProducts,
+  listBrands,
 } from "@/lib/medusa-client";
 import { localizeProduct } from "@/lib/product-i18n";
 import {
@@ -78,7 +79,10 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: ProductPageProps) {
   const { locale, handle } = await params;
-  const rawProduct = await getCachedProductByHandle(handle);
+  const [rawProduct, brandsResult] = await Promise.all([
+    getCachedProductByHandle(handle),
+    listBrands()
+  ]);
   if (!rawProduct) {
     notFound();
   }
@@ -201,9 +205,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
   // First variant (server-side fallback for sticky bar initial render)
   const firstVariant = panelVariants[0] ?? null;
 
+  const brandId = (productRecord.metadata as Record<string, unknown> | null)?.brand_id as string | undefined;
+  const productBrand = brandId ? brandsResult.brands.find(b => b.id === brandId) : null;
+
   /* Brand eyebrow — product.type (manufacturer/brand) first, collection title fallback.
      No hardcoded placeholder; if both are absent the eyebrow simply won't render. */
   const brandEyebrow =
+    productBrand?.name?.trim() ||
     productType?.value?.trim() ||
     collection?.title?.trim() ||
     null;

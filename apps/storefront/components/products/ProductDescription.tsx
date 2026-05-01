@@ -17,24 +17,24 @@ const HTML_TAG_RE = /<[a-z][\s\S]*?>/i;
 
 export default function ProductDescription({ html }: ProductDescriptionProps) {
   const looksLikeHtml = HTML_TAG_RE.test(html);
+  const escapeHtml = (value: string) =>
+    value
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
 
-  if (!looksLikeHtml) {
-    // Plain text → split on blank lines into paragraphs, single newlines → <br />
-    const paragraphs = html
-      .split(/\n{2,}/)
-      .map((block) => block.trim())
-      .filter(Boolean);
-
-    return (
-      <div className="space-y-4 leading-relaxed text-text-secondary">
-        {paragraphs.map((p, i) => (
-          <p key={i} className="whitespace-pre-line">
-            {p}
-          </p>
-        ))}
-      </div>
-    );
-  }
+  // Always render through HTML so backend-authored HTML appears exactly as entered.
+  // For plain text, we generate safe paragraph markup to preserve line breaks.
+  const contentHtml = looksLikeHtml
+    ? html
+    : html
+        .split(/\n{2,}/)
+        .map((block) => block.trim())
+        .filter(Boolean)
+        .map((block) => `<p>${escapeHtml(block).replaceAll("\n", "<br />")}</p>`)
+        .join("");
 
   return (
     <div
@@ -54,7 +54,7 @@ export default function ProductDescription({ html }: ProductDescriptionProps) {
         [&>hr]:my-6 [&>hr]:border-border
         [&>img]:rounded-lg [&>img]:my-4
       "
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: contentHtml }}
     />
   );
 }

@@ -83,6 +83,49 @@
 }
 
 /* ─────────────────────────────────────────────────────────────
+   TYPE & SPACE SCALE — plain CSS variables (not Tailwind theme).
+   Mirrors the design-prototype tokens (Sama Link Storefront flat
+   refresh). Kept outside @theme so they don't override Tailwind's
+   built-in `leading-*` / `tracking-*` defaults. Reference via
+   `var(--fs-h1)` etc. when porting prototype CSS verbatim.
+   ───────────────────────────────────────────────────────────── */
+:root {
+  /* Font-size scale */
+  --fs-display: 3.5rem;
+  --fs-h1:      2.25rem;
+  --fs-h2:      1.75rem;
+  --fs-h3:      1.375rem;
+  --fs-h4:      1.125rem;
+  --fs-lead:    1.0625rem;
+  --fs-body:    0.9375rem;
+  --fs-sm:      0.8125rem;
+  --fs-xs:      0.75rem;
+
+  /* Line-height scale */
+  --lh-tight:   1.1;
+  --lh-snug:    1.3;
+  --lh-normal:  1.55;
+  --lh-relaxed: 1.7;
+
+  /* Letter-spacing scale */
+  --ls-tight:   -0.025em;
+  --ls-wide:    0.08em;
+
+  /* Spacing scale (px-based, matches prototype) */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+}
+
+/* ─────────────────────────────────────────────────────────────
    DARK THEME — brand-tinted navy surfaces (not pure black).
    Surfaces carry a subtle navy cast so the brand identity stays
    present in dark mode without sacrificing contrast.
@@ -133,7 +176,8 @@ html.dark {
    BASE RESET & GLOBAL STYLES
    ───────────────────────────────────────────────────────────── */
 html {
-  height: 100%;
+  /* Use min-height so the document can grow, allowing position: sticky to work all the way down */
+  min-height: 100%;
   font-family: var(--font-arabic), system-ui, "Tahoma", sans-serif; /* default: Arabic */
   /* Reserve gutter so body-scroll-lock during drawer open doesn't shift the
      page left/right. Styled pill scrollbar below. */
@@ -192,7 +236,7 @@ html[dir="ltr"] {
 }
 
 body {
-  height: 100%;
+  min-height: 100%;
   background-color: var(--color-surface);
   color: var(--color-text-primary);
   font-family: inherit;
@@ -226,6 +270,36 @@ html[data-theme-ready] body {
 :focus-visible {
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   TYPOGRAPHY UTILITY CLASSES — opt-in, additive.
+   Match the prototype's class-based typography so prototype HTML
+   can be ported with minimal rewriting. These wrap the type-scale
+   tokens above; nothing in the codebase currently consumes them,
+   so adding them is visually a no-op until a Phase 2 page opts in.
+   ───────────────────────────────────────────────────────────── */
+.display {
+  font-size: var(--fs-display);
+  line-height: 0.98;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+.lead {
+  font-size: var(--fs-lead);
+  line-height: var(--lh-relaxed);
+  color: var(--color-text-secondary);
+}
+.small {
+  font-size: var(--fs-sm);
+  color: var(--color-text-secondary);
+}
+.eyebrow {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  font-weight: 500;
+  color: var(--color-text-muted);
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -504,6 +578,690 @@ html[data-theme-changing] *::after {
 }
 
 /* ──────────────────────────────────────────
+   Home Hero — six-slide carousel (Phase 2 design refresh).
+   Ported from the design prototype's app.css `.hero-pro-*` block.
+   Self-contained, scoped via the .hero-pro* prefix. Logical-property
+   positioning so prev/next arrows, chips, floats, and trust bar
+   mirror in RTL automatically.
+   ────────────────────────────────────────── */
+.hero-pro-wrap {
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+.hero-pro {
+  position: relative;
+  overflow: hidden;
+}
+.hero-pro-track {
+  position: relative;
+  /* Take most of the first-fold on open, with sane bounds across viewports.
+     78vh on a 900px viewport ≈ 700px; clamped 660–820 keeps it readable. */
+  height: clamp(660px, 78vh, 820px);
+  width: 100%;
+  isolation: isolate;
+  background: var(--color-surface-subtle);
+}
+.hero-pro-slide {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 700ms ease;
+  z-index: 1;
+
+  /* Theme variables for the hero slide */
+  --slide-bg: var(--slide-bg-light);
+  --slide-accent: var(--slide-accent-light);
+  --slide-text: var(--color-brand);
+  --slide-sub: var(--color-text-secondary);
+  --slide-chip-bg: rgba(15, 43, 79, 0.06);
+  --slide-chip-border: rgba(15, 43, 79, 0.1);
+  --slide-chip-text: var(--color-brand);
+  --slide-btn-primary-bg: var(--color-brand);
+  --slide-btn-primary-text: #fff;
+  --slide-btn-primary-hover: var(--color-brand-hover);
+  --slide-btn-ghost-text: var(--color-brand);
+  --slide-btn-ghost-border: rgba(15, 43, 79, 0.15);
+  --slide-btn-ghost-hover-bg: rgba(15, 43, 79, 0.05);
+  --slide-btn-ghost-hover-border: rgba(15, 43, 79, 0.4);
+  --slide-arrow: var(--color-text-primary);
+  --slide-orb: rgba(15, 43, 79, 0.05);
+  --slide-ring-color: rgba(15, 43, 79, 0.15);
+  --slide-glow-color: rgba(15, 43, 79, 0.1);
+}
+html.dark .hero-pro-slide {
+  --slide-bg: var(--slide-bg-dark);
+  --slide-accent: var(--slide-accent-dark);
+  --slide-text: #fff;
+  --slide-sub: rgba(255, 255, 255, 0.85);
+  --slide-chip-bg: rgba(255, 255, 255, 0.12);
+  --slide-chip-border: rgba(255, 255, 255, 0.2);
+  --slide-chip-text: rgba(255, 255, 255, 0.95);
+  --slide-btn-primary-bg: #fff;
+  --slide-btn-primary-text: var(--color-brand);
+  --slide-btn-primary-hover: rgba(255, 255, 255, 0.92);
+  --slide-btn-ghost-text: #fff;
+  --slide-btn-ghost-border: rgba(255, 255, 255, 0.4);
+  --slide-btn-ghost-hover-bg: rgba(255, 255, 255, 0.1);
+  --slide-btn-ghost-hover-border: rgba(255, 255, 255, 0.7);
+  --slide-arrow: #fff;
+  --slide-orb: rgba(255, 255, 255, 0.18);
+  --slide-ring-color: rgba(255, 255, 255, 0.25);
+  --slide-glow-color: rgba(255, 255, 255, 0.4);
+}
+.hero-pro-slide.is-active {
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 2;
+}
+.hero-pro-bg {
+  position: absolute;
+  inset: 0;
+  background: var(--slide-bg);
+  z-index: 0;
+}
+
+/* Drifting orbs — soft blurred light across the slide. */
+.hero-pro-grid {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+.hero-pro-orb {
+  position: absolute;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--slide-orb), transparent 70%);
+  filter: blur(40px);
+  animation: orb-drift 14s ease-in-out infinite;
+  animation-delay: calc(var(--orb-i) * -2.5s);
+}
+.hero-pro-orb:nth-child(1) { top: -10%; left: 10%; }
+.hero-pro-orb:nth-child(2) { top:  30%; left: 60%; width: 320px; height: 320px; }
+.hero-pro-orb:nth-child(3) { top:  60%; left: 20%; width: 180px; height: 180px; }
+.hero-pro-orb:nth-child(4) { top:  10%; left: 75%; width: 200px; height: 200px; }
+.hero-pro-orb:nth-child(5) { top:  70%; left: 65%; width: 280px; height: 280px; }
+.hero-pro-orb:nth-child(6) { top:  40%; left:  5%; width: 150px; height: 150px; }
+@keyframes orb-drift {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33%      { transform: translate(20px, -30px) scale(1.1); }
+  66%      { transform: translate(-15px, 20px) scale(0.95); }
+}
+
+.hero-pro-inner {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  align-items: center;
+  height: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 56px 64px 96px;
+  gap: 48px;
+}
+
+.hero-pro-text { color: var(--slide-text); }
+.hero-pro-text h1, .hero-pro-text p,
+.hero-pro-text .hero-pro-title, .hero-pro-text .hero-pro-sub { color: inherit; }
+
+/* Eyebrow — pulsing dot, accent-colored label. */
+.hero-pro-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--slide-accent);
+}
+.hero-pro-slide.is-active .hero-pro-eyebrow {
+  animation: hero-rise 600ms ease 100ms backwards;
+}
+.hero-pro-eyebrow .dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--slide-accent);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
+  animation: pulse-dot 1.6s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%      { transform: scale(1.4); opacity: 0.6; }
+}
+
+.hero-pro-title {
+  font-size: clamp(38px, 5vw, 60px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.025em;
+  margin: 18px 0 20px;
+  max-width: 18ch;
+  color: var(--slide-text);
+  /* Reserve 2 lines so a 1-line title (e.g. "Every link, certified.") doesn't
+     re-center the text column and make the CTA row jump on slide change. */
+  min-height: calc(2 * 1.08em);
+}
+.hero-pro-title-inner {
+  display: inline-block;
+  text-wrap: balance;
+  /* Slide titles use \n to force a 2-line break at a natural pause across all
+     six slides. Without `pre-line`, short titles ("Every link, certified.")
+     would stay on one line and the CTA row would shift up between slides. */
+  white-space: pre-line;
+}
+.hero-pro-slide.is-active .hero-pro-title-inner {
+  animation: hero-title-rise 700ms cubic-bezier(0.22, 1, 0.36, 1) 200ms backwards;
+}
+@keyframes hero-title-rise {
+  from { transform: translateY(20px); opacity: 0; filter: blur(6px); }
+  to   { transform: translateY(0);    opacity: 1; filter: blur(0); }
+}
+
+.hero-pro-sub {
+  font-size: 17px;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.85);
+  max-width: 520px;
+  margin: 0 0 32px;
+  /* Reserve 3 lines — sub copy varies 2 to 3 lines across slides. */
+  min-height: calc(3 * 1.6em);
+}
+.hero-pro-slide.is-active .hero-pro-sub {
+  animation: hero-rise 600ms ease 600ms backwards;
+}
+@keyframes hero-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.hero-pro-cta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+.hero-pro-slide.is-active .hero-pro-cta {
+  animation: hero-rise 600ms ease 750ms backwards;
+}
+.hero-pro-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 22px;
+  border-radius: var(--radius-lg);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: background-color 150ms, color 150ms, border-color 150ms;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.hero-pro-btn-primary {
+  background: var(--slide-btn-primary-bg);
+  color: var(--slide-btn-primary-text);
+  border-color: var(--slide-btn-primary-bg);
+}
+.hero-pro-btn-primary:hover { background: var(--slide-btn-primary-hover); }
+.hero-pro-btn-ghost {
+  background: transparent;
+  color: var(--slide-btn-ghost-text);
+  border-color: var(--slide-btn-ghost-border);
+}
+.hero-pro-btn-ghost:hover {
+  background: var(--slide-btn-ghost-hover-bg);
+  border-color: var(--slide-btn-ghost-hover-border);
+}
+.hero-pro-btn-arrow { display: inline-block; transition: transform 150ms; }
+.hero-pro-btn-primary:hover .hero-pro-btn-arrow { transform: translateX(2px); }
+[dir="rtl"] .hero-pro-btn-primary:hover .hero-pro-btn-arrow { transform: translateX(-2px); }
+
+.hero-pro-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  /* Reserve 1 chip-row height so chips that wrap to 2 rows on one slide
+     don't shift the text column relative to a 1-row slide. */
+  min-height: 32px;
+  align-content: flex-start;
+}
+.hero-pro-slide.is-active .hero-pro-chips {
+  animation: hero-rise 600ms ease 900ms backwards;
+}
+.hero-pro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  background: var(--slide-chip-bg);
+  border: 1px solid var(--slide-chip-border);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--slide-chip-text);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Right column — large product showcase with rings + floating cards. */
+.hero-pro-visual {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding-inline-end: 24px;
+}
+.hero-pro-product {
+  position: relative;
+  width: 100%;
+  /* Fixed visual envelope so all six product images render inside the same
+     box regardless of source aspect ratio. With `object-fit: contain` the
+     image scales to fit, and `align-items: center` keeps it on the same
+     baseline across slides. Bumped to fill more of the taller hero. */
+  height: 600px;
+  max-width: 820px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-pro-product-glow {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(circle, var(--slide-glow-color), transparent 60%);
+  filter: blur(60px);
+  z-index: 0;
+  animation: glow-pulse 4s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.1); }
+}
+
+.hero-pro-product-image {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: product-float 6s ease-in-out infinite;
+}
+.hero-pro-product-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  filter: drop-shadow(0 30px 40px rgba(0, 0, 0, 0.35))
+          drop-shadow(0 12px 18px rgba(0, 0, 0, 0.2));
+}
+
+/* Shine sweep — diagonal gradient masked to the product PNG so it paints
+   only on the visible product pixels (never the transparent background).
+   Triggers per-slide on `is-active`, so it replays on every cross-fade. */
+.hero-pro-product-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 0%,
+    transparent 38%,
+    rgba(255, 255, 255, 0.45) 47%,
+    rgba(255, 255, 255, 0.95) 50%,
+    rgba(255, 255, 255, 0.45) 53%,
+    transparent 62%,
+    transparent 100%
+  );
+  background-size: 220% 100%;
+  background-position: -120% 0;
+  background-repeat: no-repeat;
+  /* Mask uses the same PNG as the product image; its alpha channel
+     constrains the gradient so the sweep stays inside the product silhouette. */
+  -webkit-mask-image: var(--shine-mask);
+          mask-image: var(--shine-mask);
+  -webkit-mask-size: contain;
+          mask-size: contain;
+  -webkit-mask-position: center;
+          mask-position: center;
+  -webkit-mask-repeat: no-repeat;
+          mask-repeat: no-repeat;
+  opacity: 0;
+  mix-blend-mode: screen;
+}
+.hero-pro-slide.is-active .hero-pro-product-shine {
+  animation: product-shine 2600ms cubic-bezier(0.4, 0, 0.2, 1) 800ms forwards;
+}
+@keyframes product-shine {
+  0%   { opacity: 0; background-position: -120% 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { opacity: 0; background-position: 220% 0; }
+}
+.hero-pro-slide.is-active .hero-pro-product-image {
+  animation: image-arrive 900ms cubic-bezier(0.22, 1, 0.36, 1) 300ms backwards,
+             product-float 6s ease-in-out 1.2s infinite;
+}
+@keyframes image-arrive {
+  from { transform: translateY(30px) scale(0.92); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+@keyframes product-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+
+/* Concentric rings — pulse outward from the product. */
+.hero-pro-rings {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hero-pro-rings .ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid var(--slide-ring-color);
+  animation: ring-pulse 4s ease-out infinite;
+}
+.hero-pro-rings .r1 { width: 600px; height: 600px; animation-delay: 0s; }
+.hero-pro-rings .r2 { width: 720px; height: 720px; animation-delay: 1s; }
+.hero-pro-rings .r3 { width: 840px; height: 840px; animation-delay: 2s; }
+@keyframes ring-pulse {
+  0%   { opacity: 0; transform: scale(0.8); }
+  50%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.15); }
+}
+
+/* Floating data cards around the product. */
+.hero-pro-floating {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+.float-card {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #fff;
+  color: var(--color-brand);
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  animation: float-bob 4s ease-in-out infinite;
+  white-space: nowrap;
+}
+.float-card svg { color: var(--color-success); }
+/* Default float layout — used as a fallback. Per-slide overrides below
+   give each product its own float arrangement so the hero feels alive. */
+.float-card.f1 { top: 6%;     inset-inline-start: -4%; animation-delay: 0s; }
+.float-card.f2 { top: 48%;    inset-inline-end:   -6%; animation-delay: 1.3s; }
+.float-card.f3 { bottom: 8%;  inset-inline-start: 14%; animation-delay: 2.6s; }
+
+/* Per-slide float positions — each product gets a custom arrangement.
+   Pushed slightly outside the product bounding box (negative insets) so
+   floats orbit the product rather than overlapping it. */
+.hero-pro-slide[data-slide="surveillance"] .float-card.f1 { top: 4%;   inset-inline-start: -6%; }
+.hero-pro-slide[data-slide="surveillance"] .float-card.f2 { top: 56%;  inset-inline-end:   -4%; }
+.hero-pro-slide[data-slide="surveillance"] .float-card.f3 { bottom: 10%; inset-inline-start: 18%; }
+
+.hero-pro-slide[data-slide="ups"] .float-card.f1 { top: 10%;  inset-inline-end:   -2%; inset-inline-start: auto; }
+.hero-pro-slide[data-slide="ups"] .float-card.f2 { top: 46%;  inset-inline-start: -8%; inset-inline-end:   auto; }
+.hero-pro-slide[data-slide="ups"] .float-card.f3 { bottom: 12%; inset-inline-end: 10%;  inset-inline-start: auto; }
+
+.hero-pro-slide[data-slide="racks"] .float-card.f1 { top: 16%;  inset-inline-start: 0%; }
+.hero-pro-slide[data-slide="racks"] .float-card.f2 { top: 44%;  inset-inline-end:   -2%; }
+.hero-pro-slide[data-slide="racks"] .float-card.f3 { bottom: 6%; inset-inline-end:  20%; inset-inline-start: auto; }
+
+.hero-pro-slide[data-slide="networking"] .float-card.f1 { top: 6%;   inset-inline-end:   6%;  inset-inline-start: auto; }
+.hero-pro-slide[data-slide="networking"] .float-card.f2 { top: 54%;  inset-inline-start: -6%; inset-inline-end:   auto; }
+.hero-pro-slide[data-slide="networking"] .float-card.f3 { bottom: 14%; inset-inline-start: 36%; }
+
+.hero-pro-slide[data-slide="cables"] .float-card.f1 { top: 2%;   inset-inline-start: 14%; }
+.hero-pro-slide[data-slide="cables"] .float-card.f2 { top: 40%;  inset-inline-end:   -4%; }
+.hero-pro-slide[data-slide="cables"] .float-card.f3 { bottom: 14%; inset-inline-start: 30%; }
+
+.hero-pro-slide[data-slide="laptops"] .float-card.f1 { top: 8%;   inset-inline-end:   18%; inset-inline-start: auto; }
+.hero-pro-slide[data-slide="laptops"] .float-card.f2 { top: 52%;  inset-inline-start: -2%; inset-inline-end:   auto; }
+.hero-pro-slide[data-slide="laptops"] .float-card.f3 { bottom: 8%; inset-inline-end:  6%;  inset-inline-start: auto; }
+@keyframes float-bob {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-12px); }
+}
+
+/* Side arrows — minimal chevron, no border, no background. */
+.hero-pro-side {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 0;
+  background: transparent;
+  color: var(--slide-arrow);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 200ms ease, transform 200ms cubic-bezier(0.22, 1, 0.36, 1);
+  opacity: 0.75;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
+}
+.hero-pro-side:hover {
+  opacity: 1;
+  transform: translateY(-50%) scale(1.12);
+}
+.hero-pro-side:active { transform: translateY(-50%) scale(0.96); }
+.hero-pro-side-prev { inset-inline-start: 18px; }
+.hero-pro-side-next { inset-inline-end: 18px; }
+
+/* Full-width progress rail — sibling of the track, sits BELOW the hero. */
+.hero-pro-rail {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  gap: 0;
+  padding: 0;
+  background: var(--color-border);
+  width: 100%;
+  height: 4px;
+}
+.hero-pro-rail-seg {
+  position: relative;
+  height: 100%;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  transition: background 200ms ease;
+}
+.hero-pro-rail-seg:hover    { background: var(--color-brand-muted); }
+.hero-pro-rail-seg.is-past  { background: var(--color-brand); }
+.hero-pro-rail-seg.is-active{ background: transparent; }
+.hero-pro-rail-seg .rail-fill {
+  position: absolute;
+  inset: 0;
+  inset-inline-end: auto;
+  background: linear-gradient(90deg, var(--slide-accent, var(--color-brand)), var(--color-brand));
+  width: 0;
+}
+[dir="rtl"] .hero-pro-rail-seg .rail-fill {
+  background: linear-gradient(270deg, var(--slide-accent, var(--color-brand)), var(--color-brand));
+}
+.hero-pro-rail-seg.is-active .rail-fill {
+  animation: rail-progress 6s linear forwards;
+}
+.hero-pro-rail-seg.is-past .rail-fill {
+  width: 100%;
+  background: var(--color-brand);
+}
+@keyframes rail-progress { to { width: 100%; } }
+
+/* Trust bar — strip below the carousel, 4 pillars.
+   Flex + centered main axis so the row clusters in the middle on wide viewports
+   (grid 1fr columns had stretched cells and a visually “full-bleed” strip). */
+.hero-pro-trustbar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  column-gap: clamp(20px, 3vw, 40px);
+  row-gap: 16px;
+  max-width: 1440px;
+  margin-inline: auto;
+  padding-block: 18px;
+  padding-inline: clamp(16px, 5vw, 64px);
+  border-block-start: 1px solid var(--color-border);
+}
+.hero-pro-trust {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 0 1 240px;
+  min-width: min(240px, 100%);
+  max-width: 280px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+}
+.hero-pro-trust .ic {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--color-accent-muted);
+  color: var(--color-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.hero-pro-trust b {
+  display: block;
+  color: var(--color-text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+.hero-pro-trust div {
+  color: var(--color-text-secondary);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* Mobile */
+@media (max-width: 860px) {
+  .hero-pro-track { height: auto; min-height: 820px; }
+  .hero-pro-inner {
+    display: flex;
+    flex-direction: column;
+    padding: 24px 24px 36px;
+    gap: 24px;
+    text-align: center;
+    height: auto;
+  }
+  .hero-pro-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero-pro-eyebrow {
+    justify-content: center;
+  }
+  .hero-pro-title { font-size: clamp(28px, 8vw, 36px); }
+  .hero-pro-sub { font-size: 14px; max-width: 100%; margin-inline: auto; }
+  .hero-pro-cta { flex-direction: row; justify-content: center; align-items: center; gap: 10px; width: 100%; max-width: 360px; }
+  .hero-pro-btn { justify-content: center; flex: 1; padding: 0 12px; font-size: 13px; }
+  .hero-pro-chips { justify-content: center; padding-inline-start: 0; padding-top: 16px; margin: 0 auto; border-top: 1px solid rgba(128, 128, 128, 0.15); width: 100%; max-width: 400px; }
+  .hero-pro-chips .chip { flex: 1; justify-content: center; }
+  .hero-pro-visual { order: -1; height: 320px; padding-inline-end: 0; display: flex; justify-content: center; align-items: center; }
+  .hero-pro-product { width: 320px; height: 320px; max-width: 100%; margin: 0 auto; }
+  .hero-pro-rings .r1 { width: 220px; height: 220px; }
+  .hero-pro-rings .r2 { width: 260px; height: 260px; }
+  .hero-pro-rings .r3 { width: 300px; height: 300px; }
+  .float-card { font-size: 11px; padding: 6px 10px; }
+  .float-card.f1 { top: 5%; inset-inline-start: 2%; }
+  .float-card.f2 { top: 40%; inset-inline-end: 2%; }
+  .float-card.f3 { bottom: 10%; inset-inline-start: 6%; }
+  .hero-pro-side { width: 40px; height: 40px; top: 35%; }
+  .hero-pro-side-prev { inset-inline-start: 10px; }
+  .hero-pro-side-next { inset-inline-end: 10px; }
+  .hero-pro-trustbar { 
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-block: 16px;
+    padding-inline: 24px;
+    gap: 24px;
+    scroll-padding-inline: 24px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hero-pro-trustbar::-webkit-scrollbar { display: none; }
+  .hero-pro-trust {
+    flex: 0 0 auto;
+    scroll-snap-align: center;
+    width: 260px;
+    max-width: none;
+    min-width: unset;
+  }
+}
+@media (max-width: 540px) {
+  .hero-pro-trustbar { 
+    padding-block: 16px;
+    padding-inline: 16px;
+    gap: 16px;
+    scroll-padding-inline: 16px;
+  }
+  .hero-pro-trust {
+    width: 240px;
+  }
+}
+
+/* Reduced motion — kill loop animations, fade on slide swap only. */
+@media (prefers-reduced-motion: reduce) {
+  .hero-pro-rail-seg.is-active .rail-fill { animation: none; width: 100%; }
+  .float-card,
+  .hero-pro-orb,
+  .hero-pro-product-image,
+  .hero-pro-slide.is-active .hero-pro-product-image,
+  .hero-pro-rings .ring,
+  .hero-pro-product-glow,
+  .hero-pro-eyebrow .dot,
+  .hero-pro-slide.is-active .hero-pro-eyebrow,
+  .hero-pro-slide.is-active .hero-pro-title-inner,
+  .hero-pro-slide.is-active .hero-pro-sub,
+  .hero-pro-slide.is-active .hero-pro-cta,
+  .hero-pro-slide.is-active .hero-pro-chips,
+  .hero-pro-slide.is-active .hero-pro-product-shine { animation: none; }
+}
+
+
+/* ──────────────────────────────────────────
    Spinner — centered ring spinner for async states.
    Honors prefers-reduced-motion by slowing, not stopping.
    ────────────────────────────────────────── */
@@ -523,3 +1281,10 @@ html[data-theme-changing] *::after {
 @media (prefers-reduced-motion: reduce) {
   .sl-spinner { animation-duration: 2s; }
 }
+
+
+
+
+
+
+
