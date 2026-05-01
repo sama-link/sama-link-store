@@ -15,8 +15,26 @@ export default function NewsletterSection() {
   return (
     <section className="bg-surface">
       <Container className="py-14">
-        <div className="rounded-2xl border border-border bg-brand text-text-inverse">
-          <div className="grid grid-cols-1 items-center gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_1fr]">
+        <div className="relative overflow-hidden rounded-2xl bg-brand text-text-inverse">
+          {/* Decorative rings — animated like hero */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute -end-24 top-1/2 flex -translate-y-1/2 items-center justify-center opacity-75"
+          >
+            <span
+              className="absolute h-[384px] w-[384px] rounded-full border border-text-inverse/10"
+              style={{ animation: "ring-pulse 4s ease-out infinite", animationDelay: "0s" }}
+            />
+            <span
+              className="absolute h-[512px] w-[512px] rounded-full border border-text-inverse/10"
+              style={{ animation: "ring-pulse 4s ease-out infinite", animationDelay: "1s" }}
+            />
+            <span
+              className="absolute h-[640px] w-[640px] rounded-full border border-text-inverse/10"
+              style={{ animation: "ring-pulse 4s ease-out infinite", animationDelay: "2s" }}
+            />
+          </div>
+          <div className="relative z-10 grid grid-cols-1 items-center gap-8 p-8 sm:p-10 lg:grid-cols-[1fr_1fr]">
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.14em] text-text-inverse/75">
                 {t("eyebrow")}

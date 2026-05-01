@@ -18,8 +18,11 @@ function getFooterSections(locale: string) {
       links: [
         { key: "allProducts" as const, href: `/${locale}/products` },
         { key: "collections" as const, href: `/${locale}/collections` },
-        { key: "newArrivals" as const, href: `/${locale}/products` }, /* temporary: no dedicated route */
-        { key: "sale" as const, href: `/${locale}/products` }, /* temporary: no dedicated route */
+        {
+          key: "newArrivals" as const,
+          href: `/${locale}/products?sort=newest`,
+        },
+        { key: "sale" as const, href: `/${locale}/products` }, /* temporary: special-offers route ships in a later slice */
       ],
     },
     {
@@ -89,6 +92,20 @@ function SocialIcon({ name }: { name: "facebook" | "instagram" | "twitter" | "yo
 }
 
 const SOCIALS = ["facebook", "instagram", "twitter", "youtube", "whatsapp"] as const;
+
+function socialProfileUrl(
+  name: (typeof SOCIALS)[number],
+): string | undefined {
+  const raw: Record<(typeof SOCIALS)[number], string | undefined> = {
+    facebook: process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK_URL,
+    instagram: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM_URL,
+    twitter: process.env.NEXT_PUBLIC_SOCIAL_TWITTER_URL,
+    youtube: process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE_URL,
+    whatsapp: process.env.NEXT_PUBLIC_SOCIAL_WHATSAPP_URL,
+  };
+  const v = raw[name];
+  return v && v.trim().length > 0 ? v.trim() : undefined;
+}
 const PAYMENTS = ["visa", "mastercard", "meeza", "valu", "cod"] as const;
 
 export default async function Footer() {
@@ -114,7 +131,7 @@ export default async function Footer() {
               <Logo
                 variant="horizontal-no-tagline"
                 alt={tCommon("storeName")}
-                className="h-8 w-auto"
+                className="h-10 w-auto"
               />
             </a>
             <p className="max-w-xs text-sm leading-relaxed text-text-muted">
@@ -123,17 +140,23 @@ export default async function Footer() {
 
             {/* Socials */}
             <ul className="mt-1 flex items-center gap-2">
-              {SOCIALS.map((name) => (
-                <li key={name}>
-                  <a
-                    href="#"
-                    aria-label={t(`socials.${name}`)}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:border-border-strong hover:text-brand"
-                  >
-                    <SocialIcon name={name} />
-                  </a>
-                </li>
-              ))}
+              {SOCIALS.map((name) => {
+                const href = socialProfileUrl(name);
+                if (!href) return null;
+                return (
+                  <li key={name}>
+                    <a
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={t(`socials.${name}`)}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:border-border-strong hover:text-brand"
+                    >
+                      <SocialIcon name={name} />
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </div>
 

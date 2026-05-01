@@ -523,3 +523,10 @@ html[data-theme-changing] *::after {
 @media (prefers-reduced-motion: reduce) {
   .sl-spinner { animation-duration: 2s; }
 }
+
+/* Decorative ring pulse — used by NewsletterSection's inline-styled ring decorations. */
+@keyframes ring-pulse {
+  0%   { opacity: 0; transform: scale(0.8); }
+  50%  { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.15); }
+}

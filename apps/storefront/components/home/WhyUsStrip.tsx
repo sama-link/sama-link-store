@@ -52,7 +52,7 @@ export default async function WhyUsStrip() {
   ];
 
   return (
-    <section className="border-t border-border bg-surface-subtle">
+    <section className="bg-surface-subtle">
       <Container className="py-14">
         <div className="mb-8">
           <div className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-accent">
@@ -71,10 +71,10 @@ export default async function WhyUsStrip() {
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-accent-muted text-brand">
                 <Icon name={item.icon} />
               </span>
-              <h3 className="mt-1 text-base font-semibold text-text-primary">
+              <h3 className="mt-1 text-sm font-semibold text-text-primary">
                 {item.title}
               </h3>
-              <p className="text-sm leading-relaxed text-text-secondary">
+              <p className="text-xs text-text-secondary">
                 {item.body}
               </p>
             </li>
