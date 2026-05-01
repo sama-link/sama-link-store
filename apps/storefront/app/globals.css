@@ -364,7 +364,12 @@ html[data-theme-ready] body {
    plays on each arrival. Short + subtle so it feels soft, not sluggish. */
 @keyframes page-enter {
   0%   { opacity: 0; transform: translateY(8px) scale(0.995); filter: blur(4px); }
-  100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  /* 100% must end at transform:none AND filter:none. Any non-`none` value on
+     `.page-enter` after the animation finishes creates a containing block for
+     `position: fixed` descendants — which retargets the cart drawer / mobile
+     menu / popovers off the viewport and onto `.page-enter`'s page-tall box,
+     so fixed panels appear stretched/misplaced relative to the page. */
+  100% { opacity: 1; transform: none; filter: none; }
 }
 .page-enter {
   animation: page-enter 450ms cubic-bezier(0.22, 1, 0.36, 1) both;

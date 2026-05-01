@@ -177,8 +177,8 @@ export default function CartDrawer() {
             : "ltr:sm:translate-x-full rtl:sm:-translate-x-full",
         )}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
+        {/* Header — shrink-0 keeps title row fixed; scroll lives in flex-1 + min-h-0 body. */}
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-5 py-4">
           <h2
             id="cart-drawer-title"
             className="flex items-center gap-2.5 text-base font-semibold text-text-primary"
@@ -228,8 +228,9 @@ export default function CartDrawer() {
           </button>
         </div>
 
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4">
+        {/* Body — min-h-0 lets this flex item shrink so overflow-y-auto actually scrolls
+            inside the drawer; otherwise content height wins and footer sits off-screen. */}
+        <div className="min-h-0 flex-1 overflow-y-auto px-5 py-4">
           {loading ? (
             <p className="text-sm text-text-secondary">{t("loading")}</p>
           ) : !cart?.items?.length ? (
@@ -278,9 +279,9 @@ export default function CartDrawer() {
           )}
         </div>
 
-        {/* Footer */}
+        {/* Footer — always visible at bottom of panel; shrink-0 so it isn’t squeezed. */}
         {!loading && hasItems ? (
-          <div className="space-y-3 border-t border-border bg-surface-subtle px-5 py-4">
+          <div className="shrink-0 space-y-3 border-t border-border bg-surface-subtle px-5 py-4">
             <div className="flex items-center justify-between text-sm">
               <span className="text-text-secondary">{t("subtotal")}</span>
               <span className="text-lg font-bold text-brand">
