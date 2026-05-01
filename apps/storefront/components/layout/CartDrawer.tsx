@@ -7,6 +7,7 @@ import { useCart } from "@/hooks/useCart";
 import { cn } from "@/lib/cn";
 import CartLineItem from "@/components/layout/CartLineItem";
 import { formatPrice } from "@/lib/format-price";
+import { getCartItemsSubtotal } from "@/components/layout/cart-totals";
 
 function collectFocusable(panel: HTMLElement): HTMLElement[] {
   const selector =
@@ -133,6 +134,7 @@ export default function CartDrawer() {
   const hasItems = Boolean(cart?.items?.length);
   const itemCount =
     cart?.items?.reduce((sum: number, it: any) => sum + (it.quantity ?? 0), 0) ?? 0;
+  const itemsSubtotal = getCartItemsSubtotal(cart);
 
   return (
     <div
@@ -282,7 +284,7 @@ export default function CartDrawer() {
             <div className="flex items-center justify-between text-sm">
               <span className="text-text-secondary">{t("subtotal")}</span>
               <span className="text-lg font-bold text-brand">
-                {formatPrice(cart?.subtotal, currencyCode, locale)}
+                {formatPrice(itemsSubtotal, currencyCode, locale)}
               </span>
             </div>
             <a
