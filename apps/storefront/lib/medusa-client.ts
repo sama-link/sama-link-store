@@ -508,13 +508,16 @@ export async function listCmsPages(): Promise<CmsPage[]> {
 export const CART_FIELDS =
   "id,currency_code,completed_at,customer_id,region_id," +
   "items,items.id,items.variant_id,items.quantity,items.unit_price," +
+  "items.item_total,items.item_subtotal,items.total,items.subtotal," +
   "items.title,items.thumbnail,items.variant.title," +
-  "items.variant.product.handle,total,subtotal,item_total," +
+  "items.variant.product.handle,total,subtotal,item_total,item_subtotal," +
+  "tax_total,discount_total,shipping_total,shipping_subtotal,shipping_tax_total,shipping_discount_total," +
   "shipping_address.first_name,shipping_address.last_name," +
   "shipping_address.address_1,shipping_address.address_2," +
   "shipping_address.city,shipping_address.country_code," +
   "shipping_address.province,shipping_address.postal_code,shipping_address.phone," +
   "shipping_methods.id,shipping_methods.name,shipping_methods.amount," +
+  "shipping_methods.total,shipping_methods.subtotal,shipping_methods.tax_total,shipping_methods.discount_total," +
   "payment_collection.id";
 
 export const cartSelect = { fields: CART_FIELDS };
