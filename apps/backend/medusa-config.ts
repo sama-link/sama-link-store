@@ -30,16 +30,23 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET!,
     },
   },
-  // Sama Link custom modules — ADR-047.
-  //   brand: first-class brand catalog surfaced as a native admin resource
-  //          with CRUD pages at /app/brands and a picker widget on product
-  //          details. Replaces the old string-in-metadata approach.
+  // Sama Link custom modules — ADR-047, ADR-053.
+  //   brand:         first-class brand catalog surfaced as a native admin
+  //                  resource with CRUD pages at /app/brands and a picker
+  //                  widget on product details. Replaces the old
+  //                  string-in-metadata approach.
+  //   customer_list: customer-scoped wishlist + compare collections,
+  //                  unified under one module with a `list_type`
+  //                  discriminator (ADR-053). Routes ship under ACCT-6B.
   modules: [
     {
       resolve: "./src/modules/brand",
     },
     {
       resolve: "./src/modules/translation",
+    },
+    {
+      resolve: "./src/modules/customer_list",
     },
   ],
 });
