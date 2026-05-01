@@ -316,7 +316,7 @@ const ArabicSection = ({ product, productId }: ArabicSectionProps) => {
     "shadow-borders-base placeholder-ui-fg-muted text-ui-fg-base " +
     "transition-fg relative appearance-none rounded-md outline-none " +
     "focus-visible:shadow-borders-interactive-with-active " +
-    "txt-small min-h-[80px] w-full px-2 py-1.5"
+    "txt-small min-h-[160px] w-full px-2 py-1.5 font-mono"
 
   return (
     <div className="flex flex-col gap-y-3 border-t border-ui-border-base pt-6 mt-2">
@@ -410,21 +410,24 @@ const ArabicSection = ({ product, productId }: ArabicSectionProps) => {
             className="font-sans txt-compact-small font-medium"
             htmlFor="sama-ar-description"
           >
-            Description
+            Description (HTML)
           </label>
           <p className="font-normal font-sans txt-compact-small text-ui-fg-muted">
             (اختياري)
           </p>
         </div>
+        <p className="txt-compact-xsmall text-ui-fg-muted">
+          Supports HTML tags (for example: &lt;p&gt;, &lt;ul&gt;, &lt;li&gt;, &lt;strong&gt;).
+        </p>
         <textarea
           id="sama-ar-description"
           className={textareaClass}
           dir="rtl"
           lang="ar"
-          rows={5}
+          rows={10}
           value={form.description}
           disabled={saving}
-          placeholder="اكتب وصف المنتج بالعربي…"
+          placeholder="اكتب وصف المنتج بالعربي بصيغة HTML…"
           onChange={(e) =>
             setForm((f) => ({ ...f, description: e.target.value }))
           }

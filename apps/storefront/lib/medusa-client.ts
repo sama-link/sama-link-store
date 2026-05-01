@@ -346,6 +346,65 @@ export type ListProductsParams = NonNullable<
   Parameters<(typeof sdk)["store"]["product"]["list"]>[0]
 >;
 
+function storeApiHeaders(): Record<string, string> {
+  return publishableKey
+    ? { "x-publishable-api-key": publishableKey }
+    : {};
+}
+
+/** Product IDs tagged with the `special_offer` catalog label (see backend `sama_labels` metadata). */
+export async function listSpecialOfferProductIds(): Promise<string[]> {
+  const res = await fetch(`${baseUrl}/store/special-offers/catalog-ids`, {
+    headers: {
+      accept: "application/json",
+      ...storeApiHeaders(),
+    },
+    next: { tags: ["special-offers"], revalidate: 3600 },
+  });
+  if (!res.ok) return [];
+  const data = (await res.json()) as { ids?: unknown };
+  if (!Array.isArray(data.ids)) return [];
+  return data.ids.filter((id): id is string => typeof id === "string" && id.length > 0);
+}
+
+/** Store API product rows for all special-offer products, with pricing context applied. */
+export async function listSpecialOfferProducts() {
+  const ids = await listSpecialOfferProductIds();
+  if (ids.length === 0) {
+    return {
+      products: [] as Awaited<ReturnType<typeof sdk.store.product.list>>["products"],
+      count: 0,
+      offset: 0,
+      limit: 0,
+    };
+  }
+  const base: ListProductsParams = regionId
+    ? {
+        region_id: regionId,
+        fields:
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
+      }
+    : {
+        fields:
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
+      };
+  const result = await sdk.store.product.list({
+    ...base,
+    id: ids,
+    limit: Math.min(ids.length, 200),
+    offset: 0,
+  });
+  const byId = new Map(result.products.map((p) => [p.id, p]));
+  const ordered = ids
+    .map((id) => byId.get(id))
+    .filter((p): p is NonNullable<typeof p> => p != null);
+  return {
+    ...result,
+    products: ordered,
+    count: ordered.length,
+  };
+}
+
 export async function listProducts(params?: ListProductsParams) {
   const base: ListProductsParams = regionId
     ? {
@@ -455,13 +514,21 @@ export async function getCollectionByHandle(handle: string) {
   return collections[0] ?? null;
 }
 
+export async function listBrands() {
+  const res = await fetch(`${baseUrl}/store/brands`, {
+    next: { tags: ["brands"], revalidate: 3600 },
+  });
+  if (!res.ok) return { brands: [] };
+  return res.json() as Promise<{ brands: Array<{ id: string; name: string; handle: string }> }>;
+}
+
 export async function listCollections() {
   return sdk.store.collection.list({} as ListCollectionsParams);
 }
 
 export async function listProductCategories() {
   return sdk.store.category.list({
-    fields: "id,name,handle",
+    fields: "id,name,handle,parent_category_id",
     limit: 100,
   } as ListProductCategoriesParams);
 }

@@ -1,130 +1,47 @@
 import { getLocale, getTranslations } from "next-intl/server";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
-import { listCollections, listProductCategories } from "@/lib/medusa-client";
+import { listProductCategories } from "@/lib/medusa-client";
 import Container from "./Container";
 import LocaleSwitcher from "./LocaleSwitcher";
 import MobileMenu from "./MobileMenu";
-import MegaMenu from "./MegaMenu";
+import MegaMenuButton from "./MegaMenuButton";
+import PrimaryNav from "./PrimaryNav";
 import HeaderSearch from "./HeaderSearch";
 import CartButton from "./CartButton";
 import WishlistHeaderButton from "./WishlistHeaderButton";
 import CompareHeaderButton from "./CompareHeaderButton";
 import AccountHeaderLink from "./AccountHeaderLink";
+import StickyHeader from "./StickyHeader";
 
 /*
-  Layout (ADR-045 flat refresh):
+  Layout (ADR-045 flat refresh — header redesign):
 
   Announcement strip (always-on)
 
-  Desktop (≥ sm)
-    [Logo]  ⋯⋯⋯ [MegaMenu ···  🔍] ⋯⋯⋯  [ 🌐 EN | ☀︎ ]  👤  ❤︎  ⇄  🛒
-    ─────────────────────────────────────────────────────────────
-    (LTR — RTL mirrors automatically via logical properties.)
+  Desktop (≥ lg)
+    [☰ All Categories] [Logo] [Home · Products · Collections · Deals · About · Contact] [🔍] [🌐|☀︎] 👤 ❤︎ ⇄ 🛒
+    ─────────────────────────────────────────────────────────────────────────────────────────────────
+    LTR — RTL mirrors automatically via logical properties.
+
+  Tablet (sm – lg) — same layout, primary nav hidden (mega menu still surfaces categories,
+  collections + deals + about + contact reachable via collections/products/pages routes).
 
   Mobile (< sm)
-    [☰] [Logo]                                    [ 🌐 EN | ☀︎ ]
+    [☰] [Logo]                                    [🌐 EN | ☀︎]
     Cart lives as a floating FAB; wishlist/compare inside the menu.
-
-  Category strip (sm+): horizontal icon + label links.
 */
-
-/* Inline icon bank for the category strip — currentColor + 1.75 stroke. */
-function CatIcon({ name }: { name: string }) {
-  const common = "h-4 w-4";
-  switch (name) {
-    case "router":
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="3" y="14" width="18" height="6" rx="1.5" />
-          <path d="M7 18h.01M11 18h.01M15 18h.01" />
-          <path d="M12 9v3" />
-          <path d="M8 7c1-1 2.5-1.5 4-1.5S15 6 16 7" />
-        </svg>
-      );
-    case "cctv":
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M3 6h14l2 4h-5l-2 4H5z" />
-          <line x1="5" y1="14" x2="5" y2="20" />
-          <line x1="7" y1="20" x2="3" y2="20" />
-        </svg>
-      );
-    case "battery":
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="3" y="8" width="16" height="8" rx="1.5" />
-          <line x1="21" y1="11" x2="21" y2="13" />
-        </svg>
-      );
-    case "plug":
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M9 4v4M15 4v4" />
-          <path d="M7 8h10v4a5 5 0 0 1-10 0z" />
-          <path d="M12 17v4" />
-        </svg>
-      );
-    case "cable":
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M4 20c4 0 8-4 8-8V4" />
-          <path d="M12 4h4v4h-4z" />
-          <path d="M20 4v8c0 4-4 8-8 8" />
-        </svg>
-      );
-    case "shield":
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z" />
-        </svg>
-      );
-    case "flame":
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M12 3s4 4 4 9a4 4 0 0 1-8 0c0-2 1-3 1-5" />
-          <path d="M12 22a6 6 0 0 1-6-6c0-4 3-5 3-8" />
-        </svg>
-      );
-    case "box":
-    default:
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={common} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M12 3l9 5v8l-9 5-9-5V8z" />
-          <path d="M3 8l9 5 9-5" />
-          <path d="M12 13v8" />
-        </svg>
-      );
-  }
-}
-
-function guessCatIcon(name: string): string {
-  const n = name.toLowerCase();
-  if (n.includes("network") || n.includes("wifi") || n.includes("wi-fi") || n.includes("شبك")) return "router";
-  if (n.includes("surveil") || n.includes("camera") || n.includes("cctv") || n.includes("مراقب")) return "cctv";
-  if (n.includes("power") || n.includes("ups") || n.includes("battery") || n.includes("طاق")) return "battery";
-  if (n.includes("smart") || n.includes("iot") || n.includes("ذكي")) return "plug";
-  if (n.includes("cable") || n.includes("accessor") || n.includes("كابل") || n.includes("ملحق")) return "cable";
-  if (n.includes("kit") || n.includes("security") || n.includes("حزم")) return "shield";
-  if (n.includes("deal") || n.includes("sale") || n.includes("عرض")) return "flame";
-  return "box";
-}
 
 export default async function Header() {
   const locale = await getLocale();
 
-  const [categoriesResult, collectionsResult] = await Promise.allSettled([
-    listProductCategories(),
-    listCollections(),
-  ]);
+  const categoriesResult = await Promise.allSettled([listProductCategories()]).then(
+    (r) => r[0],
+  );
 
   const product_categories =
     categoriesResult.status === "fulfilled"
       ? categoriesResult.value.product_categories
-      : [];
-  const collections =
-    collectionsResult.status === "fulfilled"
-      ? collectionsResult.value.collections
       : [];
 
   const megaCategories = product_categories.map((c: any) => ({
@@ -132,24 +49,15 @@ export default async function Header() {
     name: c.name ?? c.handle ?? c.id,
   }));
 
-  const megaCollections = collections
-    .filter((c: any) => typeof c.handle === "string" && c.handle.length > 0)
-    .map((c: any) => ({
-      id: c.id,
-      title: c.title ?? c.handle ?? c.id,
-      handle: c.handle as string,
-    }));
-
   const t = await getTranslations("nav");
   const tTop = await getTranslations("topbar");
   const tCommon = await getTranslations("common");
 
   const productsHref = `/${locale}/products`;
-  const catStripItems = megaCategories.slice(0, 6);
 
   return (
-    <header className="relative sticky top-0 z-50 border-b border-border bg-surface">
-      {/* Announcement strip — brand fill + subtle moving shimmer */}
+    <StickyHeader>
+      {/* ── Topbar — full viewport width, unchanged. ── */}
       <div className="topbar-shimmer relative overflow-hidden bg-brand text-text-inverse">
         <Container>
           <div className="relative z-10 flex h-9 items-center justify-center gap-2 text-xs font-medium">
@@ -165,14 +73,18 @@ export default async function Header() {
         </Container>
       </div>
 
-      <Container>
-        <div className="flex h-16 items-center gap-2 sm:gap-5">
-          {/* ── Mobile hamburger ── */}
+      {/* ── Main row — Generous breathing room, logo on the start, big
+            persistent search bar at the centre, refined action cluster at
+            the end. Single dominant element per visual zone — keeps the
+            hierarchy clean (logo / search / actions). ── */}
+      <div className="border-b border-border bg-surface">
+        <Container>
+          <div className="relative flex h-[72px] items-center gap-3 sm:gap-5 lg:gap-6">
           <div className="sm:hidden">
-            <MobileMenu />
+            <MobileMenu categories={megaCategories} />
           </div>
 
-          {/* ── Logo (far start) — capped on mobile so the action rail fits. */}
+          {/* Logo — taller for stronger brand presence. */}
           <a
             href={`/${locale}`}
             className="inline-flex shrink-0 items-center transition-opacity hover:opacity-90"
@@ -181,81 +93,55 @@ export default async function Header() {
             <Logo
               variant="horizontal-no-tagline"
               alt={tCommon("storeName")}
-              className="h-8 w-auto sm:h-12"
+              className="h-10 w-auto lg:h-12"
               priority
             />
           </a>
 
-          {/* ── Center: Mega menu + Search (desktop) ── */}
-          <div className="hidden flex-1 items-center justify-center gap-3 sm:flex">
-            <MegaMenu categories={megaCategories} collections={megaCollections} />
+          {/* Persistent search bar — takes the central spotlight. */}
+          <div className="hidden min-w-0 flex-1 justify-center md:flex">
             <HeaderSearch />
           </div>
 
-          {/* Spacer on mobile — pushes prefs group to the end */}
-          <div className="flex-1 sm:hidden" />
+          {/* Spacer for mobile (no central search visible) */}
+          <div className="flex-1 md:hidden" />
 
-          {/* ── Far-end actions ──
-              Mobile: icon-only, tight row, no grouped pill.
-              Desktop: grouped locale+theme pill, full-size buttons. */}
-          <div className="flex items-center gap-0.5 sm:gap-3">
-            {/* Mobile: bare icons, no grouped border */}
-            <div className="flex items-center gap-0.5 sm:hidden">
-              <LocaleSwitcher bare showLabel={false} />
-              <ThemeToggle bare />
-            </div>
-
-            {/* Desktop: grouped Locale + Theme pill */}
-            <div className="hidden h-10 items-center divide-x divide-border rounded-full border border-border bg-surface rtl:divide-x-reverse sm:inline-flex">
-              <LocaleSwitcher bare />
-              <ThemeToggle bare />
-            </div>
-
-            {/* Account link — desktop icon; mobile version lives inside MobileMenu */}
-            <div className="hidden sm:flex">
-              <AccountHeaderLink />
-            </div>
-
-            {/* Wishlist + Compare: always visible (popover on desktop, bottom sheet on mobile) */}
-            <WishlistHeaderButton />
-            <CompareHeaderButton />
-
-            {/* Cart: desktop only (FAB + floating popup on mobile) */}
-            <div className="hidden sm:flex">
-              <CartButton />
+          {/* Action cluster — calm, evenly-spaced, divided into utility
+              (locale/theme) and account actions for legibility. */}
+          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+            <LocaleSwitcher bare showLabel={false} />
+            <ThemeToggle bare />
+            <div className="flex items-center lg:hidden gap-0.5 sm:gap-1">
+              <WishlistHeaderButton />
+              <CompareHeaderButton />
             </div>
           </div>
         </div>
-      </Container>
+        </Container>
+      </div>
 
-      {/* Category quick-jump strip — desktop only */}
-      {catStripItems.length > 0 ? (
-        <div
-          className="hidden border-t border-border bg-surface sm:block"
-          aria-label={t("catbarLabel")}
-        >
-          <Container>
-            <nav className="flex items-center gap-4 overflow-x-auto py-2 text-sm [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {catStripItems.map((c: any) => (
-                <a
-                  key={c.id}
-                  href={`${productsHref}?${new URLSearchParams({ category: c.id }).toString()}`}
-                  className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap font-medium text-text-secondary transition-colors hover:text-brand"
-                >
-                  <CatIcon name={guessCatIcon(c.name)} />
-                  {c.name}
-                </a>
-              ))}
-              <a
-                href={productsHref}
-                className="ms-auto whitespace-nowrap text-xs font-semibold uppercase tracking-wider text-text-muted transition-colors hover:text-brand"
-              >
-                {t("megaMenu.viewAllProducts")}
-              </a>
-            </nav>
-          </Container>
-        </div>
-      ) : null}
-    </header>
+      {/* ── Sub-nav row — Mega menu button on the start edge (full row
+          height, navy tab) + primary nav links centered. Subtle border-bottom
+          gives it definition without competing with the main row. Hidden on
+          mobile (links live in MobileMenu). ── */}
+      <div className="hidden bg-surface lg:block">
+        <Container>
+          <div className="flex h-11 items-stretch">
+            <div className="flex h-full shrink-0">
+              <MegaMenuButton categories={megaCategories} />
+            </div>
+            <div className="flex flex-1 items-center justify-center px-4">
+              <PrimaryNav />
+            </div>
+            <div className="flex h-full shrink-0 items-center gap-0.5 border-s border-border ps-2">
+              <AccountHeaderLink />
+              <WishlistHeaderButton />
+              <CompareHeaderButton />
+              <CartButton />
+            </div>
+          </div>
+        </Container>
+      </div>
+    </StickyHeader>
   );
 }
