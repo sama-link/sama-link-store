@@ -357,7 +357,13 @@
       "trust": {
         "authentic": { "title": "Authentic only", "body": "Manufacturer-backed warranty" },
         "delivery":  { "title": "48h delivery",   "body": "Fast shipping across Egypt" },
-        "cod":       { "title": "Cash on delivery", "body": "Pay when you receive" }
+        "cod":       { "title": "Cash on delivery", "body": "Pay when you receive" },
+        "returns":   { "title": "14-day returns", "body": "No questions asked" }
+      },
+      "carousel": {
+        "previous": "Previous slide",
+        "next": "Next slide",
+        "goToSlide": "Go to slide {n}"
       },
       "cards": {
         "networking":   { "eyebrow": "Networking",   "sub": "EGP 4,299" },
