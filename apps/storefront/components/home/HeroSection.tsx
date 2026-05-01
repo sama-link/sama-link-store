@@ -191,7 +191,7 @@ const RAW_SLIDES: ReadonlyArray<RawSlide> = [
     imageAlt: "Business laptops and workstations",
     eyebrow: { en: "Laptops · Workstations", ar: "لابتوبات · محطات عمل" },
     title:   { en: "Built for the work\nthat matters.", ar: "مصمّم للشغل\nالجاد." },
-    sub:     { en: "Business laptops, workstations, and gaming rigs — Dell, Lenovo, HP & Apple.", ar: "لابتوبات أعمال، محطات عمل، وجيمنج — Dell و Lenovo و HP & Apple." },
+    sub:     { en: "Business laptops, workstations, and gaming rigs — Dell, Lenovo, HP & Apple.", ar: "لابتوبات أعمال، محطات عمل، وجيمنج — Dell و Lenovo و HP و Apple." },
     cta:     { en: "Shop laptops", ar: "تسوق اللابتوبات" },
     chips: [
       { ic: "cpu",          en: "Intel & AMD", ar: "Intel و AMD" },
