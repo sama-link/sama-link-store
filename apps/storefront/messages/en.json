@@ -436,6 +436,7 @@
       "densityCols": "{count} columns",
       "showing": "Showing {shown}",
       "showingOf": "Showing {shown} of {total}",
+      "show": "Show",
       "close": "Close",
       "sort": {
         "newest": "Newest",

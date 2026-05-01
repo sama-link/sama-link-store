@@ -116,7 +116,7 @@ export default function MobileCatalogFab(props: Props) {
     router.push(
       buildHref({
         sort: stagedSort === "newest" ? null : stagedSort,
-        cols: stagedCols === 4 ? null : String(stagedCols),
+        cols: stagedCols === 3 ? null : String(stagedCols),
         view: stagedView === "grid" ? null : stagedView,
       }),
       { scroll: false },

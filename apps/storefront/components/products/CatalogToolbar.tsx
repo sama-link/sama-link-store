@@ -8,9 +8,11 @@ import {
   SORT_KEYS,
   COL_OPTIONS,
   VIEW_MODES,
+  PAGE_SIZE_OPTIONS,
   type ColumnCount,
   type SortKey,
   type ViewMode,
+  type PageSize,
 } from "@/components/products/catalog-toolbar-utils";
 
 interface Props {
@@ -19,6 +21,7 @@ interface Props {
   activeSort: SortKey;
   activeCols: ColumnCount;
   activeView: ViewMode;
+  activePageSize: PageSize;
 }
 
 export default function CatalogToolbar({
@@ -27,6 +30,7 @@ export default function CatalogToolbar({
   activeSort,
   activeCols,
   activeView,
+  activePageSize,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname() ?? "";
@@ -55,7 +59,14 @@ export default function CatalogToolbar({
   };
 
   const onColsClick = (c: ColumnCount) => {
-    router.push(buildHref({ cols: c === 4 ? null : String(c) }), {
+    router.push(buildHref({ cols: c === 3 ? null : String(c) }), {
+      scroll: false,
+    });
+  };
+
+  const onPageSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const val = e.target.value;
+    router.push(buildHref({ pageSize: val === "12" ? null : val }), {
       scroll: false,
     });
   };
@@ -73,7 +84,39 @@ export default function CatalogToolbar({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-3">
-      <div className="text-sm font-medium text-text-secondary">{countLabel}</div>
+      <div className="flex items-center gap-3">
+        {/* Page Size — visible on all breakpoints */}
+        <label className="flex items-center gap-2 text-sm text-text-secondary">
+          <span>{t("show")}</span>
+          <div className="relative">
+            <select
+              value={activePageSize}
+              onChange={onPageSizeChange}
+              className="h-9 appearance-none rounded-lg border border-border bg-surface pe-8 ps-3 text-sm font-medium text-text-primary transition-colors hover:border-border-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 cursor-pointer"
+            >
+              {PAGE_SIZE_OPTIONS.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.75}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
+              aria-hidden="true"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        </label>
+        <div className="text-sm font-medium text-text-secondary">{countLabel}</div>
+      </div>
 
       <div className="flex items-center gap-3">
         {/* Grid / List view toggle — always visible */}
@@ -104,37 +147,6 @@ export default function CatalogToolbar({
           })}
         </div>
 
-        {/* Sort — desktop only (mobile uses the FAB's View tab) */}
-        <label className="hidden items-center gap-2 text-sm text-text-secondary sm:flex">
-          <span className="hidden sm:inline">{t("sortBy")}</span>
-          <div className="relative">
-            <select
-              value={activeSort}
-              onChange={onSortChange}
-              className="h-9 appearance-none rounded-lg border border-border bg-surface pe-9 ps-3 text-sm font-medium text-text-primary focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15"
-            >
-              {SORT_KEYS.map((k) => (
-                <option key={k} value={k}>
-                  {t(`sort.${k}`)}
-                </option>
-              ))}
-            </select>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
-              aria-hidden="true"
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </div>
-        </label>
-
         {/* Density — desktop only, and only when in grid view */}
         {activeView === "grid" ? (
           <div
@@ -164,6 +176,37 @@ export default function CatalogToolbar({
             })}
           </div>
         ) : null}
+
+        {/* Sort — desktop only (mobile uses the FAB's View tab) */}
+        <label className="hidden items-center gap-2 text-sm text-text-secondary sm:flex">
+          <span className="hidden sm:inline">{t("sortBy")}</span>
+          <div className="relative">
+            <select
+              value={activeSort}
+              onChange={onSortChange}
+              className="h-9 appearance-none rounded-lg border border-border bg-surface pe-8 ps-3 text-sm font-medium text-text-primary transition-colors hover:border-border-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 cursor-pointer"
+            >
+              {SORT_KEYS.map((k) => (
+                <option key={k} value={k}>
+                  {t(`sort.${k}`)}
+                </option>
+              ))}
+            </select>
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={1.75}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
+              aria-hidden="true"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        </label>
       </div>
     </div>
   );

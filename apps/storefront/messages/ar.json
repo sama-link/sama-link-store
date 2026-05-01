@@ -481,6 +481,7 @@
       "densityCols": "{count} أعمدة",
       "showing": "يظهر {shown}",
       "showingOf": "يظهر {shown} من {total}",
+      "show": "عرض",
       "close": "إغلاق",
       "sort": {
         "newest": "الأحدث",

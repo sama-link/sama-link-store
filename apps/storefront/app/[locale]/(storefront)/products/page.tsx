@@ -16,6 +16,7 @@ import {
   parseCols,
   parseSort,
   parseView,
+  parsePageSize,
   sortKeyToOrderParam,
 } from "@/components/products/catalog-toolbar-utils";
 import LoadMoreProducts from "@/components/products/LoadMoreProducts";
@@ -24,8 +25,6 @@ import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
 export const revalidate = 3600; // ISR — ADR-017
-
-const PRODUCTS_PER_PAGE = 12;
 
 type CatalogProduct = Awaited<ReturnType<typeof listProducts>>["products"][number];
 
@@ -72,15 +71,37 @@ function mapCollectionsForFilters(
   }));
 }
 
+/* Build a hierarchical category tree from the flat Medusa response. When the
+   underlying client doesn't fetch `parent_category_id` (the current state on
+   this branch), every row simply becomes a root and the sidebar renders flat —
+   no behavior change vs. the previous flat mapping. When `parent_category_id`
+   becomes available later, the tree fills in automatically. */
 function mapCategoriesForFilters(
   categories: Awaited<
     ReturnType<typeof listProductCategories>
   >["product_categories"],
 ): FilterCategoryOption[] {
-  return categories.map((c: any) => ({
-    id: c.id,
-    title: (c.name && c.name.trim() !== "" ? c.name : c.handle) ?? c.id,
-  }));
+  const map = new Map<string, FilterCategoryOption>();
+  const roots: FilterCategoryOption[] = [];
+
+  for (const c of categories as any[]) {
+    map.set(c.id, {
+      id: c.id,
+      title: (c.name && c.name.trim() !== "" ? c.name : c.handle) ?? c.id,
+      children: [],
+    });
+  }
+
+  for (const c of categories as any[]) {
+    const node = map.get(c.id)!;
+    if (c.parent_category_id && map.has(c.parent_category_id)) {
+      map.get(c.parent_category_id)!.children!.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+
+  return roots;
 }
 
 interface ProductsPageProps {
@@ -97,6 +118,7 @@ interface ProductsPageProps {
     sort?: string;
     cols?: string;
     view?: string;
+    pageSize?: string;
   }>;
 }
 
@@ -139,6 +161,7 @@ export default async function ProductsPage({
     sort: sortRaw,
     cols: colsRaw,
     view: viewRaw,
+    pageSize: pageSizeRaw,
   } = await searchParams;
   const t = await getTranslations({ locale, namespace: "products.listing" });
   const tb = await getTranslations({ locale, namespace: "breadcrumbs" });
@@ -146,6 +169,7 @@ export default async function ProductsPage({
   const activeSort = parseSort(sortRaw);
   const activeCols = parseCols(colsRaw);
   const activeView = parseView(viewRaw);
+  const activePageSize = parsePageSize(pageSizeRaw);
 
   const filterParams: ListProductsParams = {};
   if (collection) filterParams.collection_id = [collection];
@@ -157,7 +181,7 @@ export default async function ProductsPage({
 
   const [listResult, collectionsResult, categoriesResult] = await Promise.all([
     listProducts({
-      limit: PRODUCTS_PER_PAGE,
+      limit: activePageSize,
       offset: 0,
       ...filterParams,
     }),
@@ -227,12 +251,13 @@ export default async function ProductsPage({
             activeSort={activeSort}
             activeCols={activeCols}
             activeView={activeView}
+            activePageSize={activePageSize}
           />
 
           <LoadMoreProducts
             initialProducts={products}
             totalCount={count}
-            pageSize={PRODUCTS_PER_PAGE}
+            pageSize={activePageSize}
             cols={activeCols}
             sort={activeSort}
             view={activeView}
