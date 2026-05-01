@@ -23,7 +23,7 @@ export default function CartButton() {
       aria-pressed={isCartOpen}
       aria-expanded={isCartOpen}
       className={cn(
-        "relative flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-[background-color,color,transform] duration-150 hover:bg-surface-subtle hover:text-text-primary motion-safe:active:scale-90",
+        "relative flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] hover:bg-surface-subtle hover:text-text-primary hover:-translate-y-[1px] motion-safe:active:scale-90 active:translate-y-0",
         isCartOpen && "bg-accent-muted text-brand",
       )}
     >

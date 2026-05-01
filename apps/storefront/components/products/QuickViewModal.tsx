@@ -6,6 +6,7 @@ import {
   useCallback,
   useEffect,
   useId,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -13,18 +14,10 @@ import { useLocale, useTranslations } from "next-intl";
 import { formatCatalogPrice } from "@/lib/format-price";
 import type { ListProduct } from "@/hooks/useWishlist";
 import { localizeTitle, localizeDescription } from "@/lib/product-i18n";
+import { htmlToPlainText, buildDescriptionPreview } from "@/lib/product-description-preview";
 import AddToCartButton from "@/components/products/AddToCartButton";
 import Button from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
-
-function stripDescription(html: string | null | undefined): string {
-  if (!html) return "";
-  return html
-    .replace(/<[^>]*>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 320);
-}
 
 export interface QuickViewModalProps {
   product: ListProduct;
@@ -46,10 +39,15 @@ export default function QuickViewModal({
   const [selectedVariantId, setSelectedVariantId] = useState(
     variants[0]?.id ?? "",
   );
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
 
   useEffect(() => {
     setSelectedVariantId(variants[0]?.id ?? "");
   }, [product.id, variants]);
+
+  useEffect(() => {
+    if (open) setDescriptionExpanded(false);
+  }, [open, product.id]);
 
   const selectedVariant =
     variants.find((v: any) => v.id === selectedVariantId) ?? variants[0];
@@ -66,7 +64,14 @@ export default function QuickViewModal({
   /* ADR-047 · Prefer metadata.translations.ar.{title,description} on ar locale. */
   const displayTitle = localizeTitle(product, locale);
   const displayDescription = localizeDescription(product, locale);
-  const plainDesc = stripDescription(displayDescription ?? "");
+  const plainDescription = useMemo(
+    () => htmlToPlainText(displayDescription ?? ""),
+    [displayDescription],
+  );
+  const { preview, hasMore } = useMemo(
+    () => buildDescriptionPreview(plainDescription),
+    [plainDescription],
+  );
 
   useEffect(() => {
     const el = dialogRef.current;
@@ -115,7 +120,7 @@ export default function QuickViewModal({
       aria-labelledby={titleId}
       aria-modal="true"
       className={cn(
-        "fixed inset-0 z-[70] m-auto h-fit max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-lg border border-border bg-surface p-0 text-text-primary shadow-lg [&::backdrop]:bg-text-primary/40",
+        "fixed inset-0 z-[70] m-auto h-fit max-h-[min(92dvh,900px)] w-[min(100%,28rem)] max-w-[calc(100vw-1.5rem)] overflow-y-auto rounded-xl border border-border bg-surface p-0 text-text-primary shadow-lg sm:max-w-md [&::backdrop]:bg-text-primary/40",
         "open:flex open:flex-col",
       )}
       onKeyDown={onDialogKeyDown}
@@ -124,8 +129,8 @@ export default function QuickViewModal({
       }}
       onClose={handleClose}
     >
-      <div className="flex flex-col gap-4 p-4 sm:p-5">
-        <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 p-4 sm:gap-4 sm:p-5">
+        <div className="flex items-start justify-between gap-3 border-b border-border pb-3">
           <h2 id={titleId} className="text-lg font-semibold text-text-primary">
             {t("title")}
           </h2>
@@ -140,20 +145,20 @@ export default function QuickViewModal({
           </Button>
         </div>
 
-        <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-border bg-surface-subtle">
+        <div className="relative mx-auto aspect-[4/3] w-full max-h-[200px] overflow-hidden rounded-xl border border-border bg-surface-subtle sm:aspect-square sm:max-h-none">
           {product.thumbnail ? (
             <Image
               src={product.thumbnail}
               alt={displayTitle}
               fill
               sizes="(min-width: 640px) 28rem, 100vw"
-              className="object-cover"
+              className="object-contain p-2 sm:object-cover sm:p-0"
             />
           ) : null}
         </div>
 
         {displayTitle ? (
-          <p className="text-base font-semibold text-text-primary">
+          <p className="text-base font-semibold leading-snug text-text-primary">
             {displayTitle}
           </p>
         ) : null}
@@ -162,10 +167,24 @@ export default function QuickViewModal({
           <p className="text-lg font-bold text-brand">{priceLabel}</p>
         ) : null}
 
-        {plainDesc ? (
-          <p className="text-sm leading-relaxed text-text-secondary">
-            {plainDesc}
-          </p>
+        {plainDescription ? (
+          <div className="rounded-lg bg-surface-subtle px-3 py-2.5 sm:px-3.5 sm:py-3">
+            <p className="text-sm leading-relaxed text-text-secondary break-words">
+              {descriptionExpanded || !hasMore
+                ? plainDescription
+                : `${preview}…`}
+            </p>
+            {hasMore ? (
+              <button
+                type="button"
+                className="mt-2 text-sm font-semibold text-brand underline-offset-2 hover:underline"
+                aria-expanded={descriptionExpanded}
+                onClick={() => setDescriptionExpanded((v) => !v)}
+              >
+                {descriptionExpanded ? t("seeLess") : t("seeMore")}
+              </button>
+            ) : null}
+          </div>
         ) : null}
 
         {variants.length > 1 ? (

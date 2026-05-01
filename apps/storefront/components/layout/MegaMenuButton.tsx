@@ -207,7 +207,7 @@ export default function MegaMenuButton({ categories: _categories }: MegaMenuButt
     >
       <NavigationMenu.List className="m-0 flex h-full list-none items-stretch p-0">
         <NavigationMenu.Item value="mega-categories" className="flex h-full">
-          <NavigationMenu.Trigger className="group flex h-full items-center gap-2 self-stretch rounded-none bg-brand px-5 text-sm font-medium text-text-inverse outline-none transition-colors hover:bg-brand-hover focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset">
+          <NavigationMenu.Trigger className="group flex h-full items-center gap-2 self-stretch rounded-none bg-brand px-5 text-sm font-medium text-text-inverse outline-none transition-all duration-200 ease-out hover:bg-brand-hover hover:shadow-inner motion-safe:active:opacity-90 focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-inset">
             <HamburgerIcon className="size-4" />
             <span>{t("allCategories")}</span>
             <ChevronDown className="size-3.5 transition-transform duration-200 group-data-[state=open]:rotate-180" />
@@ -255,7 +255,7 @@ export default function MegaMenuButton({ categories: _categories }: MegaMenuButt
                   </h3>
                   <NavigationMenu.Link
                     href={browseAllHref}
-                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-semibold text-brand outline-none transition-colors hover:border-brand hover:bg-brand hover:text-text-inverse focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
+                    className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border bg-surface px-4 py-2 text-sm font-semibold text-brand outline-none transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-brand hover:bg-brand hover:text-text-inverse hover:shadow-md motion-safe:active:scale-[0.96] active:translate-y-0 active:shadow-sm focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
                   >
                     {t("megaMenu.viewAllProducts")}
                     <span aria-hidden="true" className="transition-transform group-hover:translate-x-0.5 rtl:-scale-x-100">→</span>

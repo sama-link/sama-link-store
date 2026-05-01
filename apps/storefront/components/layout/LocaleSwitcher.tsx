@@ -34,7 +34,7 @@ function GlobeIcon() {
       strokeWidth={1.75}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12"
+      className="h-4 w-4 transition-transform duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:rotate-12 group-hover:scale-110"
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="9" />
@@ -94,7 +94,7 @@ export default function LocaleSwitcher({
         onClick={onNavigate}
         data-locale-target={alternate.other}
         className={cn(
-          "group inline-flex h-9 items-center rounded-full text-xs font-semibold uppercase tracking-wider text-text-secondary transition-colors hover:text-brand focus-visible:outline-none focus-visible:text-brand",
+          "group inline-flex h-9 items-center rounded-full text-xs font-semibold uppercase tracking-wider text-text-secondary transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:text-brand hover:-translate-y-[1px] hover:bg-surface-subtle hover:shadow-sm focus-visible:outline-none focus-visible:text-brand motion-safe:active:scale-95 active:translate-y-0",
           showLabel ? "gap-1.5 px-2.5" : "w-9 justify-center",
         )}
       >
@@ -117,7 +117,7 @@ export default function LocaleSwitcher({
       data-locale-target={alternate.other}
       className={cn(
         "group inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface px-3 text-xs font-semibold uppercase tracking-wider text-text-secondary",
-        "transition-[background-color,border-color,color] duration-200 hover:border-brand hover:bg-surface-subtle hover:text-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15",
+        "transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-[1.5px] hover:border-brand hover:bg-surface-subtle hover:text-brand hover:shadow-md focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 motion-safe:active:scale-95 active:translate-y-0 active:shadow-sm",
       )}
     >
       <GlobeIcon />

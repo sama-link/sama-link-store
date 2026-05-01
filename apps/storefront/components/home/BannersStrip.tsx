@@ -46,7 +46,7 @@ export default async function BannersStrip() {
             </div>
             <a
               href={collectionsHref}
-              className="relative z-10 inline-flex h-12 w-fit items-center justify-center gap-2 rounded-lg bg-surface px-6 text-sm font-semibold text-brand transition-colors hover:bg-surface-subtle"
+              className="relative z-10 inline-flex h-12 w-fit items-center justify-center gap-2 rounded-lg bg-surface px-6 text-sm font-semibold text-brand transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-surface-subtle hover:shadow-md motion-safe:active:scale-[0.96] active:translate-y-0 active:shadow-sm"
             >
               {t("largeCta")}
               <span aria-hidden="true" className="rtl:-scale-x-100">→</span>

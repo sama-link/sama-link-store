@@ -13,7 +13,7 @@ import {
   buildLanguageAlternates,
   buildProductJsonLd,
 } from "@/lib/seo";
-import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import Breadcrumbs, { type BreadcrumbItem } from "@/components/layout/Breadcrumbs";
 import ProductCard from "@/components/products/ProductCard";
 import ProductGallery, {
   type ProductImage,
@@ -31,6 +31,11 @@ import type { WishlistItem } from "@/hooks/useWishlist";
 import PdpTabs from "@/components/products/PdpTabs";
 import StickyPurchaseBar from "@/components/products/StickyPurchaseBar";
 import RecommendationsCarousel from "@/components/products/RecommendationsCarousel";
+import {
+  pickCategoryBreadcrumbTrail,
+  categoryLabel,
+  type PdpCategoryCrumb,
+} from "@/lib/pdp-category-trail";
 
 export const revalidate = 3600; // ISR — ADR-017
 
@@ -112,10 +117,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
     | undefined;
 
   const categories =
-    (productRecord.categories as
-      | Array<{ id: string; name: string | null; handle: string | null }>
-      | null
-      | undefined) ?? [];
+    (productRecord.categories as Array<PdpCategoryCrumb> | null | undefined) ??
+    [];
 
   const tags =
     (productRecord.tags as
@@ -221,8 +224,8 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
      separate highlight bullets below. */
   const extractSummaryAndHighlights = (
     raw: string | null,
-  ): { summary: string | null; highlights: string[] } => {
-    if (!raw) return { summary: null, highlights: [] };
+  ): { purchasePlain: string | null; highlights: string[] } => {
+    if (!raw) return { purchasePlain: null, highlights: [] };
     /* Quick bullet extraction — matches <li>...</li> first, then falls back to "- " line items. */
     const bullets: string[] = [];
     const liMatches = raw.match(/<li[^>]*>([\s\S]*?)<\/li>/gi);
@@ -232,12 +235,11 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         if (txt) bullets.push(txt);
       }
     }
-    /* Plain text summary: strip all HTML, collapse whitespace, first 240 chars. */
+    /* Full plain text for PurchasePanel (word limit + See more lives in the client component). */
     const plain = raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-    const summary = plain.length > 240 ? plain.slice(0, 237).trimEnd() + "…" : plain;
-    return { summary, highlights: bullets.slice(0, 5) };
+    return { purchasePlain: plain || null, highlights: bullets.slice(0, 5) };
   };
-  const { summary: shortDescription, highlights: productHighlights } =
+  const { purchasePlain, highlights: productHighlights } =
     extractSummaryAndHighlights(description);
 
   // Build specs rows
@@ -321,6 +323,26 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       : null;
 
   const productCanonical = buildCanonical(locale, `/products/${handle}`);
+
+  const { primary: breadcrumbPrimary, sub: breadcrumbSub } =
+    pickCategoryBreadcrumbTrail(categories);
+  const breadcrumbItems: BreadcrumbItem[] = [
+    { label: tb("storeName"), href: `/${locale}` },
+  ];
+  if (breadcrumbPrimary) {
+    breadcrumbItems.push({
+      label: categoryLabel(breadcrumbPrimary),
+      href: `/${locale}/products?category=${encodeURIComponent(breadcrumbPrimary.id)}`,
+    });
+  }
+  if (breadcrumbSub) {
+    breadcrumbItems.push({
+      label: categoryLabel(breadcrumbSub),
+      href: `/${locale}/products?category=${encodeURIComponent(breadcrumbSub.id)}`,
+    });
+  }
+  breadcrumbItems.push({ label: product.title ?? handle });
+
   const productJsonLd = buildProductJsonLd(
     {
       title: product.title,
@@ -349,14 +371,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
       />
 
       <div className="mx-auto max-w-7xl space-y-16 px-4 py-6 sm:px-6 lg:px-8">
-        <Breadcrumbs
-          ariaLabel={tb("aria")}
-          items={[
-            { label: tb("home"), href: `/${locale}` },
-            { label: tb("products"), href: `/${locale}/products` },
-            { label: product.title ?? handle },
-          ]}
-        />
+        <Breadcrumbs ariaLabel={tb("aria")} items={breadcrumbItems} />
 
         {/* ── Hero: gallery + sticky purchase column ── */}
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 lg:gap-12">
@@ -379,7 +394,13 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 ctaSentinelId={CTA_SENTINEL_ID}
                 title={product.title ?? ""}
                 brand={brandEyebrow}
-                description={shortDescription ?? subtitle ?? null}
+                description={
+                  purchasePlain?.trim()
+                    ? purchasePlain
+                    : subtitle?.trim()
+                      ? subtitle
+                      : null
+                }
                 highlights={productHighlights}
                 wishlistItem={galleryWishlistItem}
                 compareItem={galleryWishlistItem}

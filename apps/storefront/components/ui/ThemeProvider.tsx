@@ -39,6 +39,66 @@ function readSystemTheme(): Theme {
 
 let transitionResetTimer: ReturnType<typeof setTimeout> | null = null;
 
+function logThemeApplication(theme: Theme, suppressTransitions: boolean): void {
+  const root = document.documentElement;
+  const activeSlide = document.querySelector<HTMLElement>(".hero-pro-slide.is-active");
+  const ring = activeSlide?.querySelector<HTMLElement>(".hero-pro-rings .ring") ?? null;
+  const slideStyle = activeSlide ? window.getComputedStyle(activeSlide) : null;
+  const ringStyle = ring ? window.getComputedStyle(ring) : null;
+
+  // #region agent log
+  fetch("http://127.0.0.1:7416/ingest/257a44d6-ca25-426f-8206-e2a734edec52", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-Debug-Session-Id": "776254",
+    },
+    body: JSON.stringify({
+      sessionId: "776254",
+      runId: "initial",
+      hypothesisId: "H2,H3,H4,H6",
+      location: "apps/storefront/components/ui/ThemeProvider.tsx:applyDomTheme",
+      message: "Theme applied to DOM and hero ring sampled",
+      data: {
+        requestedTheme: theme,
+        suppressTransitions,
+        htmlClassName: root.className,
+        htmlHasDarkClass: root.classList.contains("dark"),
+        dataThemeChanging: root.getAttribute("data-theme-changing"),
+        activeSlideId: activeSlide?.dataset.slide ?? null,
+        hasRing: Boolean(ring),
+        slideRingVariable: slideStyle?.getPropertyValue("--slide-ring-color").trim() ?? null,
+        ringBorderTopColor: ringStyle?.borderTopColor ?? null,
+        ringOpacity: ringStyle?.opacity ?? null,
+      },
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+  // #endregion
+  // #region agent log
+  console.info("agent-debug-776254-theme", {
+    sessionId: "776254",
+    runId: "browser-console-fallback",
+    hypothesisId: "H2,H3,H4,H6,H7",
+    location: "apps/storefront/components/ui/ThemeProvider.tsx:applyDomTheme",
+    message: "Theme applied to DOM and hero ring sampled",
+    data: {
+      requestedTheme: theme,
+      suppressTransitions,
+      htmlClassName: root.className,
+      htmlHasDarkClass: root.classList.contains("dark"),
+      dataThemeChanging: root.getAttribute("data-theme-changing"),
+      activeSlideId: activeSlide?.dataset.slide ?? null,
+      hasRing: Boolean(ring),
+      slideRingVariable: slideStyle?.getPropertyValue("--slide-ring-color").trim() ?? null,
+      ringBorderTopColor: ringStyle?.borderTopColor ?? null,
+      ringOpacity: ringStyle?.opacity ?? null,
+    },
+    timestamp: Date.now(),
+  });
+  // #endregion
+}
+
 function applyDomTheme(theme: Theme, suppressTransitions = false): void {
   const root = document.documentElement;
   if (suppressTransitions) {
@@ -52,6 +112,7 @@ function applyDomTheme(theme: Theme, suppressTransitions = false): void {
     }, 120);
   }
   root.classList.toggle("dark", theme === "dark");
+  logThemeApplication(theme, suppressTransitions);
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {

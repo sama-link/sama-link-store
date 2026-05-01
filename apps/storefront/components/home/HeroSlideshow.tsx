@@ -297,6 +297,87 @@ export default function HeroSlideshow({
   const go = (i: number) =>
     setActive(((i % slides.length) + slides.length) % slides.length);
 
+  useEffect(() => {
+    const emitRingSnapshot = (trigger: string) => {
+      const root = document.documentElement;
+      const activeSlide = document.querySelector<HTMLElement>(".hero-pro-slide.is-active");
+      const rings = Array.from(
+        activeSlide?.querySelectorAll<HTMLElement>(".hero-pro-rings .ring") ?? [],
+      );
+      const ring = rings[0] ?? null;
+      const slideStyle = activeSlide ? window.getComputedStyle(activeSlide) : null;
+      const ringStyle = ring ? window.getComputedStyle(ring) : null;
+
+      // #region agent log
+      fetch("http://127.0.0.1:7416/ingest/257a44d6-ca25-426f-8206-e2a734edec52", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "776254",
+        },
+        body: JSON.stringify({
+          sessionId: "776254",
+          runId: "initial",
+          hypothesisId: "H1,H2,H3,H4,H5",
+          location: "apps/storefront/components/home/HeroSlideshow.tsx:ring-snapshot",
+          message: "Hero ring computed style snapshot",
+          data: {
+            trigger,
+            active,
+            activeSlideId: activeSlide?.dataset.slide ?? null,
+            htmlClassName: root.className,
+            htmlHasDarkClass: root.classList.contains("dark"),
+            ringCount: rings.length,
+            slideRingVariable: slideStyle?.getPropertyValue("--slide-ring-color").trim() ?? null,
+            ringBorderTopColor: ringStyle?.borderTopColor ?? null,
+            ringBorderTopWidth: ringStyle?.borderTopWidth ?? null,
+            ringOpacity: ringStyle?.opacity ?? null,
+            ringDisplay: ringStyle?.display ?? null,
+            ringZIndex: ringStyle?.zIndex ?? null,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      // #region agent log
+      console.info("agent-debug-776254-hero-rings", {
+        sessionId: "776254",
+        runId: "browser-console-fallback",
+        hypothesisId: "H1,H2,H3,H4,H5,H6,H7",
+        location: "apps/storefront/components/home/HeroSlideshow.tsx:ring-snapshot",
+        message: "Hero ring computed style snapshot",
+        data: {
+          trigger,
+          active,
+          activeSlideId: activeSlide?.dataset.slide ?? null,
+          htmlClassName: root.className,
+          htmlHasDarkClass: root.classList.contains("dark"),
+          ringCount: rings.length,
+          slideRingVariable: slideStyle?.getPropertyValue("--slide-ring-color").trim() ?? null,
+          ringBorderTopColor: ringStyle?.borderTopColor ?? null,
+          ringBorderTopWidth: ringStyle?.borderTopWidth ?? null,
+          ringOpacity: ringStyle?.opacity ?? null,
+          ringDisplay: ringStyle?.display ?? null,
+          ringZIndex: ringStyle?.zIndex ?? null,
+        },
+        timestamp: Date.now(),
+      });
+      // #endregion
+    };
+
+    emitRingSnapshot("mount-or-active-change");
+
+    const observer = new MutationObserver(() => {
+      emitRingSnapshot("html-class-change");
+    });
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, [active]);
+
   const minSwipeDistance = 50;
 
   const onTouchStart = (e: React.TouchEvent) => {

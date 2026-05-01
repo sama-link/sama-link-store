@@ -80,7 +80,7 @@ export default function NewsletterSection() {
                   />
                   <button
                     type="submit"
-                    className="inline-flex h-12 items-center justify-center rounded-lg bg-text-primary px-6 text-sm font-semibold text-text-inverse transition-colors hover:opacity-90"
+                    className="inline-flex h-12 items-center justify-center rounded-lg bg-text-primary px-6 text-sm font-semibold text-text-inverse transition-all duration-200 ease-out hover:-translate-y-0.5 hover:shadow-md motion-safe:active:scale-[0.96] active:translate-y-0 active:shadow-sm"
                   >
                     {t("subscribe")}
                   </button>

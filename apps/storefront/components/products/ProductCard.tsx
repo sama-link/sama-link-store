@@ -80,7 +80,7 @@ export default function ProductCard({
   /* ─── List layout (horizontal row) ─── */
   if (layout === "list") {
     return (
-      <div className="group relative flex overflow-hidden rounded-xl border border-border bg-surface transition-colors duration-150 hover:border-brand">
+      <div className="group relative flex overflow-hidden rounded-xl border border-border bg-surface transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-lg hover:border-brand motion-safe:active:scale-[0.98] active:translate-y-0 active:shadow-md">
         <div className="relative aspect-square w-32 shrink-0 overflow-hidden bg-surface-subtle sm:w-40">
           {imageInner}
         </div>
@@ -128,7 +128,7 @@ export default function ProductCard({
   return (
     <div
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface transition-colors duration-150 hover:border-brand",
+        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:shadow-lg hover:border-brand motion-safe:active:scale-[0.98] active:translate-y-0 active:shadow-md",
         "focus-within:ring-[3px] focus-within:ring-brand/15",
       )}
     >

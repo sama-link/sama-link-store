@@ -14,8 +14,10 @@ import {
   addCartLineItem,
   updateCartLineItem,
   deleteCartLineItem,
+  retrieveCart,
 } from "@/lib/medusa-client";
 import { getOrSetCart, type StoreCart } from "@/lib/data/cart";
+import { clampLineItemQty } from "@/lib/line-item-quantity";
 
 // CHECKOUT-RESET-1: cart bootstrap (create/retrieve) is now a server action
 // (`getOrSetCart`) that passes auth headers per-request. Line-item operations
@@ -38,7 +40,62 @@ export type StoreCartLineItem = NonNullable<
   NonNullable<CartContextValue["cart"]>["items"]
 >[number];
 
+/** Narrow line fields used for optimistic merchandise math. */
+type LineQtyFields = StoreCartLineItem & {
+  unit_price?: number | null;
+  item_subtotal?: number | null;
+  subtotal?: number | null;
+  quantity?: number | null;
+};
+
 const CartContext = createContext<CartContextValue | null>(null);
+
+/** Optimistic line qty + merchandise subtotal so drawer totals track immediately. */
+function applyOptimisticLineQuantity(
+  cart: Cart,
+  lineItemId: string,
+  quantity: number,
+): Cart {
+  const q = clampLineItemQty(quantity);
+  const items = (cart.items ?? []).map((it) => {
+    const line = it as LineQtyFields;
+    if (line.id !== lineItemId) return it;
+    const unit = typeof line.unit_price === "number" ? line.unit_price : 0;
+    const lineSub = unit * q;
+    return {
+      ...line,
+      quantity: q,
+      item_subtotal: lineSub,
+      subtotal: lineSub,
+    } as StoreCartLineItem;
+  });
+  const itemSubtotalSum = items.reduce((sum: number, it) => {
+    const line = it as LineQtyFields;
+    const u = typeof line.unit_price === "number" ? line.unit_price : 0;
+    const qt = line.quantity ?? 0;
+    return sum + u * qt;
+  }, 0);
+  return { ...cart, items, item_subtotal: itemSubtotalSum } as Cart;
+}
+
+function applyOptimisticRemoveLine(cart: Cart, lineItemId: string): Cart {
+  const items = (cart.items ?? []).filter((it) => it.id !== lineItemId);
+  const itemSubtotalSum = items.reduce((sum: number, it) => {
+    const line = it as LineQtyFields;
+    const u = typeof line.unit_price === "number" ? line.unit_price : 0;
+    const qt = line.quantity ?? 0;
+    return sum + u * qt;
+  }, 0);
+  return { ...cart, items, item_subtotal: itemSubtotalSum } as Cart;
+}
+
+function extractCartFromSdkResult(result: unknown): Cart | null {
+  if (result && typeof result === "object" && "cart" in result) {
+    const c = (result as { cart: Cart | null }).cart;
+    return c ?? null;
+  }
+  return null;
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<Cart | null>(null);
@@ -85,12 +142,29 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const updateItem = useCallback(
     async (lineItemId: string, quantity: number) => {
       if (!cart) return;
-      const { cart: updated } = await updateCartLineItem(
-        cart.id,
-        lineItemId,
-        quantity,
+      const targetQty = clampLineItemQty(quantity);
+      const line = (cart.items ?? []).find(
+        (it: { id?: string; quantity?: number | null }) => it.id === lineItemId,
       );
-      setCart(updated);
+      const currentQty = clampLineItemQty(line?.quantity ?? 1);
+      if (targetQty === currentQty) return;
+
+      const prevCart = cart;
+      setCart((c) =>
+        c ? applyOptimisticLineQuantity(c, lineItemId, targetQty) : c,
+      );
+      try {
+        const result = await updateCartLineItem(
+          cart.id,
+          lineItemId,
+          targetQty,
+        );
+        const updated = extractCartFromSdkResult(result);
+        if (updated) setCart(updated);
+      } catch (err) {
+        console.error("[useCart] updateLineItem failed", err);
+        setCart(prevCart);
+      }
     },
     [cart],
   );
@@ -98,8 +172,22 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const removeItem = useCallback(
     async (lineItemId: string) => {
       if (!cart) return;
-      const { cart: updated } = await deleteCartLineItem(cart.id, lineItemId);
-      setCart(updated);
+      const prevCart = cart;
+      setCart((c) => (c ? applyOptimisticRemoveLine(c, lineItemId) : c));
+      try {
+        const result = await deleteCartLineItem(cart.id, lineItemId);
+        const updated = extractCartFromSdkResult(result);
+        if (updated) {
+          setCart(updated);
+        } else {
+          const retrieved = await retrieveCart(cart.id);
+          const recovered = extractCartFromSdkResult(retrieved);
+          if (recovered) setCart(recovered);
+        }
+      } catch (err) {
+        console.error("[useCart] deleteLineItem failed", err);
+        setCart(prevCart);
+      }
     },
     [cart],
   );

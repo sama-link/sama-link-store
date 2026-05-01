@@ -1,10 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { useLocale } from "next-intl";
+import { useEffect, useMemo, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import { type StoreCartLineItem } from "@/hooks/useCart";
 import { formatPrice } from "@/lib/format-price";
 import { cn } from "@/lib/cn";
+import {
+  clampLineItemQty,
+  MAX_LINE_ITEM_QTY,
+} from "@/lib/line-item-quantity";
 
 export interface CartLineItemProps {
   item: StoreCartLineItem;
@@ -24,8 +29,23 @@ export default function CartLineItem({
   removeLabel,
   variant = "drawer",
 }: CartLineItemProps) {
+  const t = useTranslations("products.detail");
   const locale = useLocale();
-  const qty = item.quantity ?? 1;
+  const serverQty = item.quantity ?? 1;
+  const [qtyField, setQtyField] = useState(String(serverQty));
+
+  useEffect(() => {
+    setQtyField(String(item.quantity ?? 1));
+  }, [item.id, item.quantity]);
+
+  const resolvedQty = useMemo(() => {
+    const raw = qtyField.trim();
+    if (raw === "") return serverQty;
+    const n = parseInt(raw, 10);
+    if (Number.isNaN(n)) return serverQty;
+    return clampLineItemQty(n);
+  }, [qtyField, serverQty]);
+
   const variantTitle =
     item.variant &&
     typeof item.variant === "object" &&
@@ -64,7 +84,8 @@ export default function CartLineItem({
             <p className="text-sm text-text-secondary">{variantTitle}</p>
           ) : null}
           <p className="text-sm font-medium text-text-primary">
-            {formatPrice(item.unit_price, currencyCode, locale)} × {qty}
+            {formatPrice(item.unit_price, currencyCode, locale)} ×{" "}
+            {resolvedQty}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -72,23 +93,47 @@ export default function CartLineItem({
             <button
               type="button"
               className="flex h-8 w-8 items-center justify-center rounded text-text-primary transition-colors hover:bg-surface-subtle"
+              aria-label={t("qtyDecrease")}
               onClick={() => {
-                if (qty <= 1) {
+                if (resolvedQty <= 1) {
                   void onRemove(item.id);
                 } else {
-                  void onUpdate(item.id, qty - 1);
+                  void onUpdate(item.id, resolvedQty - 1);
                 }
               }}
             >
               −
             </button>
-            <span className="min-w-8 text-center text-sm tabular-nums text-text-primary">
-              {qty}
-            </span>
+            <input
+              type="text"
+              inputMode="numeric"
+              autoComplete="off"
+              maxLength={2}
+              aria-label={t("qtyInput")}
+              className="h-8 w-9 min-w-9 border-0 bg-transparent px-0.5 text-center text-sm tabular-nums text-text-primary outline-none focus:ring-0 focus-visible:outline-none"
+              value={qtyField}
+              onChange={(e) => {
+                const raw = e.target.value.replace(/\D/g, "").slice(0, 2);
+                setQtyField(raw);
+              }}
+              onBlur={() => {
+                if (qtyField.trim() === "") {
+                  setQtyField("1");
+                  if (serverQty !== 1) void onUpdate(item.id, 1);
+                  return;
+                }
+                const n = parseInt(qtyField, 10);
+                const next = clampLineItemQty(Number.isNaN(n) ? 1 : n);
+                setQtyField(String(next));
+                if (next !== serverQty) void onUpdate(item.id, next);
+              }}
+            />
             <button
               type="button"
-              className="flex h-8 w-8 items-center justify-center rounded text-text-primary transition-colors hover:bg-surface-subtle"
-              onClick={() => void onUpdate(item.id, qty + 1)}
+              className="flex h-8 w-8 items-center justify-center rounded text-text-primary transition-colors hover:bg-surface-subtle disabled:opacity-40"
+              aria-label={t("qtyIncrease")}
+              disabled={resolvedQty >= MAX_LINE_ITEM_QTY}
+              onClick={() => void onUpdate(item.id, resolvedQty + 1)}
             >
               +
             </button>

@@ -429,7 +429,7 @@ export async function getProductByHandle(handle: string) {
           "material,weight,length,width,height,origin_country,hs_code,mid_code," +
           "images.id,images.url,images.rank," +
           "collection.id,collection.title,collection.handle," +
-          "categories.id,categories.name,categories.handle," +
+          "categories.id,categories.name,categories.handle,categories.parent_category_id," +
           "tags.id,tags.value," +
           "type.id,type.value," +
           "options.id,options.title,options.values.value," +

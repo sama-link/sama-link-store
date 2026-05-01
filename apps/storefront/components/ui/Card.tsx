@@ -27,10 +27,10 @@ export function Card({ variant = "flat", className, children, ...props }: CardPr
   return (
     <div
       className={cn(
-        "rounded-xl bg-surface transition-colors duration-150",
+        "rounded-xl bg-surface transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]",
         variant === "flat" && "border border-border hover:border-border-strong",
-        /* Flat refresh: "raised" keeps a stronger border rather than a shadow. */
-        variant === "raised" && "border border-border-strong",
+        /* Flat refresh override for dopamine UX: "raised" gets a smooth modern shadow. */
+        variant === "raised" && "border border-border shadow-sm hover:shadow-md hover:-translate-y-0.5",
         variant === "ghost" && "bg-transparent",
         className
       )}

@@ -90,6 +90,7 @@
     "noResults": "No results found"
   },
   "breadcrumbs": {
+    "storeName": "Sama Link Store",
     "home": "Home",
     "products": "Products",
     "specialOffers": "Today's Deals",
@@ -533,6 +534,9 @@
       "inStockShipsIn": "In stock — Ships within 48 hours",
       "qtyDecrease": "Decrease quantity",
       "qtyIncrease": "Increase quantity",
+      "qtyInput": "Quantity (1–99)",
+      "seeMore": "See more",
+      "seeLess": "See less",
       "trustGrid": {
         "delivery": { "title": "48h delivery", "body": "Across every governorate" },
         "warranty": { "title": "2-year warranty", "body": "Manufacturer-backed" },
@@ -550,7 +554,9 @@
       "title": "Quick view",
       "close": "Close",
       "viewDetails": "View full details",
-      "chooseVariant": "Choose a variant"
+      "chooseVariant": "Choose a variant",
+      "seeMore": "See more",
+      "seeLess": "See less"
     }
   },
   "wishlist": {
@@ -673,6 +679,59 @@
         "heading": "Speak with the Sama Link team and get the right solution faster.",
         "body": "Whether you need product recommendations, pricing support, or order follow-up, our team is ready to help with clear and practical guidance.",
         "secondaryCta": "Browse Collections",
+        "map": {
+          "heading": "Location map",
+          "hint": "Head office area (placeholder map). Replace with your embed by setting NEXT_PUBLIC_CONTACT_MAP_EMBED_URL in the environment.",
+          "iframeTitle": "Sama Link Store map"
+        },
+        "branches": {
+          "heading": "Our branches",
+          "subtitle": "Nine locations across Egypt — full addresses and hours will be published here soon.",
+          "cardPlaceholder": "Address, phone, and opening hours — coming soon.",
+          "items": {
+            "b1": { "title": "Cairo — Headquarters", "area": "Nasr City" },
+            "b2": { "title": "Giza branch", "area": "Mohandessin" },
+            "b3": { "title": "Alexandria branch", "area": "Smouha" },
+            "b4": { "title": "Mansoura branch", "area": "City center" },
+            "b5": { "title": "Tanta branch", "area": "Main road" },
+            "b6": { "title": "Assiut branch", "area": "Industrial zone" },
+            "b7": { "title": "Hurghada branch", "area": "Tourist district" },
+            "b8": { "title": "Sharm El Sheikh branch", "area": "Naama Bay" },
+            "b9": { "title": "Port Said branch", "area": "Port area" }
+          }
+        },
+        "departments": {
+          "heading": "Contact a department",
+          "subtitle": "Reach the right team directly for faster handling.",
+          "emailCta": "Send email",
+          "items": {
+            "sales": {
+              "title": "Sales & quotations",
+              "body": "Product selection, pricing, and commercial offers.",
+              "email": "sales@samalink.store"
+            },
+            "support": {
+              "title": "Customer support",
+              "body": "Orders, delivery, returns, and after-sales help.",
+              "email": "support@samalink.store"
+            },
+            "technical": {
+              "title": "Technical & presales",
+              "body": "Specifications, compatibility, and solution design.",
+              "email": "technical@samalink.store"
+            },
+            "b2b": {
+              "title": "Corporate & B2B",
+              "body": "Volume pricing, contracts, and account management.",
+              "email": "b2b@samalink.store"
+            },
+            "procurement": {
+              "title": "Procurement & vendors",
+              "body": "Supplier relations and purchasing.",
+              "email": "procurement@samalink.store"
+            }
+          }
+        },
         "cards": {
           "phone": {
             "title": "Phone Support",

@@ -23,9 +23,9 @@ export default function ThemeToggle({ bare = false }: ThemeToggleProps) {
       aria-pressed={isDark}
       className={cn(
         "group relative inline-flex items-center justify-center overflow-hidden text-text-secondary",
-        "transition-[background-color,border-color,color,transform] duration-200 active:scale-95",
+        "transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-md hover:-translate-y-[1.5px] motion-safe:active:scale-90 active:translate-y-0 active:shadow-sm",
         bare
-          ? "h-9 w-9 rounded-full hover:text-brand focus-visible:outline-none focus-visible:text-brand"
+          ? "h-9 w-9 rounded-full hover:text-brand hover:bg-surface-subtle focus-visible:outline-none focus-visible:text-brand"
           : "h-10 w-10 rounded-full border border-border bg-surface hover:border-brand hover:text-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15",
       )}
     >
@@ -39,7 +39,7 @@ export default function ThemeToggle({ bare = false }: ThemeToggleProps) {
         strokeLinecap="round"
         strokeLinejoin="round"
         className={cn(
-          "absolute h-4 w-4 transition-[opacity,transform] duration-300 ease-out",
+          "absolute h-4 w-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-110",
           isDark
             ? "scale-50 rotate-90 opacity-0"
             : "scale-100 rotate-0 opacity-100",
@@ -60,7 +60,7 @@ export default function ThemeToggle({ bare = false }: ThemeToggleProps) {
         strokeLinecap="round"
         strokeLinejoin="round"
         className={cn(
-          "absolute h-4 w-4 transition-[opacity,transform] duration-300 ease-out",
+          "absolute h-4 w-4 transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] group-hover:scale-110",
           isDark
             ? "scale-100 rotate-0 opacity-100"
             : "scale-50 -rotate-90 opacity-0",

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import AddToCartButton from "@/components/products/AddToCartButton";
@@ -12,6 +12,14 @@ import { useCart } from "@/hooks/useCart";
 import type { WishlistItem } from "@/hooks/useWishlist";
 import type { CompareItem } from "@/hooks/useCompare";
 import { cn } from "@/lib/cn";
+import {
+  htmlToPlainText,
+  buildDescriptionPreview,
+} from "@/lib/product-description-preview";
+import {
+  MAX_LINE_ITEM_QTY,
+  clampLineItemQty,
+} from "@/lib/line-item-quantity";
 
 export interface PanelOptionValue {
   value: string;
@@ -42,7 +50,7 @@ interface PurchasePanelProps {
   title: string;
   /** Optional brand / manufacturer / type eyebrow shown above the title. */
   brand?: string | null;
-  /** Short description paragraph — first paragraph of product.description. */
+  /** Plain-text blurb for the panel (full copy from product.description, HTML stripped upstream). */
   description?: string | null;
   /** Optional bullet highlights — extracted list rendered under the description. */
   highlights?: string[];
@@ -81,6 +89,7 @@ export default function PurchasePanel({
   const { addItem, cart, loading: cartLoading } = useCart();
   const [buyBusy, setBuyBusy] = useState(false);
   const [qty, setQty] = useState(1);
+  const [qtyField, setQtyField] = useState("1");
 
   const initial = useMemo<Record<string, string>>(() => {
     const first = variants[0];
@@ -91,6 +100,20 @@ export default function PurchasePanel({
   const [preview, setPreview] = useState<
     { title: string; value: string } | null
   >(null);
+  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
+
+  const plainPanelDescription = useMemo(
+    () => htmlToPlainText(description ?? ""),
+    [description],
+  );
+  const { preview: descPreview, hasMore: descHasMore } = useMemo(
+    () => buildDescriptionPreview(plainPanelDescription),
+    [plainPanelDescription],
+  );
+
+  useEffect(() => {
+    setDescriptionExpanded(false);
+  }, [description]);
 
   const resolveVariant = useCallback(
     (choice: Record<string, string>): PanelVariant | null => {
@@ -119,6 +142,25 @@ export default function PurchasePanel({
     () => resolveVariant(selected),
     [resolveVariant, selected],
   );
+
+  const commitQty = useCallback((n: number) => {
+    const c = clampLineItemQty(n);
+    setQty(c);
+    setQtyField(String(c));
+  }, []);
+
+  useEffect(() => {
+    commitQty(1);
+  }, [currentVariant?.id, commitQty]);
+
+  /** Quantity used for cart / checkout — reads the input field so typing works before blur. */
+  const resolvedQty = useMemo(() => {
+    const raw = qtyField.trim();
+    if (raw === "") return qty;
+    const n = parseInt(raw, 10);
+    if (Number.isNaN(n)) return qty;
+    return clampLineItemQty(n);
+  }, [qtyField, qty]);
 
   const displayedVariant = useMemo<PanelVariant | null>(() => {
     if (!preview) return currentVariant;
@@ -152,7 +194,7 @@ export default function PurchasePanel({
     if (!currentVariant?.id || !cart || buyBusy || cartLoading) return;
     setBuyBusy(true);
     try {
-      await addItem(currentVariant.id, Math.max(1, qty));
+      await addItem(currentVariant.id, resolvedQty);
       router.push(`/${locale}/checkout/address`);
     } catch {
       setBuyBusy(false);
@@ -164,7 +206,7 @@ export default function PurchasePanel({
     cartLoading,
     currentVariant?.id,
     locale,
-    qty,
+    resolvedQty,
     router,
   ]);
 
@@ -238,11 +280,25 @@ export default function PurchasePanel({
         <span>{t("inStockShipsIn")}</span>
       </div>
 
-      {/* 8. Short description */}
-      {description ? (
-        <p className="text-[15px] leading-relaxed text-text-secondary">
-          {description}
-        </p>
+      {/* 8. Short description — word-limited with See more / See less */}
+      {plainPanelDescription ? (
+        <div>
+          <p className="text-[15px] leading-relaxed text-text-secondary break-words">
+            {descriptionExpanded || !descHasMore
+              ? plainPanelDescription
+              : `${descPreview}…`}
+          </p>
+          {descHasMore ? (
+            <button
+              type="button"
+              className="mt-1.5 text-sm font-semibold text-brand underline-offset-2 hover:underline"
+              aria-expanded={descriptionExpanded}
+              onClick={() => setDescriptionExpanded((v) => !v)}
+            >
+              {descriptionExpanded ? t("seeLess") : t("seeMore")}
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
       {/* 9. Highlights bullets */}
@@ -323,8 +379,8 @@ export default function PurchasePanel({
             <div className="inline-flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface">
               <button
                 type="button"
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                disabled={qty <= 1}
+                onClick={() => commitQty(resolvedQty - 1)}
+                disabled={resolvedQty <= 1}
                 aria-label={t("qtyDecrease")}
                 className="flex h-full w-10 items-center justify-center text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary disabled:opacity-40"
               >
@@ -332,14 +388,33 @@ export default function PurchasePanel({
                   <path d="M5 12h14" />
                 </svg>
               </button>
-              <span className="min-w-8 text-center text-sm font-semibold tabular-nums text-text-primary">
-                {qty}
-              </span>
+              <input
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                maxLength={2}
+                aria-label={t("qtyInput")}
+                className="h-full w-11 min-w-11 border-0 bg-transparent px-1 text-center text-sm font-semibold tabular-nums text-text-primary outline-none focus:ring-0 focus-visible:outline-none"
+                value={qtyField}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\D/g, "").slice(0, 2);
+                  setQtyField(raw);
+                }}
+                onBlur={() => {
+                  if (qtyField === "") {
+                    commitQty(1);
+                    return;
+                  }
+                  const n = parseInt(qtyField, 10);
+                  commitQty(Number.isNaN(n) ? 1 : n);
+                }}
+              />
               <button
                 type="button"
-                onClick={() => setQty((q) => q + 1)}
+                onClick={() => commitQty(resolvedQty + 1)}
+                disabled={resolvedQty >= MAX_LINE_ITEM_QTY}
                 aria-label={t("qtyIncrease")}
-                className="flex h-full w-10 items-center justify-center text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary"
+                className="flex h-full w-10 items-center justify-center text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary disabled:opacity-40"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
                   <path d="M12 5v14M5 12h14" />
@@ -350,6 +425,7 @@ export default function PurchasePanel({
             {/* Add to Cart */}
             <AddToCartButton
               variantId={currentVariant.id}
+              quantity={resolvedQty}
               size="lg"
               fullWidth
             />

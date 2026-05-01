@@ -3,11 +3,11 @@
  *
  * Medusa v2 returns all price fields (unit_price, subtotal, total,
  * calculated_price.calculated_amount) as direct major-unit amounts —
- * e.g. 1070 means EGP 1,070.00. No minor-unit conversion is applied.
+ * e.g. 1070 means EGP 1,070 (displayed as whole units). No minor-unit conversion is applied.
  *
  * Centralized currency rules (storefront-wide — do NOT patch in components):
- *   • English  → Latin digits, currency CODE on the RIGHT  → "1,000.00 EGP"
- *   • Arabic   → Arabic-Indic digits, currency SYMBOL on the LEFT  → "ج.م ١٬٠٠٠٫٠٠"
+ *   • English  → Latin digits, currency CODE on the RIGHT  → "1,000 EGP"
+ *   • Arabic   → Arabic-Indic digits, currency SYMBOL on the LEFT  → "ج.م ١٬٠٠٠"
  *
  * Symbol map covers MENA + common currencies; falls back to ISO code if unknown.
  */
@@ -35,8 +35,8 @@ function formatNumeric(amount: number, locale: PriceLocale | undefined): string 
     locale === "ar" ? "ar-EG" : locale === "en" ? "en-US" : undefined;
   try {
     return new Intl.NumberFormat(intlLocale, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
   } catch {
     return String(amount);
@@ -65,8 +65,8 @@ function compose(
   marker: string,
   locale: PriceLocale | undefined,
 ): string {
-  // EN → "1,000.00 EGP"  (amount left, code right)
-  // AR → "ج.م ١٬٠٠٠٫٠٠"  (symbol left, amount right). LRI..PDI forces the visual
+  // EN → "1,000 EGP"  (amount left, code right)
+  // AR → "ج.م ١٬٠٠٠"  (symbol left, amount right). LRI..PDI forces the visual
   //       order to match the string order even inside an RTL paragraph.
   if (locale === "ar") return `${LRI}${marker}\u00A0${numeric}${PDI}`;
   return `${numeric}\u00A0${marker}`;

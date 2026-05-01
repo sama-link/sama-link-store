@@ -66,7 +66,7 @@ export default async function WhyUsStrip() {
           {items.map((item) => (
             <li
               key={item.title}
-              className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-5 transition-colors hover:border-border-strong"
+              className="flex flex-col gap-2 rounded-xl border border-border bg-surface p-5 transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-brand hover:shadow-md"
             >
               <span className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-accent-muted text-brand">
                 <Icon name={item.icon} />

@@ -70,8 +70,9 @@ export default function Button({
       className={cn(
         /* Base */
         "inline-flex items-center justify-center rounded-lg font-medium",
-        "transition-[background-color,border-color,color,transform] duration-150 whitespace-nowrap",
-        "motion-safe:active:scale-[0.97]",
+        "transition-all duration-200 ease-[cubic-bezier(0.22,1,0.36,1)] whitespace-nowrap",
+        "hover:-translate-y-[1.5px] hover:shadow-md",
+        "motion-safe:active:scale-[0.96] active:translate-y-[0px] active:shadow-sm",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2",
         /* Variant */
         variantClasses[variant],

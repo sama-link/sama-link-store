@@ -49,7 +49,8 @@ export default function TrackOrderClient({ locale }: { locale: string }) {
       return new Intl.NumberFormat(locale === "ar" ? "ar-EG" : "en-US", {
         style: "currency",
         currency,
-        maximumFractionDigits: 2,
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
       }).format(result.total / 100);
     } catch {
       return `${result.total / 100} ${currency}`;

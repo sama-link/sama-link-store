@@ -236,9 +236,10 @@ export default async function CategoryTiles({ tiles }: Props) {
 
   return (
     <section className="border-b border-border bg-surface">
-      <Container className="flex flex-col items-center py-14">
-        <div className="mb-8 flex w-full flex-wrap items-center justify-center gap-x-8 gap-y-4 text-center">
-          <div>
+      <Container className="flex w-full flex-col py-14">
+        {/* Title row: logical start (يسار في LTR / يمين في RTL). صف البلاطات تحته يبقى في المنتصف. */}
+        <div className="mb-8 flex w-full flex-col gap-3 sm:mb-10 sm:flex-row sm:items-start sm:justify-between sm:gap-x-8">
+          <div className="min-w-0 max-w-3xl text-start">
             <div className="mb-1 text-xs font-semibold uppercase tracking-[0.14em] text-accent">
               {tItems("eyebrow")}
             </div>
@@ -248,18 +249,18 @@ export default async function CategoryTiles({ tiles }: Props) {
           </div>
           <a
             href={`/${locale}/collections`}
-            className="shrink-0 text-sm font-semibold text-brand transition-colors hover:text-brand-hover"
+            className="inline-flex shrink-0 self-start text-sm font-semibold text-brand transition-colors hover:text-brand-hover sm:pt-1"
           >
             {t("viewAll")} <span aria-hidden="true" className="rtl:-scale-x-100">→</span>
           </a>
         </div>
 
-        <ul className="flex w-full max-w-7xl flex-wrap justify-center gap-3 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto max-sm:snap-x max-sm:snap-mandatory max-sm:pb-4 sm:justify-center sm:overflow-visible sm:pb-0">
+        <ul className="flex w-full flex-wrap justify-center gap-3 pb-4 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden max-sm:flex-nowrap max-sm:justify-start max-sm:overflow-x-auto max-sm:snap-x max-sm:snap-mandatory max-sm:pb-4 sm:justify-center sm:overflow-visible sm:pb-0">
           {display.map((tile) => (
             <li key={tile.id} className="w-[130px] shrink-0 snap-start max-sm:snap-start">
               <a
                 href={tile.href}
-                className="group flex h-full flex-col items-center gap-2 rounded-xl border border-border bg-surface px-2.5 py-[18px] text-center transition-[transform,border-color,background-color] duration-200 hover:-translate-y-0.5 hover:border-brand"
+                className="group flex h-full flex-col items-center gap-2 rounded-xl border border-border bg-surface px-2.5 py-[18px] text-center transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:-translate-y-1 hover:border-brand hover:shadow-md motion-safe:active:scale-[0.96] active:translate-y-0 active:shadow-sm"
               >
                 <span className="inline-flex h-[46px] w-[46px] items-center justify-center rounded-xl bg-accent-muted text-brand transition-colors group-hover:bg-brand group-hover:text-text-inverse">
                   <TileIcon name={tile.iconOverride ?? guessIcon(tile.handle, tile.title)} />

@@ -9,7 +9,7 @@ import { cn } from "@/lib/cn";
    amount — the marker is always smaller and muted; the amount carries the
    visual weight. Order is conditional:
 
-     EN  → [marker] [amount]   (e.g. "EGP 4,299")
+     EN  → [marker] [amount]   (e.g. "EGP 4,299" — whole units, no decimals)
      AR  → [amount] [marker]   (e.g. "٤٬٢٩٩ ج.م")  ← marker on the LEFT in RTL
 
    `inline-flex` inherits the parent `direction`, so in an AR paragraph the
@@ -35,8 +35,8 @@ function formatAmount(amount: number, locale: string): string {
   const intlLocale = locale === "ar" ? "ar-EG" : "en-US";
   try {
     return new Intl.NumberFormat(intlLocale, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
   } catch {
     return String(amount);

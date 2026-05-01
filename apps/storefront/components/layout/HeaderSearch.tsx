@@ -28,7 +28,7 @@ export default function HeaderSearch() {
       onSubmit={onSubmit}
       role="search"
       className={[
-        "relative flex h-11 w-full max-w-[760px] items-center overflow-hidden rounded-full border bg-surface-subtle transition-colors duration-150",
+        "relative flex h-11 w-full max-w-[760px] items-center overflow-hidden rounded-full border bg-surface-subtle transition-all duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] hover:shadow-md focus-within:shadow-md focus-within:-translate-y-[1px]",
         focused
           ? "border-brand bg-surface shadow-[0_0_0_3px_rgba(45,108,223,0.08)]"
           : "border-border hover:border-border-strong hover:bg-surface",

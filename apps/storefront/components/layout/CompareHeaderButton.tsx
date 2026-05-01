@@ -180,7 +180,7 @@ function EmptyState({
       <Link
         href={href}
         onClick={onNavigate}
-        className="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-5 text-sm font-semibold text-text-inverse transition-colors hover:bg-brand-hover"
+        className="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-5 text-sm font-semibold text-text-inverse transition-all duration-200 ease-out hover:-translate-y-0.5 hover:bg-brand-hover hover:shadow-md motion-safe:active:scale-[0.96] active:translate-y-0 active:shadow-sm"
       >
         {cta}
       </Link>

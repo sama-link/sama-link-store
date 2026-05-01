@@ -5,9 +5,12 @@ import { useTranslations } from "next-intl";
 import { useCart } from "@/hooks/useCart";
 import Button, { type ButtonProps } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { clampLineItemQty } from "@/lib/line-item-quantity";
 
 interface AddToCartButtonProps {
   variantId: string;
+  /** Line quantity — default 1; clamped to 1…99 when passed from PDP. */
+  quantity?: number;
   /** Visual variant — default: primary. Use `outline` for secondary card actions. */
   variant?: ButtonProps["variant"];
   /** Size — default: md. Use `lg` for hero PDP CTA. */
@@ -61,6 +64,7 @@ function CartIcon() {
 
 export default function AddToCartButton({
   variantId,
+  quantity = 1,
   variant = "primary",
   size = "md",
   fullWidth = true,
@@ -76,7 +80,7 @@ export default function AddToCartButton({
     if (state !== "idle" || !cart) return;
     setState("loading");
     try {
-      await addItem(variantId, 1);
+      await addItem(variantId, clampLineItemQty(quantity));
       setState("added");
       onAdded?.();
       setTimeout(() => setState("idle"), 1800);

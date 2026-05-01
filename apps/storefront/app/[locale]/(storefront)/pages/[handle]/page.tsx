@@ -6,6 +6,7 @@ import { getCmsPageByHandle } from "@/lib/medusa-client";
 import { buildCanonical, buildLanguageAlternates } from "@/lib/seo";
 import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import ContactPageBlocks from "@/components/contact/ContactPageBlocks";
 
 export const revalidate = 3600; // ISR — ADR-017
 
@@ -164,6 +165,8 @@ export default async function CmsPage({ params }: PageProps) {
                 </Link>
               </div>
             </section>
+
+            <ContactPageBlocks locale={locale} />
 
             <section className="grid gap-4 md:grid-cols-3">
               <article className="rounded-xl border border-border bg-surface p-5">
