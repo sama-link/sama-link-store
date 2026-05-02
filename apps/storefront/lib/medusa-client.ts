@@ -490,6 +490,36 @@ export async function listBrands(): Promise<{
   }
 }
 
+/** Resolve product IDs for a brand. Medusa's /store/products doesn't accept
+ * a metadata.brand_id filter, so the catalog passes this list to /store/products
+ * via the native `id` filter — that gives us accurate count + pagination. */
+export async function listBrandProductIds(
+  brandId: string,
+): Promise<{ ids: string[] }> {
+  if (!brandId) return { ids: [] };
+  const headers: Record<string, string> = { accept: "application/json" };
+  if (publishableKey) headers["x-publishable-api-key"] = publishableKey;
+  try {
+    const res = await fetch(
+      `${baseUrl}/store/brands/${encodeURIComponent(brandId)}/product-ids`,
+      {
+        headers,
+        next: { tags: ["brands", `brand-products-${brandId}`], revalidate: 3600 },
+      },
+    );
+    if (!res.ok) return { ids: [] };
+    const data = (await res.json()) as { ids?: unknown };
+    if (!Array.isArray(data.ids)) return { ids: [] };
+    return {
+      ids: data.ids.filter(
+        (id): id is string => typeof id === "string" && id.length > 0,
+      ),
+    };
+  } catch {
+    return { ids: [] };
+  }
+}
+
 export async function listProductsByCollection(
   collectionId: string,
   params?: Partial<ListProductsParams>,

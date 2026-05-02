@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import {
+  listBrandProductIds,
   listBrands,
   listCollections,
   listProductCategories,
@@ -61,20 +62,6 @@ function filterProductsByPriceSearchParams(
     if (min != null && amount < min) return false;
     if (max != null && amount > max) return false;
     return true;
-  });
-}
-
-/** Brand filter — server doesn't support a `metadata.brand_id` query param, so
-   this trims the current page client-side. Products without `metadata.brand_id`
-   are excluded when a brand filter is active. */
-function filterProductsByBrand(
-  products: CatalogProduct[],
-  brandId?: string,
-): CatalogProduct[] {
-  if (!brandId || brandId.trim() === "") return products;
-  return products.filter((p) => {
-    const metadata = p.metadata as Record<string, unknown> | null;
-    return metadata?.brand_id === brandId;
   });
 }
 
@@ -206,21 +193,36 @@ export default async function ProductsPage({
   if (order) (filterParams as Record<string, unknown>).order = order;
   // TODO CAT-6: wire price + in-stock + rating filters to Medusa when params confirmed
 
-  const [listResult, collectionsResult, categoriesResult, brandsResult] =
+  // Brand filter — Medusa's /store/products doesn't accept a metadata.brand_id
+  // filter, so resolve the brand's product IDs server-side first and pass them
+  // through the native `id` filter. Empty brand → short-circuit to no results
+  // instead of dispatching listProducts with an empty id constraint.
+  const [brandIdsResult, collectionsResult, categoriesResult, brandsResult] =
     await Promise.all([
-      listProducts({
-        limit: activePageSize,
-        offset,
-        ...filterParams,
-      }),
+      brand ? listBrandProductIds(brand) : Promise.resolve(null),
       listCollections(),
       listProductCategories(),
       listBrands(),
     ]);
+  const brandIds = brandIdsResult?.ids ?? null;
+  const brandActive = Boolean(brand);
+  const brandHasZeroMatches = brandActive && brandIds !== null && brandIds.length === 0;
+  if (brandIds && brandIds.length > 0) {
+    (filterParams as Record<string, unknown>).id = brandIds;
+  }
+
+  type Product = CatalogProduct;
+  const listResult: { products: Product[]; count?: number | null } =
+    brandHasZeroMatches
+      ? { products: [], count: 0 }
+      : await listProducts({
+          limit: activePageSize,
+          offset,
+          ...filterParams,
+        });
 
   let { products } = listResult;
   products = filterProductsByPriceSearchParams(products, minPrice, maxPrice);
-  products = filterProductsByBrand(products, brand);
 
   const count =
     "count" in listResult && typeof listResult.count === "number"
