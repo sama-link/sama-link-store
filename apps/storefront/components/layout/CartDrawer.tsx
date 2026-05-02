@@ -8,6 +8,9 @@ import { cn } from "@/lib/cn";
 import CartLineItem from "@/components/layout/CartLineItem";
 import { getCartItemsSubtotal } from "@/lib/cart-totals";
 import { formatPrice } from "@/lib/format-price";
+import { motion, AnimatePresence } from "framer-motion";
+import { ShoppingCart, X, ArrowRight, Loader2, ShoppingBag } from "lucide-react";
+import Link from "next/link";
 
 function collectFocusable(panel: HTMLElement): HTMLElement[] {
   const selector =
@@ -37,26 +40,12 @@ export default function CartDrawer() {
     removeItem,
   } = useCart();
   const panelRef = useRef<HTMLDivElement>(null);
-  const [panelIn, setPanelIn] = useState(false);
   const [headerBottom, setHeaderBottom] = useState(0);
 
-  useEffect(() => {
-    if (!isCartOpen) {
-      setPanelIn(false);
-      return;
-    }
-    const id = window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => setPanelIn(true));
-    });
-    return () => window.cancelAnimationFrame(id);
-  }, [isCartOpen]);
-
-  /* Lock body scroll only on desktop side-drawer mode; mobile popup is compact
-     enough that users can scroll behind it (per product direction). */
+  /* Lock body scroll when drawer is open. */
   useEffect(() => {
     if (!isCartOpen) return;
     if (typeof window === "undefined") return;
-    if (window.innerWidth < 640) return;
     const prevOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
@@ -122,28 +111,25 @@ export default function CartDrawer() {
 
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [isCartOpen, closeCart, cart?.items, loading, panelIn]);
+  }, [isCartOpen, closeCart, cart?.items, loading]);
 
-  /* Close the mobile popup on route navigation so the user sees the new page
-     cleanly. Desktop side-drawer stays open (user explicitly opened it).
-     Uses a ref to skip the initial mount and only react to actual changes. */
+  /* Close the drawer on route navigation so the user sees the new page cleanly. */
   const pathname = usePathname();
   const prevPathRef = useRef(pathname);
   useEffect(() => {
     if (prevPathRef.current === pathname) return;
     prevPathRef.current = pathname;
     if (!isCartOpen) return;
-    if (typeof window === "undefined" || window.innerWidth >= 640) return;
+    if (typeof window === "undefined") return;
     closeCart();
   }, [pathname, isCartOpen, closeCart]);
-
-  if (!isCartOpen) return null;
 
   const currencyCode = cart?.currency_code ?? "EGP";
   const hasItems = Boolean(cart?.items?.length);
   const itemCount =
     cart?.items?.reduce((sum: number, it: any) => sum + (it.quantity ?? 0), 0) ?? 0;
   const itemsSubtotal = getCartItemsSubtotal(cart);
+  const isArabic = locale === "ar";
 
   return (
     <div
@@ -152,166 +138,132 @@ export default function CartDrawer() {
       aria-labelledby="cart-drawer-title"
       className="pointer-events-none fixed inset-0 z-40"
     >
-      {/* Scrim — soft dim + blur on mobile so the page reads as "paused, still there";
-          fuller dim on desktop so the side drawer gets clean focus. */}
-      <div
-        style={{ top: `${headerBottom}px` }}
-        className={cn(
-          "pointer-events-auto fixed inset-x-0 bottom-0 z-30 transition-opacity duration-300 ease-out",
-          "bg-[color:rgba(10,19,36,0.28)] backdrop-blur-sm sm:bg-[color:rgba(10,19,36,0.55)] sm:backdrop-blur-0",
-          panelIn ? "opacity-100" : "opacity-0",
-        )}
-        onClick={closeCart}
-        aria-hidden="true"
-      />
-
-      {/* Panel */}
-      <div
-        ref={panelRef}
-        /* Dynamic top offset keeps panel below the sticky header on all sizes. */
-        style={{ top: `${headerBottom}px` }}
-        className={cn(
-          /* Mobile floating popup — emerges directly above the cart FAB.
-             bottom-[72px] = FAB bottom-5 (20px) + FAB h-12 (48px) + 4px gap. */
-          "pointer-events-auto fixed bottom-[72px] end-4 z-[45] flex w-[calc(100vw-2rem)] max-w-[360px] flex-col overflow-hidden rounded-2xl border border-border bg-surface",
-          "transition-[transform,opacity] duration-250 ease-out",
-          panelIn
-            ? "translate-y-0 opacity-100"
-            : "translate-y-4 opacity-0",
-          /* Desktop side drawer — overrides mobile positioning.
-             Full height below the header, 420 px wide, flush with end edge. */
-          "sm:bottom-0 sm:end-0 sm:max-h-none sm:w-full sm:max-w-[420px] sm:rounded-none sm:border-0 sm:border-s sm:border-border sm:opacity-100",
-          panelIn
-            ? "sm:translate-x-0"
-            : "ltr:sm:translate-x-full rtl:sm:-translate-x-full",
-        )}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-4">
-          <h2
-            id="cart-drawer-title"
-            className="flex items-center gap-2.5 text-base font-semibold text-text-primary"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-4 w-4 text-brand"
-              aria-hidden="true"
-            >
-              <circle cx="9" cy="20" r="1.5" />
-              <circle cx="18" cy="20" r="1.5" />
-              <path d="M3 4h2.5l2.1 10.5a1.8 1.8 0 0 0 1.8 1.4h8.4a1.8 1.8 0 0 0 1.8-1.4L21 7H6.2" />
-            </svg>
-            <span>{t("title")}</span>
-            {itemCount > 0 ? (
-              <span className="text-sm font-normal text-text-muted">
-                ({itemCount})
-              </span>
-            ) : null}
-          </h2>
-          {/* Mobile-only X — desktop closes via header icon toggle or Esc. */}
-          <button
-            type="button"
-            onClick={closeCart}
-            aria-label={t("close")}
-            className="flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary motion-safe:active:scale-90 sm:hidden"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-4 w-4"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M6 18 18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {/* Body */}
-        <div className="flex-1 overflow-y-auto px-5 py-4">
-          {loading ? (
-            <p className="text-sm text-text-secondary">{t("loading")}</p>
-          ) : !cart?.items?.length ? (
-            <div className="flex flex-col items-center gap-3 py-10 text-center">
-              <span className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-surface-subtle text-text-muted">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.5}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-6 w-6"
-                  aria-hidden="true"
-                >
-                  <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-                  <path d="M3 6h18" />
-                  <path d="M16 10a4 4 0 0 1-8 0" />
-                </svg>
-              </span>
-              <p className="text-sm font-medium text-text-primary">
-                {t("empty")}
-              </p>
-              <a
-                href={`/${locale}/products`}
-                onClick={closeCart}
-                className="inline-flex h-10 items-center justify-center rounded-lg bg-brand px-5 text-sm font-semibold text-text-inverse transition-colors hover:bg-brand-hover"
-              >
-                {t("continueShopping")}
-              </a>
-            </div>
-          ) : (
-            <ul className="space-y-4">
-              {cart.items.map((item: any) => (
-                <CartLineItem
-                  key={item.id}
-                  item={item}
-                  currencyCode={currencyCode}
-                  onUpdate={updateItem}
-                  onRemove={removeItem}
-                  removeLabel={t("remove")}
-                />
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Footer */}
-        {!loading && hasItems ? (
-          <div className="space-y-3 border-t border-border bg-surface-subtle px-5 py-4">
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-text-secondary">{t("subtotal")}</span>
-              <span className="text-lg font-bold text-brand">
-                {formatPrice(itemsSubtotal, currencyCode, locale)}
-              </span>
-            </div>
-            <a
-              href={`/${locale}/checkout/address`}
-              className="inline-flex h-11 w-full items-center justify-center rounded-lg bg-brand text-sm font-semibold text-text-inverse transition-colors hover:bg-brand-hover"
-            >
-              {t("checkout")}
-            </a>
-            <a
-              href={`/${locale}/cart`}
+      <AnimatePresence>
+        {isCartOpen && (
+          <>
+            {/* Scrim — dim only (no backdrop blur) so the page reads as paused. */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{ top: `${headerBottom}px` }}
+              className="pointer-events-auto fixed inset-x-0 bottom-0 z-30 bg-[color:rgba(10,19,36,0.45)] sm:bg-[color:rgba(10,19,36,0.55)]"
               onClick={closeCart}
-              className="inline-flex h-10 w-full items-center justify-center rounded-lg border border-border bg-surface text-sm font-medium text-text-primary transition-colors hover:border-border-strong hover:bg-surface-subtle"
+              aria-hidden="true"
+            />
+
+            {/* Panel */}
+            <motion.div
+              ref={panelRef}
+              initial={{ x: isArabic ? "-100%" : "100%", opacity: 0 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: isArabic ? "-100%" : "100%", opacity: 0 }}
+              transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+              style={{ top: `${headerBottom}px` }}
+              className={cn(
+                "pointer-events-auto fixed bottom-0 end-0 z-[45] flex w-[90vw] max-w-[420px] sm:w-full flex-col border-s border-border bg-surface shadow-[0_0_40px_rgb(0,0,0,0.12)]",
+              )}
             >
-              {t("viewCart")}
-            </a>
-          </div>
-        ) : null}
-      </div>
+              {/* Header */}
+              <div className="flex items-center justify-between border-b border-border bg-surface-subtle/50 px-5 py-4">
+                <h2
+                  id="cart-drawer-title"
+                  className="flex items-center gap-2.5 text-base font-bold text-text-primary"
+                >
+                  <ShoppingCart className="h-5 w-5 text-brand" />
+                  <span>{t("title")}</span>
+                  {itemCount > 0 ? (
+                    <span className="inline-flex items-center justify-center rounded-full bg-brand/10 px-2.5 py-0.5 text-xs font-semibold text-brand">
+                      {itemCount}
+                    </span>
+                  ) : null}
+                </h2>
+                {/* Mobile-only X — desktop closes via header icon toggle or Esc. */}
+                <motion.button
+                  whileHover={{ scale: 1.1, rotate: 90 }}
+                  whileTap={{ scale: 0.9 }}
+                  type="button"
+                  onClick={closeCart}
+                  aria-label={t("close")}
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface-subtle hover:text-text-primary sm:hidden"
+                >
+                  <X className="h-4 w-4" />
+                </motion.button>
+              </div>
+
+              {/* Body */}
+              <div className="flex-1 overflow-y-auto px-5 py-2">
+                {loading && !hasItems ? (
+                  <div className="flex flex-col items-center justify-center h-full text-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-brand mb-4" />
+                    <p className="text-sm font-medium text-text-secondary">{t("loading")}</p>
+                  </div>
+                ) : !hasItems ? (
+                  <div className="flex flex-col items-center justify-center h-full gap-4 text-center py-10 animate-fade-in">
+                    <span className="inline-flex h-16 w-16 items-center justify-center rounded-full bg-surface-subtle text-text-muted shadow-sm">
+                      <ShoppingBag className="h-8 w-8" />
+                    </span>
+                    <p className="text-base font-semibold text-text-primary">
+                      {t("empty")}
+                    </p>
+                    <Link
+                      href={`/${locale}/products`}
+                      onClick={closeCart}
+                      className="inline-flex h-10 items-center justify-center rounded-xl bg-brand px-6 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-hover hover:shadow motion-safe:hover:scale-[1.05] motion-safe:active:scale-[0.95]"
+                    >
+                      {t("continueShopping")}
+                    </Link>
+                  </div>
+                ) : (
+                  <ul className="space-y-2 animate-fade-in">
+                    {cart?.items?.map((item: any) => (
+                      <CartLineItem
+                        key={item.id}
+                        item={item}
+                        currencyCode={currencyCode}
+                        onUpdate={updateItem}
+                        onRemove={removeItem}
+                        removeLabel={t("remove")}
+                        variant="drawer"
+                      />
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+              {/* Footer */}
+              {!loading && hasItems ? (
+                <div className="space-y-4 border-t border-border bg-surface-subtle/50 px-5 py-5 animate-fade-in">
+                  <div className="flex items-end justify-between">
+                    <span className="text-sm font-medium text-text-secondary">{t("subtotal")}</span>
+                    <span className="text-xl font-bold text-brand">
+                      {formatPrice(itemsSubtotal, currencyCode, locale)}
+                    </span>
+                  </div>
+                  
+                  <div className="flex flex-col gap-3">
+                    <Link
+                      href={`/${locale}/checkout/address`}
+                      className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-brand text-sm font-bold text-white shadow-sm transition-all hover:bg-brand-hover hover:shadow-md motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]"
+                    >
+                      {t("checkout")}
+                      <ArrowRight className={cn("h-4 w-4", isArabic && "rotate-180")} />
+                    </Link>
+                    <Link
+                      href={`/${locale}/cart`}
+                      onClick={closeCart}
+                      className="inline-flex h-11 w-full items-center justify-center rounded-xl border border-border bg-surface text-sm font-medium text-text-primary transition-all hover:border-border-strong hover:bg-surface-subtle motion-safe:hover:scale-[1.02] motion-safe:active:scale-[0.98]"
+                    >
+                      {t("viewCart")}
+                    </Link>
+                  </div>
+                </div>
+              ) : null}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
