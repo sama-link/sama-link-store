@@ -12,6 +12,7 @@ import {
 import { localizeProduct } from "@/lib/product-i18n";
 import { clearWishlistFormAction } from "../../actions";
 import WishlistItemActions from "./WishlistItemActions";
+import { Heart, Trash2, PackageSearch } from "lucide-react";
 
 interface WishlistPageProps {
   params: Promise<{ locale: string }>;
@@ -52,8 +53,6 @@ async function enrichItems(
     const result = await listProducts({ id: ids, limit: ids.length });
     products = result.products ?? [];
   } catch {
-    // Live-product fetch is best-effort. Tombstone snapshots render
-    // gracefully when the catalog call fails.
   }
   const byId = new Map(products.map((p) => [p.id, p]));
   return rows.map((row) => {
@@ -86,9 +85,6 @@ export default async function AccountWishlistPage({ params }: WishlistPageProps)
   const token = await getAuthToken();
 
   if (!token) {
-    // The (dashboard) layout already redirects unauthenticated visitors
-    // to /account/login; this is a defensive guard for the rare case
-    // where the cookie disappears between layout and page render.
     notFound();
   }
 
@@ -101,45 +97,52 @@ export default async function AccountWishlistPage({ params }: WishlistPageProps)
   }
 
   return (
-    <div className="space-y-4 rounded-lg border border-border bg-surface p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-text-primary">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-muted text-brand">
+              <Heart className="h-5 w-5" />
+            </div>
             {t("wishlist.heading")}
           </h1>
-          <p className="mt-1 text-sm text-text-secondary">
+          <p className="mt-2 text-sm text-text-secondary">
             {t("wishlist.subheading")}
           </p>
         </div>
-        {items.length > 0 ? (
+        {items.length > 0 && (
           <form action={clearWishlistFormAction}>
             <button
               type="submit"
-              className="rounded-md border border-border bg-surface-subtle px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:border-error hover:text-error"
+              className="flex items-center gap-2 rounded-xl border border-error/20 bg-error-muted/30 px-4 py-2.5 text-sm font-medium text-error transition-colors hover:bg-error-muted hover:border-error/30"
             >
+              <Trash2 className="h-4 w-4" />
               {t("wishlist.clearAll")}
             </button>
           </form>
-        ) : null}
+        )}
       </div>
 
       {items.length === 0 ? (
-        <div className="rounded-md border border-dashed border-border bg-surface-subtle p-8 text-center">
-          <p className="text-base text-text-primary">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-subtle p-12 text-center">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface text-text-muted shadow-sm">
+            <Heart className="h-8 w-8" />
+          </div>
+          <p className="mb-2 text-xl font-semibold text-text-primary">
             {t("wishlist.empty.heading")}
           </p>
-          <p className="mt-1 text-sm text-text-secondary">
+          <p className="mb-6 text-sm text-text-secondary max-w-sm">
             {t("wishlist.empty.body")}
           </p>
           <Link
             href={`/${locale}/products`}
-            className="mt-4 inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:border-brand hover:text-brand"
+            className="inline-flex items-center justify-center rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-hover hover:shadow"
           >
             {t("wishlist.empty.cta")}
           </Link>
         </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-4 sm:gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => {
             const href =
               item.handle != null && item.handle !== ""
@@ -151,11 +154,11 @@ export default async function AccountWishlistPage({ params }: WishlistPageProps)
             return (
               <li
                 key={item.backendItemId}
-                className="flex h-full flex-col overflow-hidden rounded-md border border-border bg-surface-subtle"
+                className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-surface transition-all hover:border-brand-muted hover:shadow-md"
               >
                 <Link
                   href={href}
-                  className="relative block aspect-square w-full shrink-0 overflow-hidden bg-surface"
+                  className="relative block aspect-square w-full shrink-0 overflow-hidden bg-surface-subtle"
                 >
                   {item.thumbnail ? (
                     <Image
@@ -163,32 +166,40 @@ export default async function AccountWishlistPage({ params }: WishlistPageProps)
                       alt={item.title ?? ""}
                       fill
                       sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
-                      className="object-cover"
+                      className="object-cover transition-transform duration-300 group-hover:scale-105"
                     />
-                  ) : null}
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-text-muted">
+                      <PackageSearch className="h-12 w-12 opacity-20" />
+                    </div>
+                  )}
                 </Link>
-                <div className="flex flex-1 flex-col gap-2 p-3">
-                  <Link
-                    href={href}
-                    className="line-clamp-2 text-sm font-semibold text-text-primary hover:text-brand"
-                  >
-                    {item.title ?? t("wishlist.unnamedItem")}
-                  </Link>
-                  {priceLabel ? (
-                    <p className="text-sm font-semibold text-text-primary">
-                      {priceLabel}
-                    </p>
-                  ) : null}
+                <div className="flex flex-1 flex-col gap-3 p-4 sm:p-5">
+                  <div>
+                    <Link
+                      href={href}
+                      className="line-clamp-2 text-base font-semibold text-text-primary hover:text-brand transition-colors"
+                    >
+                      {item.title ?? t("wishlist.unnamedItem")}
+                    </Link>
+                    {priceLabel && (
+                      <p className="mt-1 text-sm font-bold text-brand">
+                        {priceLabel}
+                      </p>
+                    )}
+                  </div>
                   <div className="flex-1" />
-                  <WishlistItemActions
-                    backendItemId={item.backendItemId}
-                    variantId={item.variantId}
-                    moveLabel={t("wishlist.moveToCart")}
-                    removeLabel={t("wishlist.removeItem")}
-                    movingLabel={t("wishlist.moving")}
-                    removingLabel={t("wishlist.removing")}
-                    moveErrorLabel={t("wishlist.moveError")}
-                  />
+                  <div className="mt-2 pt-4 border-t border-border">
+                    <WishlistItemActions
+                      backendItemId={item.backendItemId}
+                      variantId={item.variantId}
+                      moveLabel={t("wishlist.moveToCart")}
+                      removeLabel={t("wishlist.removeItem")}
+                      movingLabel={t("wishlist.moving")}
+                      removingLabel={t("wishlist.removing")}
+                      moveErrorLabel={t("wishlist.moveError")}
+                    />
+                  </div>
                 </div>
               </li>
             );

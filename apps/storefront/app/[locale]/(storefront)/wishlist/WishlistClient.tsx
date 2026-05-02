@@ -58,7 +58,7 @@ export default function WishlistClient({
     return (
       <>
         {heading}
-        <div className="mx-auto max-w-lg px-4 py-20 text-center">
+        <div className="mx-auto max-w-lg px-4 py-20 text-center animate-fade-in">
         <p className="text-lg text-text-primary">{t("empty")}</p>
         <Link
           href={`/${locale}/products`}
@@ -78,7 +78,7 @@ export default function WishlistClient({
   return (
     <>
       {heading}
-      <ul className="mx-auto grid max-w-7xl list-none grid-cols-1 gap-6 px-4 py-8 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="mx-auto grid max-w-7xl list-none grid-cols-1 gap-6 px-4 py-8 sm:grid-cols-2 lg:grid-cols-3 animate-fade-in">
       {items.map((item) => {
         const priceLabel =
           formatCatalogPrice(item.amount, item.currencyCode, locale) || null;

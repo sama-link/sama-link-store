@@ -5,6 +5,17 @@ import Badge from "@/components/ui/Badge";
 import { getAuthToken } from "@/lib/auth-cookie";
 import { formatPrice } from "@/lib/format-price";
 import { getCustomerOrder, type StoreOrder } from "@/lib/medusa-client";
+import { cn } from "@/lib/cn";
+import { 
+  ArrowLeft, 
+  Package, 
+  Calendar, 
+  MapPin, 
+  CreditCard, 
+  Truck,
+  Receipt,
+  FileText
+} from "lucide-react";
 import {
   getOrderDiscountTotal,
   getOrderGrandTotal,
@@ -59,13 +70,13 @@ function AddressBlock({
     .join(", ");
 
   return (
-    <address className="not-italic text-sm text-text-secondary">
-      {name ? <p className="font-medium text-text-primary">{name}</p> : null}
+    <address className="not-italic text-sm text-text-secondary space-y-1">
+      {name ? <p className="font-semibold text-text-primary">{name}</p> : null}
       {address.address_1 ? <p>{address.address_1}</p> : null}
       {address.address_2 ? <p>{address.address_2}</p> : null}
       {locality ? <p>{locality}</p> : null}
       {address.country_code ? <p className="uppercase">{address.country_code}</p> : null}
-      {address.phone ? <p>{address.phone}</p> : null}
+      {address.phone ? <p dir="ltr" className="text-right sm:text-left pt-2 font-medium">{address.phone}</p> : null}
     </address>
   );
 }
@@ -105,165 +116,210 @@ export default async function OrderDetailPage({ params }: OrderDetailPageProps) 
     FULFILLMENT_STATUS_KEYS,
   );
   const items = order.items ?? [];
+  const isArabic = locale === "ar";
 
   return (
-    <div className="space-y-4 rounded-lg border border-border bg-surface p-5">
-      <Link
-        href={`/${locale}/account/orders`}
-        className="text-sm font-medium text-brand hover:underline"
-      >
-        {t("orders.detail.backToOrders")}
-      </Link>
-
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold text-text-primary">
-            {t("orders.detail.heading", { id: displayOrderId(order) })}
-          </h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            {formatOrderDate(locale, order.created_at)}
-          </p>
+    <div className="space-y-6">
+      <div>
+        <Link
+          href={`/${locale}/account/orders`}
+          className="inline-flex items-center gap-2 text-sm font-medium text-text-secondary hover:text-brand transition-colors mb-4"
+        >
+          <ArrowLeft className={cn("h-4 w-4", isArabic && "rotate-180")} />
+          {t("orders.detail.backToOrders")}
+        </Link>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-muted text-brand">
+              <Receipt className="h-6 w-6" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+                {t("orders.detail.heading", { id: displayOrderId(order) })}
+              </h1>
+              <div className="flex items-center gap-2 mt-1 text-sm text-text-secondary">
+                <Calendar className="h-4 w-4" />
+                {formatOrderDate(locale, order.created_at)}
+              </div>
+            </div>
+          </div>
+          {primaryStatus && (
+            <Badge variant={primaryStatusVariant} className="text-sm px-3 py-1.5 shadow-sm">
+              {primaryStatus}
+            </Badge>
+          )}
         </div>
-        {primaryStatus ? (
-          <Badge variant={primaryStatusVariant}>{primaryStatus}</Badge>
-        ) : null}
       </div>
 
-      <section className="rounded-md border border-border bg-surface-subtle p-4">
-        <h2 className="text-base font-semibold text-text-primary">
-          {t("orders.detail.statusHeading")}
-        </h2>
-        <dl className="mt-3 space-y-2 text-sm">
-          {primaryStatus ? (
-            <div className="flex justify-between gap-4">
-              <dt className="text-text-secondary">
-                {t("orders.detail.orderStatusLabel")}
-              </dt>
-              <dd className="text-text-primary">{primaryStatus}</dd>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <section className="overflow-hidden rounded-xl sm:rounded-2xl sm:border border-border bg-surface sm:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:sm:shadow-[0_8px_30px_rgb(255,255,255,0.02)]">
+            <div className="border-b border-border bg-surface-subtle p-5 sm:p-6 flex items-center gap-2">
+              <Package className="h-5 w-5 text-brand" />
+              <h2 className="text-lg font-semibold text-text-primary">
+                {t("orders.detail.itemsHeading")}
+              </h2>
             </div>
-          ) : null}
-          {paymentStatus ? (
-            <div className="flex justify-between gap-4">
-              <dt className="text-text-secondary">
-                {t("orders.detail.paymentStatusLabel")}
-              </dt>
-              <dd className="text-text-primary">{paymentStatus}</dd>
-            </div>
-          ) : null}
-          {fulfillmentStatus ? (
-            <div className="flex justify-between gap-4">
-              <dt className="text-text-secondary">
-                {t("orders.detail.deliveryStatusLabel")}
-              </dt>
-              <dd className="text-text-primary">{fulfillmentStatus}</dd>
-            </div>
-          ) : null}
-        </dl>
-      </section>
+            <ul className="divide-y divide-border">
+              {items.map((item) => {
+                const title = (item.title ?? "").trim();
+                const subtitleRaw = (item.subtitle ?? "").trim();
+                const showSubtitle =
+                  subtitleRaw.length > 0 &&
+                  subtitleRaw.toLowerCase() !== title.toLowerCase();
+                const quantity = item.quantity ?? 1;
+                const lineTotal = getOrderLineDisplayTotal(item);
+                const unitPrice = getOrderLineUnitPrice(item);
+                const showUnitBreakdown = quantity > 1 && unitPrice > 0;
 
-      <section className="rounded-md border border-border bg-surface-subtle p-4">
-        <h2 className="text-base font-semibold text-text-primary">
-          {t("orders.detail.itemsHeading")}
-        </h2>
-        <ul className="mt-3 divide-y divide-border">
-          {items.map((item) => {
-            const title = (item.title ?? "").trim();
-            const subtitleRaw = (item.subtitle ?? "").trim();
-            // Hide subtitle when it's empty or duplicates the title — Medusa
-            // sometimes echoes the product name into both fields for items
-            // without real variants, which read as a duplicated row.
-            const showSubtitle =
-              subtitleRaw.length > 0 &&
-              subtitleRaw.toLowerCase() !== title.toLowerCase();
-            const quantity = item.quantity ?? 1;
-            const lineTotal = getOrderLineDisplayTotal(item);
-            const unitPrice = getOrderLineUnitPrice(item);
-            // Show the unit-price breakdown only when it adds information.
-            // For quantity == 1 the line total already is the unit price,
-            // so a second line ("EGP 731.50") is redundant. For
-            // quantity > 1 we surface "EGP X × N" so the customer can see
-            // the per-unit price.
-            const showUnitBreakdown = quantity > 1 && unitPrice > 0;
+                return (
+                  <li key={item.id} className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 sm:p-6 transition-colors hover:bg-surface-subtle/50">
+                    <div className="flex gap-4">
+                      {item.thumbnail ? (
+                        <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg border border-border bg-surface">
+                          <img 
+                            src={item.thumbnail} 
+                            alt={title}
+                            className="h-full w-full object-cover"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-subtle text-text-muted">
+                          <Package className="h-8 w-8" />
+                        </div>
+                      )}
+                      <div className="flex flex-col justify-center">
+                        <p className="font-semibold text-text-primary line-clamp-2">
+                          {title || "-"}
+                        </p>
+                        {showSubtitle && (
+                          <p className="text-sm text-text-secondary mt-1">{subtitleRaw}</p>
+                        )}
+                        <p className="inline-flex items-center rounded-md bg-surface-subtle px-2 py-1 text-xs font-medium text-text-secondary mt-2 w-max">
+                          {t("orders.detail.quantity", { count: quantity })}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center border-t border-border sm:border-0 pt-4 sm:pt-0">
+                      <p className="text-base font-bold text-text-primary">
+                        {formatPrice(lineTotal, currencyCode, locale)}
+                      </p>
+                      {showUnitBreakdown && (
+                        <p className="text-sm text-text-secondary mt-1">
+                          {`${formatPrice(unitPrice, currencyCode, locale)} × ${quantity}`}
+                        </p>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        </div>
 
-            return (
-              <li key={item.id} className="flex justify-between gap-4 py-3 text-sm">
-                <div>
-                  <p className="font-medium text-text-primary">
-                    {title || "-"}
-                  </p>
-                  {showSubtitle ? (
-                    <p className="text-text-secondary">{subtitleRaw}</p>
-                  ) : null}
-                  <p className="text-text-secondary">
-                    {t("orders.detail.quantity", { count: quantity })}
-                  </p>
+        <div className="space-y-6">
+          <section className="overflow-hidden rounded-xl sm:rounded-2xl sm:border border-border bg-surface sm:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:sm:shadow-[0_8px_30px_rgb(255,255,255,0.02)]">
+            <div className="border-b border-border bg-surface-subtle p-5 flex items-center gap-2">
+              <FileText className="h-5 w-5 text-brand" />
+              <h2 className="text-lg font-semibold text-text-primary">
+                {t("orders.detail.statusHeading")}
+              </h2>
+            </div>
+            <div className="p-5 space-y-4">
+              {primaryStatus && (
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-muted text-brand">
+                    <Receipt className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary">{t("orders.detail.orderStatusLabel")}</p>
+                    <p className="text-sm font-semibold text-text-primary">{primaryStatus}</p>
+                  </div>
                 </div>
-                <div className="text-end">
-                  <p className="text-text-primary">
-                    {formatPrice(lineTotal, currencyCode, locale)}
-                  </p>
-                  {showUnitBreakdown ? (
-                    <p className="text-text-secondary">
-                      {`${formatPrice(unitPrice, currencyCode, locale)} × ${quantity}`}
-                    </p>
-                  ) : null}
+              )}
+              {paymentStatus && (
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-muted text-brand">
+                    <CreditCard className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary">{t("orders.detail.paymentStatusLabel")}</p>
+                    <p className="text-sm font-semibold text-text-primary">{paymentStatus}</p>
+                  </div>
                 </div>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+              )}
+              {fulfillmentStatus && (
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-muted text-brand">
+                    <Truck className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-text-secondary">{t("orders.detail.deliveryStatusLabel")}</p>
+                    <p className="text-sm font-semibold text-text-primary">{fulfillmentStatus}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </section>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        <section className="rounded-md border border-border bg-surface-subtle p-4">
-          <h2 className="text-base font-semibold text-text-primary">
-            {t("orders.detail.shippingAddressHeading")}
-          </h2>
-          <div className="mt-3">
-            <AddressBlock
-              address={order.shipping_address}
-              emptyLabel={t("orders.detail.noShippingAddress")}
-            />
-          </div>
-        </section>
+          <section className="overflow-hidden rounded-xl sm:rounded-2xl sm:border border-border bg-surface sm:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:sm:shadow-[0_8px_30px_rgb(255,255,255,0.02)]">
+            <div className="border-b border-border bg-surface-subtle p-5 flex items-center gap-2">
+              <MapPin className="h-5 w-5 text-brand" />
+              <h2 className="text-lg font-semibold text-text-primary">
+                {t("orders.detail.shippingAddressHeading")}
+              </h2>
+            </div>
+            <div className="p-5">
+              <AddressBlock
+                address={order.shipping_address}
+                emptyLabel={t("orders.detail.noShippingAddress")}
+              />
+            </div>
+          </section>
 
-        <section className="rounded-md border border-border bg-surface-subtle p-4">
-          <h2 className="text-base font-semibold text-text-primary">
-            {t("orders.detail.totalsHeading")}
-          </h2>
-          <dl className="mt-3 space-y-2 text-sm">
-            <div className="flex justify-between gap-4">
-              <dt className="text-text-secondary">{t("orders.detail.subtotal")}</dt>
-              <dd className="text-text-primary">
-                {formatPrice(getOrderItemsSubtotal(order), currencyCode, locale)}
-              </dd>
+          <section className="overflow-hidden rounded-xl sm:rounded-2xl sm:border border-border bg-surface sm:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:sm:shadow-[0_8px_30px_rgb(255,255,255,0.02)]">
+            <div className="border-b border-border bg-surface-subtle p-5 flex items-center gap-2">
+              <Receipt className="h-5 w-5 text-brand" />
+              <h2 className="text-lg font-semibold text-text-primary">
+                {t("orders.detail.totalsHeading")}
+              </h2>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-text-secondary">{t("orders.detail.shipping")}</dt>
-              <dd className="text-text-primary">
-                {formatPrice(getOrderShippingTotal(order), currencyCode, locale)}
-              </dd>
+            <div className="p-5">
+              <dl className="space-y-3 text-sm">
+                <div className="flex justify-between gap-4">
+                  <dt className="text-text-secondary">{t("orders.detail.subtotal")}</dt>
+                  <dd className="font-medium text-text-primary">
+                    {formatPrice(getOrderItemsSubtotal(order), currencyCode, locale)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-text-secondary">{t("orders.detail.shipping")}</dt>
+                  <dd className="font-medium text-text-primary">
+                    {formatPrice(getOrderShippingTotal(order), currencyCode, locale)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-text-secondary">{t("orders.detail.tax")}</dt>
+                  <dd className="font-medium text-text-primary">
+                    {formatPrice(getOrderTaxTotal(order), currencyCode, locale)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4">
+                  <dt className="text-text-secondary">{t("orders.detail.discount")}</dt>
+                  <dd className="font-medium text-text-primary">
+                    {formatPrice(getOrderDiscountTotal(order), currencyCode, locale)}
+                  </dd>
+                </div>
+                <div className="flex justify-between gap-4 border-t border-border pt-4 mt-2">
+                  <dt className="text-base font-bold text-text-primary">{t("orders.detail.total")}</dt>
+                  <dd className="text-lg font-bold text-brand">
+                    {formatPrice(getOrderGrandTotal(order), currencyCode, locale)}
+                  </dd>
+                </div>
+              </dl>
             </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-text-secondary">{t("orders.detail.tax")}</dt>
-              <dd className="text-text-primary">
-                {formatPrice(getOrderTaxTotal(order), currencyCode, locale)}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4">
-              <dt className="text-text-secondary">{t("orders.detail.discount")}</dt>
-              <dd className="text-text-primary">
-                {formatPrice(getOrderDiscountTotal(order), currencyCode, locale)}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-4 border-t border-border pt-2 font-semibold">
-              <dt className="text-text-primary">{t("orders.detail.total")}</dt>
-              <dd className="text-text-primary">
-                {formatPrice(getOrderGrandTotal(order), currencyCode, locale)}
-              </dd>
-            </div>
-          </dl>
-        </section>
+          </section>
+        </div>
       </div>
     </div>
   );
