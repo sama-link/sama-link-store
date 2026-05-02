@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import {
+  listBrands,
   listCollections,
   listProductCategories,
   listProducts,
@@ -8,6 +9,7 @@ import {
 } from "@/lib/medusa-client";
 import { buildCanonical, buildLanguageAlternates } from "@/lib/seo";
 import FilterSidebar, {
+  type FilterBrandOption,
   type FilterCategoryOption,
   type FilterCollectionOption,
 } from "@/components/products/FilterSidebar";
@@ -62,6 +64,20 @@ function filterProductsByPriceSearchParams(
   });
 }
 
+/** Brand filter — server doesn't support a `metadata.brand_id` query param, so
+   this trims the current page client-side. Products without `metadata.brand_id`
+   are excluded when a brand filter is active. */
+function filterProductsByBrand(
+  products: CatalogProduct[],
+  brandId?: string,
+): CatalogProduct[] {
+  if (!brandId || brandId.trim() === "") return products;
+  return products.filter((p) => {
+    const metadata = p.metadata as Record<string, unknown> | null;
+    return metadata?.brand_id === brandId;
+  });
+}
+
 function mapCollectionsForFilters(
   collections: Awaited<ReturnType<typeof listCollections>>["collections"],
 ): FilterCollectionOption[] {
@@ -109,6 +125,7 @@ interface ProductsPageProps {
   searchParams: Promise<{
     page?: string;
     collection?: string;
+    brand?: string;
     category?: string;
     minPrice?: string;
     maxPrice?: string;
@@ -158,6 +175,7 @@ export default async function ProductsPage({
   const { locale } = await params;
   const {
     collection,
+    brand,
     category,
     minPrice,
     maxPrice,
@@ -188,18 +206,21 @@ export default async function ProductsPage({
   if (order) (filterParams as Record<string, unknown>).order = order;
   // TODO CAT-6: wire price + in-stock + rating filters to Medusa when params confirmed
 
-  const [listResult, collectionsResult, categoriesResult] = await Promise.all([
-    listProducts({
-      limit: activePageSize,
-      offset,
-      ...filterParams,
-    }),
-    listCollections(),
-    listProductCategories(),
-  ]);
+  const [listResult, collectionsResult, categoriesResult, brandsResult] =
+    await Promise.all([
+      listProducts({
+        limit: activePageSize,
+        offset,
+        ...filterParams,
+      }),
+      listCollections(),
+      listProductCategories(),
+      listBrands(),
+    ]);
 
   let { products } = listResult;
   products = filterProductsByPriceSearchParams(products, minPrice, maxPrice);
+  products = filterProductsByBrand(products, brand);
 
   const count =
     "count" in listResult && typeof listResult.count === "number"
@@ -212,6 +233,9 @@ export default async function ProductsPage({
   const filterCategories = mapCategoriesForFilters(
     categoriesResult.product_categories,
   );
+  const filterBrands: FilterBrandOption[] = (brandsResult.brands || []).map(
+    (b) => ({ id: b.id, title: b.name || b.handle }),
+  );
 
   return (
     <Container>
@@ -220,8 +244,10 @@ export default async function ProductsPage({
         <aside className="hidden w-full shrink-0 lg:block lg:w-64">
           <FilterSidebar
             collections={filterCollections}
+            brands={filterBrands}
             categories={filterCategories}
             activeCollection={collection ?? null}
+            activeBrand={brand ?? null}
             activeCategory={category ?? null}
             activeMinPrice={minPrice ?? null}
             activeMaxPrice={maxPrice ?? null}
@@ -267,8 +293,10 @@ export default async function ProductsPage({
       {/* Mobile-only floating Filter/View controls */}
       <MobileCatalogFab
         collections={filterCollections}
+        brands={filterBrands}
         categories={filterCategories}
         activeCollection={collection ?? null}
+        activeBrand={brand ?? null}
         activeCategory={category ?? null}
         activeMinPrice={minPrice ?? null}
         activeMaxPrice={maxPrice ?? null}

@@ -466,6 +466,30 @@ export async function listProductCategories() {
   } as ListProductCategoriesParams);
 }
 
+/** Public brand catalog — backs the catalog brand filter and PDP brand eyebrow.
+ * `/store/*` routes require the publishable-api-key header, so include it
+ * explicitly here (this helper bypasses the SDK because brands are not a
+ * built-in Medusa entity — they're our domain module). */
+export async function listBrands(): Promise<{
+  brands: Array<{ id: string; name: string; handle: string }>;
+}> {
+  const headers: Record<string, string> = { accept: "application/json" };
+  if (publishableKey) headers["x-publishable-api-key"] = publishableKey;
+  try {
+    const res = await fetch(`${baseUrl}/store/brands?limit=200`, {
+      headers,
+      next: { tags: ["brands"], revalidate: 3600 },
+    });
+    if (!res.ok) return { brands: [] };
+    const data = (await res.json()) as {
+      brands?: Array<{ id: string; name: string; handle: string }>;
+    };
+    return { brands: Array.isArray(data.brands) ? data.brands : [] };
+  } catch {
+    return { brands: [] };
+  }
+}
+
 export async function listProductsByCollection(
   collectionId: string,
   params?: Partial<ListProductsParams>,
