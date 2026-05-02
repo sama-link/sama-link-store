@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { routing, type Locale } from "@/i18n/routing";
 import { cn } from "@/lib/cn";
+import { motion } from "framer-motion";
 
 function getAlternateLocaleHref(
   pathname: string
@@ -34,7 +35,7 @@ function GlobeIcon() {
       strokeWidth={1.75}
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-4 w-4 transition-transform duration-300 group-hover:rotate-12"
+      className="h-4 w-4"
       aria-hidden="true"
     >
       <circle cx="12" cy="12" r="9" />
@@ -88,44 +89,63 @@ export default function LocaleSwitcher({
 
   if (bare) {
     return (
-      <Link
-        href={alternate.href}
-        aria-label={t("switchLanguage")}
-        onClick={onNavigate}
-        data-locale-target={alternate.other}
-        className={cn(
-          "group inline-flex h-9 items-center rounded-full text-xs font-semibold uppercase tracking-wider text-text-secondary transition-colors hover:text-brand focus-visible:outline-none focus-visible:text-brand",
-          showLabel ? "gap-1.5 px-2.5" : "w-9 justify-center",
-        )}
-      >
-        <GlobeIcon />
-        {showLabel ? (
-          <span className="text-[11px]">{shortLabel}</span>
-        ) : null}
-        <span className="sr-only">
-          ({current === "ar" ? "العربية" : "English"} → {fullLabel})
-        </span>
+      <Link href={alternate.href} passHref>
+        <motion.div
+          aria-label={t("switchLanguage")}
+          onClick={onNavigate}
+          data-locale-target={alternate.other}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className={cn(
+            "group inline-flex h-9 items-center rounded-full text-xs font-semibold uppercase tracking-wider text-text-secondary transition-all hover:bg-brand/10 hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
+            showLabel ? "gap-1.5 px-3" : "w-9 justify-center",
+          )}
+        >
+          <motion.div
+            initial={false}
+            animate={{ rotate: 0 }}
+            whileHover={{ rotate: 180 }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+          >
+            <GlobeIcon />
+          </motion.div>
+          {showLabel ? (
+            <span className="text-[11px]">{shortLabel}</span>
+          ) : null}
+          <span className="sr-only">
+            ({current === "ar" ? "العربية" : "English"} → {fullLabel})
+          </span>
+        </motion.div>
       </Link>
     );
   }
 
   return (
-    <Link
-      href={alternate.href}
-      aria-label={t("switchLanguage")}
-      onClick={onNavigate}
-      data-locale-target={alternate.other}
-      className={cn(
-        "group inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface px-3 text-xs font-semibold uppercase tracking-wider text-text-secondary",
-        "transition-[background-color,border-color,color] duration-200 hover:border-brand hover:bg-surface-subtle hover:text-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15",
-      )}
-    >
-      <GlobeIcon />
-      <span className="text-[11px]">{shortLabel}</span>
-      <span className="sr-only">
-        ({current === "ar" ? "العربية" : "English"} →{" "}
-        {fullLabel})
-      </span>
+    <Link href={alternate.href} passHref>
+      <motion.div
+        aria-label={t("switchLanguage")}
+        onClick={onNavigate}
+        data-locale-target={alternate.other}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className={cn(
+          "group inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-xs font-semibold uppercase tracking-wider text-text-secondary",
+          "transition-all duration-200 hover:border-brand hover:bg-brand/5 hover:text-brand hover:shadow-sm focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15",
+        )}
+      >
+        <motion.div
+          initial={false}
+          animate={{ rotate: 0 }}
+          whileHover={{ rotate: 180 }}
+          transition={{ duration: 0.4, ease: "easeInOut" }}
+        >
+          <GlobeIcon />
+        </motion.div>
+        <span className="text-[11px]">{shortLabel}</span>
+        <span className="sr-only">
+          ({current === "ar" ? "العربية" : "English"} → {fullLabel})
+        </span>
+      </motion.div>
     </Link>
   );
 }

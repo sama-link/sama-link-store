@@ -116,30 +116,32 @@ export default async function Footer() {
   const tCommon = await getTranslations("common");
 
   return (
-    <footer className="border-t border-border bg-surface-subtle">
+    <footer className="relative mt-auto border-t border-border bg-surface overflow-hidden">
+      {/* ── Soft Welcoming Gradient Background ── */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-brand-muted/30" aria-hidden="true" />
 
       {/* ── Main grid ── */}
-      <Container className="py-12 sm:py-16">
-        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4">
+      <Container className="relative z-10 py-16 sm:py-20">
+        <div className="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-5 xl:gap-8">
 
           {/* Brand column */}
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-6 lg:col-span-2 lg:pe-8">
             <a
               href={`/${locale}`}
-              className="inline-flex max-w-full items-center transition-opacity hover:opacity-90"
+              className="inline-flex max-w-full items-center transition-transform hover:scale-[1.02] active:scale-[0.98]"
             >
               <Logo
                 variant="horizontal-no-tagline"
                 alt={tCommon("storeName")}
-                className="h-10 w-auto"
+                className="h-10 w-auto sm:h-12"
               />
             </a>
-            <p className="max-w-xs text-sm leading-relaxed text-text-muted">
+            <p className="max-w-sm text-[15px] leading-relaxed text-text-secondary">
               {t("tagline")}
             </p>
 
             {/* Socials */}
-            <ul className="mt-1 flex items-center gap-2">
+            <ul className="mt-2 flex items-center gap-3">
               {SOCIALS.map((name) => {
                 const href = socialProfileUrl(name);
                 if (!href) return null;
@@ -150,7 +152,7 @@ export default async function Footer() {
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={t(`socials.${name}`)}
-                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-surface text-text-secondary transition-colors hover:border-border-strong hover:text-brand"
+                      className="group flex h-10 w-10 items-center justify-center rounded-full border border-border bg-surface text-text-secondary shadow-sm transition-all hover:-translate-y-1 hover:border-brand hover:bg-brand hover:text-white hover:shadow-md"
                     >
                       <SocialIcon name={name} />
                     </a>
@@ -162,17 +164,18 @@ export default async function Footer() {
 
           {/* Link columns */}
           {footerSections.map((section) => (
-            <div key={section.titleKey} className="flex flex-col gap-4">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-text-muted">
+            <div key={section.titleKey} className="flex flex-col gap-5">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-text-primary">
                 {t(section.titleKey)}
               </h3>
-              <ul className="flex flex-col gap-3">
+              <ul className="flex flex-col gap-3.5">
                 {section.links.map((link) => (
                   <li key={link.key}>
                     <a
                       href={link.href}
-                      className="text-sm text-text-secondary transition-colors hover:text-text-primary"
+                      className="group inline-flex items-center gap-2.5 text-[15px] font-medium text-text-secondary transition-colors hover:text-brand"
                     >
+                      <span className="h-1.5 w-1.5 rounded-full bg-brand/20 transition-all group-hover:scale-125 group-hover:bg-brand" aria-hidden="true" />
                       {t(link.key)}
                     </a>
                   </li>
@@ -184,9 +187,9 @@ export default async function Footer() {
       </Container>
 
       {/* ── Bottom bar ── */}
-      <div className="border-t border-border">
-        <Container className="flex flex-col items-center justify-between gap-3 py-4 sm:flex-row">
-          <p className="text-xs text-text-muted">
+      <div className="relative z-10 border-t border-border/60 bg-surface/50 backdrop-blur-sm">
+        <Container className="flex flex-col items-center justify-between gap-5 py-6 sm:flex-row">
+          <p className="text-[13px] font-medium text-text-muted">
             {t("copyrightLine", {
               year: currentYear,
               storeName: tCommon("storeName"),
@@ -195,19 +198,22 @@ export default async function Footer() {
           </p>
 
           {/* Payment mini list */}
-          <ul className="flex flex-wrap items-center gap-1.5" aria-label={t("paymentsLabel")}>
+          <ul className="flex flex-wrap items-center justify-center gap-2" aria-label={t("paymentsLabel")}>
             {PAYMENTS.map((p) => (
               <li
                 key={p}
-                className="inline-flex items-center rounded-md border border-border bg-surface px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-text-muted"
+                className="inline-flex items-center rounded-lg border border-border/80 bg-surface px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-text-muted shadow-sm transition-colors hover:border-border hover:text-text-secondary"
               >
                 {t(`payments.${p}`)}
               </li>
             ))}
           </ul>
 
-          <p className="text-xs text-text-muted">
+          <p className="flex items-center gap-1.5 text-[13px] font-medium text-text-muted transition-colors hover:text-brand">
             {t("builtWithCare")}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4 text-brand animate-pulse" aria-hidden="true">
+              <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            </svg>
           </p>
         </Container>
       </div>

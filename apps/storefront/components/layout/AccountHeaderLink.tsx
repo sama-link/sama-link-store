@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
 import { useCustomer } from "@/hooks/useCustomer";
+import { motion } from "framer-motion";
 
 function AccountIcon() {
   return (
@@ -58,13 +59,16 @@ export default function AccountHeaderLink({
   }
 
   return (
-    <Link
-      href={href}
-      className="relative flex h-9 w-9 items-center justify-center rounded-md text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary"
-      aria-label={label}
-      title={label}
-    >
-      <AccountIcon />
+    <Link href={href} className="inline-flex shrink-0">
+      <motion.div
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        className="group relative flex h-10 w-10 items-center justify-center rounded-full text-text-secondary transition-all duration-200 hover:bg-brand/5 hover:text-brand border border-transparent hover:border-border hover:shadow-sm"
+        aria-label={label}
+        title={label}
+      >
+        <AccountIcon />
+      </motion.div>
     </Link>
   );
 }

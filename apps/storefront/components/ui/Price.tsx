@@ -35,8 +35,8 @@ function formatAmount(amount: number, locale: string): string {
   const intlLocale = locale === "ar" ? "ar-EG" : "en-US";
   try {
     return new Intl.NumberFormat(intlLocale, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
   } catch {
     return String(amount);
