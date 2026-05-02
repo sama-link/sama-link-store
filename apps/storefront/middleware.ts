@@ -5,6 +5,8 @@ export default createMiddleware(routing);
 
 export const config = {
   matcher: [
-    '/((?!_next|_vercel|.*\\..*).*)',
+    // Exclude /api/* so route handlers (e.g. /api/track-order proxy) bypass
+    // the i18n locale rewrite and aren't redirected to /en/api/...
+    '/((?!api|_next|_vercel|.*\\..*).*)',
   ],
 };

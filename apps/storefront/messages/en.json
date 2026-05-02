@@ -888,7 +888,31 @@
   },
   "trackOrder": {
     "title": "Track Order",
-    "body": "Order tracking will be available soon."
+    "body": "Track your order using your order number and email.",
+    "kicker": "Real-time order lookup",
+    "heading": "Find your order status in seconds",
+    "form": {
+      "orderRefLabel": "Order number",
+      "orderRefPlaceholder": "Example: 1234",
+      "emailLabel": "Order email",
+      "emailPlaceholder": "you@example.com",
+      "submit": "Track now",
+      "loading": "Tracking..."
+    },
+    "result": {
+      "orderNo": "Order",
+      "orderStatus": "Order status",
+      "fulfillmentStatus": "Fulfillment",
+      "total": "Total",
+      "itemsHeading": "Items in this order",
+      "noItems": "No line items found for this order.",
+      "quantity": "Qty",
+      "untitledItem": "Untitled item"
+    },
+    "errors": {
+      "notFound": "We could not find an order with these details.",
+      "generic": "Something went wrong while tracking the order. Please try again."
+    }
   },
   "meta": {
     "root": {

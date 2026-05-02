@@ -888,7 +888,31 @@
   },
   "trackOrder": {
     "title": "تتبع الطلب",
-    "body": "ستتوفر خدمة تتبع الطلبات قريبًا."
+    "body": "تابع حالة طلبك باستخدام رقم الطلب والبريد الإلكتروني.",
+    "kicker": "تتبع فعلي للطلبات",
+    "heading": "اعرف حالة طلبك خلال ثوانٍ",
+    "form": {
+      "orderRefLabel": "رقم الطلب",
+      "orderRefPlaceholder": "مثال: 1234",
+      "emailLabel": "البريد الإلكتروني للطلب",
+      "emailPlaceholder": "you@example.com",
+      "submit": "تتبع الآن",
+      "loading": "جاري التتبع..."
+    },
+    "result": {
+      "orderNo": "الطلب",
+      "orderStatus": "حالة الطلب",
+      "fulfillmentStatus": "حالة الشحن",
+      "total": "الإجمالي",
+      "itemsHeading": "المنتجات داخل الطلب",
+      "noItems": "لا توجد عناصر مرتبطة بهذا الطلب.",
+      "quantity": "الكمية",
+      "untitledItem": "منتج بدون اسم"
+    },
+    "errors": {
+      "notFound": "لم نتمكن من العثور على طلب بهذه البيانات.",
+      "generic": "حدث خطأ أثناء تتبع الطلب. حاول مرة أخرى."
+    }
   },
   "meta": {
     "root": {
