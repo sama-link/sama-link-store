@@ -490,6 +490,70 @@ export async function listBrands(): Promise<{
   }
 }
 
+/** Product IDs tagged with the `special_offer` catalog label (backend
+ * `metadata.sama_labels`). Storefront passes these to `/store/products` via
+ * the native `id` filter so variant pricing comes from the same code path
+ * as the main catalog. Graceful empty array on any failure. */
+export async function listSpecialOfferProductIds(): Promise<string[]> {
+  const headers: Record<string, string> = { accept: "application/json" };
+  if (publishableKey) headers["x-publishable-api-key"] = publishableKey;
+  try {
+    const res = await fetch(`${baseUrl}/store/special-offers/catalog-ids`, {
+      headers,
+      next: { tags: ["special-offers"], revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as { ids?: unknown };
+    if (!Array.isArray(data.ids)) return [];
+    return data.ids.filter(
+      (id): id is string => typeof id === "string" && id.length > 0,
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** Store API product rows for all special-offer products, with pricing
+ * context applied. Order is preserved from the catalog-ids response. */
+export async function listSpecialOfferProducts() {
+  const ids = await listSpecialOfferProductIds();
+  if (ids.length === 0) {
+    return {
+      products: [] as Awaited<
+        ReturnType<typeof sdk.store.product.list>
+      >["products"],
+      count: 0,
+      offset: 0,
+      limit: 0,
+    };
+  }
+  const base: ListProductsParams = regionId
+    ? {
+        region_id: regionId,
+        fields:
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
+      }
+    : {
+        fields:
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
+      };
+  const result = await sdk.store.product.list({
+    ...base,
+    id: ids,
+    limit: Math.min(ids.length, 200),
+    offset: 0,
+  });
+  const byId = new Map(result.products.map((p) => [p.id, p]));
+  const ordered = ids
+    .map((id) => byId.get(id))
+    .filter((p): p is NonNullable<typeof p> => p != null);
+  return {
+    ...result,
+    products: ordered,
+    count: ordered.length,
+  };
+}
+
 /** Resolve product IDs for a brand. Medusa's /store/products doesn't accept
  * a metadata.brand_id filter, so the catalog passes this list to /store/products
  * via the native `id` filter — that gives us accurate count + pagination. */

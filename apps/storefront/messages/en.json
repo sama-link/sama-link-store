@@ -95,6 +95,7 @@
     "collections": "Collections",
     "cart": "Cart",
     "checkout": "Checkout",
+    "specialOffers": "Today's Deals",
     "aria": "Breadcrumb"
   },
   "nav": {
@@ -600,6 +601,15 @@
       "close": "Close",
       "viewDetails": "View full details",
       "chooseVariant": "Choose a variant"
+    },
+    "specialOffers": {
+      "metaTitle": "Today's Deals | Special offers",
+      "metaDescription": "Limited-time prices on selected networking, surveillance, and IT equipment.",
+      "bannerEyebrow": "Special offer",
+      "bannerTitle": "Today's Deals",
+      "bannerBody": "Hand-picked products with extra value. Same warranty and delivery — better prices while stocks last.",
+      "listHeading": "Special offer products",
+      "empty": "No special-offer products right now. Check back soon."
     }
   },
   "wishlist": {

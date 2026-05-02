@@ -22,7 +22,7 @@ function getFooterSections(locale: string) {
           key: "newArrivals" as const,
           href: `/${locale}/products?sort=newest`,
         },
-        { key: "sale" as const, href: `/${locale}/products` }, /* temporary: special-offers route ships in a later slice */
+        { key: "sale" as const, href: `/${locale}/products/special-offers` },
       ],
     },
     {
