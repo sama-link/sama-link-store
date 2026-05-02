@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
   useCallback,
   useEffect,
@@ -10,20 +11,20 @@ import {
   useState,
 } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { formatCatalogPrice } from "@/lib/format-price";
 import type { ListProduct } from "@/hooks/useWishlist";
 import { localizeTitle, localizeDescription } from "@/lib/product-i18n";
 import AddToCartButton from "@/components/products/AddToCartButton";
-import Button from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import Price from "@/components/ui/Price";
+
+const QUICK_VIEW_EXIT_MS = 250;
 
 function stripDescription(html: string | null | undefined): string {
   if (!html) return "";
   return html
     .replace(/<[^>]*>/g, " ")
     .replace(/\s+/g, " ")
-    .trim()
-    .slice(0, 320);
+    .trim();
 }
 
 export interface QuickViewModalProps {
@@ -40,12 +41,22 @@ export default function QuickViewModal({
   const t = useTranslations("products.quickView");
   const tDetail = useTranslations("products.detail");
   const locale = useLocale();
+  const router = useRouter();
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const wasOpenRef = useRef(false);
+  const closingOnceRef = useRef(false);
+  const exitFallbackTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
+    null,
+  );
+  const navigateAfterRef = useRef<string | null>(null);
+  const [exiting, setExiting] = useState(false);
+  const [panelEnterKey, setPanelEnterKey] = useState(0);
   const titleId = useId();
   const variants = product.variants ?? [];
   const [selectedVariantId, setSelectedVariantId] = useState(
     variants[0]?.id ?? "",
   );
+  const [descExpanded, setDescExpanded] = useState(false);
 
   useEffect(() => {
     setSelectedVariantId(variants[0]?.id ?? "");
@@ -54,33 +65,78 @@ export default function QuickViewModal({
   const selectedVariant =
     variants.find((v: any) => v.id === selectedVariantId) ?? variants[0];
   const calc = selectedVariant?.calculated_price;
-  const priceLabel =
-    formatCatalogPrice(
-      calc?.calculated_amount != null
-        ? Number(calc.calculated_amount)
-        : null,
-      calc?.currency_code,
-      locale,
-    ) || null;
 
   /* ADR-047 · Prefer metadata.translations.ar.{title,description} on ar locale. */
   const displayTitle = localizeTitle(product, locale);
   const displayDescription = localizeDescription(product, locale);
   const plainDesc = stripDescription(displayDescription ?? "");
 
+  const finishClose = useCallback(() => {
+    if (exitFallbackTimerRef.current != null) {
+      window.clearTimeout(exitFallbackTimerRef.current);
+      exitFallbackTimerRef.current = null;
+    }
+    if (closingOnceRef.current) return;
+    closingOnceRef.current = true;
+    const href = navigateAfterRef.current;
+    navigateAfterRef.current = null;
+    /* Close the native top layer first. If we clear `exiting` before this, backdrop
+       classes snap back to full opacity for a frame and flicker behind the panel. */
+    const el = dialogRef.current;
+    if (el?.open) el.close();
+    setExiting(false);
+    onClose();
+    if (href) router.push(href);
+  }, [onClose, router]);
+
+  const requestClose = useCallback((navigateTo?: string | null) => {
+    if (exiting) return;
+    if (navigateTo) navigateAfterRef.current = navigateTo;
+    setExiting(true);
+  }, [exiting]);
+
   useEffect(() => {
     const el = dialogRef.current;
     if (!el) return;
     if (open) {
+      setExiting(false);
+      closingOnceRef.current = false;
+      if (!wasOpenRef.current) {
+        setPanelEnterKey((k) => k + 1);
+      }
+      wasOpenRef.current = true;
       if (!el.open) el.showModal();
       const focusable = el.querySelector<HTMLElement>(
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       );
       focusable?.focus();
     } else if (el.open) {
+      wasOpenRef.current = false;
+      setExiting(false);
       el.close();
+    } else {
+      wasOpenRef.current = false;
+      setExiting(false);
+    }
+    if (!open) {
+      closingOnceRef.current = false;
     }
   }, [open]);
+
+  /* Fallback if animationend does not fire (e.g. reduced motion / browser quirks). */
+  useEffect(() => {
+    if (!exiting) return;
+    exitFallbackTimerRef.current = window.setTimeout(() => {
+      exitFallbackTimerRef.current = null;
+      finishClose();
+    }, QUICK_VIEW_EXIT_MS + 120);
+    return () => {
+      if (exitFallbackTimerRef.current != null) {
+        window.clearTimeout(exitFallbackTimerRef.current);
+        exitFallbackTimerRef.current = null;
+      }
+    };
+  }, [exiting, finishClose]);
 
   const onDialogKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDialogElement>) => {
@@ -105,72 +161,114 @@ export default function QuickViewModal({
     [],
   );
 
-  const handleClose = useCallback(() => {
-    onClose();
-  }, [onClose]);
-
   return (
     <dialog
       ref={dialogRef}
       aria-labelledby={titleId}
       aria-modal="true"
       className={cn(
-        "fixed inset-0 z-[70] m-auto h-fit max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-lg border border-border bg-surface p-0 text-text-primary shadow-lg [&::backdrop]:bg-text-primary/40",
+        /* Centered box; width/height leave side gutters on narrow phones (not flush to edges). */
+        "fixed left-1/2 top-1/2 z-[70] h-fit w-[min(28rem,calc(100vw-2.5rem))] max-h-[min(90dvh,calc(100dvh-2.5rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-surface p-0 text-text-primary shadow-lg",
+        /* Static backdrop — fading ::backdrop separately then calling close() caused a
+           one-frame flash at the end; the panel exit animation carries the fade. */
+        "[&::backdrop]:bg-text-primary/40",
+        exiting && "pointer-events-none",
         "open:flex open:flex-col",
       )}
       onKeyDown={onDialogKeyDown}
-      onClick={(e) => {
-        if (e.target === dialogRef.current) handleClose();
+      onCancel={(e) => {
+        e.preventDefault();
+        requestClose();
       }}
-      onClose={handleClose}
+      onClick={(e) => {
+        if (e.target === dialogRef.current) requestClose();
+      }}
     >
-      <div className="flex flex-col gap-4 p-4 sm:p-5">
-        <div className="flex items-start justify-between gap-3">
-          <h2 id={titleId} className="text-lg font-semibold text-text-primary">
+      <div
+        key={panelEnterKey}
+        className={cn(
+          "flex flex-col gap-4 p-4 sm:p-6 sm:pb-6",
+          exiting
+            ? "animate-quick-view-dialog-exit"
+            : "animate-quick-view-dialog-enter",
+        )}
+        onAnimationEnd={(e) => {
+          if (e.target !== e.currentTarget) return;
+          if (!exiting) return;
+          if (!e.animationName.includes("quick-view-dialog-exit")) return;
+          finishClose();
+        }}
+      >
+        <div className="flex items-center justify-between gap-3 mb-1">
+          <h2 id={titleId} className="text-[15px] font-bold text-text-primary">
             {t("title")}
           </h2>
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="sm"
-            className="shrink-0"
-            onClick={handleClose}
+            className="text-[13px] font-medium text-text-secondary hover:text-text-primary transition-colors"
+            onClick={() => requestClose()}
           >
             {t("close")}
-          </Button>
+          </button>
         </div>
 
-        <div className="relative aspect-square w-full overflow-hidden rounded-lg border border-border bg-surface-subtle">
+        <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-surface-subtle">
           {product.thumbnail ? (
             <Image
               src={product.thumbnail}
-              alt={displayTitle}
+              alt={displayTitle ?? ""}
               fill
               sizes="(min-width: 640px) 28rem, 100vw"
-              className="object-cover"
+              className="object-contain p-4 mix-blend-multiply"
             />
           ) : null}
         </div>
 
-        {displayTitle ? (
-          <p className="text-base font-semibold text-text-primary">
-            {displayTitle}
-          </p>
-        ) : null}
+        <div className="flex flex-col gap-2 mt-1">
+          {displayTitle ? (
+            <h3 className="text-[17px] font-bold leading-tight text-text-primary">
+              {displayTitle}
+            </h3>
+          ) : null}
 
-        {priceLabel ? (
-          <p className="text-lg font-bold text-brand">{priceLabel}</p>
-        ) : null}
+          {calc?.calculated_amount != null && calc?.currency_code ? (
+            <Price
+              amount={Number(calc.calculated_amount)}
+              currencyCode={calc.currency_code}
+              size="lg"
+              className="text-brand font-bold mt-1"
+            />
+          ) : null}
+        </div>
 
         {plainDesc ? (
-          <p className="text-sm leading-relaxed text-text-secondary">
-            {plainDesc}
-          </p>
+          <div className="relative">
+            <div
+              className={cn(
+                "text-[14px] leading-relaxed text-text-secondary transition-[max-height] duration-300 ease-in-out overflow-hidden",
+                descExpanded ? "max-h-[1000px]" : "max-h-[66px]"
+              )}
+            >
+              {plainDesc}
+            </div>
+            {!descExpanded && plainDesc.length > 130 && (
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-surface to-transparent" />
+            )}
+            {plainDesc.length > 130 && (
+              <button
+                type="button"
+                onClick={() => setDescExpanded(!descExpanded)}
+                className="mt-1 text-[13px] font-medium text-brand hover:underline"
+              >
+                {descExpanded ? tDetail("showLess") : tDetail("showMore")}
+              </button>
+            )}
+          </div>
         ) : null}
 
         {variants.length > 1 ? (
-          <div className="space-y-2">
-            <p className="text-sm font-medium text-text-primary">
+          <div className="space-y-2 mt-1">
+            <p className="text-[13px] font-medium text-text-primary">
               {t("chooseVariant")}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -191,7 +289,7 @@ export default function QuickViewModal({
                     aria-pressed={active}
                     onClick={() => setSelectedVariantId(id)}
                     className={cn(
-                      "rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+                      "rounded-lg border px-3 py-1.5 text-[13px] font-medium transition-colors",
                       active
                         ? "border-brand bg-brand text-text-inverse"
                         : "border-border bg-surface-subtle text-text-primary hover:border-brand",
@@ -205,24 +303,30 @@ export default function QuickViewModal({
           </div>
         ) : null}
 
-        {selectedVariant?.id ? (
-          <AddToCartButton
-            variantId={selectedVariant.id}
-            variant="primary"
-            size="md"
-            fullWidth
-          />
-        ) : null}
+        <div className="mt-2 flex flex-col gap-3">
+          {selectedVariant?.id ? (
+            <AddToCartButton
+              variantId={selectedVariant.id}
+              variant="primary"
+              size="lg"
+              fullWidth
+              className="cta-glow"
+            />
+          ) : null}
 
-        {product.handle ? (
-          <Link
-            href={`/${locale}/products/${product.handle}`}
-            className="text-center text-sm font-medium text-brand underline-offset-4 hover:underline"
-            onClick={handleClose}
-          >
-            {t("viewDetails")}
-          </Link>
-        ) : null}
+          {product.handle ? (
+            <Link
+              href={`/${locale}/products/${product.handle}`}
+              className="text-center text-[13px] font-medium text-text-secondary underline-offset-4 transition-colors hover:text-brand hover:underline"
+              onClick={(e) => {
+                e.preventDefault();
+                requestClose(`/${locale}/products/${product.handle}`);
+              }}
+            >
+              {t("viewDetails")}
+            </Link>
+          ) : null}
+        </div>
       </div>
     </dialog>
   );

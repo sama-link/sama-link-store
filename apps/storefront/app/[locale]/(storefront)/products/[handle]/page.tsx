@@ -351,12 +351,15 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
         currencyCode={firstVariant?.currencyCode ?? null}
       />
 
-      <div className="mx-auto max-w-7xl space-y-16 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-16 px-5 py-6 sm:px-6 lg:px-8">
         <Breadcrumbs
           ariaLabel={tb("aria")}
           items={[
             { label: tb("home"), href: `/${locale}` },
-            { label: tb("products"), href: `/${locale}/products` },
+            ...categories.map((c: any) => ({
+              label: c.name ?? c.handle ?? "",
+              href: c.id ? `/${locale}/products?category=${c.id}` : undefined,
+            })),
             { label: product.title ?? handle },
           ]}
         />

@@ -41,6 +41,8 @@ function EyeIcon() {
 export default function CardTopActions({ product }: CardTopActionsProps) {
   const t = useTranslations("products.card");
   const [quickOpen, setQuickOpen] = useState(false);
+  /** Bumps on each quick-view tap so the icon animation restarts cleanly. */
+  const [quickTapKey, setQuickTapKey] = useState(0);
 
   const firstVariantId = product.variants?.[0]?.id ?? null;
   const wishCompareItem = productToWishlistItem(product, firstVariantId);
@@ -48,6 +50,7 @@ export default function CardTopActions({ product }: CardTopActionsProps) {
   const openQuick = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setQuickTapKey((k) => k + 1);
     setQuickOpen(true);
   }, []);
 
@@ -76,9 +79,20 @@ export default function CardTopActions({ product }: CardTopActionsProps) {
             onClick={openQuick}
             aria-label={t("quickView")}
             title={t("quickView")}
-            className="group inline-flex h-8 w-8 shrink-0 items-center justify-center text-text-secondary transition-[color,transform] duration-200 hover:text-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/20 active:scale-90"
+            className="group inline-flex h-8 w-8 shrink-0 items-center justify-center text-text-secondary transition-colors duration-200 hover:text-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/20"
           >
-            <EyeIcon />
+            {quickTapKey > 0 ? (
+              <span
+                key={quickTapKey}
+                className="inline-flex animate-quick-view-icon-tap"
+              >
+                <EyeIcon />
+              </span>
+            ) : (
+              <span className="inline-flex">
+                <EyeIcon />
+              </span>
+            )}
           </button>
         </div>
       </div>

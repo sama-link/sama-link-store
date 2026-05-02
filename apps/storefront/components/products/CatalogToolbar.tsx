@@ -15,6 +15,8 @@ import {
   type PageSize,
 } from "@/components/products/catalog-toolbar-utils";
 
+import DropdownSelect from "@/components/ui/DropdownSelect";
+
 interface Props {
   totalCount: number | null;
   activeSort: SortKey;
@@ -81,31 +83,20 @@ export default function CatalogToolbar({
       <div className="flex items-center gap-2">
         <label className="flex items-center gap-2 text-sm text-text-secondary">
           <span>{t("show")}</span>
-          <div className="relative">
-            <select
-              value={activePageSize}
-              onChange={onPageSizeChange}
-              className="h-9 appearance-none rounded-lg border border-border bg-surface pe-8 ps-3 text-sm font-medium text-text-primary transition-colors hover:border-border-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 cursor-pointer"
-            >
-              {PAGE_SIZE_OPTIONS.map((size) => (
-                <option key={size} value={size}>
-                  {size}
-                </option>
-              ))}
-            </select>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={1.75}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
-              aria-hidden="true"
-            >
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
+          <div className="relative z-20 min-w-[70px]">
+            <DropdownSelect
+              value={String(activePageSize)}
+              onChange={(val) => {
+                router.push(buildHref({ pageSize: val === "12" ? null : val }), {
+                  scroll: false,
+                });
+              }}
+              options={PAGE_SIZE_OPTIONS.map((size) => ({
+                value: String(size),
+                label: size,
+              }))}
+              className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm font-medium text-text-primary hover:border-border-strong"
+            />
           </div>
         </label>
         {totalCount != null ? (
@@ -178,31 +169,20 @@ export default function CatalogToolbar({
       {/* Sort — desktop only (mobile uses the FAB's View tab) */}
       <label className="hidden items-center gap-2 text-sm text-text-secondary sm:flex">
         <span className="hidden sm:inline">{t("sortBy")}</span>
-        <div className="relative">
-          <select
+        <div className="relative z-20 min-w-[140px]">
+          <DropdownSelect
             value={activeSort}
-            onChange={onSortChange}
-            className="h-9 appearance-none rounded-lg border border-border bg-surface pe-8 ps-3 text-sm font-medium text-text-primary transition-colors hover:border-border-strong focus-visible:border-brand focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15 cursor-pointer"
-          >
-            {SORT_KEYS.map((k) => (
-              <option key={k} value={k}>
-                {t(`sort.${k}`)}
-              </option>
-            ))}
-          </select>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.75}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="pointer-events-none absolute inset-y-0 end-2.5 my-auto h-4 w-4 text-text-muted"
-            aria-hidden="true"
-          >
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
+            onChange={(val) => {
+              router.push(buildHref({ sort: val === "newest" ? null : val }), {
+                scroll: false,
+              });
+            }}
+            options={SORT_KEYS.map((k) => ({
+              value: k,
+              label: t(`sort.${k}`),
+            }))}
+            className="h-9 w-full rounded-lg border border-border bg-surface px-3 text-sm font-medium text-text-primary hover:border-border-strong"
+          />
         </div>
       </label>
       </div>

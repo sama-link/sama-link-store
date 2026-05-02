@@ -80,9 +80,11 @@ export default function ProductCard({
   /* ─── List layout (horizontal row) ─── */
   if (layout === "list") {
     return (
-      <div className="group relative flex overflow-hidden rounded-xl border border-border bg-surface transition-colors duration-150 hover:border-brand">
+      <div className="group relative flex overflow-hidden rounded-2xl bg-surface shadow-[0_2px_12px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] dark:border dark:border-border dark:shadow-none dark:hover:border-brand-muted">
         <div className="relative aspect-square w-32 shrink-0 overflow-hidden bg-surface-subtle sm:w-40">
-          {imageInner}
+          <div className="h-full w-full transition-transform duration-500 group-hover:scale-105">
+            {imageInner}
+          </div>
         </div>
         <div className="flex min-w-0 flex-1 items-center gap-3 p-3 sm:p-4">
           <div className="min-w-0 flex-1">
@@ -103,7 +105,7 @@ export default function ProductCard({
                 amount={priceAmount}
                 currencyCode={priceCurrency}
                 size="lg"
-                className="mt-1.5 text-brand"
+                className="mt-1.5 text-brand font-bold"
               />
             ) : null}
           </div>
@@ -128,15 +130,16 @@ export default function ProductCard({
   return (
     <div
       className={cn(
-        "group relative flex h-full flex-col overflow-hidden rounded-xl border border-border bg-surface transition-colors duration-150 hover:border-brand",
-        "focus-within:ring-[3px] focus-within:ring-brand/15",
+        "group relative flex h-full flex-col overflow-hidden rounded-2xl bg-surface shadow-[0_2px_12px_rgba(0,0,0,0.04)] transition-all duration-300 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] dark:border dark:border-border dark:shadow-none dark:hover:border-brand-muted animate-fade-in",
       )}
     >
       <div className="relative aspect-square w-full shrink-0 overflow-hidden bg-surface-subtle">
-        {imageInner}
+        <div className="h-full w-full transition-transform duration-500 group-hover:scale-105">
+          {imageInner}
+        </div>
         <CardTopActions product={product as unknown as ListProduct} />
       </div>
-      <div className="flex flex-1 flex-col gap-1.5 p-3 sm:p-4">
+      <div className="flex flex-1 flex-col gap-1.5 p-4 sm:p-5">
         <h3 className="line-clamp-2 min-h-[2.4em] text-sm font-semibold text-text-primary sm:text-base">
           {href ? (
             <Link
@@ -154,8 +157,8 @@ export default function ProductCard({
             <Price
               amount={priceAmount}
               currencyCode={priceCurrency}
-              size="md"
-              className="text-brand sm:text-lg"
+              size="lg"
+              className="text-brand font-bold"
             />
           ) : (
             <span />

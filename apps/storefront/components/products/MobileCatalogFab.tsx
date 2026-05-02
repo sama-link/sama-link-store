@@ -192,7 +192,7 @@ export default function MobileCatalogFab(props: Props) {
       {/* Scrim */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-[color:rgba(10,19,36,0.28)] backdrop-blur-sm transition-opacity duration-300 sm:hidden",
+          "fixed inset-0 z-40 bg-[color:rgba(10,19,36,0.4)] transition-opacity duration-300 sm:hidden",
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0",
@@ -201,29 +201,72 @@ export default function MobileCatalogFab(props: Props) {
         aria-hidden="true"
       />
 
-      {/* Floating panel — emerges from the FAB. Positioned above the FAB rail. */}
+      {/* Floating panel / Bottom Sheet */}
       <div
         className={cn(
-          "fixed bottom-[152px] end-4 top-[100px] z-40 flex w-[calc(100vw-2rem)] max-w-[360px] flex-col justify-end transition-[transform,opacity] duration-250 ease-out sm:hidden",
-          open
-            ? "pointer-events-auto translate-y-0 opacity-100"
-            : "pointer-events-none translate-y-4 opacity-0",
+          "fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] h-[85vh] flex-col rounded-t-3xl border-t border-border bg-surface transition-transform duration-300 ease-out sm:hidden",
+          open ? "translate-y-0" : "translate-y-full"
         )}
-        style={{ transformOrigin: "bottom right" }}
       >
+        {/* Drag handle */}
+        <div className="flex shrink-0 items-center justify-center pt-3 pb-1">
+          <div className="h-1.5 w-12 rounded-full bg-border-strong" />
+        </div>
+
+        {/* Tab pill */}
+        <div
+          role="tablist"
+          aria-label={t("filtersAndViewAria")}
+          className="flex shrink-0 justify-center pb-2 pt-2 border-b border-border"
+        >
+          <div
+            className="inline-flex h-10 items-center gap-1 rounded-full bg-surface-subtle p-1"
+          >
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === "filter"}
+              onClick={() => setTab("filter")}
+              className={cn(
+                "inline-flex h-8 items-center gap-1.5 rounded-full px-4 text-sm font-semibold transition-colors motion-safe:active:scale-95",
+                tab === "filter"
+                  ? "bg-surface text-brand shadow-sm"
+                  : "text-text-secondary hover:text-text-primary"
+              )}
+            >
+              {tFilters("heading")}
+              {activeFilterCount > 0 ? (
+                <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-brand px-1.5 text-[10px] font-bold text-text-inverse">
+                  {activeFilterCount}
+                </span>
+              ) : null}
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === "view"}
+              onClick={() => setTab("view")}
+              className={cn(
+                "inline-flex h-8 items-center rounded-full px-4 text-sm font-semibold transition-colors motion-safe:active:scale-95",
+                tab === "view"
+                  ? "bg-surface text-brand shadow-sm"
+                  : "text-text-secondary hover:text-text-primary"
+              )}
+            >
+              {tToolbar("view")}
+            </button>
+          </div>
+        </div>
+
         {/* Content card */}
         <div
           role="dialog"
           aria-modal="true"
           aria-label={t("filtersAndViewAria")}
-          className="flex max-h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface"
-          style={{
-            boxShadow:
-              "0 1px 2px rgba(10,19,36,0.12), 0 12px 28px -8px rgba(10,19,36,0.24)",
-          }}
+          className="flex flex-1 flex-col overflow-hidden bg-surface"
         >
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto px-4 pb-6">
             {tab === "filter" ? (
               <FilterSidebar
                 collections={props.collections}
@@ -368,54 +411,6 @@ export default function MobileCatalogFab(props: Props) {
                 </div>
               </div>
             )}
-          </div>
-        </div>
-
-        {/* Tab pill — OUTSIDE/below the panel, floating on its own */}
-        <div
-          role="tablist"
-          aria-label={t("filtersAndViewAria")}
-          className="mt-2 flex justify-end"
-        >
-          <div
-            className="inline-flex h-10 items-center gap-1 rounded-full border border-border bg-surface p-1"
-            style={{
-              boxShadow: "0 4px 12px -4px rgba(10,19,36,0.15)",
-            }}
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === "filter"}
-              onClick={() => setTab("filter")}
-              className={cn(
-                "inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-xs font-semibold transition-colors motion-safe:active:scale-95",
-                tab === "filter"
-                  ? "bg-accent-muted text-brand"
-                  : "text-text-secondary hover:text-text-primary",
-              )}
-            >
-              {tFilters("heading")}
-              {activeFilterCount > 0 ? (
-                <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-1 text-[9px] font-bold text-text-inverse">
-                  {activeFilterCount}
-                </span>
-              ) : null}
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === "view"}
-              onClick={() => setTab("view")}
-              className={cn(
-                "inline-flex h-8 items-center rounded-full px-3 text-xs font-semibold transition-colors motion-safe:active:scale-95",
-                tab === "view"
-                  ? "bg-accent-muted text-brand"
-                  : "text-text-secondary hover:text-text-primary",
-              )}
-            >
-              {tToolbar("view")}
-            </button>
           </div>
         </div>
       </div>

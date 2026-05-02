@@ -1,8 +1,9 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { usePathname, useSearchParams } from "next/navigation";
-import Link from "next/link";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { type MouseEvent } from "react";
+import { motion } from "framer-motion";
 import ProductCard, { type Product } from "@/components/products/ProductCard";
 import {
   sortProductsClientSide,
@@ -44,6 +45,8 @@ export default function LoadMoreProducts({
   const t = useTranslations("products.listing");
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const searchKey = searchParams?.toString() ?? "";
 
   const sorted = sortProductsClientSide(initialProducts, sort);
 
@@ -72,19 +75,33 @@ export default function LoadMoreProducts({
     return qs ? `${pathname}?${qs}` : pathname;
   };
 
+  function goToCatalogPage(page: number, e: MouseEvent<HTMLAnchorElement>) {
+    if (e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    router.push(buildPageHref(page), { scroll: false });
+  }
+
   return (
     <div className="space-y-6">
-      <div className={gridClass}>
+      <motion.div layout className={gridClass}>
         {sorted.map((p: any, i: number) => (
-          <div
+          <motion.div
+            layout
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{
+              layout: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { delay: Math.min(i, 24) * 0.04, duration: 0.4 },
+              y: { delay: Math.min(i, 24) * 0.04, duration: 0.4 },
+            }}
             key={p.id}
-            className="animate-fade-up"
-            style={{ animationDelay: `${Math.min(i, 24) * 40}ms` }}
           >
             <ProductCard product={p} layout={view} />
-          </div>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {showPagination ? (
         <nav
@@ -93,16 +110,16 @@ export default function LoadMoreProducts({
         >
           <div className="flex flex-1 justify-start">
             {hasPrev ? (
-              <Link
+              <a
                 href={buildPageHref(currentPage - 1)}
-                scroll={false}
+                onClick={(e) => goToCatalogPage(currentPage - 1, e)}
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 rtl:rotate-180" aria-hidden="true">
                   <path d="M15 18l-6-6 6-6" />
                 </svg>
                 <span>{t("previous")}</span>
-              </Link>
+              </a>
             ) : (
               <span
                 aria-disabled="true"
@@ -123,10 +140,10 @@ export default function LoadMoreProducts({
               if (isEdge || isNear) {
                 const isActive = page === currentPage;
                 return (
-                  <Link
+                  <a
                     key={page}
                     href={buildPageHref(page)}
-                    scroll={false}
+                    onClick={(e) => goToCatalogPage(page, e)}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
                       "inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition-colors",
@@ -136,7 +153,7 @@ export default function LoadMoreProducts({
                     )}
                   >
                     {page}
-                  </Link>
+                  </a>
                 );
               }
               if (page === currentPage - 2 || page === currentPage + 2) {
@@ -156,16 +173,16 @@ export default function LoadMoreProducts({
 
           <div className="flex flex-1 justify-end">
             {hasNext ? (
-              <Link
+              <a
                 href={buildPageHref(currentPage + 1)}
-                scroll={false}
+                onClick={(e) => goToCatalogPage(currentPage + 1, e)}
                 className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand"
               >
                 <span>{t("next")}</span>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 rtl:rotate-180" aria-hidden="true">
                   <path d="M9 18l6-6-6-6" />
                 </svg>
-              </Link>
+              </a>
             ) : (
               <span
                 aria-disabled="true"

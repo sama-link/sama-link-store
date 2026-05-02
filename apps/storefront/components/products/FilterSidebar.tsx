@@ -125,8 +125,8 @@ function CategoryTreeNode({
   stageSet: (key: keyof StagedFilters, value: any) => void;
   level: number;
 }) {
-  // Always start expanded if it's the root level, otherwise collapsed
-  const [isOpen, setIsOpen] = useState(level === 0);
+  // Always start collapsed
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="flex flex-col">
@@ -228,6 +228,7 @@ export default function FilterSidebar({
   );
 
   const [staged, setStaged] = useState<StagedFilters>(active);
+  const [brandsExpanded, setBrandsExpanded] = useState(false);
 
   /* Resync when the URL (active) changes from outside — e.g. a header search. */
   useEffect(() => {
@@ -247,7 +248,8 @@ export default function FilterSidebar({
       setOrDel("category", nextStaged.category);
       setOrDel("minPrice", nextStaged.minPrice);
       setOrDel("maxPrice", nextStaged.maxPrice);
-      setOrDel("q", nextStaged.q);
+      const qTrimmed = nextStaged.q?.trim() ?? "";
+      setOrDel("q", qTrimmed ? qTrimmed : null);
       setOrDel("rating", nextStaged.rating);
       setOrDel("inStock", nextStaged.inStock ? "1" : null);
       const qs = params.toString();
@@ -311,29 +313,53 @@ export default function FilterSidebar({
           {t("heading")}
         </h4>
 
-        <div className="flex flex-col divide-y divide-border">
-          {/* Active search query chip */}
-          {staged.q ? (
-            <div className="py-5 first:pt-0">
-              <div className="flex items-center gap-2 rounded-lg bg-accent-muted px-3 py-2 text-xs">
-                <span className="text-text-muted">{t("searchChipLabel")}</span>
-                <span className="flex-1 truncate font-medium text-brand">
-                  &ldquo;{staged.q}&rdquo;
-                </span>
-                <button
-                  type="button"
-                  onClick={() => stageSet("q", null)}
-                  aria-label={t("clearSearch")}
-                  className="inline-flex h-5 w-5 items-center justify-center rounded-full text-brand transition-transform hover:bg-surface motion-safe:active:scale-90"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-3 w-3" aria-hidden="true">
-                    <path d="M6 18 18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          ) : null}
+        <div className="mb-5">
+          <label
+            htmlFor="filter-sidebar-search"
+            className="mb-2 block text-[13px] font-semibold text-text-primary"
+          >
+            {t("search")}
+          </label>
+          <div
+            className={cn(
+              "relative flex h-10 w-full items-center overflow-hidden rounded-lg border bg-surface-subtle transition-colors",
+              "border-border focus-within:border-brand focus-within:shadow-[0_0_0_3px_rgba(45,108,223,0.08)]",
+            )}
+          >
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 inline-flex items-center ps-3 text-text-muted"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.75}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="size-[17px]"
+              >
+                <circle cx="11" cy="11" r="7" />
+                <path d="m20 20-3.5-3.5" />
+              </svg>
+            </span>
+            <input
+              id="filter-sidebar-search"
+              type="search"
+              enterKeyHint="search"
+              value={staged.q ?? ""}
+              onChange={(e) => {
+                const v = e.target.value;
+                stageSet("q", v === "" ? null : v);
+              }}
+              placeholder={t("searchPlaceholder")}
+              className="h-full min-w-0 flex-1 bg-transparent ps-9 pe-2 text-[13px] text-text-primary placeholder:text-text-muted focus-visible:outline-none"
+            />
+          </div>
+        </div>
 
+        <div className="flex flex-col divide-y divide-border">
           {/* Categories */}
           <div className="py-5 first:pt-0">
             <div className="mb-2.5 flex items-center justify-between text-[13px] font-semibold text-text-primary">
@@ -352,8 +378,8 @@ export default function FilterSidebar({
               <div className="mb-2.5 flex items-center justify-between text-[13px] font-semibold text-text-primary">
                 {t("brands")}
               </div>
-              <div className="flex flex-col gap-2">
-                {brandsList.map((b) => {
+              <div className={cn("relative flex flex-col gap-2")}>
+                {brandsList.slice(0, brandsExpanded ? undefined : 5).map((b) => {
                   const isActive = staged.brand === b.id;
                   return (
                     <label key={b.id} className="flex cursor-pointer items-center gap-2.5 text-[13px] text-text-secondary">
@@ -367,7 +393,19 @@ export default function FilterSidebar({
                     </label>
                   );
                 })}
+                {!brandsExpanded && brandsList.length > 5 && (
+                  <div className="pointer-events-none absolute -bottom-1 left-0 right-0 h-8 bg-gradient-to-t from-surface to-transparent" />
+                )}
               </div>
+              {brandsList.length > 5 && (
+                <button
+                  type="button"
+                  onClick={() => setBrandsExpanded(!brandsExpanded)}
+                  className="mt-2 text-start text-[13px] font-medium text-brand hover:underline"
+                >
+                  {brandsExpanded ? t("showLess") : t("showMore")}
+                </button>
+              )}
             </div>
           ) : null}
 
