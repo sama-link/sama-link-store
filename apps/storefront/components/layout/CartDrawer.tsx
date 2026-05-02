@@ -64,7 +64,12 @@ export default function CartDrawer() {
     };
   }, [isCartOpen]);
 
-  /* Measure header bottom so both mobile popup and desktop drawer clear it. */
+  /* Measure header bottom so both mobile popup and desktop drawer clear it.
+     Re-measures on scroll too — the new StickyHeader hides on scroll-down /
+     reveals on scroll-up by toggling its inline `top` style, and on mobile
+     (body scroll is NOT locked, see effect above) the drawer must follow
+     the header's vertical position. Desktop has body-scroll-lock so scroll
+     events don't fire there; the listener is harmless there. */
   useEffect(() => {
     if (!isCartOpen) return;
     const measure = () => {
@@ -75,7 +80,11 @@ export default function CartDrawer() {
     };
     measure();
     window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+    window.addEventListener("scroll", measure, { passive: true });
+    return () => {
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("scroll", measure);
+    };
   }, [isCartOpen]);
 
   useEffect(() => {

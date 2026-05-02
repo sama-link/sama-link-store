@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import {
+  listBrandProductIds,
+  listBrands,
   listCollections,
   listProductCategories,
   listProducts,
@@ -8,6 +10,7 @@ import {
 } from "@/lib/medusa-client";
 import { buildCanonical, buildLanguageAlternates } from "@/lib/seo";
 import FilterSidebar, {
+  type FilterBrandOption,
   type FilterCategoryOption,
   type FilterCollectionOption,
 } from "@/components/products/FilterSidebar";
@@ -16,6 +19,7 @@ import {
   parseCols,
   parseSort,
   parseView,
+  parsePageSize,
   sortKeyToOrderParam,
 } from "@/components/products/catalog-toolbar-utils";
 import LoadMoreProducts from "@/components/products/LoadMoreProducts";
@@ -24,8 +28,6 @@ import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
 
 export const revalidate = 3600; // ISR — ADR-017
-
-const PRODUCTS_PER_PAGE = 12;
 
 type CatalogProduct = Awaited<ReturnType<typeof listProducts>>["products"][number];
 
@@ -72,15 +74,37 @@ function mapCollectionsForFilters(
   }));
 }
 
+/* Build a hierarchical category tree from the flat Medusa response. When the
+   underlying client doesn't fetch `parent_category_id` (the current state on
+   this branch), every row simply becomes a root and the sidebar renders flat —
+   no behavior change vs. the previous flat mapping. When `parent_category_id`
+   becomes available later, the tree fills in automatically. */
 function mapCategoriesForFilters(
   categories: Awaited<
     ReturnType<typeof listProductCategories>
   >["product_categories"],
 ): FilterCategoryOption[] {
-  return categories.map((c: any) => ({
-    id: c.id,
-    title: (c.name && c.name.trim() !== "" ? c.name : c.handle) ?? c.id,
-  }));
+  const map = new Map<string, FilterCategoryOption>();
+  const roots: FilterCategoryOption[] = [];
+
+  for (const c of categories as any[]) {
+    map.set(c.id, {
+      id: c.id,
+      title: (c.name && c.name.trim() !== "" ? c.name : c.handle) ?? c.id,
+      children: [],
+    });
+  }
+
+  for (const c of categories as any[]) {
+    const node = map.get(c.id)!;
+    if (c.parent_category_id && map.has(c.parent_category_id)) {
+      map.get(c.parent_category_id)!.children!.push(node);
+    } else {
+      roots.push(node);
+    }
+  }
+
+  return roots;
 }
 
 interface ProductsPageProps {
@@ -88,6 +112,7 @@ interface ProductsPageProps {
   searchParams: Promise<{
     page?: string;
     collection?: string;
+    brand?: string;
     category?: string;
     minPrice?: string;
     maxPrice?: string;
@@ -97,7 +122,14 @@ interface ProductsPageProps {
     sort?: string;
     cols?: string;
     view?: string;
+    pageSize?: string;
   }>;
+}
+
+function parsePageParam(raw: string | undefined): number {
+  const n = raw ? Number(raw) : NaN;
+  if (!Number.isFinite(n) || n < 1) return 1;
+  return Math.floor(n);
 }
 
 export async function generateMetadata({
@@ -130,6 +162,7 @@ export default async function ProductsPage({
   const { locale } = await params;
   const {
     collection,
+    brand,
     category,
     minPrice,
     maxPrice,
@@ -139,6 +172,8 @@ export default async function ProductsPage({
     sort: sortRaw,
     cols: colsRaw,
     view: viewRaw,
+    pageSize: pageSizeRaw,
+    page: pageRaw,
   } = await searchParams;
   const t = await getTranslations({ locale, namespace: "products.listing" });
   const tb = await getTranslations({ locale, namespace: "breadcrumbs" });
@@ -146,6 +181,9 @@ export default async function ProductsPage({
   const activeSort = parseSort(sortRaw);
   const activeCols = parseCols(colsRaw);
   const activeView = parseView(viewRaw);
+  const activePageSize = parsePageSize(pageSizeRaw);
+  const currentPage = parsePageParam(pageRaw);
+  const offset = (currentPage - 1) * activePageSize;
 
   const filterParams: ListProductsParams = {};
   if (collection) filterParams.collection_id = [collection];
@@ -155,15 +193,33 @@ export default async function ProductsPage({
   if (order) (filterParams as Record<string, unknown>).order = order;
   // TODO CAT-6: wire price + in-stock + rating filters to Medusa when params confirmed
 
-  const [listResult, collectionsResult, categoriesResult] = await Promise.all([
-    listProducts({
-      limit: PRODUCTS_PER_PAGE,
-      offset: 0,
-      ...filterParams,
-    }),
-    listCollections(),
-    listProductCategories(),
-  ]);
+  // Brand filter — Medusa's /store/products doesn't accept a metadata.brand_id
+  // filter, so resolve the brand's product IDs server-side first and pass them
+  // through the native `id` filter. Empty brand → short-circuit to no results
+  // instead of dispatching listProducts with an empty id constraint.
+  const [brandIdsResult, collectionsResult, categoriesResult, brandsResult] =
+    await Promise.all([
+      brand ? listBrandProductIds(brand) : Promise.resolve(null),
+      listCollections(),
+      listProductCategories(),
+      listBrands(),
+    ]);
+  const brandIds = brandIdsResult?.ids ?? null;
+  const brandActive = Boolean(brand);
+  const brandHasZeroMatches = brandActive && brandIds !== null && brandIds.length === 0;
+  if (brandIds && brandIds.length > 0) {
+    (filterParams as Record<string, unknown>).id = brandIds;
+  }
+
+  type Product = CatalogProduct;
+  const listResult: { products: Product[]; count?: number | null } =
+    brandHasZeroMatches
+      ? { products: [], count: 0 }
+      : await listProducts({
+          limit: activePageSize,
+          offset,
+          ...filterParams,
+        });
 
   let { products } = listResult;
   products = filterProductsByPriceSearchParams(products, minPrice, maxPrice);
@@ -179,16 +235,9 @@ export default async function ProductsPage({
   const filterCategories = mapCategoriesForFilters(
     categoriesResult.product_categories,
   );
-
-  const filtersForClient = {
-    collection,
-    category,
-    q: q && q.trim().length > 0 ? q.trim() : undefined,
-    minPrice,
-    maxPrice,
-    rating,
-    inStock,
-  };
+  const filterBrands: FilterBrandOption[] = (brandsResult.brands || []).map(
+    (b) => ({ id: b.id, title: b.name || b.handle }),
+  );
 
   return (
     <Container>
@@ -197,8 +246,10 @@ export default async function ProductsPage({
         <aside className="hidden w-full shrink-0 lg:block lg:w-64">
           <FilterSidebar
             collections={filterCollections}
+            brands={filterBrands}
             categories={filterCategories}
             activeCollection={collection ?? null}
+            activeBrand={brand ?? null}
             activeCategory={category ?? null}
             activeMinPrice={minPrice ?? null}
             activeMaxPrice={maxPrice ?? null}
@@ -223,20 +274,20 @@ export default async function ProductsPage({
 
           <CatalogToolbar
             totalCount={count}
-            shownCount={products.length}
             activeSort={activeSort}
             activeCols={activeCols}
             activeView={activeView}
+            activePageSize={activePageSize}
           />
 
           <LoadMoreProducts
             initialProducts={products}
             totalCount={count}
-            pageSize={PRODUCTS_PER_PAGE}
+            pageSize={activePageSize}
             cols={activeCols}
             sort={activeSort}
             view={activeView}
-            filters={filtersForClient}
+            currentPage={currentPage}
           />
         </div>
       </div>
@@ -244,8 +295,10 @@ export default async function ProductsPage({
       {/* Mobile-only floating Filter/View controls */}
       <MobileCatalogFab
         collections={filterCollections}
+        brands={filterBrands}
         categories={filterCategories}
         activeCollection={collection ?? null}
+        activeBrand={brand ?? null}
         activeCategory={category ?? null}
         activeMinPrice={minPrice ?? null}
         activeMaxPrice={maxPrice ?? null}

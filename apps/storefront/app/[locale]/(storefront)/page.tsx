@@ -9,7 +9,16 @@ import ProductShowcase from "@/components/home/ProductShowcase";
 import WhyUsStrip from "@/components/home/WhyUsStrip";
 import NewsletterSection from "@/components/home/NewsletterSection";
 import Reveal from "@/components/ui/Reveal";
-import { listCollections, listProducts } from "@/lib/medusa-client";
+import {
+  listProducts,
+  listProductCategories,
+  listCollections,
+} from "@/lib/medusa-client";
+import {
+  buildHeroPrimaryHrefs,
+  normalizeStoreCategoryRows,
+  normalizeStoreCollectionRows,
+} from "@/lib/hero-links";
 import { buildCanonical, buildLanguageAlternates } from "@/lib/seo";
 
 export const revalidate = 3600; // ISR — ADR-017
@@ -56,28 +65,51 @@ export default async function HomePage({ params }: HomePageProps) {
 
   type Product = Awaited<ReturnType<typeof listProducts>>["products"][number];
   let products: Product[] = [];
-  type Collection = Awaited<ReturnType<typeof listCollections>>["collections"][number];
-  let collections: Collection[] = [];
+  let productsForCategoryCounts: Array<{ categories?: Array<{ id?: string | null }> | null }> = [];
+  let productCategories: any[] = [];
+  let storeCollections: any[] = [];
 
   try {
-    const [prodResult, colResult] = await Promise.all([
+    const [prodResult, catResult, colResult, categoryCountProductsResult] = await Promise.all([
       listProducts({ limit: 12 }),
+      listProductCategories(),
       listCollections(),
+      listProducts({
+        limit: 200,
+        fields: "id,categories.id",
+      }),
     ]);
     products = prodResult.products;
-    collections = colResult.collections;
+    productCategories = normalizeStoreCategoryRows(catResult);
+    storeCollections = normalizeStoreCollectionRows(colResult);
+    productsForCategoryCounts = categoryCountProductsResult.products as Array<{
+      categories?: Array<{ id?: string | null }> | null;
+    }>;
   } catch {
     /* Backend unavailable or publishable key missing — render empty-safe sections. */
   }
 
-  const tiles: CategoryTile[] = collections
-    .filter((c: any) => typeof c.handle === "string" && c.handle.length > 0)
-    .slice(0, 6)
+  const topLevelCategories = productCategories.filter((c: any) => !c.parent_category_id);
+  const categoryCounts = new Map<string, number>();
+  for (const product of productsForCategoryCounts) {
+    const uniqueCategoryIds = new Set(
+      (product.categories ?? [])
+        .map((category) => category?.id)
+        .filter((id): id is string => typeof id === "string" && id.length > 0),
+    );
+    for (const categoryId of uniqueCategoryIds) {
+      categoryCounts.set(categoryId, (categoryCounts.get(categoryId) ?? 0) + 1);
+    }
+  }
+
+  const tiles: CategoryTile[] = topLevelCategories
+    .slice(0, 8)
     .map((c: any) => ({
       id: c.id,
-      title: c.title ?? c.handle ?? c.id,
+      title: c.name ?? c.handle ?? c.id,
       handle: c.handle ?? null,
-      href: `/${locale}/collections/${encodeURIComponent(c.handle as string)}`,
+      href: `/${locale}/products?category=${encodeURIComponent(c.id)}`,
+      count: categoryCounts.get(c.id) ?? 0,
     }));
 
   const featured = products.slice(0, 8);
@@ -87,18 +119,21 @@ export default async function HomePage({ params }: HomePageProps) {
     products.length >= 12 ? products.slice(8, 12) : products.slice(0, 4);
 
   const productsHref = `/${locale}/products`;
+  const heroPrimaryHrefs = buildHeroPrimaryHrefs(
+    locale,
+    productCategories as any[],
+    storeCollections as any[],
+  );
 
   return (
     <>
       {/* Hero is above-the-fold — disable the observer so it paints immediately. */}
       <Reveal disabled>
-        <HeroSection />
+        <HeroSection heroPrimaryHrefs={heroPrimaryHrefs} />
       </Reveal>
-      {tiles.length > 0 ? (
-        <Reveal>
-          <CategoryTiles tiles={tiles} />
-        </Reveal>
-      ) : null}
+      <Reveal>
+        <CategoryTiles tiles={tiles} />
+      </Reveal>
       <Reveal>
         <ProductShowcase
           eyebrow={tSections("featured.eyebrow")}
@@ -115,7 +150,7 @@ export default async function HomePage({ params }: HomePageProps) {
         <ProductShowcase
           eyebrow={tSections("trending.eyebrow")}
           title={tSections("trending.title")}
-          viewAllHref={productsHref}
+          viewAllHref={`${productsHref}?sort=newest`}
           products={trending}
           cols={4}
           tone="subtle"

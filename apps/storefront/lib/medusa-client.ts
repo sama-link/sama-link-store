@@ -461,9 +461,127 @@ export async function listCollections() {
 
 export async function listProductCategories() {
   return sdk.store.category.list({
-    fields: "id,name,handle",
+    fields: "id,name,handle,parent_category_id",
     limit: 100,
   } as ListProductCategoriesParams);
+}
+
+/** Public brand catalog — backs the catalog brand filter and PDP brand eyebrow.
+ * `/store/*` routes require the publishable-api-key header, so include it
+ * explicitly here (this helper bypasses the SDK because brands are not a
+ * built-in Medusa entity — they're our domain module). */
+export async function listBrands(): Promise<{
+  brands: Array<{ id: string; name: string; handle: string }>;
+}> {
+  const headers: Record<string, string> = { accept: "application/json" };
+  if (publishableKey) headers["x-publishable-api-key"] = publishableKey;
+  try {
+    const res = await fetch(`${baseUrl}/store/brands?limit=200`, {
+      headers,
+      next: { tags: ["brands"], revalidate: 3600 },
+    });
+    if (!res.ok) return { brands: [] };
+    const data = (await res.json()) as {
+      brands?: Array<{ id: string; name: string; handle: string }>;
+    };
+    return { brands: Array.isArray(data.brands) ? data.brands : [] };
+  } catch {
+    return { brands: [] };
+  }
+}
+
+/** Product IDs tagged with the `special_offer` catalog label (backend
+ * `metadata.sama_labels`). Storefront passes these to `/store/products` via
+ * the native `id` filter so variant pricing comes from the same code path
+ * as the main catalog. Graceful empty array on any failure. */
+export async function listSpecialOfferProductIds(): Promise<string[]> {
+  const headers: Record<string, string> = { accept: "application/json" };
+  if (publishableKey) headers["x-publishable-api-key"] = publishableKey;
+  try {
+    const res = await fetch(`${baseUrl}/store/special-offers/catalog-ids`, {
+      headers,
+      next: { tags: ["special-offers"], revalidate: 3600 },
+    });
+    if (!res.ok) return [];
+    const data = (await res.json()) as { ids?: unknown };
+    if (!Array.isArray(data.ids)) return [];
+    return data.ids.filter(
+      (id): id is string => typeof id === "string" && id.length > 0,
+    );
+  } catch {
+    return [];
+  }
+}
+
+/** Store API product rows for all special-offer products, with pricing
+ * context applied. Order is preserved from the catalog-ids response. */
+export async function listSpecialOfferProducts() {
+  const ids = await listSpecialOfferProductIds();
+  if (ids.length === 0) {
+    return {
+      products: [] as Awaited<
+        ReturnType<typeof sdk.store.product.list>
+      >["products"],
+      count: 0,
+      offset: 0,
+      limit: 0,
+    };
+  }
+  const base: ListProductsParams = regionId
+    ? {
+        region_id: regionId,
+        fields:
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
+      }
+    : {
+        fields:
+          "id,handle,title,subtitle,description,thumbnail,metadata,variants.calculated_price.*",
+      };
+  const result = await sdk.store.product.list({
+    ...base,
+    id: ids,
+    limit: Math.min(ids.length, 200),
+    offset: 0,
+  });
+  const byId = new Map(result.products.map((p) => [p.id, p]));
+  const ordered = ids
+    .map((id) => byId.get(id))
+    .filter((p): p is NonNullable<typeof p> => p != null);
+  return {
+    ...result,
+    products: ordered,
+    count: ordered.length,
+  };
+}
+
+/** Resolve product IDs for a brand. Medusa's /store/products doesn't accept
+ * a metadata.brand_id filter, so the catalog passes this list to /store/products
+ * via the native `id` filter — that gives us accurate count + pagination. */
+export async function listBrandProductIds(
+  brandId: string,
+): Promise<{ ids: string[] }> {
+  if (!brandId) return { ids: [] };
+  const headers: Record<string, string> = { accept: "application/json" };
+  if (publishableKey) headers["x-publishable-api-key"] = publishableKey;
+  try {
+    const res = await fetch(
+      `${baseUrl}/store/brands/${encodeURIComponent(brandId)}/product-ids`,
+      {
+        headers,
+        next: { tags: ["brands", `brand-products-${brandId}`], revalidate: 3600 },
+      },
+    );
+    if (!res.ok) return { ids: [] };
+    const data = (await res.json()) as { ids?: unknown };
+    if (!Array.isArray(data.ids)) return { ids: [] };
+    return {
+      ids: data.ids.filter(
+        (id): id is string => typeof id === "string" && id.length > 0,
+      ),
+    };
+  } catch {
+    return { ids: [] };
+  }
 }
 
 export async function listProductsByCollection(

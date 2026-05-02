@@ -1,20 +1,25 @@
 import { getLocale, getTranslations } from "next-intl/server";
-import Container from "@/components/layout/Container";
+import HeroSlideshow, { type HeroSlide, type IconName } from "./HeroSlideshow";
 
-/* Inline icons — matches project convention (no icon package). */
-function Icon({ name, size = 20 }: { name: "shield" | "truck" | "wallet" | "router" | "cctv" | "battery" | "plug"; size?: number }) {
-  const s = `h-[${size}px] w-[${size}px]`;
+/* Inline trust-bar icons — kept in this file so the hero is self-contained. */
+function TrustIcon({
+  name,
+  size = 18,
+}: {
+  name: "shield" | "truck" | "wallet" | "rotate";
+  size?: number;
+}) {
   switch (name) {
     case "shield":
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={s} style={{ width: size, height: size }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z" />
           <polyline points="9 12 11 14 15 10" />
         </svg>
       );
     case "truck":
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={s} style={{ width: size, height: size }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <rect x="1" y="7" width="14" height="10" rx="1" />
           <path d="M15 10h4l3 3v4h-7" />
           <circle cx="6" cy="18" r="1.8" />
@@ -23,169 +28,246 @@ function Icon({ name, size = 20 }: { name: "shield" | "truck" | "wallet" | "rout
       );
     case "wallet":
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={s} style={{ width: size, height: size }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <rect x="3" y="6" width="18" height="12" rx="2" />
           <path d="M3 10h18" />
           <circle cx="17" cy="14" r="1.2" fill="currentColor" />
         </svg>
       );
-    case "router":
+    case "rotate":
       return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={s} style={{ width: size, height: size }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="3" y="14" width="18" height="6" rx="1.5" />
-          <path d="M7 18h.01M11 18h.01M15 18h.01" />
-          <path d="M12 9v3" />
-          <path d="M8 7c1-1 2.5-1.5 4-1.5S15 6 16 7" />
-          <path d="M5 4c2-2 4-3 7-3s5 1 7 3" />
-        </svg>
-      );
-    case "cctv":
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={s} style={{ width: size, height: size }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M3 6h14l2 4h-5l-2 4H5z" />
-          <line x1="5" y1="14" x2="5" y2="20" />
-          <line x1="7" y1="20" x2="3" y2="20" />
-        </svg>
-      );
-    case "battery":
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={s} style={{ width: size, height: size }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <rect x="3" y="8" width="16" height="8" rx="1.5" />
-          <line x1="21" y1="11" x2="21" y2="13" />
-          <polyline points="9 10 7 12 11 12 9 14" />
-        </svg>
-      );
-    case "plug":
-      return (
-        <svg xmlns="http://www.w3.org/2000/svg" className={s} style={{ width: size, height: size }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-          <path d="M9 4v4M15 4v4" />
-          <path d="M7 8h10v4a5 5 0 0 1-10 0z" />
-          <path d="M12 17v4" />
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 12a9 9 0 1 0 3-6.7" />
+          <polyline points="3 4 3 10 9 10" />
         </svg>
       );
   }
 }
 
-/* ADR-045 flat refresh — Hero:
-   Two-column layout on sm+ : copy + 4-card stack.
-   RTL mirrors automatically because layout uses grid (not directional flex). */
-export default async function HeroSection() {
+/* Slide content stays inline as { en, ar } pairs — mirrors the design prototype
+   and keeps copy adjacent to the visual definition (gradient, image, accent).
+   Trust-bar copy comes from messages/*.json so it tracks the rest of the i18n
+   surface. Per-slide aria copy is built in <HeroSlideshow /> from the carousel keys. */
+
+interface RawSlide {
+  id: string;
+  bgLight: string;
+  accentLight: string;
+  bgDark: string;
+  accentDark: string;
+  image: string;
+  imageAlt: string;
+  eyebrow: { en: string; ar: string };
+  title: { en: string; ar: string };
+  sub: { en: string; ar: string };
+  cta: { en: string; ar: string };
+  chips: ReadonlyArray<{ en: string; ar: string; ic: IconName }>;
+  floats: ReadonlyArray<{ en: string; ar: string; ic: IconName }>;
+}
+
+const RAW_SLIDES: ReadonlyArray<RawSlide> = [
+  {
+    id: "surveillance",
+    bgLight: "linear-gradient(135deg, #f0f8ff 0%, #e0f2fe 50%, #bae6fd 100%)",
+    accentLight: "#0284c7",
+    bgDark: "linear-gradient(135deg, #1a1a1a 0%, #2c3e50 50%, #0091d6 100%)",
+    accentDark: "#0091d6",
+    image: "/hero/surveillance.png",
+    imageAlt: "IP cameras and NVR",
+    eyebrow: { en: "Surveillance · Featured", ar: "المراقبة · مميز" },
+    title:   { en: "See every angle,\nday or night.", ar: "شاهد كل زاوية\nليل أو نهار." },
+    sub:     { en: "4K IP cameras, NVRs, and complete kits — installed by certified pros.", ar: "كاميرات IP بدقة 4K، NVR، وأنظمة كاملة — تركيب من مهندسين معتمدين." },
+    cta:     { en: "Shop cameras", ar: "تسوق الكاميرات" },
+    chips: [
+      { ic: "video", en: "4K · 30fps", ar: "4K · 30 إطار" },
+      { ic: "moon",  en: "Night vision 30m", ar: "رؤية ليلية 30م" },
+      { ic: "cloud", en: "24/7 cloud", ar: "سحابة 24/7" },
+    ],
+    floats: [
+      { ic: "eye",   en: "Live view", ar: "عرض مباشر" },
+      { ic: "video", en: "Recording", ar: "بيسجّل" },
+      { ic: "moon",  en: "Night mode", ar: "وضع ليلي" },
+    ],
+  },
+  {
+    id: "ups",
+    bgLight: "linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #bbf7d0 100%)",
+    accentLight: "#16a34a",
+    bgDark: "linear-gradient(135deg, #0a2818 0%, #14532d 50%, #16a34a 100%)",
+    accentDark: "#86efac",
+    image: "/hero/ups.png",
+    imageAlt: "UPS power unit",
+    eyebrow: { en: "Power · Always-on", ar: "الطاقة · دائمًا" },
+    title:   { en: "Power that\nnever blinks.", ar: "طاقة لا تنقطع\nأبدًا." },
+    sub:     { en: "UPS units & online double-conversion systems for offices, racks, and data rooms.", ar: "وحدات UPS وأنظمة Online double-conversion للمكاتب والراكات وغرف الخوادم." },
+    cta:     { en: "Shop UPS", ar: "تسوق UPS" },
+    chips: [
+      { ic: "zap",          en: "Up to 10 kVA", ar: "حتى 10 ك.ف.أ" },
+      { ic: "activity",     en: "Pure sine wave", ar: "موجة جيبية نقية" },
+      { ic: "shield-check", en: "3-yr warranty", ar: "ضمان 3 سنين" },
+    ],
+    floats: [
+      { ic: "plug",             en: "Online", ar: "متّصل" },
+      { ic: "activity",         en: "99.9% uptime", ar: "تشغيل 99.9%" },
+      { ic: "battery-charging", en: "Charged", ar: "مشحون" },
+    ],
+  },
+  {
+    id: "racks",
+    bgLight: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)",
+    accentLight: "#475569",
+    bgDark: "linear-gradient(135deg, #0d1117 0%, #1f2937 60%, #4b5563 100%)",
+    accentDark: "#9ca3af",
+    image: "/hero/racks.png",
+    imageAlt: "Server rack cabinet",
+    eyebrow: { en: "Racks · Pro install", ar: "الراكات · تركيب احترافي" },
+    title:   { en: "Racked, stacked,\nand ready.", ar: "منظم ومجهز\nللتشغيل." },
+    sub:     { en: "Server cabinets, wall-mount racks, and PDU bars — sized for any deployment.", ar: "كبائن سيرفر، راكات حائط، ومنظمات كهرباء — لكل أحجام النشر." },
+    cta:     { en: "Shop racks", ar: "تسوق الراكات" },
+    chips: [
+      { ic: "box",    en: "6U – 42U options", ar: "من 6U إلى 42U" },
+      { ic: "wrench", en: "Pro installation", ar: "تركيب احترافي" },
+      { ic: "truck",  en: "White-glove delivery", ar: "توصيل وتركيب" },
+    ],
+    floats: [
+      { ic: "thermometer", en: "Cooled", ar: "مبرّد" },
+      { ic: "wrench",      en: "Tool-free", ar: "بدون عدد" },
+      { ic: "lock",        en: "Locked", ar: "مقفول" },
+    ],
+  },
+  {
+    id: "networking",
+    bgLight: "linear-gradient(135deg, #fff7ed 0%, #ffedd5 50%, #fed7aa 100%)",
+    accentLight: "#ea580c",
+    bgDark: "linear-gradient(135deg, #2d1810 0%, #5c2e1f 50%, #c2410c 100%)",
+    accentDark: "#fb923c",
+    image: "/hero/networking.png",
+    imageAlt: "Switches, routers & access points",
+    eyebrow: { en: "Networking · Featured", ar: "الشبكات · مميز" },
+    title:   { en: "Wi-Fi that\njust works.", ar: "شبكة Wi-Fi\nبدون توقف." },
+    sub:     { en: "Mesh systems, switches, routers, and access points from Cisco, MikroTik & Ubiquiti.", ar: "أنظمة Mesh، سويتشات، راوترات، وأكسس بوينت من Cisco و MikroTik و Ubiquiti." },
+    cta:     { en: "Shop networking", ar: "تسوق الشبكات" },
+    chips: [
+      { ic: "wifi",         en: "Wi-Fi 6 · 3 Gbps", ar: "Wi-Fi 6 · 3 جيجا" },
+      { ic: "shield-check", en: "2-yr warranty", ar: "ضمان سنتين" },
+      { ic: "truck",        en: "Free shipping", ar: "شحن مجاني" },
+    ],
+    floats: [
+      { ic: "wifi",   en: "Wi-Fi 6", ar: "Wi-Fi 6" },
+      { ic: "signal", en: "Strong signal", ar: "إشارة قوية" },
+      { ic: "users",  en: "500+ devices", ar: "+500 جهاز" },
+    ],
+  },
+  {
+    id: "cables",
+    bgLight: "linear-gradient(135deg, #faf5ff 0%, #f3e8ff 50%, #e9d5ff 100%)",
+    accentLight: "#9333ea",
+    bgDark: "linear-gradient(135deg, #1a0f2e 0%, #2d1b4e 50%, #6b3fa0 100%)",
+    accentDark: "#a78bfa",
+    image: "/hero/cables.png",
+    imageAlt: "Network cables and patch cords",
+    eyebrow: { en: "Cabling · Infrastructure", ar: "الكابلات · البنية التحتية" },
+    title:   { en: "Every link,\ncertified.", ar: "كل وصلة،\nمعتمدة." },
+    sub:     { en: "Cat6/Cat6A, fiber, patch cords, and bulk reels — TIA-tested and labeled.", ar: "كابلات Cat6/Cat6A، فايبر، باتش كوردز، ورولات — مختبرة TIA ومُعرّفة." },
+    cta:     { en: "Shop cabling", ar: "تسوق الكابلات" },
+    chips: [
+      { ic: "check-circle-2", en: "TIA-certified", ar: "معتمد TIA" },
+      { ic: "package",        en: "305m bulk reels", ar: "رولات 305م" },
+      { ic: "palette",        en: "8 color options", ar: "8 ألوان" },
+    ],
+    floats: [
+      { ic: "check-circle-2", en: "Certified", ar: "معتمد" },
+      { ic: "zap",            en: "10 Gbps", ar: "10 جيجا" },
+      { ic: "palette",        en: "8 colors", ar: "8 ألوان" },
+    ],
+  },
+  {
+    id: "laptops",
+    bgLight: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%)",
+    accentLight: "#2563eb",
+    bgDark: "linear-gradient(135deg, #0f2b4f 0%, #1c3d6b 60%, #2d6cdf 100%)",
+    accentDark: "#6eb0e0",
+    image: "/hero/laptops.png",
+    imageAlt: "Business laptops and workstations",
+    eyebrow: { en: "Laptops · Workstations", ar: "لابتوبات · محطات عمل" },
+    title:   { en: "Built for the work\nthat matters.", ar: "مصمّم للشغل\nالجاد." },
+    sub:     { en: "Business laptops, workstations, and gaming rigs — Dell, Lenovo, HP & Apple.", ar: "لابتوبات أعمال، محطات عمل، وجيمنج — Dell و Lenovo و HP و Apple." },
+    cta:     { en: "Shop laptops", ar: "تسوق اللابتوبات" },
+    chips: [
+      { ic: "cpu",          en: "Intel & AMD", ar: "Intel و AMD" },
+      { ic: "shield-check", en: "On-site warranty", ar: "ضمان في الموقع" },
+      { ic: "truck",        en: "Same-day in Cairo", ar: "نفس اليوم بالقاهرة" },
+    ],
+    floats: [
+      { ic: "cpu",     en: "Intel Core i7", ar: "معالج i7" },
+      { ic: "monitor", en: "14\" OLED", ar: "OLED 14بوصة" },
+      { ic: "battery", en: "12h battery", ar: "بطارية 12س" },
+    ],
+  },
+];
+
+/* ADR-045 flat refresh — Hero (Phase 2):
+   Six-slide carousel. Primary CTA targets the matching product category when
+   the home page passes `heroPrimaryHrefs` (from Medusa category handles). */
+export default async function HeroSection({
+  heroPrimaryHrefs = {},
+}: {
+  heroPrimaryHrefs?: Record<string, string>;
+}) {
   const locale = await getLocale();
   const t = await getTranslations("home.hero");
+  const isAr = locale === "ar";
   const productsHref = `/${locale}/products`;
   const collectionsHref = `/${locale}/collections`;
 
+  const slides: HeroSlide[] = RAW_SLIDES.map((s) => ({
+    id: s.id,
+    primaryHref: heroPrimaryHrefs[s.id] ?? productsHref,
+    bgLight: s.bgLight,
+    accentLight: s.accentLight,
+    bgDark: s.bgDark,
+    accentDark: s.accentDark,
+    image: s.image,
+    imageAlt: s.imageAlt,
+    eyebrow: isAr ? s.eyebrow.ar : s.eyebrow.en,
+    title: isAr ? s.title.ar : s.title.en,
+    sub: isAr ? s.sub.ar : s.sub.en,
+    cta: isAr ? s.cta.ar : s.cta.en,
+    chips: s.chips.map((c) => ({ ic: c.ic, label: isAr ? c.ar : c.en })),
+    floats: s.floats.map((f) => ({ ic: f.ic, label: isAr ? f.ar : f.en })),
+  }));
+
   const trust = [
     { icon: "shield" as const, title: t("trust.authentic.title"), body: t("trust.authentic.body") },
-    { icon: "truck" as const, title: t("trust.delivery.title"), body: t("trust.delivery.body") },
-    { icon: "wallet" as const, title: t("trust.cod.title"), body: t("trust.cod.body") },
+    { icon: "truck" as const,  title: t("trust.delivery.title"),  body: t("trust.delivery.body") },
+    { icon: "wallet" as const, title: t("trust.cod.title"),       body: t("trust.cod.body") },
+    { icon: "rotate" as const, title: t("trust.returns.title"),   body: t("trust.returns.body") },
   ];
-
-  const cards = [
-    { eyebrow: t("cards.networking.eyebrow"), title: "Wi-Fi 6 Mesh", sub: t("cards.networking.sub"), icon: "router" as const, tone: "soft" as const },
-    { eyebrow: t("cards.surveillance.eyebrow"), title: "4K IP Dome", sub: t("cards.surveillance.sub"), icon: "cctv" as const, tone: "brand" as const },
-    { eyebrow: t("cards.power.eyebrow"), title: "UPS 1500VA", sub: t("cards.power.sub"), icon: "battery" as const, tone: "charcoal" as const },
-    { eyebrow: t("cards.smart.eyebrow"), title: "Smart Plug", sub: t("cards.smart.sub"), icon: "plug" as const, tone: "muted" as const },
-  ];
-
-  const toneClass = {
-    soft: "bg-brand-muted text-brand border-brand-muted",
-    brand: "bg-brand text-text-inverse border-brand",
-    // Charcoal card stays "dark surface + white text" in BOTH themes. Dark mode
-    // lifts `--color-charcoal` to a brand-tinted slate (see globals.css) so it
-    // sits visibly above the navy page; text is `text-white` rather than
-    // `text-text-inverse` because inverse-text flips to dark in dark mode.
-    charcoal: "bg-charcoal text-white border-charcoal",
-    muted: "bg-surface-subtle text-text-primary border-border",
-  } as const;
-
-  const offsets = ["-6px", "10px", "4px", "-8px"];
-  const delays = ["0s", "1.2s", "2s", "3s"];
 
   return (
-    <section className="border-b border-border bg-surface">
-      <Container className="py-14 sm:py-20">
-        <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-[1.1fr_1fr]">
-          {/* Copy */}
-          <div className="flex flex-col gap-5">
-            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-accent">
-              <span className="inline-block h-px w-6 bg-accent" aria-hidden="true" />
-              {t("eyebrow")}
+    <div className="hero-pro-wrap">
+      <HeroSlideshow
+        slides={slides}
+        isAr={isAr}
+        collectionsHref={collectionsHref}
+        collectionsLabel={t("ctaCollections")}
+        prevLabel={t("carousel.previous")}
+        nextLabel={t("carousel.next")}
+        slideLabels={slides.map((_, i) => t("carousel.goToSlide", { n: i + 1 }))}
+      />
+      <div className="hero-pro-trustbar">
+        {trust.map((item) => (
+          <div key={item.title} className="hero-pro-trust">
+            <span className="ic">
+              <TrustIcon name={item.icon} size={18} />
             </span>
-            <h1 className="text-[clamp(2.5rem,5vw,3.5rem)] font-semibold leading-[1.05] tracking-[-0.03em] text-text-primary">
-              {t("titleLead")}
-              <span className="text-brand"> {t("titleAccent")}</span>
-              <br />
-              <span className="font-light italic">{t("titleCoda")}</span>
-            </h1>
-            <p className="max-w-xl text-lg leading-relaxed text-text-secondary">
-              {t("sub")}
-            </p>
-
-            <div className="mt-1 flex flex-wrap gap-3">
-              <a
-                href={productsHref}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg bg-brand px-6 text-sm font-semibold text-text-inverse transition-colors duration-150 hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-              >
-                {t("ctaBrowse")}
-                <span aria-hidden="true" className="rtl:-scale-x-100">→</span>
-              </a>
-              <a
-                href={collectionsHref}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-6 text-sm font-semibold text-text-primary transition-colors duration-150 hover:border-border-strong hover:bg-surface-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2"
-              >
-                {t("ctaCollections")}
-              </a>
-            </div>
-
-            <div className="mt-6 flex flex-wrap gap-6 border-t border-border pt-5 sm:gap-8">
-              {trust.map((item) => (
-                <div key={item.title} className="flex items-start gap-3 text-sm">
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent-muted text-brand">
-                    <Icon name={item.icon} size={16} />
-                  </span>
-                  <div className="text-text-secondary">
-                    <div className="font-semibold text-text-primary">{item.title}</div>
-                    <div>{item.body}</div>
-                  </div>
-                </div>
-              ))}
+            <div>
+              <b>{item.title}</b>
+              <span>{item.body}</span>
             </div>
           </div>
-
-          {/* 4-card stack — mirrors the online-store reference.
-             Uses CSS variables for per-card offset + animation delay. */}
-          <div className="relative mx-auto aspect-square w-full max-w-[480px]">
-            <div className="grid h-full grid-cols-2 grid-rows-2 gap-3 p-3">
-              {cards.map((card, idx) => (
-                <div
-                  key={card.title}
-                  className={`hero-card relative flex flex-col justify-between overflow-hidden rounded-xl border p-4 sm:p-5 ${toneClass[card.tone]}`}
-                  style={
-                    {
-                      ["--off" as string]: offsets[idx],
-                      animation: `hero-float 6s ease-in-out ${delays[idx]} infinite`,
-                      transform: `translateY(${offsets[idx]})`,
-                    } as React.CSSProperties
-                  }
-                >
-                  <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-[0.1em] opacity-80">
-                    <span>{card.eyebrow}</span>
-                    <Icon name={card.icon} size={14} />
-                  </div>
-                  <div className="flex justify-center py-2 sm:py-4">
-                    <Icon name={card.icon} size={48} />
-                  </div>
-                  <div>
-                    <div className="text-sm font-semibold leading-tight">{card.title}</div>
-                    <div className="mt-0.5 text-[11px] opacity-70">{card.sub}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </Container>
-    </section>
+        ))}
+      </div>
+    </div>
   );
 }

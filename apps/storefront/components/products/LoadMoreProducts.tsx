@@ -1,10 +1,9 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { listProducts } from "@/lib/medusa-client";
+import { usePathname, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import ProductCard, { type Product } from "@/components/products/ProductCard";
-import Spinner from "@/components/ui/Spinner";
 import {
   sortProductsClientSide,
   type ColumnCount,
@@ -13,16 +12,6 @@ import {
 } from "@/components/products/catalog-toolbar-utils";
 import { cn } from "@/lib/cn";
 
-interface FilterParams {
-  collection?: string;
-  category?: string;
-  q?: string;
-  minPrice?: string;
-  maxPrice?: string;
-  rating?: string;
-  inStock?: string;
-}
-
 interface Props {
   initialProducts: Product[];
   totalCount: number | null;
@@ -30,7 +19,7 @@ interface Props {
   cols: ColumnCount;
   sort: SortKey;
   view: ViewMode;
-  filters: FilterParams;
+  currentPage: number;
 }
 
 const colsClassMap: Record<ColumnCount, string> = {
@@ -40,6 +29,9 @@ const colsClassMap: Record<ColumnCount, string> = {
   4: "grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
 };
 
+/* Numbered pagination — server-rendered each page from products/page.tsx.
+   Preserves filter / sort / view / cols / pageSize / q searchParams via
+   URLSearchParams; only the `page` key is mutated. */
 export default function LoadMoreProducts({
   initialProducts,
   totalCount,
@@ -47,69 +39,13 @@ export default function LoadMoreProducts({
   cols,
   sort,
   view,
-  filters,
+  currentPage,
 }: Props) {
   const t = useTranslations("products.listing");
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [exhausted, setExhausted] = useState(false);
+  const pathname = usePathname() ?? "";
+  const searchParams = useSearchParams();
 
-  /* Resync state when the server hands us a new initial batch — happens on
-     every URL change (filter apply, sort, view, search). Without this,
-     LoadMoreProducts would keep displaying the previously-accumulated list
-     regardless of the new filter set. */
-  useEffect(() => {
-    setProducts(initialProducts);
-    setExhausted(false);
-    setError(null);
-    setLoading(false);
-  }, [initialProducts]);
-
-  const hasMore =
-    !exhausted &&
-    (totalCount == null || products.length < totalCount);
-
-  const loadMore = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const params: Record<string, unknown> = {
-        limit: pageSize,
-        offset: products.length,
-      };
-      if (filters.collection) params.collection_id = [filters.collection];
-      if (filters.category) params.category_id = [filters.category];
-      if (filters.q && filters.q.trim().length > 0) params.q = filters.q.trim();
-
-      const result = await listProducts(
-        params as Parameters<typeof listProducts>[0],
-      );
-      const next = result.products;
-      if (!next || next.length === 0) {
-        setExhausted(true);
-      } else {
-        setProducts((prev) => {
-          const seen = new Set(prev.map((p: any) => p.id));
-          const merged = [...prev];
-          for (const p of next) {
-            if (!seen.has(p.id)) {
-              merged.push(p);
-              seen.add(p.id);
-            }
-          }
-          return merged;
-        });
-        if (next.length < pageSize) setExhausted(true);
-      }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : t("loadMoreError"));
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, pageSize, products.length, t]);
-
-  const sorted = sortProductsClientSide(products, sort);
+  const sorted = sortProductsClientSide(initialProducts, sort);
 
   if (sorted.length === 0) {
     return <p className="text-text-secondary">{t("empty")}</p>;
@@ -120,11 +56,26 @@ export default function LoadMoreProducts({
     ? "flex flex-col gap-3"
     : cn("grid gap-5", colsClassMap[cols]);
 
+  const totalPages = totalCount != null ? Math.max(1, Math.ceil(totalCount / pageSize)) : 1;
+  const showPagination = totalCount != null && totalPages > 1;
+  const hasPrev = currentPage > 1;
+  const hasNext = currentPage < totalPages;
+
+  const buildPageHref = (page: number) => {
+    const next = new URLSearchParams(searchParams?.toString() ?? "");
+    if (page === 1) {
+      next.delete("page");
+    } else {
+      next.set("page", String(page));
+    }
+    const qs = next.toString();
+    return qs ? `${pathname}?${qs}` : pathname;
+  };
+
   return (
     <div className="space-y-6">
       <div className={gridClass}>
         {sorted.map((p: any, i: number) => (
-          /* Stagger fade-up on mount. Cap at 24 so late items don't feel laggy. */
           <div
             key={p.id}
             className="animate-fade-up"
@@ -135,47 +86,99 @@ export default function LoadMoreProducts({
         ))}
       </div>
 
-      {error ? (
-        <p className="text-center text-sm text-error" role="alert">
-          {error}
-        </p>
-      ) : null}
-
-      {hasMore ? (
-        <div className="flex justify-center pt-2">
-          <button
-            type="button"
-            onClick={() => void loadMore()}
-            disabled={loading}
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-full border border-border bg-surface px-6 text-sm font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? (
-              <>
-                <Spinner size="xs" />
-                <span>{t("loading")}</span>
-              </>
-            ) : (
-              <>
-                <span>{t("loadMore")}</span>
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={1.75}
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="h-4 w-4"
-                  aria-hidden="true"
-                >
-                  <polyline points="6 9 12 15 18 9" />
+      {showPagination ? (
+        <nav
+          aria-label={t("paginationLabel")}
+          className="mt-8 flex items-center justify-between gap-3 border-t border-border pt-8"
+        >
+          <div className="flex flex-1 justify-start">
+            {hasPrev ? (
+              <Link
+                href={buildPageHref(currentPage - 1)}
+                scroll={false}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 rtl:rotate-180" aria-hidden="true">
+                  <path d="M15 18l-6-6 6-6" />
                 </svg>
-              </>
+                <span>{t("previous")}</span>
+              </Link>
+            ) : (
+              <span
+                aria-disabled="true"
+                className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text-muted opacity-50"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 rtl:rotate-180" aria-hidden="true">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+                <span>{t("previous")}</span>
+              </span>
             )}
-          </button>
-        </div>
-      ) : products.length > 0 ? (
-        <p className="text-center text-xs text-text-muted">{t("loadMoreEnd")}</p>
+          </div>
+
+          <div className="hidden items-center justify-center gap-1 sm:flex">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+              const isEdge = page === 1 || page === totalPages;
+              const isNear = page >= currentPage - 1 && page <= currentPage + 1;
+              if (isEdge || isNear) {
+                const isActive = page === currentPage;
+                return (
+                  <Link
+                    key={page}
+                    href={buildPageHref(page)}
+                    scroll={false}
+                    aria-current={isActive ? "page" : undefined}
+                    className={cn(
+                      "inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold transition-colors",
+                      isActive
+                        ? "bg-brand text-text-inverse"
+                        : "text-text-secondary hover:bg-surface-subtle hover:text-text-primary",
+                    )}
+                  >
+                    {page}
+                  </Link>
+                );
+              }
+              if (page === currentPage - 2 || page === currentPage + 2) {
+                return (
+                  <span
+                    key={page}
+                    aria-hidden="true"
+                    className="inline-flex h-10 w-10 items-center justify-center text-text-muted"
+                  >
+                    …
+                  </span>
+                );
+              }
+              return null;
+            })}
+          </div>
+
+          <div className="flex flex-1 justify-end">
+            {hasNext ? (
+              <Link
+                href={buildPageHref(currentPage + 1)}
+                scroll={false}
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:border-brand hover:text-brand"
+              >
+                <span>{t("next")}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 rtl:rotate-180" aria-hidden="true">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </Link>
+            ) : (
+              <span
+                aria-disabled="true"
+                className="inline-flex cursor-not-allowed items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text-muted opacity-50"
+              >
+                <span>{t("next")}</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4 rtl:rotate-180" aria-hidden="true">
+                  <path d="M9 18l6-6-6-6" />
+                </svg>
+              </span>
+            )}
+          </div>
+        </nav>
       ) : null}
     </div>
   );

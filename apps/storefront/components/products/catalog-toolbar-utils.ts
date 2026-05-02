@@ -7,10 +7,12 @@
 export type SortKey = "newest" | "price-asc" | "price-desc" | "title";
 export type ColumnCount = 1 | 2 | 3 | 4;
 export type ViewMode = "grid" | "list";
+export type PageSize = 12 | 24 | 36 | 48;
 
 export const DEFAULT_SORT: SortKey = "newest";
-export const DEFAULT_COLS: ColumnCount = 4;
+export const DEFAULT_COLS: ColumnCount = 3;
 export const DEFAULT_VIEW: ViewMode = "grid";
+export const DEFAULT_PAGE_SIZE: PageSize = 12;
 
 export const SORT_KEYS: SortKey[] = [
   "newest",
@@ -18,6 +20,8 @@ export const SORT_KEYS: SortKey[] = [
   "price-desc",
   "title",
 ];
+
+export const PAGE_SIZE_OPTIONS: PageSize[] = [12, 24, 36, 48];
 
 /* Mobile phones only get 1-col and 2-col options; desktop gets 2/3/4. */
 export const MOBILE_COL_OPTIONS: ColumnCount[] = [1, 2];
@@ -39,6 +43,12 @@ export function parseCols(raw: string | undefined): ColumnCount {
 export function parseView(raw: string | undefined): ViewMode {
   if (raw === "list" || raw === "grid") return raw;
   return DEFAULT_VIEW;
+}
+
+export function parsePageSize(raw: string | undefined): PageSize {
+  const n = raw ? Number(raw) : NaN;
+  if (n === 12 || n === 24 || n === 36 || n === 48) return n as PageSize;
+  return DEFAULT_PAGE_SIZE;
 }
 
 export function sortKeyToOrderParam(sort: SortKey): string | undefined {
