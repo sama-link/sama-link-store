@@ -101,8 +101,13 @@
   "nav": {
     "home": "Home",
     "products": "Products",
+    "allProducts": "All Products",
+    "allCategories": "All Categories",
     "collections": "Collections",
+    "hotDeals": "Today's Deals",
     "about": "About",
+    "contact": "Contact",
+    "menu": "Menu",
     "cart": "Cart",
     "account": "My Account",
     "mainNavigation": "Main navigation",

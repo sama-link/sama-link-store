@@ -105,8 +105,13 @@
   "nav": {
     "home": "الرئيسية",
     "products": "المنتجات",
+    "allProducts": "كل المنتجات",
+    "allCategories": "كل التصنيفات",
     "collections": "المجموعات",
+    "hotDeals": "عروض اليوم",
     "about": "من نحن",
+    "contact": "تواصل معنا",
+    "menu": "القائمة",
     "cart": "السلة",
     "account": "حسابي",
     "mainNavigation": "التنقل الرئيسي",
