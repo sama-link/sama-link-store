@@ -15,6 +15,8 @@ import {
   deleteCustomerAddress,
   emailpassLogin,
   emailpassRegister,
+  isEmailAlreadyRegistered,
+  isInvalidCredentials,
   logoutSession,
   refreshAuthToken,
   removeItemFromCustomerList,
@@ -89,6 +91,9 @@ export async function loginAction(
     await rememberCustomerCartIdAfterAuth();
   } catch (error) {
     if (error instanceof AuthProviderUnavailableError) throw error;
+    if (isInvalidCredentials(error)) {
+      return { error: t("invalidCredentials") };
+    }
     return { error: t("genericError") };
   }
 
@@ -143,6 +148,9 @@ export async function registerAction(
     await rememberCustomerCartIdAfterAuth();
   } catch (error) {
     if (error instanceof AuthProviderUnavailableError) throw error;
+    if (isEmailAlreadyRegistered(error)) {
+      return { error: t("emailAlreadyExists") };
+    }
     return { error: t("registerError") };
   }
 

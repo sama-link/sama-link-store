@@ -78,6 +78,32 @@ function isEmailpassProviderUnavailable(error: unknown): boolean {
   );
 }
 
+/**
+ * Medusa v2 returns 401 with message "Identity with email already exists"
+ * when /auth/customer/emailpass/register is called for an email that already
+ * has an auth identity. Surfacing this as a distinct case lets the storefront
+ * tell the user "this email is already registered" instead of a generic
+ * "we couldn't create your account" message — which leaves users stuck with
+ * orphaned identities.
+ */
+export function isEmailAlreadyRegistered(error: unknown): boolean {
+  const status = getErrorStatusCode(error);
+  const message = getErrorMessage(error).toLowerCase();
+  return status === 401 && message.includes("already exists");
+}
+
+/**
+ * Medusa v2 returns 401 with message "Invalid email or password" on a
+ * failed /auth/customer/emailpass login. Distinguishing it from other 401s
+ * lets the storefront surface a credential-specific message rather than the
+ * one-fits-all generic error.
+ */
+export function isInvalidCredentials(error: unknown): boolean {
+  const status = getErrorStatusCode(error);
+  const message = getErrorMessage(error).toLowerCase();
+  return status === 401 && message.includes("invalid email or password");
+}
+
 function authHeader(token: string): { Authorization: string } {
   return { Authorization: `Bearer ${token}` };
 }
