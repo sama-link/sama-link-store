@@ -341,7 +341,9 @@
         "body": "Pick products from the catalog to compare them side by side.",
         "cta": "Browse products"
       }
-    }
+    },
+    "emailAlreadyExists": "This email is already registered. Try signing in instead.",
+    "invalidCredentials": "Invalid email or password."
   },
   "home": {
     "headline": "Sama Link Store",

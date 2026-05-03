@@ -154,16 +154,17 @@ export default function LoginForm({
             </motion.p>
           )}
 
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.98 }}
+          {/* Plain <button>, not motion.button: see RegisterForm comment.
+              framer-motion's pointer hooks (whileTap) interfered with
+              React 19's form-action submit protocol. */}
+          <button
             type="submit"
             disabled={isPending}
-            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-hover hover:shadow disabled:opacity-70 disabled:hover:scale-100"
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-brand py-3 text-sm font-semibold text-white shadow-sm transition-all duration-150 hover:bg-brand-hover hover:shadow hover:scale-[1.01] active:scale-[0.98] disabled:opacity-70 disabled:hover:scale-100"
           >
             {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             {submitLabel}
-          </motion.button>
+          </button>
         </form>
 
         <div className="my-6 flex items-center">
