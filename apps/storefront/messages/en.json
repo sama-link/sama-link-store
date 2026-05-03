@@ -90,7 +90,7 @@
     "noResults": "No results found"
   },
   "breadcrumbs": {
-    "home": "Home",
+    "home": "Sama Link Store",
     "products": "Products",
     "collections": "Collections",
     "cart": "Cart",
@@ -505,6 +505,8 @@
     "filtersAndViewAria": "Filters and view controls",
     "filters": {
       "heading": "Filters",
+      "search": "Search",
+      "searchPlaceholder": "Search products…",
       "collections": "Collections",
       "categories": "Categories",
       "brands": "Brands",
@@ -518,8 +520,8 @@
       "ratingAndUp": "& up",
       "availability": "Availability",
       "inStock": "In stock",
-      "searchChipLabel": "Searching:",
-      "clearSearch": "Clear search",
+      "showMore": "Show more",
+      "showLess": "Show less",
       "apply": "Apply filters",
       "priceBuckets": {
         "under100": "Under 100",
@@ -550,6 +552,8 @@
       "chooseVariant": "Choose your option",
       "descriptionHeading": "Description",
       "specifications": "Specifications",
+      "showMore": "Read more",
+      "showLess": "Read less",
       "category": "Category",
       "collection": "Collection",
       "tags": "Tags",
@@ -702,6 +706,56 @@
           "title": "Practical Support",
           "body": "Our team helps you choose the right setup for your real use case."
         }
+      },
+      "design": {
+        "hero": {
+          "kicker": "About Sama Link",
+          "heading": "Empowering Connections, Securing the Future.",
+          "body": "Sama Link Store is your premier destination for enterprise-grade networking, surveillance, and smart home solutions. We bridge the gap between advanced technology and everyday reliability."
+        },
+        "story": {
+          "heading": "Our Story",
+          "body1": "Founded with a vision to revolutionize the IT and security infrastructure market, Sama Link has grown into a trusted leader in providing comprehensive technology solutions. We recognized the need for a reliable partner who doesn't just sell hardware, but delivers complete, integrated systems.",
+          "body2": "Today, we serve thousands of businesses and homes across the region, bringing world-class brands and unmatched expertise directly to your doorstep."
+        },
+        "visionMission": {
+          "vision": {
+            "title": "Our Vision",
+            "body": "To be the ultimate standard of excellence in technology retail and infrastructure solutions across the region, making advanced technology accessible to everyone."
+          },
+          "mission": {
+            "title": "Our Mission",
+            "body": "To empower businesses and individuals with robust, secure, and smart technology solutions, backed by expert guidance, authentic products, and exceptional customer support."
+          }
+        },
+        "expertise": {
+          "heading": "Our Expertise",
+          "subheading": "Comprehensive solutions for every technological need",
+          "cards": {
+            "networking": {
+              "title": "Enterprise Networking",
+              "body": "From routers and switches to complex server racks, we provide the backbone for seamless connectivity."
+            },
+            "surveillance": {
+              "title": "Advanced Surveillance",
+              "body": "State-of-the-art CCTV and IP camera systems to ensure your spaces are monitored and secure 24/7."
+            },
+            "smartHome": {
+              "title": "Smart Home & Automation",
+              "body": "Intelligent devices that bring comfort, efficiency, and modern convenience to your living spaces."
+            },
+            "power": {
+              "title": "Power & Protection",
+              "body": "Reliable UPS systems and power protection to keep your critical infrastructure running without interruption."
+            }
+          }
+        },
+        "cta": {
+          "heading": "Ready to upgrade your infrastructure?",
+          "body": "Explore our curated catalog of authentic products or speak with our experts for a customized solution.",
+          "primaryBtn": "Shop Now",
+          "secondaryBtn": "Contact Sales"
+        }
       }
     },
     "faq": {
@@ -764,6 +818,67 @@
           "three": {
             "title": "3) Confirm and proceed",
             "body": "Once approved, we guide you through order, payment, and delivery."
+          }
+        },
+        "form": {
+          "heading": "Send us a message",
+          "name": "Name",
+          "email": "Email Address",
+          "subject": "Subject",
+          "message": "Your Message",
+          "submit": "Send Message"
+        },
+        "map": {
+          "heading": "Our Headquarters",
+          "hqLabel": "Sama Link Management",
+          "hqAddress": "Cairo, Egypt"
+        },
+        "branches": {
+          "heading": "Visit our 9 branches",
+          "b1": {
+            "name": "Nasr City Branch",
+            "address": "Makram Ebaid St, Nasr City, Cairo",
+            "phone": "+20 111 000 0001"
+          },
+          "b2": {
+            "name": "Heliopolis Branch",
+            "address": "El Merghany St, Heliopolis, Cairo",
+            "phone": "+20 111 000 0002"
+          },
+          "b3": {
+            "name": "Maadi Branch",
+            "address": "Laselky St, Maadi, Cairo",
+            "phone": "+20 111 000 0003"
+          },
+          "b4": {
+            "name": "Mohandeseen Branch",
+            "address": "Arab League St, Giza",
+            "phone": "+20 111 000 0004"
+          },
+          "b5": {
+            "name": "5th Settlement Branch",
+            "address": "North 90th St, New Cairo",
+            "phone": "+20 111 000 0005"
+          },
+          "b6": {
+            "name": "Sheikh Zayed Branch",
+            "address": "Arkan Plaza, Sheikh Zayed, Giza",
+            "phone": "+20 111 000 0006"
+          },
+          "b7": {
+            "name": "Alexandria Branch",
+            "address": "Louran, Corniche, Alexandria",
+            "phone": "+20 111 000 0007"
+          },
+          "b8": {
+            "name": "Tanta Branch",
+            "address": "El Bahr St, Tanta",
+            "phone": "+20 111 000 0008"
+          },
+          "b9": {
+            "name": "Mansoura Branch",
+            "address": "El Gomhouria St, Mansoura",
+            "phone": "+20 111 000 0009"
           }
         }
       }
@@ -984,7 +1099,7 @@
     "trackOrder": "Track Order",
     "about": "About",
     "tagline": "Quality products delivered to your door.",
-    "builtWithCare": "Built with care in the Arab world.",
+    "builtWithCare": "By Sama Link Team.",
     "copyrightLine": "© {year} {storeName}. {rights}",
     "paymentsLabel": "Payment methods accepted",
     "socials": {

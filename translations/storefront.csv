@@ -439,8 +439,8 @@ products.filters.rating,Rating,التقييم,ADR-045 flat refresh — filter he
 products.filters.ratingAndUp,& up,فأكثر,ADR-045 flat refresh — filter label — AR proposed
 products.filters.availability,Availability,التوفر,ADR-045 flat refresh — filter heading — AR proposed
 products.filters.inStock,In stock,متوفر الآن,ADR-045 flat refresh — filter label — AR proposed
-products.filters.searchChipLabel,Searching:,يبحث عن:,ADR-045 flat refresh — filter chip label — AR proposed
-products.filters.clearSearch,Clear search,مسح البحث,ADR-045 flat refresh — aria-label — AR proposed
+products.filters.search,Search,البحث,ADR-045 filter sidebar product search
+products.filters.searchPlaceholder,Search products…,ابحث عن المنتجات…,ADR-045 filter sidebar product search — AR proposed
 products.detail.save,Save {percent}%,وفّر {percent}٪,ADR-045 flat refresh — PDP save chip — AR proposed
 products.detail.inclVat,Incl. VAT,شامل الضريبة,ADR-045 flat refresh — PDP price row — AR proposed
 products.detail.inStockShipsIn,In stock — Ships within 48 hours,متوفر — يُشحن خلال 48 ساعة,ADR-045 flat refresh — PDP stock line — AR proposed
