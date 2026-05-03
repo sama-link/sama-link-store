@@ -167,7 +167,8 @@ export default async function OrdersPage({ params }: OrdersPageProps) {
                               </span>
                             </div>
                             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-surface-subtle text-text-secondary group-hover:bg-brand group-hover:text-white transition-colors">
-                              <ChevronRight className={cn("h-5 w-5", isArabic && "rotate-180")} />
+                              <span className="sr-only">{t("orders.viewDetails")}</span>
+                              <ChevronRight className={cn("h-5 w-5", isArabic && "rotate-180")} aria-hidden="true" />
                             </div>
                           </div>
                         </div>
