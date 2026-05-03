@@ -505,6 +505,7 @@
       "applyView": "Apply view"
     },
     "filtersAndViewAria": "Filters and view controls",
+    "sheetPullToCloseAria": "Pull down to close",
     "filters": {
       "heading": "Filters",
       "search": "Search",

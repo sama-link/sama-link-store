@@ -444,17 +444,45 @@ async function ensureBrands(
   // omit handle from list responses and silently break idempotency.
   const existing = await brandService.listBrands(
     {},
-    { take: 1000, select: ["id", "handle"] }
+    { take: 1000, select: ["id", "handle", "image_url"] }
   )
-  for (const b of existing as Array<{ id: string; handle: string }>) {
-    if (b.handle) handleToId.set(b.handle, b.id)
+  const existingById = new Map<
+    string,
+    { id: string; handle: string; image_url: string | null }
+  >()
+  for (const b of existing as Array<{
+    id: string
+    handle: string
+    image_url: string | null
+  }>) {
+    if (b.handle) {
+      handleToId.set(b.handle, b.id)
+      existingById.set(b.id, b)
+    }
   }
   const preExisting = handleToId.size
 
   let created = 0
+  let logoBackfilled = 0
   for (const fb of fixture.brands) {
     if (!fb.handle) continue
-    if (handleToId.has(fb.handle)) continue
+    const existingId = handleToId.get(fb.handle)
+    if (existingId) {
+      // Backfill image_url on previously-seeded brands that pre-date the
+      // brand-logo workstream. Only fills nulls — never overwrites a logo
+      // an admin operator has set by hand.
+      const cur = existingById.get(existingId)
+      if (
+        fb.image_url &&
+        (!cur || cur.image_url == null || cur.image_url === "")
+      ) {
+        await brandService.updateBrands([
+          { id: existingId, image_url: fb.image_url },
+        ])
+        logoBackfilled++
+      }
+      continue
+    }
 
     // Defensive per-handle re-check — same rationale as ensureCategories.
     const [perHandle] = (await brandService.listBrands(
@@ -478,7 +506,7 @@ async function ensureBrands(
     created++
   }
   console.log(
-    `[seed] brands: ${created} created, ${preExisting} pre-existing, ${handleToId.size} total`
+    `[seed] brands: ${created} created, ${logoBackfilled} logos backfilled, ${preExisting} pre-existing, ${handleToId.size} total`
   )
   return handleToId
 }

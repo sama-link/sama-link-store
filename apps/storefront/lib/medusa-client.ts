@@ -492,27 +492,98 @@ export async function listProductCategories() {
   } as ListProductCategoriesParams);
 }
 
+/** Default brand-logo path convention. When the backend hasn't been seeded
+ * with an `image_url`, the storefront still resolves a logo by handle from
+ * `apps/storefront/public/brand/catalog/<handle>.webp`. The operator can
+ * override per brand via the admin Logo URL field. */
+function defaultBrandLogoUrl(handle: string): string {
+  return `/brand/catalog/${handle}.webp`;
+}
+
+export type BrandSummary = {
+  id: string;
+  name: string;
+  handle: string;
+  image_url: string | null;
+};
+
+const FALLBACK_BRANDS: BrandSummary[] = [
+  {"id":"01KQ5WYYS3QK0DSC8GTHB48ZP6","handle":"3com","name":"3COM","image_url":null},
+  {"id":"01KQ5WYYSFQGKMD564VV37GGKH","handle":"apc-schneider","name":"APC Schneider","image_url":null},
+  {"id":"01KQ5WYYSRSKD9JNM658NM3ZYY","handle":"asus","name":"ASUS","image_url":null},
+  {"id":"01KQ5WYYT1FQPK8NRD40XPEWHH","handle":"brother","name":"Brother","image_url":null},
+  {"id":"01KQ5WYYTCH0WCHYAAHQ6N632K","handle":"cisco","name":"Cisco","image_url":null},
+  {"id":"01KQ5WYYTNP8DZPH0SKGWH7BK8","handle":"cts","name":"CTS","image_url":null},
+  {"id":"01KQ5WYYV0XSHTY1Y17GNENRSS","handle":"d-link","name":"D-Link","image_url":null},
+  {"id":"01KQ5WYYVDG88K2VY0EZNXF4JG","handle":"dell","name":"DELL","image_url":null},
+  {"id":"01KQ5WYYVRNBZYQMRK72PSTM5A","handle":"grandstream","name":"Grandstream","image_url":null},
+  {"id":"01KQ5WYYW20E9PDM3V1J4SX9FZ","handle":"hikvision","name":"Hikvision","image_url":null},
+  {"id":"01KQ5WYYWC282G91YZG4XA4N3J","handle":"hp-aruba","name":"HP Aruba","image_url":null},
+  {"id":"01KQ5WYYWPAVC9ACKBQ8NSKC8J","handle":"huawei","name":"Huawei","image_url":null},
+  {"id":"01KQ5WYYX3XBMMD86ECWM1KCXX","handle":"l-avvento","name":"L'AVVENTO","image_url":null},
+  {"id":"01KQ5WYYXE21N6JY6ZVKKVQXSD","handle":"legrand","name":"Legrand","image_url":null},
+  {"id":"01KQ5WYYXRQ5R4KBR4M6M57GT6","handle":"lenovo","name":"Lenovo","image_url":null},
+  {"id":"01KQ5WYYY24Z88XBBSKBZA0EW0","handle":"linksys","name":"Linksys","image_url":null},
+  {"id":"01KQ5WYYYBP7BT1GYMW59F8JZ1","handle":"mercusys","name":"MERCUSYS","image_url":null},
+  {"id":"01KQ5WYYYNMDW34P4VXMJSA98A","handle":"msi","name":"MSI","image_url":null},
+  {"id":"01KQ5WYYZ033QH0RK1VKAH3S18","handle":"netsys","name":"NETSYS","image_url":null},
+  {"id":"01KQ5WYYZ965MP87PZM2G5NG8E","handle":"panasonic","name":"Panasonic","image_url":null},
+  {"id":"01KQ5WYYZJMRSFF9JZZWPE5C4V","handle":"planet","name":"PLANET","image_url":null},
+  {"id":"01KQ5WYYZWP69TG052C5SD741A","handle":"premium-line","name":"Premium-Line","image_url":null},
+  {"id":"01KQ5WYZ06P1WMHJY4A92169K1","handle":"prolink","name":"ProLink","image_url":null},
+  {"id":"01KQ5WYZ0G3PBTXDWDN69H0349","handle":"tapo","name":"TAPO","image_url":null},
+  {"id":"01KQ5WYZ0VHR355QJSS6EJ5S70","handle":"tenda","name":"Tenda","image_url":null},
+  {"id":"01KQ5WYZ130SCWNX7GQ6GJFNZT","handle":"tp-link","name":"TP-Link","image_url":null},
+  {"id":"01KQ5WYZ1CHM194CN1C3K00NT1","handle":"unv","name":"UNV","image_url":null},
+  {"id":"01KQ5WYZ1NM3WHDMZA9CD5RZ3K","handle":"western-digital","name":"Western Digital","image_url":null},
+  {"id":"01KQ5WYZ1YE7J2C39Z9S554N4C","handle":"zkteco","name":"ZKTeco","image_url":null}
+];
+
+function withDefaultLogo(b: BrandSummary): BrandSummary {
+  if (b.image_url && b.image_url.trim().length > 0) return b;
+  // Backend doesn't have a logo set yet — derive the storefront-served
+  // public path from the handle so the UI never shows a blank slot for a
+  // brand that has a placeholder file under /brand/catalog/.
+  return { ...b, image_url: defaultBrandLogoUrl(b.handle) };
+}
+
 /** Public brand catalog — backs the catalog brand filter and PDP brand eyebrow.
  * `/store/*` routes require the publishable-api-key header, so include it
  * explicitly here (this helper bypasses the SDK because brands are not a
  * built-in Medusa entity — they're our domain module). */
 export async function listBrands(): Promise<{
-  brands: Array<{ id: string; name: string; handle: string }>;
+  brands: BrandSummary[];
 }> {
   const headers: Record<string, string> = { accept: "application/json" };
   if (publishableKey) headers["x-publishable-api-key"] = publishableKey;
+  const fallback = FALLBACK_BRANDS.map(withDefaultLogo);
   try {
     const res = await fetch(`${baseUrl}/store/brands?limit=200`, {
       headers,
-      next: { tags: ["brands"], revalidate: 3600 },
+      next: { tags: ["brands"], revalidate: 0 },
     });
-    if (!res.ok) return { brands: [] };
+    if (!res.ok) return { brands: fallback };
     const data = (await res.json()) as {
-      brands?: Array<{ id: string; name: string; handle: string }>;
+      brands?: Array<{
+        id: string;
+        name: string;
+        handle: string;
+        image_url?: string | null;
+      }>;
     };
-    return { brands: Array.isArray(data.brands) ? data.brands : [] };
+    if (!Array.isArray(data.brands)) return { brands: fallback };
+    return {
+      brands: data.brands.map((b) =>
+        withDefaultLogo({
+          id: b.id,
+          name: b.name,
+          handle: b.handle,
+          image_url: b.image_url ?? null,
+        }),
+      ),
+    };
   } catch {
-    return { brands: [] };
+    return { brands: fallback };
   }
 }
 
@@ -597,7 +668,15 @@ export async function listBrandProductIds(
         next: { tags: ["brands", `brand-products-${brandId}`], revalidate: 3600 },
       },
     );
-    if (!res.ok) return { ids: [] };
+    if (!res.ok) {
+      // Fallback: Fetch products and filter locally
+      const productsRes = await listProducts({ limit: 500 });
+      const internalId = FALLBACK_BRANDS.find(b => b.handle === brandId || b.id === brandId)?.id;
+      const ids = productsRes.products
+        .filter(p => p.metadata?.brand_id === internalId)
+        .map(p => p.id);
+      return { ids };
+    }
     const data = (await res.json()) as { ids?: unknown };
     if (!Array.isArray(data.ids)) return { ids: [] };
     return {

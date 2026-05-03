@@ -89,12 +89,11 @@ export default function LoadMoreProducts({
         {sorted.map((p: any, i: number) => (
           <motion.div
             layout
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{
               layout: { type: "spring", stiffness: 300, damping: 30 },
-              opacity: { delay: Math.min(i, 24) * 0.04, duration: 0.4 },
-              y: { delay: Math.min(i, 24) * 0.04, duration: 0.4 },
+              opacity: { delay: Math.min(i, 24) * 0.04, duration: 0.5, ease: "easeOut" },
             }}
             key={p.id}
           >

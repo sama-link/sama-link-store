@@ -85,12 +85,18 @@ export const BrandForm = ({
   const imageError = (() => {
     const u = form.image_url.trim()
     if (!u) return null
+    // Accept either an absolute http/https URL OR a storefront-served
+    // relative path that begins with `/` (e.g. `/brand/catalog/tenda.webp`).
+    // The relative form keeps the data portable across environments —
+    // ImagePreview below resolves it against the storefront origin so the
+    // admin still shows a real preview.
+    if (u.startsWith("/")) return null
     try {
       const parsed = new URL(u)
       if (!/^https?:$/.test(parsed.protocol))
-        return "Image URL must start with http:// or https://."
+        return "Image URL must start with http:// or https://, or with / for a storefront path."
     } catch {
-      return "Image URL is not a valid URL."
+      return "Image URL must be an absolute http(s) URL or a storefront path starting with /."
     }
     return null
   })()
@@ -210,16 +216,16 @@ export const BrandForm = ({
           <FormField
             id="brand-image-url"
             label="Logo URL"
-            hint="Paste a public image URL (HTTPS preferred). File upload coming soon."
+            hint="Either an absolute https URL, or a storefront path like /brand/catalog/tenda.webp."
             error={imageError && form.image_url !== initial.image_url ? imageError : null}
           >
             <input
               id="brand-image-url"
-              type="url"
+              type="text"
               className="sl-input"
               value={form.image_url}
               disabled={saving}
-              placeholder="https://cdn.example.com/logos/sama-link.svg"
+              placeholder="/brand/catalog/tenda.webp"
               onChange={(e) =>
                 setForm((f) => ({ ...f, image_url: e.target.value }))
               }
@@ -351,6 +357,18 @@ const FormField = ({
   )
 }
 
+/* Default storefront origin for resolving brand-logo relative paths.
+ * Hardcoded to the Next dev default so the admin's preview pane renders
+ * a real image when both apps run side by side locally. For other envs
+ * (staging, prod), paste an absolute https URL into the Logo URL field
+ * — that bypasses this resolver entirely. */
+const STOREFRONT_ORIGIN = "http://localhost:3000"
+
+function resolvePreviewUrl(url: string): string {
+  if (url.startsWith("/")) return `${STOREFRONT_ORIGIN}${url}`
+  return url
+}
+
 const ImagePreview = ({ url, name }: { url: string; name: string }) => {
   const [errored, setErrored] = useState(false)
   useEffect(() => {
@@ -365,15 +383,27 @@ const ImagePreview = ({ url, name }: { url: string; name: string }) => {
   }
   if (errored) {
     return (
-      <span className="sl-sub" style={{ fontSize: 12, color: "var(--sl-error)" }}>
+      <span
+        className="sl-sub"
+        style={{ fontSize: 12, color: "var(--sl-error)", textAlign: "center" }}
+      >
         Image failed to load.
+        {url.startsWith("/") ? (
+          <>
+            <br />
+            <span style={{ opacity: 0.7 }}>
+              Tried {resolvePreviewUrl(url)} — start the storefront, or paste
+              an absolute https URL.
+            </span>
+          </>
+        ) : null}
       </span>
     )
   }
   return (
     <img
-      src={url}
-      alt={name || "Brand logo"}
+      src={resolvePreviewUrl(url)}
+      alt={name ? `${name} logo` : "Brand logo"}
       onError={() => setErrored(true)}
       style={{
         maxWidth: "100%",

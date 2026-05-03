@@ -23,6 +23,7 @@ interface Props {
   activeCols: ColumnCount;
   activeView: ViewMode;
   activePageSize: PageSize;
+  categoryActive?: boolean;
 }
 
 export default function CatalogToolbar({
@@ -31,11 +32,13 @@ export default function CatalogToolbar({
   activeCols,
   activeView,
   activePageSize,
+  categoryActive,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname() ?? "";
   const searchParams = useSearchParams();
   const t = useTranslations("products.toolbar");
+  const tFilters = useTranslations("products.filters");
 
   const buildHref = useCallback(
     (updates: Record<string, string | null>) => {
@@ -81,6 +84,21 @@ export default function CatalogToolbar({
     <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border bg-surface px-4 py-3">
       {/* Start cluster — page size + total count. Logical-side `flex` so RTL mirrors. */}
       <div className="flex items-center gap-2">
+        {categoryActive && (
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent("toggle-desktop-filters"))}
+            className="hidden lg:flex h-9 items-center justify-center gap-2 rounded-lg border border-border bg-surface px-3 text-sm font-medium text-text-primary transition-colors hover:border-brand hover:text-brand"
+            title={tFilters("heading")}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" className="size-4">
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="6" y1="12" x2="18" y2="12" />
+              <line x1="9" y1="18" x2="15" y2="18" />
+            </svg>
+            <span>{tFilters("heading")}</span>
+          </button>
+        )}
         <label className="flex items-center gap-2 text-sm text-text-secondary">
           <span>{t("show")}</span>
           <div className="relative z-20 min-w-[70px]">

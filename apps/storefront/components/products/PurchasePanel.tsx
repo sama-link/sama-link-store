@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import AddToCartButton from "@/components/products/AddToCartButton";
@@ -40,8 +41,10 @@ interface PurchasePanelProps {
   ctaSentinelId?: string;
   /** Product title — rendered as H1 inside the panel. */
   title: string;
-  /** Optional brand / manufacturer / type eyebrow shown above the title. */
+  /** Optional brand / manufacturer / type eyebrow — alt text when a logo is shown. */
   brand?: string | null;
+  /** When set (e.g. `/brand/catalog/tenda.webp`), shown above the title instead of `brand` text. */
+  brandLogoSrc?: string | null;
   /** Short description paragraph — first paragraph of product.description. */
   description?: string | null;
   /** Optional bullet highlights — extracted list rendered under the description. */
@@ -70,6 +73,7 @@ export default function PurchasePanel({
   ctaSentinelId,
   title,
   brand,
+  brandLogoSrc,
   description,
   highlights,
   wishlistItem,
@@ -171,8 +175,22 @@ export default function PurchasePanel({
 
   return (
     <div className="space-y-6">
-      {/* 1. Brand eyebrow */}
-      {brand ? (
+      {/* 1. Brand eyebrow — logo when available, else uppercase label.
+          Logo files are pre-trimmed (see scripts/generate-brand-catalog-logos.mjs)
+          so each one carries its own intrinsic aspect ratio. We lock the height
+          and let the width follow the trimmed bounding box — no padding, no
+          asymmetric whitespace, no per-brand sizing rules. */}
+      {brandLogoSrc ? (
+        <Image
+          src={brandLogoSrc}
+          alt={brand?.trim() || "Brand"}
+          width={480}
+          height={160}
+          className="h-5 w-auto max-w-full object-contain object-left sm:h-6"
+          sizes="(min-width: 640px) 120px, 100px"
+          priority
+        />
+      ) : brand ? (
         <div className="text-xs font-semibold uppercase tracking-[0.14em] text-accent">
           {brand}
         </div>
