@@ -111,10 +111,6 @@ export default async function Header() {
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
             <LocaleSwitcher bare showLabel={false} />
             <ThemeToggle bare />
-            <div className="flex items-center lg:hidden gap-0.5 sm:gap-1">
-              <WishlistHeaderButton />
-              <CompareHeaderButton />
-            </div>
           </div>
         </div>
         </Container>
@@ -133,7 +129,7 @@ export default async function Header() {
             <div className="flex flex-1 items-center justify-center px-4">
               <PrimaryNav />
             </div>
-            <div className="flex h-full shrink-0 items-center gap-0.5 border-s border-border ps-2">
+            <div className="flex h-full shrink-0 items-center gap-1 sm:gap-2 border-s border-border ps-3 sm:ps-4">
               <AccountHeaderLink />
               <WishlistHeaderButton />
               <CompareHeaderButton />

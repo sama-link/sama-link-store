@@ -20,6 +20,7 @@ interface AddToCartButtonProps {
   iconOnly?: boolean;
   /** Accessible name when `iconOnly` is true. */
   iconAriaLabel?: string;
+  className?: string;
 }
 
 function CheckIcon() {
@@ -67,6 +68,7 @@ export default function AddToCartButton({
   onAdded,
   iconOnly = false,
   iconAriaLabel,
+  className,
 }: AddToCartButtonProps) {
   const t = useTranslations("products.detail");
   const { addItem, cart, loading: cartBootstrapping } = useCart();
@@ -102,9 +104,10 @@ export default function AddToCartButton({
         }}
         aria-label={iconAriaLabel ?? t("addToCart")}
         className={cn(
-          "relative h-10 w-10 shrink-0 px-0",
+          "relative h-11 w-11 shrink-0 px-0",
           isAdded &&
             "!bg-success !text-text-inverse !border-success !opacity-100 shimmer-overlay",
+          className
         )}
       >
         {state === "loading" ? null : isAdded ? <CheckIcon /> : <CartIcon />}
@@ -124,6 +127,7 @@ export default function AddToCartButton({
         "relative overflow-hidden cta-glow",
         isAdded &&
           "!bg-success !text-text-inverse !border-success !opacity-100 shimmer-overlay",
+        className
       )}
     >
       {isAdded ? (

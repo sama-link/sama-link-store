@@ -10,14 +10,11 @@ import {
   type CustomerListItem,
 } from "@/lib/medusa-client";
 import { localizeProduct } from "@/lib/product-i18n";
-// Server-safe constant: import from the plain module, NOT from
-// @/hooks/useCompare (which is "use client") — going through a client
-// module turns the value into a client-reference proxy when consumed
-// from a Server Component, which serialises as a function-shaped error
-// inside the page instead of the literal `4`.
 import { COMPARE_MAX_ITEMS } from "@/lib/compare-cap";
 import { clearCompareFormAction } from "../../actions";
 import CompareItemActions from "./CompareItemActions";
+import { ArrowRightLeft, Trash2, PackageSearch } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface ComparePageProps {
   params: Promise<{ locale: string }>;
@@ -80,7 +77,6 @@ async function enrich(
     const result = await listProducts({ id: ids, limit: ids.length });
     products = result.products ?? [];
   } catch {
-    // Tombstones render gracefully when the catalog call fails.
   }
   const byId = new Map(products.map((p) => [p.id, p]));
   return rows.map((row) => {
@@ -150,64 +146,58 @@ export default async function AccountComparePage({ params }: ComparePageProps) {
   ];
 
   return (
-    // `min-w-0` breaks the default `min-width: auto` on the parent grid
-    // item (the dashboard right column), so the card never expands the
-    // section past its 1fr track. Without it, `min-w-max` on the table
-    // would push the whole page wide and the body would scroll instead
-    // of the card.
-    <div className="min-w-0 max-w-full space-y-4 rounded-lg border border-border bg-surface p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
+    <div className="space-y-6">
+      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-text-primary">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-muted text-brand">
+              <ArrowRightLeft className="h-5 w-5" />
+            </div>
             {t("compare.heading")}
           </h1>
-          <p className="mt-1 text-sm text-text-secondary">
-            {/* next-intl strict-ICU rejects {max} when the value is a
-                number (it expects a typed format). Pass a string. */}
+          <p className="mt-2 text-sm text-text-secondary">
             {t("compare.subheading", { max: String(COMPARE_MAX_ITEMS) })}
           </p>
         </div>
-        {entries.length > 0 ? (
+        {entries.length > 0 && (
           <form action={clearCompareFormAction}>
             <button
               type="submit"
-              className="rounded-md border border-border bg-surface-subtle px-3 py-2 text-sm font-medium text-text-secondary transition-colors hover:border-error hover:text-error"
+              className="flex items-center gap-2 rounded-xl border border-error/20 bg-error-muted/30 px-4 py-2.5 text-sm font-medium text-error transition-colors hover:bg-error-muted hover:border-error/30"
             >
+              <Trash2 className="h-4 w-4" />
               {t("compare.clearAll")}
             </button>
           </form>
-        ) : null}
+        )}
       </div>
 
       {entries.length === 0 ? (
-        <div className="rounded-md border border-dashed border-border bg-surface-subtle p-8 text-center">
-          <p className="text-base text-text-primary">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-subtle p-12 text-center">
+          <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-surface text-text-muted shadow-sm">
+            <ArrowRightLeft className="h-8 w-8" />
+          </div>
+          <p className="mb-2 text-xl font-semibold text-text-primary">
             {t("compare.empty.heading")}
           </p>
-          <p className="mt-1 text-sm text-text-secondary">
+          <p className="mb-6 text-sm text-text-secondary max-w-sm">
             {t("compare.empty.body")}
           </p>
           <Link
             href={`/${locale}/products`}
-            className="mt-4 inline-flex items-center justify-center rounded-md border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary transition-colors hover:border-brand hover:text-brand"
+            className="inline-flex items-center justify-center rounded-xl bg-brand px-6 py-3 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-hover hover:shadow"
           >
             {t("compare.empty.cta")}
           </Link>
         </div>
       ) : (
-        // overflow-x-auto here scopes horizontal scroll INSIDE the
-        // card. Combined with `min-w-0` on the outer card div, the
-        // table can be wider than the card without the body ever
-        // scrolling. Per-cell widths below sum to a fixed table width
-        // (128 + N*240 px) so the table doesn't grow unbounded with
-        // long titles.
-        <div className="-mx-1 overflow-x-auto rounded-md border border-border">
-          <table className="w-max border-collapse text-left text-sm">
+        <div className="-mx-4 sm:mx-0 overflow-x-auto sm:rounded-2xl sm:border border-border sm:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:sm:shadow-[0_8px_30px_rgb(255,255,255,0.02)]">
+          <table className="w-max border-collapse text-left text-sm bg-surface min-w-full">
             <thead>
               <tr>
                 <th
                   scope="col"
-                  className="sticky start-0 z-20 w-32 border border-border bg-surface p-3 text-xs font-semibold uppercase tracking-wide text-text-muted"
+                  className="sticky start-0 z-20 w-24 sm:w-36 border-b border-r border-border bg-surface p-4 sm:p-5 text-xs font-semibold uppercase tracking-wide text-text-muted align-bottom"
                 >
                   {tCompare("headers.image")}
                 </th>
@@ -220,33 +210,33 @@ export default async function AccountComparePage({ params }: ComparePageProps) {
                     <th
                       key={entry.backendItemId}
                       scope="col"
-                      className="w-60 border border-border bg-surface-subtle p-3 text-center align-bottom"
+                      className="w-48 sm:w-64 border-b border-border bg-surface p-4 sm:p-5 text-center align-bottom"
                     >
                       <Link
                         href={href}
-                        className="relative mx-auto mb-2 block aspect-square w-24 overflow-hidden rounded-md border border-border bg-surface"
+                        className="group relative mx-auto mb-4 block aspect-square w-32 overflow-hidden rounded-xl border border-border bg-surface-subtle"
                       >
                         {entry.thumbnail ? (
                           <Image
                             src={entry.thumbnail}
                             alt={entry.title ?? ""}
                             fill
-                            sizes="96px"
-                            className="object-cover"
+                            sizes="128px"
+                            className="object-cover transition-transform duration-300 group-hover:scale-105"
                           />
                         ) : (
-                          <span className="flex h-full items-center justify-center text-xs text-text-muted">
-                            {EM_DASH}
+                          <span className="flex h-full items-center justify-center text-text-muted">
+                            <PackageSearch className="h-8 w-8 opacity-20" />
                           </span>
                         )}
                       </Link>
                       <Link
                         href={href}
-                        className="line-clamp-2 text-xs font-semibold text-text-primary hover:text-brand"
+                        className="line-clamp-2 text-sm font-semibold text-text-primary hover:text-brand transition-colors h-10"
                       >
                         {entry.title ?? t("compare.unnamedItem")}
                       </Link>
-                      <div className="mt-2">
+                      <div className="mt-4">
                         <CompareItemActions
                           backendItemId={entry.backendItemId}
                           removeLabel={t("compare.removeItem")}
@@ -258,21 +248,25 @@ export default async function AccountComparePage({ params }: ComparePageProps) {
                 })}
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border">
               {rows.map((row) => (
-                <tr key={row.key}>
+                <tr key={row.key} className="transition-colors hover:bg-surface-subtle/50">
                   <th
                     scope="row"
-                    className="sticky start-0 z-10 w-32 border border-border bg-surface p-3 text-xs font-semibold uppercase tracking-wide text-text-muted"
+                    className="sticky start-0 z-10 w-24 sm:w-36 border-r border-border bg-surface p-3 sm:p-4 text-xs font-semibold uppercase tracking-wide text-text-muted"
                   >
                     {row.label}
                   </th>
                   {entries.map((entry) => {
                     const val = row.cell(entry);
+                    const isPrice = row.key === 'price';
                     return (
                       <td
                         key={`${entry.backendItemId}-${row.key}`}
-                        className="w-60 border border-border bg-surface p-3 align-middle text-text-primary"
+                        className={cn(
+                          "w-48 sm:w-64 p-3 sm:p-4 align-middle",
+                          isPrice ? "font-bold text-brand text-center text-base" : "text-text-secondary text-center"
+                        )}
                       >
                         {val != null && val !== "" ? val : EM_DASH}
                       </td>

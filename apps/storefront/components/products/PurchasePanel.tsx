@@ -81,6 +81,7 @@ export default function PurchasePanel({
   const { addItem, cart, loading: cartLoading } = useCart();
   const [buyBusy, setBuyBusy] = useState(false);
   const [qty, setQty] = useState(1);
+  const [descExpanded, setDescExpanded] = useState(false);
 
   const initial = useMemo<Record<string, string>>(() => {
     const first = variants[0];
@@ -240,9 +241,28 @@ export default function PurchasePanel({
 
       {/* 8. Short description */}
       {description ? (
-        <p className="text-[15px] leading-relaxed text-text-secondary">
-          {description}
-        </p>
+        <div className="relative">
+          <div
+            className={cn(
+              "text-[15px] leading-relaxed text-text-secondary transition-[max-height] duration-300 ease-in-out overflow-hidden",
+              descExpanded ? "max-h-[1000px]" : "max-h-[66px]"
+            )}
+          >
+            {description}
+          </div>
+          {!descExpanded && description.length > 130 && (
+            <div className="pointer-events-none absolute bottom-0 left-0 right-0 h-10 bg-gradient-to-t from-surface to-transparent" />
+          )}
+          {description.length > 130 && (
+            <button
+              type="button"
+              onClick={() => setDescExpanded(!descExpanded)}
+              className="mt-1 text-[13px] font-medium text-brand hover:underline"
+            >
+              {descExpanded ? t("showLess") : t("showMore")}
+            </button>
+          )}
+        </div>
       ) : null}
 
       {/* 9. Highlights bullets */}
@@ -298,7 +318,7 @@ export default function PurchasePanel({
                         onBlur={() => setPreview(null)}
                         aria-pressed={isActive}
                         className={cn(
-                          "inline-flex min-w-[2.75rem] items-center justify-center rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors",
+                          "inline-flex min-w-[3.5rem] items-center justify-center rounded-lg border px-4 py-2.5 sm:px-3 sm:py-1.5 text-[15px] sm:text-sm font-medium transition-colors",
                           isActive
                             ? "border-brand bg-accent-muted text-brand"
                             : "border-border bg-surface text-text-primary hover:border-brand hover:text-brand",
@@ -323,23 +343,44 @@ export default function PurchasePanel({
             <div className="inline-flex h-12 items-center overflow-hidden rounded-lg border border-border bg-surface">
               <button
                 type="button"
-                onClick={() => setQty((q) => Math.max(1, q - 1))}
-                disabled={qty <= 1}
+                onClick={() => setQty((q) => Math.max(1, (Number(q) || 1) - 1))}
+                disabled={Number(qty) <= 1}
                 aria-label={t("qtyDecrease")}
-                className="flex h-full w-10 items-center justify-center text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary disabled:opacity-40"
+                className="flex h-full w-10 shrink-0 items-center justify-center text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary disabled:opacity-40"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
                   <path d="M5 12h14" />
                 </svg>
               </button>
-              <span className="min-w-8 text-center text-sm font-semibold tabular-nums text-text-primary">
-                {qty}
-              </span>
+              <input
+                type="number"
+                min="1"
+                max="99"
+                value={qty}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "") {
+                    setQty("" as unknown as number);
+                    return;
+                  }
+                  const num = parseInt(val, 10);
+                  if (!isNaN(num)) {
+                    setQty(Math.min(99, num));
+                  }
+                }}
+                onBlur={() => {
+                  if (!qty || Number.isNaN(Number(qty)) || Number(qty) < 1) {
+                    setQty(1);
+                  }
+                }}
+                className="w-12 min-w-0 bg-transparent text-center text-base font-semibold tabular-nums text-text-primary outline-none focus:ring-0 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none [-moz-appearance:textfield]"
+              />
               <button
                 type="button"
-                onClick={() => setQty((q) => q + 1)}
+                onClick={() => setQty((q) => Math.min(99, (Number(q) || 1) + 1))}
+                disabled={Number(qty) >= 99}
                 aria-label={t("qtyIncrease")}
-                className="flex h-full w-10 items-center justify-center text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary"
+                className="flex h-full w-10 shrink-0 items-center justify-center text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary disabled:opacity-40"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="h-3.5 w-3.5" aria-hidden="true">
                   <path d="M12 5v14M5 12h14" />

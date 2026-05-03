@@ -705,10 +705,15 @@ export interface ShippingAddressPayload {
 export async function updateCartShippingAddress(
   cartId: string,
   address: ShippingAddressPayload,
+  email?: string,
 ) {
+  const payload: Record<string, any> = { shipping_address: address };
+  if (email) {
+    payload.email = email;
+  }
   return sdk.store.cart.update(
     cartId,
-    { shipping_address: address },
+    payload,
     cartSelect,
   );
 }

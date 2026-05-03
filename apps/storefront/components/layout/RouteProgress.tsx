@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 /* Top-of-page progress bar.
 
@@ -83,7 +84,20 @@ export default function RouteProgress() {
     };
   }, []);
 
-  if (!navigating) return null;
-
-  return <div className="route-progress" aria-hidden="true" />;
+  return (
+    <AnimatePresence>
+      {navigating && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-x-0 top-0 z-[9999] pointer-events-none"
+        >
+          <div className="h-1 bg-brand-muted w-full relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-brand to-transparent w-[50%] animate-[route-progress-indet_1s_ease-in-out_infinite]" />
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
 }

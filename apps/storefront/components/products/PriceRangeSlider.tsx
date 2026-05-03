@@ -127,7 +127,7 @@ export default function PriceRangeSlider({
               onChange={(e) => onLoChange(e.target.value)}
               onBlur={commit}
               onKeyDown={(e) => e.key === "Enter" && commit()}
-              className="w-full appearance-none rounded-lg border border-border bg-surface py-2 pe-10 ps-3 text-[13px] font-medium text-text-primary transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              className="w-full appearance-none rounded-lg border border-border bg-surface py-2 pe-10 ps-3 text-[13px] font-medium text-text-primary transition-colors focus:border-brand focus:outline-none focus:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
             <span className="absolute end-3 text-[11px] font-medium text-text-muted pointer-events-none">{currency}</span>
           </div>
@@ -144,7 +144,7 @@ export default function PriceRangeSlider({
               onChange={(e) => onHiChange(e.target.value)}
               onBlur={commit}
               onKeyDown={(e) => e.key === "Enter" && commit()}
-              className="w-full appearance-none rounded-lg border border-border bg-surface py-2 pe-10 ps-3 text-[13px] font-medium text-text-primary transition-colors focus:border-brand focus:outline-none focus:ring-1 focus:ring-brand [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+              className="w-full appearance-none rounded-lg border border-border bg-surface py-2 pe-10 ps-3 text-[13px] font-medium text-text-primary transition-colors focus:border-brand focus:outline-none focus:ring-0 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
             <span className="absolute end-3 text-[11px] font-medium text-text-muted pointer-events-none">{currency}</span>
           </div>

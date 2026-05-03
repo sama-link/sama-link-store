@@ -155,16 +155,16 @@ export default function ProductGallery({
             </button>
 
             {/* Dot indicators (mobile) */}
-            <div className="absolute inset-x-0 bottom-3 flex justify-center gap-1.5 sm:hidden">
+            <div className="absolute inset-x-0 bottom-4 z-10 flex justify-center gap-2 sm:hidden">
               {images.map((image: any, idx: number) => (
                 <span
                   key={image.id}
                   aria-hidden="true"
                   className={cn(
-                    "h-1.5 rounded-full transition-all",
+                    "h-2 rounded-full transition-all",
                     idx === activeIdx
-                      ? "w-6 bg-brand"
-                      : "w-1.5 bg-text-muted/50",
+                      ? "w-8 bg-brand shadow-[0_1px_3px_rgba(0,0,0,0.3)]"
+                      : "w-2 bg-text-muted/60 shadow-[0_1px_2px_rgba(0,0,0,0.2)]",
                   )}
                 />
               ))}

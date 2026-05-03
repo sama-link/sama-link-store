@@ -98,11 +98,11 @@ export default function MobileMenu({ categories = [] }: { categories?: { id: str
         </svg>
       </button>
 
-      {/* Scrim — starts below the sticky header; blurred so the page reads as paused */}
+      {/* Scrim — starts below the sticky header */}
       <div
         style={{ top: `${headerBottom}px` }}
         className={cn(
-          "fixed inset-x-0 bottom-0 z-30 bg-[color:rgba(10,19,36,0.28)] backdrop-blur-sm transition-opacity duration-300 ease-out sm:hidden",
+          "fixed inset-x-0 bottom-0 z-30 bg-[color:rgba(10,19,36,0.4)] transition-opacity duration-300 ease-out sm:hidden",
           open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={() => setOpen(false)}
@@ -120,12 +120,16 @@ export default function MobileMenu({ categories = [] }: { categories?: { id: str
           open ? "translate-x-0" : "ltr:-translate-x-full rtl:translate-x-full",
         )}
       >
-        {/* Search — first thing in the panel, with a trailing close button */}
-        <form onSubmit={onSubmit} role="search" className="relative flex items-center gap-2 border-b border-border px-4 pt-4 pb-3">
+        {/* Search — centered strip; sheet is closed via scrim or header hamburger */}
+        <form
+          onSubmit={onSubmit}
+          role="search"
+          className="flex justify-center border-b border-border px-4 pt-4 pb-3"
+        >
           <label htmlFor="mobile-search" className="sr-only">
             {t("searchLabel")}
           </label>
-          <div className="relative flex-1">
+          <div className="relative w-full">
             <span className="pointer-events-none absolute inset-y-0 start-3.5 flex items-center text-text-muted">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" className="h-4 w-4" aria-hidden="true">
                 <circle cx="11" cy="11" r="7" />
@@ -141,26 +145,23 @@ export default function MobileMenu({ categories = [] }: { categories?: { id: str
               className="h-11 w-full rounded-full border border-border bg-surface-subtle ps-10 pe-3 text-sm text-text-primary placeholder:text-text-muted focus-visible:border-brand focus-visible:bg-surface focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15"
             />
           </div>
-          <button
-            type="button"
-            onClick={() => setOpen(false)}
-            aria-label={t("closeMenu")}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-surface-subtle hover:text-text-primary"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <path d="M6 18 18 6M6 6l12 12" />
-            </svg>
-          </button>
         </form>
 
         {/* Tabs */}
-        <div className="flex border-b border-border">
+        <div className="relative flex border-b border-border">
+          <div
+            className="absolute bottom-0 h-0.5 bg-brand transition-all duration-300 ease-out"
+            style={{
+              width: "50%",
+              transform: `translateX(${activeTab === "menu" ? (locale === "ar" ? "0%" : "0%") : (locale === "ar" ? "-100%" : "100%")})`,
+            }}
+          />
           <button
             type="button"
             onClick={() => { setActiveTab("menu"); setActiveCategory(null); }}
             className={cn(
-              "flex-1 border-b-2 py-3 text-sm font-semibold transition-colors",
-              activeTab === "menu" ? "border-brand text-brand" : "border-transparent text-text-secondary hover:text-text-primary"
+              "flex-1 py-3 text-sm font-semibold transition-colors",
+              activeTab === "menu" ? "text-brand" : "text-text-secondary hover:text-text-primary"
             )}
           >
             {t("menu")}
@@ -169,8 +170,8 @@ export default function MobileMenu({ categories = [] }: { categories?: { id: str
             type="button"
             onClick={() => { setActiveTab("categories"); setActiveCategory(null); }}
             className={cn(
-              "flex-1 border-b-2 py-3 text-sm font-semibold transition-colors",
-              activeTab === "categories" ? "border-brand text-brand" : "border-transparent text-text-secondary hover:text-text-primary"
+              "flex-1 py-3 text-sm font-semibold transition-colors",
+              activeTab === "categories" ? "text-brand" : "text-text-secondary hover:text-text-primary"
             )}
           >
             {t("allCategories")}
@@ -196,6 +197,7 @@ export default function MobileMenu({ categories = [] }: { categories?: { id: str
                           isHotDeal ? "text-error" : isActive ? "text-brand" : "text-text-primary hover:text-brand"
                         )}
                       >
+                        <span>{t(key as any)}</span>
                         {isHotDeal && (
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
@@ -212,7 +214,6 @@ export default function MobileMenu({ categories = [] }: { categories?: { id: str
                             <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07 1.5-2.51 2-2.51 3.5a2.5 2.5 0 0 0 2.01 2Z" />
                           </svg>
                         )}
-                        <span>{t(key as any)}</span>
                         {isActive && (
                           <span
                             className={cn(

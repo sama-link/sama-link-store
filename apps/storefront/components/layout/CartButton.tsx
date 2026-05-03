@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useCart } from "@/hooks/useCart";
 import { cn } from "@/lib/cn";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function CartButton() {
   const t = useTranslations("nav");
@@ -16,15 +17,19 @@ export default function CartButton() {
   };
 
   return (
-    <button
+    <motion.button
       type="button"
       onClick={toggle}
       aria-label={t("openCart", { count: itemCount })}
       aria-pressed={isCartOpen}
       aria-expanded={isCartOpen}
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
       className={cn(
-        "relative flex h-9 w-9 items-center justify-center rounded-full text-text-secondary transition-[background-color,color,transform] duration-150 hover:bg-surface-subtle hover:text-text-primary motion-safe:active:scale-90",
-        isCartOpen && "bg-accent-muted text-brand",
+        "group relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-text-secondary transition-all duration-200",
+        isCartOpen 
+          ? "bg-brand-muted/10 text-brand border border-brand/20 shadow-sm" 
+          : "hover:bg-brand/5 hover:text-brand border border-transparent hover:border-border hover:shadow-sm"
       )}
     >
       <svg
@@ -43,15 +48,20 @@ export default function CartButton() {
         <path d="M3 4h2.5l2.1 10.5a1.8 1.8 0 0 0 1.8 1.4h8.4a1.8 1.8 0 0 0 1.8-1.4L21 7H6.2" />
       </svg>
 
-      {itemCount > 0 ? (
-        <span
-          key={itemCount}
-          aria-hidden="true"
-          className="absolute end-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-brand px-0.5 text-[10px] font-bold text-text-inverse animate-pop-in"
-        >
-          {itemCount > 99 ? "99+" : itemCount}
-        </span>
-      ) : null}
-    </button>
+      <AnimatePresence>
+        {itemCount > 0 && (
+          <motion.span
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0 }}
+            key={itemCount}
+            aria-hidden="true"
+            className="absolute -end-1 -top-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full border-2 border-surface bg-brand px-1 text-[10px] font-bold text-text-inverse"
+          >
+            {itemCount > 99 ? "99+" : itemCount}
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </motion.button>
   );
 }

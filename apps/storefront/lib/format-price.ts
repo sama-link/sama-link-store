@@ -35,8 +35,8 @@ function formatNumeric(amount: number, locale: PriceLocale | undefined): string 
     locale === "ar" ? "ar-EG" : locale === "en" ? "en-US" : undefined;
   try {
     return new Intl.NumberFormat(intlLocale, {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
     }).format(amount);
   } catch {
     return String(amount);

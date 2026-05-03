@@ -29,20 +29,22 @@ export default async function CartPage({ params }: CartPageProps) {
   const t = await getTranslations({ locale, namespace: "cart" });
 
   return (
-    <Container>
-      <div className="space-y-8 py-12">
-        <Breadcrumbs
-          ariaLabel={tb("aria")}
-          items={[
-            { label: tb("home"), href: `/${locale}` },
-            { label: tb("cart") },
-          ]}
-        />
-        <h1 className="text-3xl font-bold tracking-tight text-text-primary">
-          {t("title")}
-        </h1>
-        <CartPageContent locale={locale} />
-      </div>
-    </Container>
+    <div className="min-h-[calc(100vh-200px)] bg-surface-subtle py-8 sm:py-12">
+      <Container>
+        <div className="mx-auto max-w-6xl space-y-6 sm:space-y-8">
+          <Breadcrumbs
+            ariaLabel={tb("aria")}
+            items={[
+              { label: tb("home"), href: `/${locale}` },
+              { label: tb("cart") },
+            ]}
+          />
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-text-primary">
+            {t("title")}
+          </h1>
+          <CartPageContent locale={locale} />
+        </div>
+      </Container>
+    </div>
   );
 }

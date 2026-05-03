@@ -11,6 +11,19 @@ import {
   type StoreCustomerAddress,
 } from "@/lib/medusa-client";
 import { cn } from "@/lib/cn";
+import { motion, AnimatePresence } from "framer-motion";
+import { 
+  User, 
+  MapPin, 
+  Building2, 
+  Phone, 
+  Globe, 
+  Mailbox,
+  AlertCircle,
+  Loader2,
+  ChevronRight
+} from "lucide-react";
+import DropdownSelect from "@/components/ui/DropdownSelect";
 
 const COUNTRIES = [
   { code: "sa", name: "Saudi Arabia" },
@@ -34,21 +47,23 @@ const REQUIRED_FIELDS: (keyof ShippingAddressPayload)[] = [
 ];
 
 const inputClass =
-  "w-full rounded-md border border-border bg-surface px-3 py-2 text-sm text-text-primary placeholder:text-text-secondary focus:outline-none focus:ring-2 focus:ring-brand disabled:opacity-50";
+  "block w-full rounded-xl border border-border bg-surface py-3 ps-10 pe-3 text-sm text-text-primary placeholder:text-text-muted transition-colors focus:border-brand focus:outline-none focus:ring-0 disabled:opacity-50";
 
 function Field({
   label,
   required,
   error,
+  icon: Icon,
   children,
 }: {
   label: string;
   required?: boolean;
   error?: string;
-  children: React.ReactNode;
+  icon: React.ElementType;
+  children: React.ReactElement;
 }) {
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       <label className="block text-sm font-medium text-text-primary">
         {label}
         {required ? (
@@ -57,8 +72,24 @@ function Field({
           </span>
         ) : null}
       </label>
-      {children}
-      {error ? <p className="text-xs text-error">{error}</p> : null}
+      <div className="relative">
+        <div className="pointer-events-none absolute inset-y-0 start-0 flex items-center ps-3">
+          <Icon className="h-5 w-5 text-text-muted" />
+        </div>
+        {children}
+      </div>
+      <AnimatePresence>
+        {error && (
+          <motion.p
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="text-xs text-error"
+          >
+            {error}
+          </motion.p>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -143,6 +174,7 @@ export default function AddressForm({
   const t = useTranslations("checkout.address");
   const router = useRouter();
   const { cart, loading: cartLoading } = useCart();
+  const isArabic = locale === "ar";
 
   const [formData, setFormData] = useState<FormData>(emptyForm);
   const [initialized, setInitialized] = useState(false);
@@ -279,8 +311,11 @@ export default function AddressForm({
     try {
       await updateCartShippingAddress(cart.id, payload);
       router.push(`/${locale}/checkout/shipping`);
-    } catch {
-      setApiError(t("error"));
+    } catch (err: any) {
+      console.error("Address save error:", err);
+      // Try to extract the actual Medusa error message
+      const errorMsg = err?.response?.data?.message || err?.message || t("error");
+      setApiError(typeof errorMsg === 'string' ? errorMsg : t("error"));
       setSubmitting(false);
     }
   }
@@ -291,41 +326,57 @@ export default function AddressForm({
     <form
       onSubmit={(e) => void handleSubmit(e)}
       noValidate
-      className="rounded-lg border border-border bg-surface p-6"
+      className="space-y-6"
     >
-      <h2 className="mb-6 text-lg font-semibold text-text-primary">
-        {t("title")}
-      </h2>
+      <div className="flex items-center gap-3 border-b border-border pb-4">
+        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-muted text-brand">
+          <MapPin className="h-5 w-5" />
+        </div>
+        <h2 className="text-xl font-bold tracking-tight text-text-primary">
+          {t("title")}
+        </h2>
+      </div>
 
       {savedAddressOptions.length > 0 ? (
-        <div className="mb-6 space-y-2">
+        <div className="space-y-2 rounded-xl bg-surface-subtle p-5">
           <label
             htmlFor="saved-address-select"
             className="block text-sm font-medium text-text-primary"
           >
             {t("savedAddressesLabel")}
           </label>
-          <select
-            id="saved-address-select"
-            value={selectedSavedAddressKey}
-            onChange={handleSavedAddressChange}
-            disabled={disabled}
-            className={cn(inputClass, "cursor-pointer")}
-          >
-            <option value="">{t("savedAddressesPlaceholder")}</option>
-            {savedAddressOptions.map((entry) => (
-              <option key={entry.key} value={entry.key}>
-                {formatSavedAddressLabel(entry.address, t("savedAddressFallback"))}
-              </option>
-            ))}
-          </select>
-          <p className="text-xs text-text-secondary">{t("savedAddressesHint")}</p>
+          <div className="relative z-20">
+            <div className="pointer-events-none absolute inset-y-0 start-0 z-10 flex items-center ps-3">
+              <MapPin className="h-5 w-5 text-text-muted" />
+            </div>
+            <DropdownSelect
+              value={selectedSavedAddressKey}
+              onChange={(val) => {
+                setSelectedSavedAddressKey(val);
+                const selected = savedAddressOptions.find((entry) => entry.key === val);
+                if (selected) {
+                  setFormData(mapAddressToFormData(selected.address));
+                  setErrors({});
+                }
+              }}
+              options={[
+                { value: "", label: t("savedAddressesPlaceholder") },
+                ...savedAddressOptions.map((entry) => ({
+                  value: entry.key,
+                  label: formatSavedAddressLabel(entry.address, t("savedAddressFallback"))
+                }))
+              ]}
+              disabled={disabled}
+              className={cn(inputClass, "ps-[44px]")}
+            />
+          </div>
+          <p className="text-xs text-text-muted">{t("savedAddressesHint")}</p>
         </div>
       ) : null}
 
-      <div className="space-y-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label={t("firstName")} required error={errors.first_name}>
+      <div className="space-y-5 pt-2">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <Field label={t("firstName")} required error={errors.first_name} icon={User}>
             <input
               name="first_name"
               value={formData.first_name}
@@ -335,7 +386,7 @@ export default function AddressForm({
               className={inputClass}
             />
           </Field>
-          <Field label={t("lastName")} required error={errors.last_name}>
+          <Field label={t("lastName")} required error={errors.last_name} icon={User}>
             <input
               name="last_name"
               value={formData.last_name}
@@ -347,7 +398,7 @@ export default function AddressForm({
           </Field>
         </div>
 
-        <Field label={t("address1")} required error={errors.address_1}>
+        <Field label={t("address1")} required error={errors.address_1} icon={MapPin}>
           <input
             name="address_1"
             value={formData.address_1}
@@ -358,7 +409,7 @@ export default function AddressForm({
           />
         </Field>
 
-        <Field label={t("address2")} error={errors.address_2}>
+        <Field label={t("address2")} error={errors.address_2} icon={Building2}>
           <input
             name="address_2"
             value={formData.address_2}
@@ -369,8 +420,8 @@ export default function AddressForm({
           />
         </Field>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label={t("city")} required error={errors.city}>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <Field label={t("city")} required error={errors.city} icon={Building2}>
             <input
               name="city"
               value={formData.city}
@@ -380,27 +431,29 @@ export default function AddressForm({
               className={inputClass}
             />
           </Field>
-          <Field label={t("country")} required error={errors.country_code}>
-            <select
-              name="country_code"
-              value={formData.country_code}
-              onChange={handleChange}
-              disabled={disabled}
-              autoComplete="country"
-              className={cn(inputClass, "cursor-pointer")}
-            >
-              <option value="">{t("selectCountry")}</option>
-              {COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+          <Field label={t("country")} required error={errors.country_code} icon={Globe}>
+            <div className="relative z-10">
+              <DropdownSelect
+                value={formData.country_code}
+                onChange={(val) => {
+                  setFormData((prev) => ({ ...prev, country_code: val }));
+                  setErrors((prev) => ({ ...prev, country_code: undefined }));
+                }}
+                options={[
+                  { value: "", label: t("selectCountry") },
+                  ...COUNTRIES
+                    .filter(c => regionCountryCodes.length === 0 || regionCountryCodes.includes(c.code))
+                    .map((c) => ({ value: c.code, label: c.name }))
+                ]}
+                disabled={disabled}
+                className={cn(inputClass, "ps-[44px]")}
+              />
+            </div>
           </Field>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <Field label={t("province")} error={errors.province}>
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <Field label={t("province")} error={errors.province} icon={MapPin}>
             <input
               name="province"
               value={formData.province}
@@ -410,7 +463,7 @@ export default function AddressForm({
               className={inputClass}
             />
           </Field>
-          <Field label={t("postalCode")} error={errors.postal_code}>
+          <Field label={t("postalCode")} error={errors.postal_code} icon={Mailbox}>
             <input
               name="postal_code"
               value={formData.postal_code}
@@ -422,7 +475,7 @@ export default function AddressForm({
           </Field>
         </div>
 
-        <Field label={t("phone")} error={errors.phone}>
+        <Field label={t("phone")} error={errors.phone} icon={Phone}>
           <input
             name="phone"
             type="tel"
@@ -431,23 +484,48 @@ export default function AddressForm({
             disabled={disabled}
             autoComplete="tel"
             className={inputClass}
+            dir="ltr"
           />
         </Field>
       </div>
 
-      {apiError ? (
-        <p className="mt-4 text-sm text-error" role="alert">
-          {apiError}
-        </p>
-      ) : null}
+      <AnimatePresence>
+        {apiError && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-4 flex items-center gap-2 rounded-xl bg-error-muted p-4 text-sm text-error">
+              <AlertCircle className="h-5 w-5 shrink-0" />
+              <p role="alert">{apiError}</p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      <button
-        type="submit"
-        disabled={disabled}
-        className="mt-6 w-full rounded-md bg-brand py-2.5 text-sm font-medium text-text-inverse transition-opacity hover:bg-brand-hover disabled:opacity-50"
-      >
-        {submitting ? t("saving") : t("continue")}
-      </button>
+      <div className="mt-8 flex items-center justify-end border-t border-border pt-6">
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          type="submit"
+          disabled={disabled}
+          className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-brand px-8 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-hover hover:shadow-md disabled:opacity-70 disabled:hover:scale-100"
+        >
+          {submitting ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              {t("saving")}
+            </>
+          ) : (
+            <>
+              {t("continue")}
+              <ChevronRight className={cn("h-5 w-5", isArabic && "rotate-180")} />
+            </>
+          )}
+        </motion.button>
+      </div>
     </form>
   );
 }

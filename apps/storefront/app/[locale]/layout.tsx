@@ -95,7 +95,7 @@ export default async function LocaleLayout({
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
-      <body className="flex min-h-full flex-col antialiased">
+      <body className="flex min-h-full flex-col antialiased overflow-x-hidden relative">
         <JsonLd data={organizationJsonLd} />
         <ThemeProvider>
           <NextIntlClientProvider locale={locale} messages={messages}>

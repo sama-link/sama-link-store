@@ -98,7 +98,7 @@ function CompareRow({
 
   const body = (
     <>
-      <span className="relative size-14 shrink-0 overflow-hidden rounded-md bg-surface-subtle">
+      <span className="relative flex h-14 w-14 shrink-0 overflow-hidden rounded-lg bg-surface-subtle border border-border/50">
         {item.thumbnail ? (
           <Image
             src={item.thumbnail}
@@ -110,35 +110,35 @@ function CompareRow({
           />
         ) : null}
       </span>
-      <span className="flex min-w-0 flex-1 flex-col">
-        <span className="truncate text-sm font-medium text-text-primary">
+      <span className="flex min-w-0 flex-1 flex-col justify-center">
+        <span className="block w-full overflow-hidden whitespace-nowrap text-sm font-semibold text-text-primary [mask-image:linear-gradient(to_right,black_70%,transparent)] [-webkit-mask-image:linear-gradient(to_right,black_70%,transparent)] rtl:[mask-image:linear-gradient(to_left,black_70%,transparent)] rtl:[-webkit-mask-image:linear-gradient(to_left,black_70%,transparent)]">
           {item.title}
         </span>
         {priceLabel ? (
-          <span className="text-sm font-semibold text-brand">{priceLabel}</span>
+          <span className="mt-0.5 text-xs font-bold text-brand">{priceLabel}</span>
         ) : null}
       </span>
     </>
   );
 
   return (
-    <li className="flex items-center gap-3 rounded-lg border border-transparent px-2 py-1.5 hover:border-border hover:bg-surface-subtle">
+    <li className="group flex items-center justify-between gap-3 rounded-xl border border-transparent px-2 py-2 transition-colors hover:border-border hover:bg-surface-subtle w-full max-w-full">
       {href ? (
         <Link
           href={href}
           onClick={onOpen}
-          className="flex flex-1 items-center gap-3 outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-brand/30"
+          className="flex min-w-0 flex-1 items-center gap-3 outline-none focus-visible:rounded-lg focus-visible:ring-2 focus-visible:ring-brand/30"
         >
           {body}
         </Link>
       ) : (
-        <span className="flex flex-1 items-center gap-3">{body}</span>
+        <span className="flex min-w-0 flex-1 items-center gap-3">{body}</span>
       )}
       <button
         type="button"
         onClick={onRemove}
         aria-label={removeLabel}
-        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-surface hover:text-error"
+        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-text-muted transition-colors hover:bg-error-muted/50 hover:text-error"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

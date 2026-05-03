@@ -1,20 +1,13 @@
-/* Next.js App Router `template.tsx`.
-   Unlike `layout.tsx` (which persists across route changes), `template.tsx`
-   remounts on every navigation — fresh CSS enter animation each time.
+/* Locale route shell — plain wrapper (no opacity enter animation).
 
-   Layout mechanics: body is a flex column that fills the viewport. This
-   wrapper needs to BOTH grow to fill the body's remaining height
-   (`flex-1`) AND be a column flex itself so the storefront layout's
-   `<main className="flex-1">` can push the footer to the very bottom
-   even when the page content is short. */
+   A framer-motion fade on every navigation (including same pathname + new
+   query, e.g. catalog `?page=2`) remounted the subtree and reset scroll to the
+   top. Keeping a static wrapper preserves scroll while `router.push(..., {
+   scroll: false })` + layout restore in `LoadMoreProducts` handle pagination. */
 export default function LocaleTemplate({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return (
-    <div className="page-enter flex min-h-full flex-1 flex-col">
-      {children}
-    </div>
-  );
+  return <div className="flex min-h-full flex-1 flex-col">{children}</div>;
 }

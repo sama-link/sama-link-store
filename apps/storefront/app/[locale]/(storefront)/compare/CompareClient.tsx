@@ -54,7 +54,7 @@ export default function CompareClient({
     return (
       <>
         {heading}
-        <div className="mx-auto max-w-lg px-4 py-20 text-center">
+        <div className="mx-auto max-w-lg px-4 py-20 text-center animate-fade-in">
         <p className="text-lg text-text-primary">{t("empty")}</p>
         <Link
           href={`/${locale}/products`}
@@ -114,7 +114,7 @@ export default function CompareClient({
   return (
     <>
       {heading}
-      <div className="mx-auto max-w-7xl overflow-x-auto px-4 py-8">
+      <div className="mx-auto max-w-7xl overflow-x-auto px-4 py-8 animate-fade-in">
       <table className="w-full min-w-max border-collapse text-left text-sm">
         <thead>
           <tr>

@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { buildCanonical } from "@/lib/seo";
 import Container from "@/components/layout/Container";
+import Link from "next/link";
+import { ShoppingBag, PackageOpen } from "lucide-react";
+import Confetti from "@/components/checkout/Confetti";
+import OrderSuccessIcon from "@/components/checkout/OrderSuccessIcon";
 
 interface ConfirmedPageProps {
   params: Promise<{ locale: string }>;
@@ -34,27 +38,51 @@ export default async function OrderConfirmedPage({
   const t = await getTranslations({ locale, namespace: "checkout.confirmed" });
 
   return (
-    <Container>
-      <div className="flex flex-col items-center gap-6 py-24 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-brand text-3xl text-text-inverse">
-          ✓
+    <div className="min-h-[calc(100vh-200px)] bg-surface-subtle py-12 sm:py-24 overflow-hidden relative">
+      <Confetti />
+      <Container>
+        <div className="mx-auto max-w-2xl">
+          <div className="overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(255,255,255,0.02)] relative">
+            {/* Decorative background element */}
+            <div className="absolute top-0 left-0 right-0 h-32 bg-brand/5 dark:bg-brand/10 border-b border-border/50" />
+            
+            <div className="relative flex flex-col items-center px-6 pb-12 pt-16 text-center sm:px-12 sm:pb-16 sm:pt-20">
+              <OrderSuccessIcon />
+              
+              <div className="space-y-3 max-w-lg">
+                <h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
+                  {t("heading")}
+                </h1>
+                {display_id ? (
+                  <p className="text-lg font-medium text-brand">
+                    {t("orderNumber", { number: display_id })}
+                  </p>
+                ) : null}
+                <p className="text-base text-text-secondary mt-4">
+                  {t("body")}
+                </p>
+              </div>
+
+              <div className="mt-10 flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto">
+                <Link
+                  href={`/${locale}/account/orders`}
+                  className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-border bg-surface px-8 py-3.5 text-sm font-semibold text-text-primary transition-colors hover:bg-surface-subtle hover:text-brand"
+                >
+                  <PackageOpen className="h-5 w-5" />
+                  {locale === "ar" ? "تتبع الطلب" : "Track Order"}
+                </Link>
+                <Link
+                  href={`/${locale}/products`}
+                  className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-brand px-8 py-3.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-brand-hover hover:shadow-md"
+                >
+                  <ShoppingBag className="h-5 w-5" />
+                  {t("continueShopping")}
+                </Link>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-text-primary">{t("heading")}</h1>
-          {display_id ? (
-            <p className="text-text-secondary">
-              {t("orderNumber", { number: display_id })}
-            </p>
-          ) : null}
-          <p className="text-sm text-text-secondary">{t("body")}</p>
-        </div>
-        <a
-          href={`/${locale}/products`}
-          className="rounded-md bg-brand px-6 py-2.5 text-sm font-medium text-text-inverse hover:bg-brand-hover"
-        >
-          {t("continueShopping")}
-        </a>
-      </div>
-    </Container>
+      </Container>
+    </div>
   );
 }

@@ -68,8 +68,8 @@ export default function StickyPurchaseBar({
     <div
       aria-hidden={!visible}
       className={cn(
-        "fixed inset-x-0 top-0 z-[60] border-b border-border bg-surface/95 shadow-md backdrop-blur transition-transform duration-300",
-        visible ? "translate-y-0" : "-translate-y-full",
+        "fixed inset-x-0 bottom-0 sm:bottom-auto sm:top-0 z-[60] border-t sm:border-t-0 sm:border-b border-border bg-surface/95 shadow-[0_-4px_14px_rgba(0,0,0,0.05)] sm:shadow-md backdrop-blur transition-transform duration-300",
+        visible ? "translate-y-0" : "translate-y-full sm:-translate-y-full",
       )}
     >
       <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 sm:gap-4 sm:px-6 lg:px-8">
