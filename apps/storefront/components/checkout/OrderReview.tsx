@@ -8,8 +8,7 @@ import { completeCart } from "@/lib/medusa-client";
 import { clearCartId } from "@/lib/cart-cookie";
 import { formatPrice } from "@/lib/format-price";
 import { motion, AnimatePresence } from "framer-motion";
-import { Package, MapPin, Truck, AlertCircle, Loader2, Receipt, CheckCircle2, ChevronRight } from "lucide-react";
-import { cn } from "@/lib/cn";
+import { Package, MapPin, Truck, AlertCircle, Loader2, Receipt, CheckCircle2 } from "lucide-react";
 
 export interface ReviewLineItem {
   id: string;

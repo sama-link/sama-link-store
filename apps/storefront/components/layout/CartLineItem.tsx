@@ -6,7 +6,6 @@ import { useLocale } from "next-intl";
 import { type StoreCartLineItem } from "@/hooks/useCart";
 import { formatPrice } from "@/lib/format-price";
 import { cn } from "@/lib/cn";
-import { motion } from "framer-motion";
 import { Minus, Plus, Trash2, Package } from "lucide-react";
 
 export interface CartLineItemProps {

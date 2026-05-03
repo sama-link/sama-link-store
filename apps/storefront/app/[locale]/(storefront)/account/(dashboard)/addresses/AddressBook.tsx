@@ -6,7 +6,7 @@ import type { StoreCustomerAddress } from "@/lib/medusa-client";
 import { deleteAddressAction } from "../../actions";
 import AddressForm from "./AddressForm";
 import { motion, AnimatePresence } from "framer-motion";
-import { Plus, MapPin, Building2, Phone, Edit2, Trash2, CheckCircle2, AlertCircle } from "lucide-react";
+import { Plus, MapPin, Building2, Phone, Edit2, Trash2, AlertCircle } from "lucide-react";
 
 type ActionState = { error?: string; success?: boolean };
 const initialState: ActionState = {};

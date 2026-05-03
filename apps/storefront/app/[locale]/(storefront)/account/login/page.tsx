@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getTranslations, getLocale } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import LoginForm from "./LoginForm";
 import { ArrowLeft } from "lucide-react";
 

@@ -45,9 +45,7 @@ export default function QuickViewModal({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const wasOpenRef = useRef(false);
   const closingOnceRef = useRef(false);
-  const exitFallbackTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(
-    null,
-  );
+  const exitFallbackTimerRef = useRef<number | null>(null);
   const navigateAfterRef = useRef<string | null>(null);
   const [exiting, setExiting] = useState(false);
   const [panelEnterKey, setPanelEnterKey] = useState(0);
