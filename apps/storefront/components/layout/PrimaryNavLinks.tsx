@@ -37,7 +37,7 @@ export default function PrimaryNavLinks({ items }: PrimaryNavLinksProps) {
   const pathname = usePathname();
 
   return (
-    <ul className="flex h-11 items-center gap-6 text-[14px]">
+    <ul className="flex h-full min-h-10 items-center gap-6 text-[14px]">
       {items.map((item) => {
         // Simple active check. You might want to enhance it for nested routes
         // (e.g. pathname.startsWith(item.href) && item.href !== "/ar")

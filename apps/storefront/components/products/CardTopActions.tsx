@@ -35,8 +35,9 @@ function EyeIcon() {
 
 /**
  * Catalog-card overlay icons sitting over the product image.
- * Mobile: Quick View only. Desktop: all three (fade in on hover/focus).
- * Buttons are above the card's stretched <Link> via z-[25].
+ * Narrow mobile: Quick View only. Tablet (sm–lg): all three, always visible.
+ * Large desktop: all three, fade in on hover/focus (fine pointer).
+ * Buttons sit above the card's stretched <Link> via z-[25].
  */
 export default function CardTopActions({ product }: CardTopActionsProps) {
   const t = useTranslations("products.card");
@@ -55,9 +56,9 @@ export default function CardTopActions({ product }: CardTopActionsProps) {
   }, []);
 
   const wrapperReveal =
-    "opacity-100 transition-opacity duration-150 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100";
+    "opacity-100 transition-opacity duration-150 lg:opacity-0 lg:group-hover:opacity-100 lg:group-focus-within:opacity-100";
   const rowGate =
-    "pointer-events-auto sm:pointer-events-none sm:group-hover:pointer-events-auto sm:group-focus-within:pointer-events-auto";
+    "pointer-events-auto lg:pointer-events-none lg:group-hover:pointer-events-auto lg:group-focus-within:pointer-events-auto";
 
   return (
     <>

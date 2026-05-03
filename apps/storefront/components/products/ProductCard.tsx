@@ -14,7 +14,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { listProducts } from "@/lib/medusa-client";
 import type { ListProduct } from "@/hooks/useWishlist";
 import { localizeTitle } from "@/lib/product-i18n";
@@ -39,6 +39,7 @@ export default function ProductCard({
 }: ProductCardProps) {
   const locale = useLocale();
   const t = useTranslations("products.card");
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   /* ADR-047 · Catalog title overlay — prefer metadata.translations.ar.title
    * when locale === "ar"; fall back to English. Memoised to avoid recomputing
@@ -69,7 +70,11 @@ export default function ProductCard({
           ? "(min-width: 640px) 20vw, 40vw"
           : "(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 50vw"
       }
-      className="object-cover"
+      className={cn(
+        "object-cover transition-opacity duration-700 ease-in-out",
+        isImageLoaded ? "opacity-100" : "opacity-0"
+      )}
+      onLoad={() => setIsImageLoaded(true)}
     />
   ) : null;
 

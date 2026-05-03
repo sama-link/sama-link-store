@@ -5,7 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/lib/cn";
 import AccountHeaderLink from "./AccountHeaderLink";
-import { CATEGORIES, Ic } from "./MegaMenuButton";
+import { CATEGORIES, Ic } from "./CategoryNav";
 
 /* Mobile slide-over — full-height sheet opening from the start edge (RTL-mirrored).
    Sections:
@@ -102,7 +102,7 @@ export default function MobileMenu({ categories = [] }: { categories?: { id: str
       <div
         style={{ top: `${headerBottom}px` }}
         className={cn(
-          "fixed inset-x-0 bottom-0 z-30 bg-[color:rgba(10,19,36,0.4)] transition-opacity duration-300 ease-out sm:hidden",
+          "fixed inset-x-0 bottom-0 z-30 bg-[color:rgba(10,19,36,0.4)] transition-opacity duration-300 ease-out",
           open ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0",
         )}
         onClick={() => setOpen(false)}
@@ -115,7 +115,7 @@ export default function MobileMenu({ categories = [] }: { categories?: { id: str
         aria-label={t("mobileNavigation")}
         style={{ top: `${headerBottom}px` }}
         className={cn(
-          "fixed bottom-0 start-0 z-40 flex w-[86%] max-w-[360px] flex-col border-e border-border bg-surface sm:hidden",
+          "fixed bottom-0 start-0 z-40 flex w-[86%] max-w-[360px] flex-col border-e border-border bg-surface",
           "transition-transform duration-300 ease-out",
           open ? "translate-x-0" : "ltr:-translate-x-full rtl:translate-x-full",
         )}

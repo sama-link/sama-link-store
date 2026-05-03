@@ -5,7 +5,7 @@ import { listProductCategories } from "@/lib/medusa-client";
 import Container from "./Container";
 import LocaleSwitcher from "./LocaleSwitcher";
 import MobileMenu from "./MobileMenu";
-import MegaMenuButton from "./MegaMenuButton";
+import CategoryNav from "./CategoryNav";
 import PrimaryNav from "./PrimaryNav";
 import HeaderSearch from "./HeaderSearch";
 import CartButton from "./CartButton";
@@ -24,8 +24,8 @@ import StickyHeader from "./StickyHeader";
     ─────────────────────────────────────────────────────────────────────────────────────────────────
     LTR — RTL mirrors automatically via logical properties.
 
-  Tablet (sm – lg) — same layout, primary nav hidden (mega menu still surfaces categories,
-  collections + deals + about + contact reachable via collections/products/pages routes).
+  Tablet / small laptop (< lg) — hamburger + slide-over (same as phone); search from md+;
+    cart FAB until lg; wishlist/compare in menu or on product cards.
 
   Mobile (< sm)
     [☰] [Logo]                                    [🌐 EN | ☀︎]
@@ -80,7 +80,7 @@ export default async function Header() {
       <div className="border-b border-border bg-surface">
         <Container>
           <div className="relative flex h-[72px] items-center gap-3 sm:gap-5 lg:gap-6">
-          <div className="sm:hidden">
+          <div className="lg:hidden">
             <MobileMenu categories={megaCategories} />
           </div>
 
@@ -109,27 +109,23 @@ export default async function Header() {
           {/* Action cluster — calm, evenly-spaced, divided into utility
               (locale/theme) and account actions for legibility. */}
           <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
-            <LocaleSwitcher bare showLabel={false} />
+            <LocaleSwitcher bare showLabel />
             <ThemeToggle bare />
           </div>
         </div>
         </Container>
       </div>
 
-      {/* ── Sub-nav row — Mega menu button on the start edge (full row
-          height, navy tab) + primary nav links centered. Subtle border-bottom
+      {/* ── Sub-nav row — Primary nav links centered. Subtle border-bottom
           gives it definition without competing with the main row. Hidden on
           mobile (links live in MobileMenu). ── */}
-      <div className="hidden bg-surface lg:block">
+      <div className="hidden bg-surface lg:block relative z-[60]">
         <Container>
-          <div className="flex h-11 items-stretch">
-            <div className="flex h-full shrink-0">
-              <MegaMenuButton categories={megaCategories} />
-            </div>
-            <div className="flex flex-1 items-center justify-center px-4">
+          <div className="grid min-h-[52px] grid-cols-[1fr_auto] items-stretch">
+            <div className="flex min-h-0 min-w-0 items-center justify-start px-4">
               <PrimaryNav />
             </div>
-            <div className="flex h-full shrink-0 items-center gap-1 sm:gap-2 border-s border-border ps-3 sm:ps-4">
+            <div className="flex items-center gap-1 sm:gap-2 border-s border-border ps-3 sm:ps-4">
               <AccountHeaderLink />
               <WishlistHeaderButton />
               <CompareHeaderButton />
@@ -137,6 +133,11 @@ export default async function Header() {
             </div>
           </div>
         </Container>
+      </div>
+
+      {/* ── Categories Bar ── */}
+      <div className="hidden bg-surface border-y border-border lg:block relative">
+        <CategoryNav />
       </div>
     </StickyHeader>
   );

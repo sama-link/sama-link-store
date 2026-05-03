@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useCart } from "@/hooks/useCart";
 import { cn } from "@/lib/cn";
@@ -8,6 +9,16 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function CartButton() {
   const t = useTranslations("nav");
   const { itemCount, isCartOpen, openCart, closeCart } = useCart();
+  const [displayCount, setDisplayCount] = useState(itemCount);
+
+  useEffect(() => {
+    if (itemCount > displayCount) {
+      const timer = setTimeout(() => setDisplayCount(itemCount), 1000);
+      return () => clearTimeout(timer);
+    } else {
+      setDisplayCount(itemCount);
+    }
+  }, [itemCount, displayCount]);
 
   /* Toggles the drawer. When already open, the same button closes it —
      matches the menu-button convention. */
@@ -18,6 +29,7 @@ export default function CartButton() {
 
   return (
     <motion.button
+      id="desktop-cart-icon"
       type="button"
       onClick={toggle}
       aria-label={t("openCart", { count: itemCount })}
@@ -49,16 +61,16 @@ export default function CartButton() {
       </svg>
 
       <AnimatePresence>
-        {itemCount > 0 && (
+        {displayCount > 0 && (
           <motion.span
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            exit={{ scale: 0 }}
-            key={itemCount}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ duration: 0.2 }}
             aria-hidden="true"
             className="absolute -end-1 -top-1 inline-flex h-5 min-w-[20px] items-center justify-center rounded-full border-2 border-surface bg-brand px-1 text-[10px] font-bold text-text-inverse"
           >
-            {itemCount > 99 ? "99+" : itemCount}
+            {displayCount > 99 ? "99+" : displayCount}
           </motion.span>
         )}
       </AnimatePresence>

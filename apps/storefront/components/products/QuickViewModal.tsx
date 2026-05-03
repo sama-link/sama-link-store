@@ -165,13 +165,15 @@ export default function QuickViewModal({
       aria-labelledby={titleId}
       aria-modal="true"
       className={cn(
-        /* Centered box; width/height leave side gutters on narrow phones (not flush to edges). */
-        "fixed left-1/2 top-1/2 z-[70] h-fit w-[min(28rem,calc(100vw-2.5rem))] max-h-[min(90dvh,calc(100dvh-2.5rem))] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-border bg-surface p-0 text-text-primary shadow-lg",
+        /* Full-viewport layer; `grid` + centering only when `[open]` so we never
+           override the UA `dialog:not([open]) { display: none }` (was causing the
+           shell to stay visible when closed). */
+        "fixed inset-0 z-[70] m-0 h-dvh w-full max-w-none border-0 bg-transparent p-4 sm:p-5 text-text-primary shadow-none outline-none",
+        "open:grid open:place-items-center",
         /* Static backdrop — fading ::backdrop separately then calling close() caused a
            one-frame flash at the end; the panel exit animation carries the fade. */
         "[&::backdrop]:bg-text-primary/40",
         exiting && "pointer-events-none",
-        "open:flex open:flex-col",
       )}
       onKeyDown={onDialogKeyDown}
       onCancel={(e) => {
@@ -185,7 +187,7 @@ export default function QuickViewModal({
       <div
         key={panelEnterKey}
         className={cn(
-          "flex flex-col gap-4 p-4 sm:p-6 sm:pb-6",
+          "flex w-[min(28rem,calc(100vw-2.5rem))] max-h-[min(90dvh,calc(100dvh-2.5rem))] flex-col overflow-y-auto rounded-xl border border-border bg-surface p-0 shadow-lg",
           exiting
             ? "animate-quick-view-dialog-exit"
             : "animate-quick-view-dialog-enter",
@@ -197,7 +199,8 @@ export default function QuickViewModal({
           finishClose();
         }}
       >
-        <div className="flex items-center justify-between gap-3 mb-1">
+        <div className="flex flex-col gap-4 p-4 sm:p-6 sm:pb-6">
+          <div className="flex items-center justify-between gap-3 mb-1">
           <h2 id={titleId} className="text-[15px] font-bold text-text-primary">
             {t("title")}
           </h2>
@@ -208,9 +211,9 @@ export default function QuickViewModal({
           >
             {t("close")}
           </button>
-        </div>
+          </div>
 
-        <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-surface-subtle">
+          <div className="relative aspect-square w-full overflow-hidden rounded-2xl border border-border bg-surface-subtle">
           {product.thumbnail ? (
             <Image
               src={product.thumbnail}
@@ -220,9 +223,9 @@ export default function QuickViewModal({
               className="object-contain p-4 mix-blend-multiply"
             />
           ) : null}
-        </div>
+          </div>
 
-        <div className="flex flex-col gap-2 mt-1">
+          <div className="flex flex-col gap-2 mt-1">
           {displayTitle ? (
             <h3 className="text-[17px] font-bold leading-tight text-text-primary">
               {displayTitle}
@@ -237,9 +240,9 @@ export default function QuickViewModal({
               className="text-brand font-bold mt-1"
             />
           ) : null}
-        </div>
+          </div>
 
-        {plainDesc ? (
+          {plainDesc ? (
           <div className="relative">
             <div
               className={cn(
@@ -262,9 +265,9 @@ export default function QuickViewModal({
               </button>
             )}
           </div>
-        ) : null}
+          ) : null}
 
-        {variants.length > 1 ? (
+          {variants.length > 1 ? (
           <div className="space-y-2 mt-1">
             <p className="text-[13px] font-medium text-text-primary">
               {t("chooseVariant")}
@@ -299,9 +302,9 @@ export default function QuickViewModal({
               })}
             </div>
           </div>
-        ) : null}
+          ) : null}
 
-        <div className="mt-2 flex flex-col gap-3">
+          <div className="mt-2 flex flex-col gap-3">
           {selectedVariant?.id ? (
             <AddToCartButton
               variantId={selectedVariant.id}
@@ -324,6 +327,7 @@ export default function QuickViewModal({
               {t("viewDetails")}
             </Link>
           ) : null}
+          </div>
         </div>
       </div>
     </dialog>
