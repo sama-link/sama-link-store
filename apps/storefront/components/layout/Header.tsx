@@ -2,35 +2,17 @@ import { getLocale, getTranslations } from "next-intl/server";
 import Logo from "@/components/ui/Logo";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 import { listProductCategories } from "@/lib/medusa-client";
-import Container from "./Container";
 import LocaleSwitcher from "./LocaleSwitcher";
 import MobileMenu from "./MobileMenu";
-import CategoryNav from "./CategoryNav";
 import PrimaryNav from "./PrimaryNav";
+import CategoryNav from "./CategoryNav";
 import HeaderSearch from "./HeaderSearch";
 import CartButton from "./CartButton";
 import WishlistHeaderButton from "./WishlistHeaderButton";
 import CompareHeaderButton from "./CompareHeaderButton";
 import AccountHeaderLink from "./AccountHeaderLink";
 import StickyHeader from "./StickyHeader";
-
-/*
-  Layout (ADR-045 flat refresh — header redesign):
-
-  Announcement strip (always-on)
-
-  Desktop (≥ lg)
-    [☰ All Categories] [Logo] [Home · Products · Collections · Deals · About · Contact] [🔍] [🌐|☀︎] 👤 ❤︎ ⇄ 🛒
-    ─────────────────────────────────────────────────────────────────────────────────────────────────
-    LTR — RTL mirrors automatically via logical properties.
-
-  Tablet / small laptop (< lg) — hamburger + slide-over (same as phone); search from md+;
-    cart FAB until lg; wishlist/compare in menu or on product cards.
-
-  Mobile (< sm)
-    [☰] [Logo]                                    [🌐 EN | ☀︎]
-    Cart lives as a floating FAB; wishlist/compare inside the menu.
-*/
+import CompanyNavDropdown from "./CompanyNavDropdown";
 
 export default async function Header() {
   const locale = await getLocale();
@@ -50,94 +32,119 @@ export default async function Header() {
   }));
 
   const t = await getTranslations("nav");
-  const tTop = await getTranslations("topbar");
   const tCommon = await getTranslations("common");
-
-  const productsHref = `/${locale}/products`;
 
   return (
     <StickyHeader>
-      {/* ── Topbar — full viewport width, unchanged. ── */}
-      <div className="topbar-shimmer relative overflow-hidden bg-brand text-text-inverse">
-        <Container>
-          <div className="relative z-10 flex h-9 items-center justify-center gap-2 text-xs font-medium">
-            <span className="truncate">{tTop("announcement")}</span>
-            <a
-              href={productsHref}
-              className="shrink-0 font-semibold text-text-inverse underline-offset-4 hover:underline"
-            >
-              {tTop("announcementCta")}
-              <span className="ms-1">→</span>
-            </a>
+      <div className="w-full relative">
+        <div className="mx-auto w-max max-w-full flex flex-col">
+          
+          {/* ── Row 1: Logo, Search, Actions ── */}
+          <div className="relative flex h-[72px] w-full items-center gap-4 px-5 xl:px-0 z-[80]">
+            
+            {/* Logo and Mobile Menu */}
+            <div className="flex shrink-0 items-center gap-3">
+              <div className="xl:hidden flex items-center">
+                <MobileMenu categories={megaCategories} />
+              </div>
+              <a
+                href={`/${locale}`}
+                className="inline-flex shrink-0 items-center transition-opacity hover:opacity-90"
+                aria-label={t("logoHomeAria")}
+              >
+                <Logo
+                  variant="horizontal-no-tagline"
+                  alt={tCommon("storeName")}
+                  className="h-11 w-auto xl:h-[52px]"
+                  priority
+                />
+              </a>
+            </div>
+
+            {/* Search — fills space between logo & icons; centered so gaps match */}
+            <div className="hidden xl:flex flex-1 min-w-0 justify-center px-2">
+              <div className="w-full max-w-3xl">
+                <HeaderSearch />
+              </div>
+            </div>
+
+            {/* Spacer for mobile */}
+            <div className="flex-1 xl:hidden" />
+
+            {/* Action cluster */}
+            <div className="flex shrink-0 items-center justify-end gap-1.5 sm:gap-2">
+              
+              {/* 1. Locale & Theme */}
+              <div className="flex items-center gap-0.5">
+                <LocaleSwitcher bare showLabel={false} />
+                <ThemeToggle bare />
+              </div>
+
+              {/* Visual Separator */}
+              <div className="h-4 w-px bg-border hidden xl:block"></div>
+
+              {/* 2. Compare & Wishlist */}
+              <div className="hidden xl:flex items-center gap-0.5">
+                <CompareHeaderButton />
+                <WishlistHeaderButton />
+              </div>
+              
+              {/* Visual Separator */}
+              <div className="h-4 w-px bg-border hidden xl:block"></div>
+
+              {/* 3. Account */}
+              <div className="hidden xl:flex items-center gap-0.5">
+                <AccountHeaderLink />
+              </div>
+
+              {/* Visual Separator */}
+              <div className="h-4 w-px bg-border hidden xl:block"></div>
+
+              {/* 4. Company & Hotline */}
+              <div className="flex items-center gap-0.5">
+                <div className="hidden xl:block">
+                  <CompanyNavDropdown />
+                </div>
+                <a 
+                  href="tel:+201270511113" 
+                  className="flex size-9 items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-surface-subtle hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+                  aria-label="Call Hotline +2012 70511113"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                </a>
+              </div>
+
+            </div>
           </div>
-        </Container>
-      </div>
 
-      {/* ── Main row — Generous breathing room, logo on the start, big
-            persistent search bar at the centre, refined action cluster at
-            the end. Single dominant element per visual zone — keeps the
-            hierarchy clean (logo / search / actions). ── */}
-      <div className="border-b border-border bg-surface">
-        <Container>
-          <div className="relative flex h-[72px] items-center gap-3 sm:gap-5 lg:gap-6">
-          <div className="lg:hidden">
-            <MobileMenu categories={megaCategories} />
+          {/* Fade Border separating rows removed to make it one cohesive piece */}
+          
+
+          {/* ── Row 2: Nav Links & CategoryNav ── */}
+          <div className="hidden xl:flex min-h-[52px] items-center justify-between w-full gap-4 px-5 xl:px-0 relative z-[40]">
+            
+            {/* All Products (Flex 1 - Start) */}
+            <div className="flex flex-1 shrink-0 h-full items-center justify-start">
+              <PrimaryNav segment="start" />
+            </div>
+
+            {/* Categories inline (Center) */}
+            <div className="flex shrink-0 h-full items-center justify-center min-w-0">
+              <CategoryNav />
+            </div>
+
+            {/* Deals & Cart (Flex 1 - End) */}
+            <div className="flex flex-1 shrink-0 h-full items-center justify-end gap-3">
+              <PrimaryNav segment="end" />
+              <div className="h-4 w-px bg-border"></div>
+              <div className="flex items-center">
+                <CartButton />
+              </div>
+            </div>
+
           </div>
 
-          {/* Logo — taller for stronger brand presence. */}
-          <a
-            href={`/${locale}`}
-            className="inline-flex shrink-0 items-center transition-opacity hover:opacity-90"
-            aria-label={t("logoHomeAria")}
-          >
-            <Logo
-              variant="horizontal-no-tagline"
-              alt={tCommon("storeName")}
-              className="h-10 w-auto lg:h-12"
-              priority
-            />
-          </a>
-
-          {/* Persistent search bar — takes the central spotlight. */}
-          <div className="hidden min-w-0 flex-1 justify-center md:flex">
-            <HeaderSearch />
-          </div>
-
-          {/* Spacer for mobile (no central search visible) */}
-          <div className="flex-1 md:hidden" />
-
-          {/* Action cluster — calm, evenly-spaced, divided into utility
-              (locale/theme) and account actions for legibility. */}
-          <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
-            <LocaleSwitcher bare showLabel />
-            <ThemeToggle bare />
-          </div>
         </div>
-        </Container>
-      </div>
-
-      {/* ── Sub-nav row — Primary nav links centered. Subtle border-bottom
-          gives it definition without competing with the main row. Hidden on
-          mobile (links live in MobileMenu). ── */}
-      <div className="hidden bg-surface lg:block relative z-[60]">
-        <Container>
-          <div className="grid min-h-[52px] grid-cols-[1fr_auto] items-stretch">
-            <div className="flex min-h-0 min-w-0 items-center justify-start px-4">
-              <PrimaryNav />
-            </div>
-            <div className="flex items-center gap-1 sm:gap-2 border-s border-border ps-3 sm:ps-4">
-              <AccountHeaderLink />
-              <WishlistHeaderButton />
-              <CompareHeaderButton />
-              <CartButton />
-            </div>
-          </div>
-        </Container>
-      </div>
-
-      {/* ── Categories Bar ── */}
-      <div className="hidden bg-surface border-y border-border lg:block relative">
-        <CategoryNav />
       </div>
     </StickyHeader>
   );

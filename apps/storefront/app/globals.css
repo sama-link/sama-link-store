@@ -720,8 +720,8 @@ html[data-theme-changing] *::after {
 .hero-pro-track {
   position: relative;
   /* Take most of the first-fold on open, with sane bounds across viewports.
-     78vh on a 900px viewport ≈ 700px; clamped 660–820 keeps it readable. */
-  height: clamp(660px, 78vh, 820px);
+     78vh on a 900px viewport ≈ 700px; clamped 760–920 keeps it readable. */
+  height: clamp(760px, 85vh, 920px);
   width: 100%;
   isolation: isolate;
   background: var(--color-surface-subtle);
@@ -789,7 +789,10 @@ html.dark .hero-pro-slide {
 /* Drifting orbs — soft blurred light across the slide. */
 .hero-pro-grid {
   position: absolute;
-  inset: 0;
+  top: 124px;
+  right: 0;
+  bottom: 0;
+  left: 0;
   z-index: 1;
   pointer-events: none;
   overflow: hidden;
@@ -822,10 +825,10 @@ html.dark .hero-pro-slide {
   display: grid;
   grid-template-columns: 1fr 1.2fr;
   align-items: center;
-  height: 100%;
+  height: calc(100% - 124px);
+  margin: 124px auto 0;
   max-width: 1440px;
-  margin: 0 auto;
-  padding: 56px 64px 96px;
+  padding: 32px 64px 96px;
   gap: 48px;
 }
 
@@ -1317,7 +1320,7 @@ html.dark .hero-pro-rings .ring {
 
 /* Mobile */
 @media (max-width: 860px) {
-  .hero-pro-track { height: auto; min-height: 820px; }
+  .hero-pro-track { height: auto; min-height: 920px; }
   .hero-pro-inner {
     display: flex;
     flex-direction: column;

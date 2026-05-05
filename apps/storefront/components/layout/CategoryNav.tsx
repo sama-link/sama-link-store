@@ -6,7 +6,6 @@ import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/cn";
-import Container from "./Container";
 
 export type IconName =
   | "video" | "wifi" | "cable" | "server" | "battery-charging"
@@ -270,11 +269,10 @@ export default function CategoryNav() {
   return (
     <NavigationMenu.Root
       dir={dir}
-      className="relative z-50 flex w-full"
+      className="flex flex-1 min-w-0"
       delayDuration={100}
     >
-      <Container className="w-full">
-        <NavigationMenu.List className="flex h-14 w-full items-center justify-between gap-1 overflow-x-auto no-scrollbar py-1">
+      <NavigationMenu.List className="flex h-14 w-full items-center justify-center gap-1 overflow-x-auto no-scrollbar py-1">
           {CATEGORIES.map((cat) => (
             <NavigationMenu.Item key={cat.id}>
               <NavigationMenu.Trigger
@@ -287,8 +285,8 @@ export default function CategoryNav() {
                 <span>{isAr ? cat.ar : cat.en}</span>
               </NavigationMenu.Trigger>
               <NavigationMenu.Content className="absolute left-0 top-0 w-full data-[motion=from-start]:animate-fade-in data-[motion=from-end]:animate-fade-in data-[motion=to-start]:animate-fade-out data-[motion=to-end]:animate-fade-out">
-                <div className="w-full bg-surface">
-                  <Container>
+                <div className="w-full bg-transparent">
+                  <div className="w-full px-5 lg:px-0 lg:w-10/12 lg:mx-auto">
                     <div className="py-8">
                       <div className="mb-6 flex items-center justify-between border-b border-border pb-4">
                         <h3 className="text-xl font-bold text-text-primary">
@@ -305,17 +303,16 @@ export default function CategoryNav() {
                       </div>
                       <SubcategoryList children={cat.children} isAr={isAr} productsHref={productsHref} />
                     </div>
-                  </Container>
+                  </div>
                 </div>
               </NavigationMenu.Content>
             </NavigationMenu.Item>
           ))}
         </NavigationMenu.List>
-      </Container>
 
       {/* Viewport for animation */}
       <div className="absolute left-0 top-[100%] isolate z-50 w-full">
-        <NavigationMenu.Viewport className="relative h-[var(--radix-navigation-menu-viewport-height)] w-full origin-[top_center] overflow-hidden border-y border-border bg-surface shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-[height] duration-300 data-[state=open]:animate-menu-enter data-[state=closed]:animate-menu-exit" />
+        <NavigationMenu.Viewport className="relative h-[var(--radix-navigation-menu-viewport-height)] w-full origin-[top_center] overflow-hidden rounded-b-2xl border-b border-x border-border bg-surface/70 backdrop-blur-md shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-[height] duration-300 data-[state=open]:animate-menu-enter data-[state=closed]:animate-menu-exit" />
       </div>
     </NavigationMenu.Root>
   );

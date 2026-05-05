@@ -8,6 +8,8 @@ interface NavItem {
   label: string;
   href: string;
   isHotDeal?: boolean;
+  /** Distinct styling for catalog entry (e.g. All Products) */
+  highlightCatalog?: boolean;
 }
 
 interface PrimaryNavLinksProps {
@@ -39,9 +41,9 @@ export default function PrimaryNavLinks({ items }: PrimaryNavLinksProps) {
   return (
     <ul className="flex h-full min-h-10 items-center gap-6 text-[14px]">
       {items.map((item) => {
-        // Simple active check. You might want to enhance it for nested routes
-        // (e.g. pathname.startsWith(item.href) && item.href !== "/ar")
-        const isActive = pathname === item.href;
+        const isActive = item.highlightCatalog
+          ? pathname === item.href || pathname.startsWith(`${item.href}/`)
+          : pathname === item.href;
 
         return (
           <li key={item.href + item.label} className="flex h-full items-center">
@@ -49,11 +51,16 @@ export default function PrimaryNavLinks({ items }: PrimaryNavLinksProps) {
               href={item.href}
               className={cn(
                 "group relative flex h-full items-center gap-1.5 whitespace-nowrap font-normal transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2",
-                  item.isHotDeal
+                item.isHotDeal
                   ? "text-error hover:opacity-80"
+                  :                 item.highlightCatalog
+                  ? cn(
+                      "font-medium text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300",
+                      isActive && "text-sky-700 dark:text-sky-300 font-semibold",
+                    )
                   : isActive
                   ? "text-brand"
-                  : "text-text-primary hover:text-brand"
+                  : "text-text-primary hover:text-brand",
               )}
             >
               <span>{item.label}</span>
@@ -63,10 +70,8 @@ export default function PrimaryNavLinks({ items }: PrimaryNavLinksProps) {
               <span
                 className={cn(
                   "absolute bottom-0 start-0 h-[3px] rounded-t-sm transition-all duration-300",
-                  item.isHotDeal ? "bg-error" : "bg-brand",
-                  isActive
-                    ? "w-full"
-                    : "w-0 group-hover:w-full"
+                  item.isHotDeal ? "bg-error" : item.highlightCatalog ? "bg-sky-600 dark:bg-sky-400" : "bg-brand",
+                  isActive ? "w-full" : "w-0 group-hover:w-full",
                 )}
                 aria-hidden="true"
               />
