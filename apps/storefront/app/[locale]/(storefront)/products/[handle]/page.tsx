@@ -385,6 +385,7 @@ export default async function ProductDetailPage({ params }: ProductPageProps) {
                 ctaSentinelId={CTA_SENTINEL_ID}
                 title={product.title ?? ""}
                 brand={brandEyebrow}
+                brandLogoSrc={productBrand?.image_url ?? null}
                 description={shortDescription ?? subtitle ?? null}
                 highlights={productHighlights}
                 wishlistItem={galleryWishlistItem}

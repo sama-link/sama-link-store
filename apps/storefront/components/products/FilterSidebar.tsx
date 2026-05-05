@@ -5,6 +5,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/cn";
 import PriceRangeSlider from "@/components/products/PriceRangeSlider";
+import {
+  sameStringSet,
+  writeMultiParamToUrl,
+} from "@/lib/catalog-search-params";
 
 export interface FilterCollectionOption {
   id: string;
@@ -14,6 +18,10 @@ export interface FilterCollectionOption {
 export interface FilterBrandOption {
   id: string;
   title: string;
+  /** Public logo URL (preferred .webp). When absent or fails to load,
+   *  the brand row falls back to the brand title text only. */
+  logoUrl?: string | null;
+  handle?: string | null;
 }
 
 export interface FilterCategoryOption {
@@ -29,26 +37,26 @@ const PRICE_STEP = 50;
 const RATING_OPTIONS = [4, 3, 2] as const;
 
 type StagedFilters = {
-  collection: string | null;
-  brand: string | null;
-  category: string | null;
+  collections: string[];
+  brands: string[];
+  categories: string[];
   minPrice: string | null;
   maxPrice: string | null;
   q: string | null;
   inStock: boolean;
-  rating: string | null;
+  ratings: string[];
 };
 
 function sameStage(a: StagedFilters, b: StagedFilters): boolean {
   return (
-    a.collection === b.collection &&
-    a.brand === b.brand &&
-    a.category === b.category &&
+    sameStringSet(a.collections, b.collections) &&
+    sameStringSet(a.brands, b.brands) &&
+    sameStringSet(a.categories, b.categories) &&
     a.minPrice === b.minPrice &&
     a.maxPrice === b.maxPrice &&
     a.q === b.q &&
     a.inStock === b.inStock &&
-    a.rating === b.rating
+    sameStringSet(a.ratings, b.ratings)
   );
 }
 
@@ -57,17 +65,17 @@ export interface FilterSidebarProps {
   /** Optional brands facet — rendered only when non-empty. */
   brands?: FilterBrandOption[];
   categories: FilterCategoryOption[];
-  activeCollection: string | null;
-  activeBrand?: string | null;
-  activeCategory: string | null;
+  activeCollections: string[];
+  activeBrands?: string[];
+  activeCategories: string[];
   activeMinPrice: string | null;
   activeMaxPrice: string | null;
   activeQuery: string | null;
   activeInStock: boolean;
-  activeRating: string | null;
+  activeRatings: string[];
   locale: string;
   /** Fired after a successful Apply / Clear All — mobile bottom sheets use
-     this to auto-close themselves so the user sees the filtered results. */
+   this to auto-close themselves so the user sees the filtered results. */
   onApply?: () => void;
 }
 
@@ -79,20 +87,22 @@ export interface FilterSidebarProps {
    just click Apply once — predictable, no lost clicks from rapid sequences. */
 function CategoryTree({
   categories,
-  stagedCategory,
-  stageSet,
+  stagedCategories,
+  toggleCategory,
+  isRtl,
   level = 0,
 }: {
   categories: FilterCategoryOption[];
-  stagedCategory: string | null;
-  stageSet: (key: keyof StagedFilters, value: any) => void;
+  stagedCategories: string[];
+  toggleCategory: (id: string, checked: boolean) => void;
+  isRtl: boolean;
   level?: number;
 }) {
   if (!categories || categories.length === 0) return null;
   return (
     <div className={cn("flex flex-col", level === 0 ? "gap-2" : "mt-2 gap-2 ms-4 border-s border-border ps-4")}>
       {categories.map((c) => {
-        const isActive = stagedCategory === c.id;
+        const isActive = stagedCategories.includes(c.id);
         const hasChildren = c.children && c.children.length > 0;
         return (
           <CategoryTreeNode
@@ -100,8 +110,9 @@ function CategoryTree({
             c={c}
             isActive={isActive}
             hasChildren={hasChildren}
-            stagedCategory={stagedCategory}
-            stageSet={stageSet}
+            stagedCategories={stagedCategories}
+            toggleCategory={toggleCategory}
+            isRtl={isRtl}
             level={level}
           />
         );
@@ -114,15 +125,17 @@ function CategoryTreeNode({
   c,
   isActive,
   hasChildren,
-  stagedCategory,
-  stageSet,
+  stagedCategories,
+  toggleCategory,
+  isRtl,
   level,
 }: {
   c: FilterCategoryOption;
   isActive: boolean;
   hasChildren: boolean | undefined;
-  stagedCategory: string | null;
-  stageSet: (key: keyof StagedFilters, value: any) => void;
+  stagedCategories: string[];
+  toggleCategory: (id: string, checked: boolean) => void;
+  isRtl: boolean;
   level: number;
 }) {
   // Always start collapsed
@@ -134,12 +147,12 @@ function CategoryTreeNode({
         <label className={cn(
           "flex cursor-pointer items-center gap-2.5 text-[13px] hover:text-brand transition-colors",
           level === 0 ? "font-semibold text-text-primary" : "text-text-secondary",
-          isActive && "text-brand font-semibold"
+          isActive && "text-brand font-semibold",
         )}>
           <input
             type="checkbox"
             checked={isActive}
-            onChange={(e) => stageSet("category", e.target.checked ? c.id : null)}
+            onChange={(e) => toggleCategory(c.id, e.target.checked)}
             className="h-4 w-4 rounded border-border text-brand accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
           />
           <span>{c.title}</span>
@@ -159,7 +172,16 @@ function CategoryTreeNode({
               strokeWidth={2}
               strokeLinecap="round"
               strokeLinejoin="round"
-              className={cn("h-3.5 w-3.5 transition-transform duration-200", isOpen ? "rotate-90" : "")}
+              className={cn(
+                "h-3.5 w-3.5 transition-transform duration-200",
+                isOpen
+                  ? isRtl
+                    ? "[transform:scaleX(-1)_rotate(90deg)]"
+                    : "rotate-90"
+                  : isRtl
+                    ? "scale-x-[-1]"
+                    : "",
+              )}
             >
               <polyline points="9 18 15 12 9 6" />
             </svg>
@@ -171,8 +193,9 @@ function CategoryTreeNode({
         <div className="animate-in fade-in slide-in-from-top-1 duration-200">
           <CategoryTree
             categories={c.children!}
-            stagedCategory={stagedCategory}
-            stageSet={stageSet}
+            stagedCategories={stagedCategories}
+            toggleCategory={toggleCategory}
+            isRtl={isRtl}
             level={level + 1}
           />
         </div>
@@ -185,14 +208,14 @@ export default function FilterSidebar({
   collections,
   brands,
   categories,
-  activeCollection,
-  activeBrand,
-  activeCategory,
+  activeCollections,
+  activeBrands,
+  activeCategories,
   activeMinPrice,
   activeMaxPrice,
   activeQuery,
   activeInStock,
-  activeRating,
+  activeRatings,
   locale,
   onApply,
 }: FilterSidebarProps) {
@@ -200,30 +223,31 @@ export default function FilterSidebar({
   const router = useRouter();
   const pathname = usePathname() ?? `/${locale}`;
   const searchParams = useSearchParams();
+  const isRtl = locale.startsWith("ar");
 
   const brandsList = brands ?? [];
   const showBrands = brandsList.length > 0;
 
   const active: StagedFilters = useMemo(
     () => ({
-      collection: activeCollection,
-      brand: activeBrand ?? null,
-      category: activeCategory,
+      collections: activeCollections,
+      brands: activeBrands ?? [],
+      categories: activeCategories,
       minPrice: activeMinPrice,
       maxPrice: activeMaxPrice,
       q: activeQuery,
       inStock: activeInStock,
-      rating: activeRating,
+      ratings: activeRatings,
     }),
     [
-      activeCollection,
-      activeBrand,
-      activeCategory,
+      activeCollections,
+      activeBrands,
+      activeCategories,
       activeMinPrice,
       activeMaxPrice,
       activeQuery,
       activeInStock,
-      activeRating,
+      activeRatings,
     ],
   );
 
@@ -243,14 +267,18 @@ export default function FilterSidebar({
         if (v == null || v === "") params.delete(key);
         else params.set(key, v);
       };
-      setOrDel("collection", nextStaged.collection);
-      setOrDel("brand", nextStaged.brand);
-      setOrDel("category", nextStaged.category);
+      writeMultiParamToUrl(params, "collection", nextStaged.collections);
+      writeMultiParamToUrl(params, "brands", nextStaged.brands);
+      /* When the sidebar applies brand checkboxes, the top quick-pick bar
+         resets to "All" — sidebar takes precedence to avoid conflicting
+         selections. Empty sidebar brands leaves the top bar untouched. */
+      if (nextStaged.brands.length > 0) params.delete("brand");
+      writeMultiParamToUrl(params, "category", nextStaged.categories);
+      writeMultiParamToUrl(params, "rating", nextStaged.ratings);
       setOrDel("minPrice", nextStaged.minPrice);
       setOrDel("maxPrice", nextStaged.maxPrice);
       const qTrimmed = nextStaged.q?.trim() ?? "";
       setOrDel("q", qTrimmed ? qTrimmed : null);
-      setOrDel("rating", nextStaged.rating);
       setOrDel("inStock", nextStaged.inStock ? "1" : null);
       const qs = params.toString();
       router.push(qs ? `${pathname}?${qs}` : pathname);
@@ -264,14 +292,14 @@ export default function FilterSidebar({
   };
   const clearAll = () => {
     const cleared: StagedFilters = {
-      collection: null,
-      brand: null,
-      category: null,
+      collections: [],
+      brands: [],
+      categories: [],
       minPrice: null,
       maxPrice: null,
       q: null,
       inStock: false,
-      rating: null,
+      ratings: [],
     };
     setStaged(cleared);
     commit(cleared);
@@ -290,20 +318,53 @@ export default function FilterSidebar({
       : null;
 
   const hasAnyFilter =
-    staged.collection != null ||
-    staged.brand != null ||
-    staged.category != null ||
+    staged.collections.length > 0 ||
+    staged.brands.length > 0 ||
+    staged.categories.length > 0 ||
     staged.minPrice != null ||
     staged.maxPrice != null ||
     staged.q != null ||
     staged.inStock ||
-    staged.rating != null;
+    staged.ratings.length > 0;
 
   const stageSet = <K extends keyof StagedFilters>(
     key: K,
     value: StagedFilters[K],
   ) => {
     setStaged((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const toggleCategory = useCallback((id: string, checked: boolean) => {
+    setStaged((prev) => {
+      const set = new Set(prev.categories);
+      if (checked) set.add(id);
+      else set.delete(id);
+      return { ...prev, categories: [...set] };
+    });
+  }, []);
+
+  const toggleBrand = useCallback((id: string, checked: boolean) => {
+    setStaged((prev) => {
+      const set = new Set(prev.brands);
+      if (checked) set.add(id);
+      else set.delete(id);
+      return { ...prev, brands: [...set] };
+    });
+  }, []);
+
+  const toggleInList = (
+    key: "collections" | "ratings",
+    id: string,
+    checked: boolean,
+  ) => {
+    setStaged((prev) => {
+      const set = new Set(prev[key]);
+      if (checked) set.add(id);
+      else set.delete(id);
+      const next = [...set];
+      if (key === "collections") return { ...prev, collections: next };
+      return { ...prev, ratings: next };
+    });
   };
 
   return (
@@ -367,8 +428,9 @@ export default function FilterSidebar({
             </div>
             <CategoryTree
               categories={categories}
-              stagedCategory={staged.category}
-              stageSet={stageSet as any}
+              stagedCategories={staged.categories}
+              toggleCategory={toggleCategory}
+              isRtl={isRtl}
             />
           </div>
 
@@ -380,15 +442,16 @@ export default function FilterSidebar({
               </div>
               <div className={cn("relative flex flex-col gap-2")}>
                 {brandsList.slice(0, brandsExpanded ? undefined : 5).map((b) => {
-                  const isActive = staged.brand === b.id;
+                  const isActive = staged.brands.includes(b.id);
                   return (
                     <label key={b.id} className="flex cursor-pointer items-center gap-2.5 text-[13px] text-text-secondary">
                       <input
                         type="checkbox"
                         checked={isActive}
-                        onChange={(e) => stageSet("brand", e.target.checked ? b.id : null)}
+                        onChange={(e) => toggleBrand(b.id, e.target.checked)}
                         className="h-4 w-4 rounded border-border text-brand accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                       />
+                      <BrandRowLogo logoUrl={b.logoUrl ?? null} title={b.title} />
                       <span>{b.title}</span>
                     </label>
                   );
@@ -415,14 +478,14 @@ export default function FilterSidebar({
               {t("collections")}
             </div>
             <div className="flex flex-col gap-2">
-              {collections.map((c: any) => {
-                const isActive = staged.collection === c.id;
+              {collections.map((c: FilterCollectionOption) => {
+                const isActive = staged.collections.includes(c.id);
                 return (
                   <label key={c.id} className="flex cursor-pointer items-center gap-2.5 text-[13px] text-text-secondary">
                     <input
                       type="checkbox"
                       checked={isActive}
-                      onChange={(e) => stageSet("collection", e.target.checked ? c.id : null)}
+                      onChange={(e) => toggleInList("collections", c.id, e.target.checked)}
                       className="h-4 w-4 rounded border-border text-brand accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                     />
                     <span>{c.title}</span>
@@ -459,13 +522,13 @@ export default function FilterSidebar({
             <div className="flex flex-col gap-2">
               {RATING_OPTIONS.map((r) => {
                 const val = String(r);
-                const isActive = staged.rating === val;
+                const isActive = staged.ratings.includes(val);
                 return (
                   <label key={r} className="flex cursor-pointer items-center gap-2.5 text-[13px] text-text-secondary">
                     <input
                       type="checkbox"
                       checked={isActive}
-                      onChange={(e) => stageSet("rating", e.target.checked ? val : null)}
+                      onChange={(e) => toggleInList("ratings", val, e.target.checked)}
                       className="h-4 w-4 rounded border-border text-brand accent-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
                     />
                     <span className="inline-flex text-warning">
@@ -532,5 +595,34 @@ export default function FilterSidebar({
         </button>
       </div>
     </div>
+  );
+}
+
+/* ── Brand row logo thumbnail ─────────────────────────────────────────
+   Small fixed-size container, object-fit contain, neutral background so
+   light-on-light brand marks stay legible. On image load failure, the
+   slot collapses silently — the brand title text beside it is enough. */
+function BrandRowLogo({
+  logoUrl,
+  title,
+}: {
+  logoUrl: string | null;
+  title: string;
+}) {
+  const [errored, setErrored] = useState(false);
+  if (!logoUrl || errored) return null;
+  return (
+    <span className="inline-flex h-5 w-5 shrink-0 items-center justify-center overflow-hidden rounded bg-surface-subtle">
+      <img
+        src={logoUrl}
+        alt={`${title} logo`}
+        loading="lazy"
+        decoding="async"
+        width={20}
+        height={20}
+        onError={() => setErrored(true)}
+        className="h-full w-full object-contain"
+      />
+    </span>
   );
 }

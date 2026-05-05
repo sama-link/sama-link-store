@@ -95,7 +95,7 @@ export default async function SpecialOffersPage({ params }: PageProps) {
               {products.map((p, i) => (
                 <div
                   key={p.id}
-                  className="animate-fade-up"
+                  className="animate-fade-in"
                   style={{ animationDelay: `${Math.min(i, 24) * 40}ms` }}
                 >
                   <ProductCard product={p} />

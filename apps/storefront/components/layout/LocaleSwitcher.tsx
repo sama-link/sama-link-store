@@ -97,8 +97,7 @@ export default function LocaleSwitcher({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           className={cn(
-            "group inline-flex h-9 items-center rounded-full text-xs font-semibold uppercase tracking-wider text-text-secondary transition-all hover:bg-brand/10 hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
-            showLabel ? "gap-1.5 px-3" : "w-9 justify-center",
+            "group inline-flex h-9 w-9 justify-center items-center rounded-full text-xs font-semibold uppercase tracking-wider text-text-secondary transition-all hover:bg-brand/10 hover:text-brand focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand",
           )}
         >
           <motion.div
@@ -109,9 +108,6 @@ export default function LocaleSwitcher({
           >
             <GlobeIcon />
           </motion.div>
-          {showLabel ? (
-            <span className="text-[11px]">{shortLabel}</span>
-          ) : null}
           <span className="sr-only">
             ({current === "ar" ? "العربية" : "English"} → {fullLabel})
           </span>
@@ -129,7 +125,7 @@ export default function LocaleSwitcher({
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         className={cn(
-          "group inline-flex h-10 items-center gap-2 rounded-full border border-border bg-surface px-4 text-xs font-semibold uppercase tracking-wider text-text-secondary",
+          "group inline-flex h-10 w-10 justify-center items-center rounded-full border border-border bg-surface text-xs font-semibold uppercase tracking-wider text-text-secondary",
           "transition-all duration-200 hover:border-brand hover:bg-brand/5 hover:text-brand hover:shadow-sm focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-brand/15",
         )}
       >
@@ -141,7 +137,6 @@ export default function LocaleSwitcher({
         >
           <GlobeIcon />
         </motion.div>
-        <span className="text-[11px]">{shortLabel}</span>
         <span className="sr-only">
           ({current === "ar" ? "العربية" : "English"} → {fullLabel})
         </span>

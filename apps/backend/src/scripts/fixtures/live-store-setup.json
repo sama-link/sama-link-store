@@ -52,175 +52,175 @@
       "name": "3COM",
       "handle": "3com",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/3com.webp"
     },
     {
       "name": "APC Schneider",
       "handle": "apc-schneider",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/apc-schneider.webp"
     },
     {
       "name": "ASUS",
       "handle": "asus",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/asus.webp"
     },
     {
       "name": "Brother",
       "handle": "brother",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/brother.webp"
     },
     {
       "name": "Cisco",
       "handle": "cisco",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/cisco.webp"
     },
     {
       "name": "CTS",
       "handle": "cts",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/cts.webp"
     },
     {
       "name": "D-Link",
       "handle": "d-link",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/d-link.webp"
     },
     {
       "name": "DELL",
       "handle": "dell",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/dell.webp"
     },
     {
       "name": "Grandstream",
       "handle": "grandstream",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/grandstream.webp"
     },
     {
       "name": "Hikvision",
       "handle": "hikvision",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/hikvision.webp"
     },
     {
       "name": "HP Aruba",
       "handle": "hp-aruba",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/hp-aruba.webp"
     },
     {
       "name": "Huawei",
       "handle": "huawei",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/huawei.webp"
     },
     {
       "name": "L'AVVENTO",
       "handle": "l-avvento",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/l-avvento.webp"
     },
     {
       "name": "Legrand",
       "handle": "legrand",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/legrand.webp"
     },
     {
       "name": "Lenovo",
       "handle": "lenovo",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/lenovo.webp"
     },
     {
       "name": "Linksys",
       "handle": "linksys",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/linksys.webp"
     },
     {
       "name": "MERCUSYS",
       "handle": "mercusys",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/mercusys.webp"
     },
     {
       "name": "MSI",
       "handle": "msi",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/msi.webp"
     },
     {
       "name": "NETSYS",
       "handle": "netsys",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/netsys.webp"
     },
     {
       "name": "Panasonic",
       "handle": "panasonic",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/panasonic.webp"
     },
     {
       "name": "PLANET",
       "handle": "planet",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/planet.webp"
     },
     {
       "name": "Premium-Line",
       "handle": "premium-line",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/premium-line.webp"
     },
     {
       "name": "ProLink",
       "handle": "prolink",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/prolink.webp"
     },
     {
       "name": "TAPO",
       "handle": "tapo",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/tapo.webp"
     },
     {
       "name": "Tenda",
       "handle": "tenda",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/tenda.webp"
     },
     {
       "name": "TP-Link",
       "handle": "tp-link",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/tp-link.webp"
     },
     {
       "name": "UNV",
       "handle": "unv",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/unv.webp"
     },
     {
       "name": "Western Digital",
       "handle": "western-digital",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/western-digital.webp"
     },
     {
       "name": "ZKTeco",
       "handle": "zkteco",
       "description": null,
-      "image_url": null
+      "image_url": "/brand/catalog/zkteco.webp"
     }
   ],
   "stock_locations": [

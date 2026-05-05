@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import FilterSidebar, {
@@ -34,14 +34,14 @@ interface Props {
   collections: FilterCollectionOption[];
   brands: FilterBrandOption[];
   categories: FilterCategoryOption[];
-  activeCollection: string | null;
-  activeBrand: string | null;
-  activeCategory: string | null;
+  activeCollections: string[];
+  activeBrands: string[];
+  activeCategories: string[];
   activeMinPrice: string | null;
   activeMaxPrice: string | null;
   activeQuery: string | null;
   activeInStock: boolean;
-  activeRating: string | null;
+  activeRatings: string[];
   activeSort: SortKey;
   activeCols: ColumnCount;
   activeView: ViewMode;
@@ -59,6 +59,40 @@ export default function MobileCatalogFab(props: Props) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<"filter" | "view">("filter");
   const { isCartOpen, closeCart } = useCart();
+
+  /** Pull-down on the sheet handle row closes the panel (mobile). */
+  const sheetPullStartY = useRef<number | null>(null);
+  const SHEET_PULL_CLOSE_PX = 72;
+
+  function onSheetHandlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
+    if (!open) return;
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    sheetPullStartY.current = e.clientY;
+    e.currentTarget.setPointerCapture(e.pointerId);
+  }
+
+  function onSheetHandlePointerUp(e: React.PointerEvent<HTMLDivElement>) {
+    const startY = sheetPullStartY.current;
+    sheetPullStartY.current = null;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* not captured */
+    }
+    if (startY == null || !open) return;
+    if (e.clientY - startY >= SHEET_PULL_CLOSE_PX) {
+      setOpen(false);
+    }
+  }
+
+  function onSheetHandlePointerCancel(e: React.PointerEvent<HTMLDivElement>) {
+    sheetPullStartY.current = null;
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* not captured */
+    }
+  }
 
   /* Dismiss on Escape */
   useEffect(() => {
@@ -128,13 +162,13 @@ export default function MobileCatalogFab(props: Props) {
   };
 
   const activeFilterCount =
-    (props.activeCollection ? 1 : 0) +
-    (props.activeBrand ? 1 : 0) +
-    (props.activeCategory ? 1 : 0) +
+    props.activeCollections.length +
+    props.activeBrands.length +
+    props.activeCategories.length +
     (props.activeMinPrice || props.activeMaxPrice ? 1 : 0) +
     (props.activeQuery ? 1 : 0) +
     (props.activeInStock ? 1 : 0) +
-    (props.activeRating ? 1 : 0);
+    props.activeRatings.length;
 
   return (
     <>
@@ -150,7 +184,7 @@ export default function MobileCatalogFab(props: Props) {
         aria-hidden={isCartOpen}
         tabIndex={isCartOpen ? -1 : 0}
         className={cn(
-          "fixed bottom-[88px] end-5 z-[41] inline-flex items-center justify-center rounded-full bg-[#c2680a] text-white transition-[transform,background-color,height,width,opacity] duration-250 hover:bg-[#a85808] motion-safe:active:scale-90 sm:hidden",
+          "fixed bottom-[88px] end-5 z-[41] inline-flex items-center justify-center rounded-full bg-[#c2680a] text-white transition-[transform,background-color,height,width,opacity] duration-250 hover:bg-[#a85808] motion-safe:active:scale-90 lg:hidden",
           open ? "h-10 w-10 scale-90 bg-[#a85808]" : "h-12 w-12 scale-100",
           isCartOpen && "pointer-events-none scale-75 opacity-0",
         )}
@@ -192,7 +226,7 @@ export default function MobileCatalogFab(props: Props) {
       {/* Scrim */}
       <div
         className={cn(
-          "fixed inset-0 z-40 bg-[color:rgba(10,19,36,0.4)] transition-opacity duration-300 sm:hidden",
+          "fixed inset-0 z-40 bg-[color:rgba(10,19,36,0.4)] transition-opacity duration-300 lg:hidden",
           open
             ? "pointer-events-auto opacity-100"
             : "pointer-events-none opacity-0",
@@ -204,13 +238,19 @@ export default function MobileCatalogFab(props: Props) {
       {/* Floating panel / Bottom Sheet */}
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] h-[85vh] flex-col rounded-t-3xl border-t border-border bg-surface transition-transform duration-300 ease-out sm:hidden",
+          "fixed inset-x-0 bottom-0 z-50 flex max-h-[85vh] h-[85vh] flex-col rounded-t-3xl border-t border-border bg-surface transition-transform duration-300 ease-out lg:hidden",
           open ? "translate-y-0" : "translate-y-full"
         )}
       >
-        {/* Drag handle */}
-        <div className="flex shrink-0 items-center justify-center pt-3 pb-1">
-          <div className="h-1.5 w-12 rounded-full bg-border-strong" />
+        {/* Drag handle — swipe down from this strip to close */}
+        <div
+          aria-label={t("sheetPullToCloseAria")}
+          onPointerDown={onSheetHandlePointerDown}
+          onPointerUp={onSheetHandlePointerUp}
+          onPointerCancel={onSheetHandlePointerCancel}
+          className="flex shrink-0 cursor-grab touch-none select-none items-center justify-center pt-3 pb-1 active:cursor-grabbing"
+        >
+          <div className="h-1.5 w-12 rounded-full bg-border-strong" aria-hidden />
         </div>
 
         {/* Tab pill */}
@@ -272,14 +312,14 @@ export default function MobileCatalogFab(props: Props) {
                 collections={props.collections}
                 brands={props.brands}
                 categories={props.categories}
-                activeCollection={props.activeCollection}
-                activeBrand={props.activeBrand}
-                activeCategory={props.activeCategory}
+                activeCollections={props.activeCollections}
+                activeBrands={props.activeBrands}
+                activeCategories={props.activeCategories}
                 activeMinPrice={props.activeMinPrice}
                 activeMaxPrice={props.activeMaxPrice}
                 activeQuery={props.activeQuery}
                 activeInStock={props.activeInStock}
-                activeRating={props.activeRating}
+                activeRatings={props.activeRatings}
                 locale={props.locale}
                 onApply={() => setOpen(false)}
               />

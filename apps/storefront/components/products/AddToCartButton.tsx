@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useCart } from "@/hooks/useCart";
 import Button, { type ButtonProps } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { flyToCart } from "@/lib/fly-to-cart";
 
 interface AddToCartButtonProps {
   variantId: string;
@@ -74,12 +75,18 @@ export default function AddToCartButton({
   const { addItem, cart, loading: cartBootstrapping } = useCart();
   const [state, setState] = useState<"idle" | "loading" | "added">("idle");
 
-  async function handleClick() {
+  async function handleClick(e: React.MouseEvent<HTMLElement>) {
+    // Save the event coordinates so we can use them after await
+    const rect = e.currentTarget.getBoundingClientRect();
+    
     if (state !== "idle" || !cart) return;
     setState("loading");
     try {
       await addItem(variantId, 1);
       setState("added");
+      
+      flyToCart(rect);
+      
       onAdded?.();
       setTimeout(() => setState("idle"), 1800);
     } catch {
@@ -100,7 +107,7 @@ export default function AddToCartButton({
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          void handleClick();
+          void handleClick(e);
         }}
         aria-label={iconAriaLabel ?? t("addToCart")}
         className={cn(

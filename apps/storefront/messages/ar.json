@@ -505,6 +505,7 @@
       "applyView": "تطبيق العرض"
     },
     "filtersAndViewAria": "التصفية وطرق العرض",
+    "sheetPullToCloseAria": "اسحب للأسفل للإغلاق",
     "filters": {
       "heading": "الفلاتر",
       "search": "البحث",

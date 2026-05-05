@@ -26,6 +26,9 @@ import LoadMoreProducts from "@/components/products/LoadMoreProducts";
 import MobileCatalogFab from "@/components/products/MobileCatalogFab";
 import Container from "@/components/layout/Container";
 import Breadcrumbs from "@/components/layout/Breadcrumbs";
+import CatalogLayout from "@/components/products/CatalogLayout";
+import BrandFilterBar from "@/components/products/BrandFilterBar";
+import { parseMultiStringParam } from "@/lib/catalog-search-params";
 
 export const revalidate = 3600; // ISR — ADR-017
 
@@ -88,8 +91,10 @@ function mapCategoriesForFilters(
   const roots: FilterCategoryOption[] = [];
 
   for (const c of categories as any[]) {
+    // Use handle for URL if available, fallback to id
+    const identifier = c.handle && c.handle.trim() !== "" ? c.handle : c.id;
     map.set(c.id, {
-      id: c.id,
+      id: identifier,
       title: (c.name && c.name.trim() !== "" ? c.name : c.handle) ?? c.id,
       children: [],
     });
@@ -111,14 +116,15 @@ interface ProductsPageProps {
   params: Promise<{ locale: string }>;
   searchParams: Promise<{
     page?: string;
-    collection?: string;
-    brand?: string;
-    category?: string;
+    collection?: string | string[];
+    brand?: string | string[];
+    brands?: string | string[];
+    category?: string | string[];
     minPrice?: string;
     maxPrice?: string;
     q?: string;
     inStock?: string;
-    rating?: string;
+    rating?: string | string[];
     sort?: string;
     cols?: string;
     view?: string;
@@ -163,6 +169,7 @@ export default async function ProductsPage({
   const {
     collection,
     brand,
+    brands: brandsRaw,
     category,
     minPrice,
     maxPrice,
@@ -185,30 +192,101 @@ export default async function ProductsPage({
   const currentPage = parsePageParam(pageRaw);
   const offset = (currentPage - 1) * activePageSize;
 
+  const collectionList = parseMultiStringParam(collection);
+  /* Two independent brand facets:
+     - `brand`  : single quick-pick from the top BrandFilterBar (instant)
+     - `brands` : multi-select from the sidebar (staged, applied via Apply) */
+  const barBrandList = parseMultiStringParam(brand).slice(0, 1);
+  const sidebarBrandList = parseMultiStringParam(brandsRaw);
+  const categoryRawList = parseMultiStringParam(category);
+  const ratingList = parseMultiStringParam(rating);
+
   const filterParams: ListProductsParams = {};
-  if (collection) filterParams.collection_id = [collection];
-  if (category) filterParams.category_id = [category];
+  if (collectionList.length > 0) filterParams.collection_id = collectionList;
   if (q && q.trim().length > 0) filterParams.q = q.trim();
   const order = sortKeyToOrderParam(activeSort);
   if (order) (filterParams as Record<string, unknown>).order = order;
   // TODO CAT-6: wire price + in-stock + rating filters to Medusa when params confirmed
 
-  // Brand filter — Medusa's /store/products doesn't accept a metadata.brand_id
-  // filter, so resolve the brand's product IDs server-side first and pass them
-  // through the native `id` filter. Empty brand → short-circuit to no results
-  // instead of dispatching listProducts with an empty id constraint.
-  const [brandIdsResult, collectionsResult, categoriesResult, brandsResult] =
-    await Promise.all([
-      brand ? listBrandProductIds(brand) : Promise.resolve(null),
-      listCollections(),
-      listProductCategories(),
-      listBrands(),
-    ]);
-  const brandIds = brandIdsResult?.ids ?? null;
-  const brandActive = Boolean(brand);
-  const brandHasZeroMatches = brandActive && brandIds !== null && brandIds.length === 0;
-  if (brandIds && brandIds.length > 0) {
-    (filterParams as Record<string, unknown>).id = brandIds;
+  const [collectionsResult, categoriesResult, brandsResult] = await Promise.all([
+    listCollections(),
+    listProductCategories(),
+    listBrands(),
+  ]);
+
+  // Resolve each category handle or ID to Medusa category_id (OR within facet).
+  let resolvedCategoryIds: string[] = [];
+  if (categoryRawList.length > 0) {
+    resolvedCategoryIds = [
+      ...new Set(
+        categoryRawList.map((raw) => {
+          const matchedCat = categoriesResult.product_categories.find(
+            (c: any) => c.handle === raw || c.id === raw,
+          );
+          return (matchedCat?.id ?? raw) as string;
+        }),
+      ),
+    ];
+    filterParams.category_id = resolvedCategoryIds;
+  }
+
+  // Brands that have products in any of the selected categories (union).
+  let validBrandIds: Set<string> | null = null;
+  if (resolvedCategoryIds.length > 0) {
+    validBrandIds = new Set();
+    const perCategory = await Promise.all(
+      resolvedCategoryIds.map((cid) =>
+        listProducts({
+          category_id: [cid],
+          limit: 200,
+        }),
+      ),
+    );
+    for (const catProductsRes of perCategory) {
+      catProductsRes.products.forEach((p) => {
+        if (p.metadata?.brand_id) {
+          validBrandIds!.add(p.metadata.brand_id as string);
+        }
+      });
+    }
+  }
+
+  /* Brand product-ID resolution — both facets resolve independently, then
+     combine with set intersection: a product passes only if it matches the
+     active brand from the top bar AND any of the sidebar brand checkboxes. */
+  const allBrandFacetIds = [...new Set([...barBrandList, ...sidebarBrandList])];
+  const perBrandIdLists =
+    allBrandFacetIds.length > 0
+      ? await Promise.all(
+          allBrandFacetIds.map(async (bid) => ({
+            bid,
+            ids: (await listBrandProductIds(bid)).ids,
+          })),
+        )
+      : [];
+  const idsByBrand = new Map(perBrandIdLists.map((x) => [x.bid, x.ids]));
+
+  const unionForFacet = (facet: string[]): string[] | null => {
+    if (facet.length === 0) return null;
+    return [...new Set(facet.flatMap((bid) => idsByBrand.get(bid) ?? []))];
+  };
+  const barUnion = unionForFacet(barBrandList);
+  const sidebarUnion = unionForFacet(sidebarBrandList);
+
+  let combinedBrandIds: string[] | null = null;
+  if (barUnion && sidebarUnion) {
+    const sidebarSet = new Set(sidebarUnion);
+    combinedBrandIds = barUnion.filter((id) => sidebarSet.has(id));
+  } else if (barUnion) {
+    combinedBrandIds = barUnion;
+  } else if (sidebarUnion) {
+    combinedBrandIds = sidebarUnion;
+  }
+
+  const brandActive = combinedBrandIds !== null;
+  const brandHasZeroMatches = brandActive && combinedBrandIds!.length === 0;
+  if (combinedBrandIds && combinedBrandIds.length > 0) {
+    (filterParams as Record<string, unknown>).id = combinedBrandIds;
   }
 
   type Product = CatalogProduct;
@@ -235,76 +313,90 @@ export default async function ProductsPage({
   const filterCategories = mapCategoriesForFilters(
     categoriesResult.product_categories,
   );
-  const filterBrands: FilterBrandOption[] = (brandsResult.brands || []).map(
-    (b) => ({ id: b.id, title: b.name || b.handle }),
+  let filterBrands: FilterBrandOption[] = (brandsResult.brands || []).map(
+    (b) => ({
+      id: b.id,
+      title: b.name || b.handle,
+      handle: b.handle,
+      logoUrl: b.image_url ?? null,
+    }),
   );
+
+  // If we have calculated valid brands for the category, filter the array
+  if (validBrandIds !== null) {
+    filterBrands = filterBrands.filter(b => validBrandIds!.has(b.id));
+  }
 
   return (
     <Container>
-      <div className="flex flex-col gap-8 py-12 lg:flex-row lg:items-start">
-        {/* Desktop filter sidebar — mobile opens the same filters via MobileCatalogFab */}
-        <aside className="hidden w-full shrink-0 lg:block lg:w-64">
+      <CatalogLayout
+        categoryActive={categoryRawList.length > 0}
+        sidebar={
           <FilterSidebar
             collections={filterCollections}
             brands={filterBrands}
             categories={filterCategories}
-            activeCollection={collection ?? null}
-            activeBrand={brand ?? null}
-            activeCategory={category ?? null}
+            activeCollections={collectionList}
+            activeBrands={sidebarBrandList}
+            activeCategories={categoryRawList}
             activeMinPrice={minPrice ?? null}
             activeMaxPrice={maxPrice ?? null}
             activeQuery={q && q.trim().length > 0 ? q.trim() : null}
             activeInStock={inStock === "1"}
-            activeRating={rating ?? null}
+            activeRatings={ratingList}
             locale={locale}
           />
-        </aside>
+        }
+      >
+        <Breadcrumbs
+          ariaLabel={tb("aria")}
+          items={[
+            { label: tb("home"), href: `/${locale}` },
+            { label: tb("products") },
+          ]}
+        />
+        <h1 className="text-3xl font-bold tracking-tight text-text-primary">
+          {t("title")}
+        </h1>
 
-        <div className="min-w-0 flex-1 space-y-6">
-          <Breadcrumbs
-            ariaLabel={tb("aria")}
-            items={[
-              { label: tb("home"), href: `/${locale}` },
-              { label: tb("products") },
-            ]}
-          />
-          <h1 className="text-3xl font-bold tracking-tight text-text-primary">
-            {t("title")}
-          </h1>
+        <CatalogToolbar
+          totalCount={count}
+          activeSort={activeSort}
+          activeCols={activeCols}
+          activeView={activeView}
+          activePageSize={activePageSize}
+          categoryActive={categoryRawList.length > 0}
+        />
 
-          <CatalogToolbar
-            totalCount={count}
-            activeSort={activeSort}
-            activeCols={activeCols}
-            activeView={activeView}
-            activePageSize={activePageSize}
-          />
+        <BrandFilterBar
+          brands={filterBrands}
+          activeBrands={barBrandList}
+        />
 
-          <LoadMoreProducts
-            initialProducts={products}
-            totalCount={count}
-            pageSize={activePageSize}
-            cols={activeCols}
-            sort={activeSort}
-            view={activeView}
-            currentPage={currentPage}
-          />
-        </div>
-      </div>
+        <LoadMoreProducts
+          initialProducts={products}
+          totalCount={count}
+          pageSize={activePageSize}
+          cols={activeCols}
+          sort={activeSort}
+          view={activeView}
+          currentPage={currentPage}
+        />
+      </CatalogLayout>
 
       {/* Mobile-only floating Filter/View controls */}
       <MobileCatalogFab
         collections={filterCollections}
         brands={filterBrands}
         categories={filterCategories}
-        activeCollection={collection ?? null}
-        activeBrand={brand ?? null}
-        activeCategory={category ?? null}
+        activeCollections={collectionList}
+        activeBrands={sidebarBrandList}
+        activeCategories={categoryRawList}
         activeMinPrice={minPrice ?? null}
         activeMaxPrice={maxPrice ?? null}
         activeQuery={q && q.trim().length > 0 ? q.trim() : null}
         activeInStock={inStock === "1"}
-        activeRating={rating ?? null}
+        activeRatings={ratingList}
         activeSort={activeSort}
         activeCols={activeCols}
         activeView={activeView}

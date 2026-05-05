@@ -68,10 +68,10 @@ interface RawSlide {
 const RAW_SLIDES: ReadonlyArray<RawSlide> = [
   {
     id: "surveillance",
-    bgLight: "linear-gradient(135deg, #f0f8ff 0%, #e0f2fe 50%, #bae6fd 100%)",
-    accentLight: "#0284c7",
-    bgDark: "linear-gradient(135deg, #1a1a1a 0%, #2c3e50 50%, #0091d6 100%)",
-    accentDark: "#0091d6",
+    bgLight: "linear-gradient(135deg, #fef2f2 0%, #fee2e2 50%, #fecaca 100%)",
+    accentLight: "#dc2626",
+    bgDark: "linear-gradient(135deg, #1a1a1a 0%, #3b0707 50%, #7f1d1d 100%)",
+    accentDark: "#ef4444",
     image: "/hero/surveillance.png",
     imageAlt: "IP cameras and NVR",
     eyebrow: { en: "Surveillance · Featured", ar: "المراقبة · مميز" },
@@ -114,10 +114,10 @@ const RAW_SLIDES: ReadonlyArray<RawSlide> = [
   },
   {
     id: "racks",
-    bgLight: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%)",
-    accentLight: "#475569",
-    bgDark: "linear-gradient(135deg, #0d1117 0%, #1f2937 60%, #4b5563 100%)",
-    accentDark: "#9ca3af",
+    bgLight: "linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #5eead4 100%)",
+    accentLight: "#0d9488",
+    bgDark: "linear-gradient(135deg, #1a1a1a 0%, #064e3b 50%, #0f766e 100%)",
+    accentDark: "#2dd4bf",
     image: "/hero/racks.png",
     imageAlt: "Server rack cabinet",
     eyebrow: { en: "Racks · Pro install", ar: "الراكات · تركيب احترافي" },
@@ -160,10 +160,10 @@ const RAW_SLIDES: ReadonlyArray<RawSlide> = [
   },
   {
     id: "cables",
-    bgLight: "linear-gradient(135deg, #faf5ff 0%, #f3e8ff 50%, #e9d5ff 100%)",
-    accentLight: "#9333ea",
-    bgDark: "linear-gradient(135deg, #1a0f2e 0%, #2d1b4e 50%, #6b3fa0 100%)",
-    accentDark: "#a78bfa",
+    bgLight: "linear-gradient(135deg, #fff1f2 0%, #ffe4e6 50%, #fecdd3 100%)",
+    accentLight: "#e11d48",
+    bgDark: "linear-gradient(135deg, #1a1a1a 0%, #3f0f1c 50%, #9f1239 100%)",
+    accentDark: "#fb7185",
     image: "/hero/cables.png",
     imageAlt: "Network cables and patch cords",
     eyebrow: { en: "Cabling · Infrastructure", ar: "الكابلات · البنية التحتية" },
@@ -245,7 +245,7 @@ export default async function HeroSection({
   ];
 
   return (
-    <div className="hero-pro-wrap">
+    <div className="hero-pro-wrap -mt-[124px]">
       <HeroSlideshow
         slides={slides}
         isAr={isAr}

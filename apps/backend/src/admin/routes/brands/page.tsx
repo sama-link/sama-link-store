@@ -220,6 +220,16 @@ const BrandsListPage = () => {
 
 /* ── Thumbnail with letter fallback ─────────────────────────────── */
 
+/* See BrandForm — same convention. Hardcoded local Next dev origin so
+ * the admin list shows real thumbnails in dev. Production setups should
+ * set absolute https URLs in the brand record. */
+const THUMB_STOREFRONT_ORIGIN = "http://localhost:3000"
+
+function resolveThumbUrl(url: string): string {
+  if (url.startsWith("/")) return `${THUMB_STOREFRONT_ORIGIN}${url}`
+  return url
+}
+
 const BrandThumb = ({
   name,
   url,
@@ -229,16 +239,19 @@ const BrandThumb = ({
   url: string | null
   size: number
 }) => {
-  if (url) {
+  const [errored, setErrored] = useState(false)
+  if (url && !errored) {
     return (
       <img
-        src={url}
-        alt={name}
+        src={resolveThumbUrl(url)}
+        alt={`${name} logo`}
+        onError={() => setErrored(true)}
         style={{
           width: size,
           height: size,
           borderRadius: 8,
-          objectFit: "cover",
+          objectFit: "contain",
+          padding: 4,
           background: "var(--sl-surface-soft, rgba(15,43,79,0.04))",
           border: "1px solid var(--sl-border, #e2e8f0)",
         }}
